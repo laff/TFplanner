@@ -7,6 +7,7 @@ This is a private folder where developing and testing will occurate.
 * Install sublime.
 * Install wamp.
 * Enable apache rewrite module.
+* uncomment `Include conf/extra/httpd-vhosts.conf` inside `C:\wamp\bin\apache\apache2.2.22\conf\httpd.conf`.
 * Edit `C:\wamp\bin\apache\apache2.2.22\conf\extra\httpd-vhosts.conf`, adding a new virtual host.
 `<VirtualHost *:80>
 	ServerAdmin webmaster@drawers
