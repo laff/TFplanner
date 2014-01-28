@@ -54,7 +54,6 @@ $(function() {
         }
 
         paper.setSize("100%" , "100%");
-
     }
 
     var grid = new Grid();
@@ -148,6 +147,8 @@ $(function() {
         $('#canvas_container').unbind('mouseup');
 
         $('#canvas_container').unbind('mousemove');
+
+        console.log(this.walls);
     }
 
     /**
@@ -224,18 +225,23 @@ $(function() {
     **/
     Room.prototype.drawWall = function (line) {
 
-        var tmpWall = this.tmpWall;
+        var tmpWall = this.tmpWall,
+            wallCount = this.walls.length,
+            tmpEle;
 
         if (tmpWall != null) {
             tmpWall.remove();
         }
 
-        grid.paper.path("M"+line.startPoint.x+","+line.startPoint.y+"L"+line.endPoint.x+","+line.endPoint.y).attr(
+        tmpEle = grid.paper.path("M"+line.startPoint.x+","+line.startPoint.y+"L"+line.endPoint.x+","+line.endPoint.y).attr(
             {
                 fill: "#00000", 
                 stroke: "#000000",
                 'stroke-width': 1
             });
+
+        this.walls[wallCount-1].wallActions(tmpEle);
+
     }
 
     /**
@@ -272,8 +278,15 @@ $(function() {
     function Wall (startPoint, endPoint) {
         this.startPoint = startPoint;
         this.endPoint = endPoint;
+        this.wallElement;
     }
 
+    Wall.prototype.wallActions = function (element) {
+
+        this.wallElement = element;
+
+        // Add actions?
+    }
     
     var myRoom = new Room(20);
     myRoom.initRoom();
