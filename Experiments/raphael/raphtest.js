@@ -16,7 +16,6 @@ $(function() {
     function Grid() {
             this.size = 6,               // How many pixels between each horizontal/vertical line.
             this.cutPix = 0.5;           // Used so that the drawing of a line not overlaps on the previous pixel.
-            //this.paper = new Raphael(document.getElementById('canvas_container'));
     }
 
     Grid.prototype.paper = Raphael(document.getElementById('canvas_container'));
@@ -103,7 +102,10 @@ $(function() {
         this.endPoint = null;
         this.canvas = canvas;
         this.walls = [];
+        this.tmpWall = null;
     }
+
+    Room.prototype.plus = 5;
 
     /**
      * Function that initiates drawing of a room.
@@ -125,6 +127,22 @@ $(function() {
 
         });
 
+        $('#canvas_container').mousemove(room, function(e) {
+
+            if (room.startPoint != null) {
+                var x = e.originalEvent.layerX,
+                    y = e.originalEvent.layerY,
+                    point1 = grid.getLatticePoint(x, y);
+
+                    point2 = grid.getReal(point1);
+
+                if (room.startPoint != point2) {
+                    room.drawTempLine(point2);
+                }
+
+            }
+
+        });
     }
 
     /**
@@ -151,6 +169,8 @@ $(function() {
 
         this.drawWall(wall);
 
+        this.startPoint = null;
+
     }
 
     /**
@@ -159,12 +179,51 @@ $(function() {
     **/
     Room.prototype.drawWall = function (line) {
 
+        var tmpWall = this.tmpWall;
+
+        if (tmpWall != null) {
+            tmpWall.remove();
+        }
+
         grid.paper.path("M"+line.startPoint.x+","+line.startPoint.y+"L"+line.endPoint.x+","+line.endPoint.y).attr(
             {
                 fill: "#00000", 
                 stroke: "#000000"
             });
     }
+
+    Room.prototype.drawPlus = function(point){
+          point = grid.getReal(point);
+    
+          x = point.x + 0.5;
+          y = point.y + 0.5;
+
+        grid.paper.path("M"+x+","+(y-this.plus)+"L"+x+","+(y+this.plus));
+
+
+        grid.paper.path("M"+(x-this.plus)+","+y+"L"+(x+this.plus)+","+y);
+
+    }
+
+
+    Room.prototype.drawTempLine = function(point){
+      //this.drawPlus(this.firstPoint);
+        var p2 = point,
+            p1 = this.startPoint,
+            tmpWall = this.tmpWall;
+
+
+        if (tmpWall != null) {
+            tmpWall.remove();
+        }
+
+        this.tmpWall = grid.paper.path("M"+p1.x+","+p1.y+"L"+p2.x+","+p2.y);
+
+    }
+
+
+
+
 
     /**
      * Point constructor

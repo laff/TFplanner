@@ -53,6 +53,7 @@ function Slope(p1, p2) {
   this.rise = rise;
   this.run = run;
 }
+
 Slope.prototype.eq = function(s2) {
   return this.rise == s2.rise && this.run == s2.run;
 }
@@ -364,6 +365,11 @@ ControlLayer.prototype.onmousemove = function(e){
   var x = e.layerX;
   var y = e.layerY;
   var point = this.grid.getLatticePoint(x, y);
+
+  console.log(this.currentPoint);
+  console.log("currentpoint above, point beneath");
+  console.log(point);
+
   if (!this.currentPoint || (this.currentPoint.x != point.x || this.currentPoint.y != point.y)) {
     this.currentPoint = point;
     this.clear();
