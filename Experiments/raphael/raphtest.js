@@ -94,13 +94,9 @@ $(function() {
     /**
      *  Constructor for Room
     **/
-    function Room (width, color, radius, canvas) {
-        this.width = width;
-        this.color = color;
-        this.radius = radius;
+    function Room (radius) {
+        this.radius = radius;   // Custom wall-end-force-field
         this.startPoint = null;
-        this.endPoint = null;
-        this.canvas = canvas;
         this.walls = [];
         this.tmpWall = null;
     }
@@ -146,6 +142,18 @@ $(function() {
     }
 
     /**
+     * Function that unbinds mouse actions related to creating a room.
+    **/
+    Room.prototype.finishRoom = function () {
+
+        $('#canvas_container').unbind('mousedown');
+
+        $('#canvas_container').unbind('mouseup');
+
+        $('#canvas_container').unbind('mousemove');
+    }
+
+    /**
      * Function handling logic for the first point of a wall.
      * 
     **/
@@ -161,13 +169,54 @@ $(function() {
     **/
     Room.prototype.wallEnd = function (x, y) {
         var point = grid.getLatticePoint(x, y),
-            wall;
+            point1 = this.startPoint,
+            point2,
+            wall,
+            walls = this.walls;
 
-        this.endPoint = grid.getReal(point);
+        point2 = grid.getReal(point);
 
-        wall = new Wall (this.startPoint, this.endPoint);
+        // Creates the new wall.
+        wall = new Wall (point1, point2);
 
+        // Stores the wall.
+        walls.push(wall);
+
+        // Check if the ending point of this wall is near the starting point of the first wall.
+        //
+        //
+        //
+        
+        if (this.roomEndRad(point2)) {
+            walls.pop();
+            wall = new Wall (point1, walls[0].startPoint);
+            walls.push(wall);
+            this.finishRoom();
+        }
+
+        // Draws the wall.
         this.drawWall(wall);
+
+    }
+
+    /** 
+     * Function that checks if the ending point is in the vincinity of the initial point.
+     * returns false if the point is not, and true if it is.
+    **/
+    Room.prototype.roomEndRad = function (point) {
+        var initPointX = this.walls[0].startPoint.x,
+            initPointY = this.walls[0].startPoint.y,
+            endPointX = point.x,
+            endPointY = point.y,
+            rad = this.radius,
+            diffX = (initPointX > endPointX) ? (initPointX - endPointX) : (endPointX - initPointX), 
+            diffY = (initPointY > endPointY) ? (initPointY - endPointY) : (endPointY - initPointY);
+
+            if ( diffX < rad && diffY < rad) {
+                return true;
+            } else {
+                return false;
+            }
 
         this.startPoint = null;
 
@@ -242,7 +291,7 @@ $(function() {
     }
 
     
-    var myRoom = new Room();
+    var myRoom = new Room(20);
     myRoom.initRoom();
 
 
