@@ -14,7 +14,7 @@ $(function() {
 
     // constructor
     function Grid() {
-            this.size = 6,               // How many pixels between each horizontal/vertical line.
+            this.size = 8,               // How many pixels between each horizontal/vertical line.
             this.cutPix = 0.5;           // Used so that the drawing of a line not overlaps on the previous pixel.
     }
 
@@ -35,7 +35,7 @@ $(function() {
         for (var i = 1; i <= width; i++) {
             line = paper.path("M"+(i*size+cutPix)+", "+0+", L"+(i*size+cutPix)+", "+(size*height)).attr({'stroke-opacity': 0.3});   //Path-function is named 'paperproto.path' in raphael.js
             // Make every 10th line a bit stronger.
-            if (i % 10 === 0) {
+            if (i % 5 === 0) {
                 line.attr( {
                     'stroke-opacity': 0.5
                 });
@@ -46,7 +46,7 @@ $(function() {
         for (var i = 1; i <= height; i++) {
            line = paper.path("M"+0+", "+(i*size+cutPix)+", L"+(size*width)+", "+(i*size+cutPix)).attr({'stroke-opacity': 0.3});
            // Make every 10th line a bit stronger.
-           if (i % 10 === 0) {
+           if (i % 5 === 0) {
                 line.attr( {
                     'stroke-opacity': 0.5
                 });
@@ -128,16 +128,13 @@ $(function() {
             if (room.startPoint != null) {
                 var x = e.offsetX,
                     y = e.offsetY,
-                    point1 = grid.getLatticePoint(x, y);
+                    gridPoint = grid.getLatticePoint(x, y),     // Finds the coordinate in our grid.     
+                    screenPoint = grid.getReal(gridPoint);      // Converts the grid-coordinate to screen-coordinate.
 
-                    point2 = grid.getReal(point1);
-
-                if (room.startPoint != point2) {
-                    room.drawTempLine(point2);
+                if (room.startPoint != screenPoint) {
+                    room.drawTempLine(screenPoint);
                 }
-
             }
-
         });
     }
 
@@ -214,7 +211,7 @@ $(function() {
             diffX = (initPointX > endPointX) ? (initPointX - endPointX) : (endPointX - initPointX), 
             diffY = (initPointY > endPointY) ? (initPointY - endPointY) : (endPointY - initPointY);
 
-        if ( diffX < rad && diffY < rad) {
+        if (diffX < rad && diffY < rad) {
             return true;
         } else {
             return false;
@@ -241,22 +238,12 @@ $(function() {
             });
     }
 
-    Room.prototype.drawPlus = function(point){
-          point = grid.getReal(point);
-    
-          x = point.x + 0.5;
-          y = point.y + 0.5;
+    /**
+     * Visualization of the line that the user is about to draw.
+     * This line will not be saved in our array.
+    **/
+    Room.prototype.drawTempLine = function (point){
 
-        grid.paper.path("M"+x+","+(y-this.plus)+"L"+x+","+(y+this.plus));
-
-
-        grid.paper.path("M"+(x-this.plus)+","+y+"L"+(x+this.plus)+","+y);
-
-    }
-
-
-    Room.prototype.drawTempLine = function(point){
-      //this.drawPlus(this.firstPoint);
         var p2 = point,
             p1 = this.startPoint,
             tmpWall = this.tmpWall;
@@ -267,11 +254,7 @@ $(function() {
         }
 
         this.tmpWall = grid.paper.path("M"+p1.x+","+p1.y+"L"+p2.x+","+p2.y);
-
     }
-
-
-
 
 
     /**
