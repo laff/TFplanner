@@ -126,8 +126,8 @@ $(function() {
         $('#canvas_container').mousemove(room, function(e) {
 
             if (room.startPoint != null) {
-                var x = e.originalEvent.layerX,
-                    y = e.originalEvent.layerY,
+                var x = e.offsetX,
+                    y = e.offsetY,
                     point1 = grid.getLatticePoint(x, y);
 
                     point2 = grid.getReal(point1);
@@ -173,6 +173,8 @@ $(function() {
             point2,
             wall,
             walls = this.walls;
+        
+        this.startPoint = null;
 
         point2 = grid.getReal(point);
 
@@ -212,14 +214,11 @@ $(function() {
             diffX = (initPointX > endPointX) ? (initPointX - endPointX) : (endPointX - initPointX), 
             diffY = (initPointY > endPointY) ? (initPointY - endPointY) : (endPointY - initPointY);
 
-            if ( diffX < rad && diffY < rad) {
-                return true;
-            } else {
-                return false;
-            }
-
-        this.startPoint = null;
-
+        if ( diffX < rad && diffY < rad) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -237,7 +236,8 @@ $(function() {
         grid.paper.path("M"+line.startPoint.x+","+line.startPoint.y+"L"+line.endPoint.x+","+line.endPoint.y).attr(
             {
                 fill: "#00000", 
-                stroke: "#000000"
+                stroke: "#000000",
+                'stroke-width': 1
             });
     }
 
@@ -280,6 +280,7 @@ $(function() {
     function Point (x, y) {
         this.x = x;
         this.y = y;
+
     }
 
     /**
