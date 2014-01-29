@@ -288,7 +288,7 @@ $(function() {
             }
 
             if (crossed) {
-
+                return true;
             }
         }
 
