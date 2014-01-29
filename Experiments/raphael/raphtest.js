@@ -98,6 +98,7 @@ $(function() {
         this.startPoint = null;
         this.walls = [];
         this.tmpWall = null;
+        this.tmpCircle = null;
     }
 
     Room.prototype.plus = 5;
@@ -191,6 +192,8 @@ $(function() {
             walls.pop();
             wall = new Wall (point1, walls[0].startPoint);
             walls.push(wall);
+            this.tmpCircle.remove();
+
             this.finishRoom();
         }
 
@@ -248,18 +251,50 @@ $(function() {
      * Visualization of the line that the user is about to draw.
      * This line will not be saved in our array.
     **/
-    Room.prototype.drawTempLine = function (point){
-
+    Room.prototype.drawTempLine = function (point) {
         var p2 = point,
             p1 = this.startPoint,
             tmpWall = this.tmpWall;
-
 
         if (tmpWall != null) {
             tmpWall.remove();
         }
 
+        // No need to check if the room is 'closed', if it don`t have any walls.
+        if (this.walls[0]) {
+            // Let`s find the real coordinates on the screen.
+            var p3 = grid.getLatticePoint(point.x, point.y),
+                p4 = grid.getReal(p3);
+            // See if we are in the area where the room gets 'auto-completed'.
+            if (this.roomEndRad(p4)) {
+                this.visualizeRoomEnd(p4);
+            } else {
+                if (this.tmpCircle != null) {
+                    this.tmpCircle.remove();
+                }
+            }
+        }
         this.tmpWall = grid.paper.path("M"+p1.x+","+p1.y+"L"+p2.x+","+p2.y);
+    }
+
+
+    /**
+     * When the user draws a wall that the 'roomEndRad' is going to auto-complete, we
+     * will visualize that the wall is in the range for this to happen by drawing a circle.
+    **/
+    Room.prototype.visualizeRoomEnd = function (point) {
+        var tmpCircle = this.tmpCircle;
+
+        if (tmpCircle != null) {
+            tmpCircle.remove();
+        }
+
+        this.tmpCircle = grid.paper.circle(this.walls[0].startPoint.x, this.walls[0].startPoint.y, this.radius, 0, 2 * Math.PI, false).attr(
+        {
+            fill: "#3366FF",
+            'fill-opacity': 0.3, 
+            stroke: "#3366FF",     
+        });
     }
 
 
