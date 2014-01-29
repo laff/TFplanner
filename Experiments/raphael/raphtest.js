@@ -35,7 +35,7 @@ $(function() {
         for (var i = 1; i <= width; i++) {
             line = paper.path("M"+(i*size+cutPix)+", "+0+", L"+(i*size+cutPix)+", "+(size*height)).attr({'stroke-opacity': 0.3});   //Path-function is named 'paperproto.path' in raphael.js
             // Make every 10th line a bit stronger.
-            if (i % 10 === 0) {
+            if (i % 5 === 0) {
                 line.attr( {
                     'stroke-opacity': 0.5
                 });
@@ -46,7 +46,7 @@ $(function() {
         for (var i = 1; i <= height; i++) {
            line = paper.path("M"+0+", "+(i*size+cutPix)+", L"+(size*width)+", "+(i*size+cutPix)).attr({'stroke-opacity': 0.3});
            // Make every 10th line a bit stronger.
-           if (i % 10 === 0) {
+           if (i % 5 === 0) {
                 line.attr( {
                     'stroke-opacity': 0.5
                 });
@@ -99,6 +99,7 @@ $(function() {
         this.lastPoint = null;
         this.walls = [];
         this.tmpWall = null;
+        this.tmpCircle = null;
     }
 
     Room.prototype.plus = 5;
@@ -186,6 +187,8 @@ $(function() {
             walls.pop();
             wall = new Wall (point1, walls[0].startPoint);
             walls.push(wall);
+            this.tmpCircle.remove();
+
             this.finishRoom();
         }
 
@@ -312,37 +315,59 @@ $(function() {
             });
     }
 
-    Room.prototype.drawPlus = function(point){
-          point = grid.getReal(point);
-    
-          x = point.x + 0.5;
-          y = point.y + 0.5;
-
-        grid.paper.path("M"+x+","+(y-this.plus)+"L"+x+","+(y+this.plus));
-
-
-        grid.paper.path("M"+(x-this.plus)+","+y+"L"+(x+this.plus)+","+y);
-
-    }
-
-
-    Room.prototype.drawTempLine = function(point){
-      //this.drawPlus(this.firstPoint);
+    /**
+     * Visualization of the line that the user is about to draw.
+     * This line will not be saved in our array.
+    **/
+    Room.prototype.drawTempLine = function (point) {
         var p2 = point,
             p1 = this.lastPoint,
             tmpWall = this.tmpWall;
-
 
         if (tmpWall != null) {
             tmpWall.remove();
         }
 
+        // No need to check if the room is 'closed', if it don`t have any walls.
+        if (this.walls[0]) {
+            // Let`s find the real coordinates on the screen.
+            var p3 = grid.getLatticePoint(point.x, point.y),
+                p4 = grid.getReal(p3);
+            // See if we are in the area where the room gets 'auto-completed'.
+            if (this.roomEndRad(p4)) {
+                this.visualizeRoomEnd(p4);
+            } else {
+                if (this.tmpCircle != null) {
+                    this.tmpCircle.remove();
+                }
+            }
+        }
         this.tmpWall = grid.paper.path("M"+p1.x+","+p1.y+"L"+p2.x+","+p2.y);
 
     }
 
 
 
+
+
+    /**
+     * When the user draws a wall that the 'roomEndRad' is going to auto-complete, we
+     * will visualize that the wall is in the range for this to happen by drawing a circle.
+    **/
+    Room.prototype.visualizeRoomEnd = function (point) {
+        var tmpCircle = this.tmpCircle;
+
+        if (tmpCircle != null) {
+            tmpCircle.remove();
+        }
+
+        this.tmpCircle = grid.paper.circle(this.walls[0].startPoint.x, this.walls[0].startPoint.y, this.radius, 0, 2 * Math.PI, false).attr(
+        {
+            fill: "#3366FF",
+            'fill-opacity': 0.3, 
+            stroke: "#3366FF",     
+        });
+    }
 
 
     /**
