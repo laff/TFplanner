@@ -110,19 +110,22 @@ $(function() {
         var room = this;
 
         // Binds action for mousedown.
-        $('#canvas_container').mousedown(room, function(e) { 
+        $('#canvas_container').mousedown(room, function(e) {
 
-            room.wallStart(e.offsetX, e.offsetY);
+            var x = e.offsetX,
+                y = e.offsetY,
+                func = (this.startPoint == null) ? room.wallStart(x, y) : room.wallEnd(x, y);
 
         });
 
         // Binds action for mouseup.
+        /*
         $('#canvas_container').mouseup(room, function(e) {
 
             room.wallEnd(e.offsetX, e.offsetY);
 
         });
-
+        */
         $('#canvas_container').mousemove(room, function(e) {
 
             if (room.startPoint != null) {
@@ -174,8 +177,6 @@ $(function() {
             wall,
             walls = this.walls;
         
-        this.startPoint = null;
-
         point2 = grid.getReal(point);
 
         // Creates the new wall.
@@ -195,6 +196,9 @@ $(function() {
             walls.push(wall);
             this.finishRoom();
         }
+
+        //
+        this.startPoint = point2;
 
         // Draws the wall.
         this.drawWall(wall);
