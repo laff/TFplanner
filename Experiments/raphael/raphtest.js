@@ -14,7 +14,7 @@ $(function() {
 
     // constructor
     function Grid() {
-            this.size = 8,               // How many pixels between each horizontal/vertical line.
+            this.size = 6,               // How many pixels between each horizontal/vertical line.
             this.cutPix = 0.5;           // Used so that the drawing of a line not overlaps on the previous pixel.
     }
 
@@ -35,7 +35,7 @@ $(function() {
         for (var i = 1; i <= width; i++) {
             line = paper.path("M"+(i*size+cutPix)+", "+0+", L"+(i*size+cutPix)+", "+(size*height)).attr({'stroke-opacity': 0.3});   //Path-function is named 'paperproto.path' in raphael.js
             // Make every 10th line a bit stronger.
-            if (i % 5 === 0) {
+            if (i % 10 === 0) {
                 line.attr( {
                     'stroke-opacity': 0.5
                 });
@@ -46,7 +46,7 @@ $(function() {
         for (var i = 1; i <= height; i++) {
            line = paper.path("M"+0+", "+(i*size+cutPix)+", L"+(size*width)+", "+(i*size+cutPix)).attr({'stroke-opacity': 0.3});
            // Make every 10th line a bit stronger.
-           if (i % 5 === 0) {
+           if (i % 10 === 0) {
                 line.attr( {
                     'stroke-opacity': 0.5
                 });
@@ -54,6 +54,7 @@ $(function() {
         }
 
         paper.setSize("100%" , "100%");
+
     }
 
     var grid = new Grid();
@@ -95,7 +96,7 @@ $(function() {
     **/
     function Room (radius) {
         this.radius = radius;   // Custom wall-end-force-field
-        this.startPoint = null;
+        this.lastPoint = null;
         this.walls = [];
         this.tmpWall = null;
     }
@@ -109,34 +110,33 @@ $(function() {
         var room = this;
 
         // Binds action for mousedown.
-        $('#canvas_container').mousedown(room, function(e) {
+        $('#canvas_container').mousedown(room, function(e) { 
 
-            var x = e.offsetX,
-                y = e.offsetY,
-                func = (this.startPoint == null) ? room.wallStart(x, y) : room.wallEnd(x, y);
+            if (room.lastPoint == null) {
+                room.wallStart(e.offsetX, e.offsetY);
+            } else {
+                room.wallEnd(e.offsetX, e.offsetY);
+            }
 
-        });
-
-        // Binds action for mouseup.
-        /*
-        $('#canvas_container').mouseup(room, function(e) {
-
-            room.wallEnd(e.offsetX, e.offsetY);
+            
 
         });
-        */
+
         $('#canvas_container').mousemove(room, function(e) {
 
-            if (room.startPoint != null) {
+            if (room.lastPoint != null) {
                 var x = e.offsetX,
                     y = e.offsetY,
-                    gridPoint = grid.getLatticePoint(x, y),     // Finds the coordinate in our grid.     
-                    screenPoint = grid.getReal(gridPoint);      // Converts the grid-coordinate to screen-coordinate.
+                    point1 = grid.getLatticePoint(x, y);
 
-                if (room.startPoint != screenPoint) {
-                    room.drawTempLine(screenPoint);
+                    point2 = grid.getReal(point1);
+
+                if (room.lastPoint != point2) {
+                    room.drawTempLine(point2);
                 }
+
             }
+
         });
     }
 
@@ -150,8 +150,6 @@ $(function() {
         $('#canvas_container').unbind('mouseup');
 
         $('#canvas_container').unbind('mousemove');
-
-        console.log(this.walls);
     }
 
     /**
@@ -161,7 +159,7 @@ $(function() {
     Room.prototype.wallStart = function (x, y) {
         var point = grid.getLatticePoint(x, y);
 
-        this.startPoint = grid.getReal(point);
+        this.lastPoint = grid.getReal(point);
     }
 
     /**
@@ -170,12 +168,16 @@ $(function() {
     **/
     Room.prototype.wallEnd = function (x, y) {
         var point = grid.getLatticePoint(x, y),
-            point1 = this.startPoint,
+            point1 = this.lastPoint,
             point2,
             wall,
             walls = this.walls;
         
+        console.log("wallend was called");
+
         point2 = grid.getReal(point);
+
+        this.lastPoint = point2;
 
         // Creates the new wall.
         wall = new Wall (point1, point2);
@@ -183,20 +185,13 @@ $(function() {
         // Stores the wall.
         walls.push(wall);
 
-        // Check if the ending point of this wall is near the starting point of the first wall.
-        //
-        //
-        //
-        
-        if (this.roomEndRad(point2)) {
+        // Check if the ending point of this wall is near the starting point of the first wall
+        if (this.roomEndRad(point2) && walls.length > 1) {
             walls.pop();
             wall = new Wall (point1, walls[0].startPoint);
             walls.push(wall);
             this.finishRoom();
         }
-
-        //
-        this.startPoint = point2;
 
         // Draws the wall.
         this.drawWall(wall);
@@ -216,7 +211,7 @@ $(function() {
             diffX = (initPointX > endPointX) ? (initPointX - endPointX) : (endPointX - initPointX), 
             diffY = (initPointY > endPointY) ? (initPointY - endPointY) : (endPointY - initPointY);
 
-        if (diffX < rad && diffY < rad) {
+        if ( diffX < rad && diffY < rad) {
             return true;
         } else {
             return false;
@@ -229,33 +224,38 @@ $(function() {
     **/
     Room.prototype.drawWall = function (line) {
 
-        var tmpWall = this.tmpWall,
-            wallCount = this.walls.length,
-            tmpEle;
+        var tmpWall = this.tmpWall;
 
         if (tmpWall != null) {
             tmpWall.remove();
         }
 
-        tmpEle = grid.paper.path("M"+line.startPoint.x+","+line.startPoint.y+"L"+line.endPoint.x+","+line.endPoint.y).attr(
+        grid.paper.path("M"+line.startPoint.x+","+line.startPoint.y+"L"+line.endPoint.x+","+line.endPoint.y).attr(
             {
                 fill: "#00000", 
                 stroke: "#000000",
                 'stroke-width': 1
             });
+    }
 
-        this.walls[wallCount-1].wallActions(tmpEle);
+    Room.prototype.drawPlus = function(point){
+          point = grid.getReal(point);
+    
+          x = point.x + 0.5;
+          y = point.y + 0.5;
+
+        grid.paper.path("M"+x+","+(y-this.plus)+"L"+x+","+(y+this.plus));
+
+
+        grid.paper.path("M"+(x-this.plus)+","+y+"L"+(x+this.plus)+","+y);
 
     }
 
-    /**
-     * Visualization of the line that the user is about to draw.
-     * This line will not be saved in our array.
-    **/
-    Room.prototype.drawTempLine = function (point){
 
+    Room.prototype.drawTempLine = function(point){
+      //this.drawPlus(this.firstPoint);
         var p2 = point,
-            p1 = this.startPoint,
+            p1 = this.lastPoint,
             tmpWall = this.tmpWall;
 
 
@@ -264,7 +264,11 @@ $(function() {
         }
 
         this.tmpWall = grid.paper.path("M"+p1.x+","+p1.y+"L"+p2.x+","+p2.y);
+
     }
+
+
+
 
 
     /**
@@ -282,15 +286,8 @@ $(function() {
     function Wall (startPoint, endPoint) {
         this.startPoint = startPoint;
         this.endPoint = endPoint;
-        this.wallElement;
     }
 
-    Wall.prototype.wallActions = function (element) {
-
-        this.wallElement = element;
-
-        // Add actions?
-    }
     
     var myRoom = new Room(20);
     myRoom.initRoom();
