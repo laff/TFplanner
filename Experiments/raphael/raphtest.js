@@ -117,11 +117,9 @@ $(function() {
             } else {
                 room.wallEnd(e.offsetX, e.offsetY);
             }
-
-            
-
         });
 
+        // Binds action for mouseover, specifically for showing temp shit
         $('#canvas_container').mousemove(room, function(e) {
 
             if (room.lastPoint != null) {
@@ -172,8 +170,6 @@ $(function() {
             point2,
             wall,
             walls = this.walls;
-        
-        console.log("wallend was called");
 
         point2 = grid.getReal(point);
 
@@ -196,6 +192,15 @@ $(function() {
         // Draws the wall.
         this.drawWall(wall);
 
+        if (walls.length > 2) {
+            if (this.wallCross(wall)) {
+                console.log("walls crossed");
+            } else {
+                console.log("walls did not cross");
+            }  
+        }
+
+
     }
 
     /** 
@@ -216,6 +221,75 @@ $(function() {
         } else {
             return false;
         }
+    }
+
+    /**
+     * Function that checks if the line will cross a wall.
+     *
+    **/
+    Room.prototype.wallCross = function (line) {
+
+        var x1 = line.startPoint.x,
+            y1 = line.startPoint.y,
+            x2 = line.endPoint.x,
+            y2 = line.endPoint.y,
+            x, 
+            y, 
+            x3,
+            y3, 
+            y4, 
+            x4,
+            tmpWall,
+            crossed,
+            walls = this.walls,
+            wallCount = (walls.length - 2);
+
+            console.log(wallCount);
+
+        for (var i = 0; i < wallCount; i++) {
+
+            crossed = true;
+            tmpWall = walls[i];
+            x3 = tmpWall.startPoint.x;
+            y3 = tmpWall.startPoint.y;
+            x4 = tmpWall.endPoint.x;
+            y4 = tmpWall.endPoint.y;
+
+            x=((x1*y2-y1*x2)*(x3-x4)-(x1-x2)*(x3*y4-y3*x4))/((x1-x2)*(y3-y4)-(y1-y2)*(x3-x4));
+            y=((x1*y2-y1*x2)*(y3-y4)-(y1-y2)*(x3*y4-y3*x4))/((x1-x2)*(y3-y4)-(y1-y2)*(x3-x4));
+
+            if (isNaN(x)||isNaN(y)) {
+                crossed = false;
+            } else {
+
+                if (x1>=x2) {
+                    if (!(x2<=x&&x<=x1)) {crossed = false;}
+                } else {
+                    if (!(x1<=x&&x<=x2)) {crossed = false;}
+                }
+                if (y1>=y2) {
+                    if (!(y2<=y&&y<=y1)) {crossed = false;}
+                } else {
+                    if (!(y1<=y&&y<=y2)) {crossed = false;}
+                }
+                if (x3>=x4) {
+                    if (!(x4<=x&&x<=x3)) {crossed = false;}
+                } else {
+                    if (!(x3<=x&&x<=x4)) {crossed = false;}
+                }
+                if (y3>=y4) {
+                    if (!(y4<=y&&y<=y3)) {crossed = false;}
+                } else {
+                    if (!(y3<=y&&y<=y4)) {crossed = false;}
+                }
+            }
+
+            if (crossed) {
+
+            }
+        }
+
+        return crossed;
     }
 
     /**
