@@ -100,6 +100,8 @@ $(function() {
         this.walls = [];
         this.tmpWall = null;
         this.tmpCircle = null;
+        this.proximity = false;
+        this.crossed = false;
     }
 
     Room.prototype.plus = 5;
@@ -170,7 +172,9 @@ $(function() {
             point1 = this.lastPoint,
             point2,
             wall,
-            walls = this.walls;
+            walls = this.walls,
+            crossed = this.crossed,
+            orgPoint;
 
         point2 = grid.getReal(point);
 
@@ -179,31 +183,33 @@ $(function() {
         // Creates the new wall.
         wall = new Wall (point1, point2);
 
+
         // Stores the wall.
         walls.push(wall);
 
+
+        orgPoint = walls[0].startPoint;
+
         // Check if the ending point of this wall is near the starting point of the first wall
-        if (this.roomEndRad(point2) && walls.length > 1) {
+        if (this.proximity && !crossed) {
             walls.pop();
-            wall = new Wall (point1, walls[0].startPoint);
+            wall = new Wall (point1, orgPoint);
             walls.push(wall);
             this.tmpCircle.remove();
-
             this.finishRoom();
+
         }
 
-        // Draws the wall.
-        this.drawWall(wall);
-
-        if (walls.length > 2) {
-            if (this.wallCross(wall)) {
-                console.log("walls crossed");
-            } else {
-                console.log("walls did not cross");
-            }  
+        if (crossed && point2.x == orgPoint.x && point2.y == orgPoint.y) {
+            this.drawWall(wall);
+            this.tmpCircle.remove();
+            this.finishRoom();
+        } else if (!crossed) {
+            this.drawWall(wall);
+        } else {
+            walls.pop();
+            this.lastPoint = point1;
         }
-
-
     }
 
     /** 
@@ -245,9 +251,7 @@ $(function() {
             tmpWall,
             crossed,
             walls = this.walls,
-            wallCount = (walls.length - 2);
-
-            console.log(wallCount);
+            wallCount = (walls.length - 1);
 
         for (var i = 0; i < wallCount; i++) {
 
@@ -258,36 +262,72 @@ $(function() {
             x4 = tmpWall.endPoint.x;
             y4 = tmpWall.endPoint.y;
 
-            x=((x1*y2-y1*x2)*(x3-x4)-(x1-x2)*(x3*y4-y3*x4))/((x1-x2)*(y3-y4)-(y1-y2)*(x3-x4));
-            y=((x1*y2-y1*x2)*(y3-y4)-(y1-y2)*(x3*y4-y3*x4))/((x1-x2)*(y3-y4)-(y1-y2)*(x3-x4));
+            x = ((x1*y2-y1*x2) * (x3-x4)-(x1-x2) * (x3*y4-y3*x4)) / ((x1-x2) * (y3-y4) - (y1-y2) * (x3-x4));
+            y = ((x1*y2-y1*x2) * (y3-y4)-(y1-y2) * (x3*y4-y3*x4)) / ((x1-x2) * (y3-y4) - (y1-y2) * (x3-x4));
 
-            if (isNaN(x)||isNaN(y)) {
+            if (isNaN(x) || isNaN(y)) {
+
                 crossed = false;
+            
             } else {
 
-                if (x1>=x2) {
-                    if (!(x2<=x&&x<=x1)) {crossed = false;}
+                // if startpoint.x > endpoint.x
+                if (x1 >= x2) {
+
+                    //
+                    if ( !(x2 <= x && x <= x1) ) {
+
+                        crossed = false;
+                    }
+                //
                 } else {
-                    if (!(x1<=x&&x<=x2)) {crossed = false;}
+                    if ( !(x1 <= x && x <= x2) ) {
+                        crossed = false;
+                    }
                 }
-                if (y1>=y2) {
-                    if (!(y2<=y&&y<=y1)) {crossed = false;}
+
+                // 
+                if (y1 >= y2) {
+                    //
+                    if ( !(y2 <= y && y <= y1) ) {
+                        crossed = false;
+                    }
+                //
                 } else {
-                    if (!(y1<=y&&y<=y2)) {crossed = false;}
+                    if ( !(y1 <= y && y <= y2) ) {
+                        crossed = false;
+                    }
                 }
-                if (x3>=x4) {
-                    if (!(x4<=x&&x<=x3)) {crossed = false;}
+                //
+                if (x3 >= x4) {
+                    //
+                    if ( !(x4 <= x && x <= x3) ) {
+                        crossed = false;
+                    }
+                //
                 } else {
-                    if (!(x3<=x&&x<=x4)) {crossed = false;}
+                    // 
+                    if ( !(x3 <= x && x <= x4) ) {
+                        crossed = false;
+                    }
                 }
-                if (y3>=y4) {
-                    if (!(y4<=y&&y<=y3)) {crossed = false;}
+                //
+                if (y3 >= y4) {
+                    //
+                    if ( !(y4 <= y && y <= y3) ) {
+                        crossed = false;
+                    }
+                // 
                 } else {
-                    if (!(y3<=y&&y<=y4)) {crossed = false;}
+                    //
+                    if ( !(y3 <= y && y <= y4)) {
+                        crossed = false;
+                    }
                 }
             }
 
             if (crossed) {
+
                 return true;
             }
         }
@@ -322,28 +362,51 @@ $(function() {
     Room.prototype.drawTempLine = function (point) {
         var p2 = point,
             p1 = this.lastPoint,
-            tmpWall = this.tmpWall;
+            tmpWall = this.tmpWall,
+            walls = this.walls,
+            wall = new Wall(p1, p2),
+            crossed = false;
 
-        if (tmpWall != null) {
-            tmpWall.remove();
-        }
+        if (walls.length > 1) {
+            if (this.wallCross(wall)) {
+                crossed = true;
+            } else {
+                crossed = false;
+            }
 
-        // No need to check if the room is 'closed', if it don`t have any walls.
-        if (this.walls[0]) {
-            // Let`s find the real coordinates on the screen.
-            var p3 = grid.getLatticePoint(point.x, point.y),
-                p4 = grid.getReal(p3);
             // See if we are in the area where the room gets 'auto-completed'.
-            if (this.roomEndRad(p4)) {
-                this.visualizeRoomEnd(p4);
+            if (this.roomEndRad(p2)) {
+                this.visualizeRoomEnd();
+                this.proximity = true;
+
             } else {
                 if (this.tmpCircle != null) {
                     this.tmpCircle.remove();
                 }
-            }
+                this.proximity = false;
+            }  
         }
-        this.tmpWall = grid.paper.path("M"+p1.x+","+p1.y+"L"+p2.x+","+p2.y);
 
+
+        // Three steps:
+        // 1: removing the last tmpwall if any.
+        // 2: deciding to color the tmpline red/black based on if it crosses another.
+        // 3: assigning "this.crossed" to false/true based on the above. used in endWall().
+        if (tmpWall != null) {
+            tmpWall.remove();
+        }
+
+        if (crossed) {
+            this.tmpWall = grid.paper.path("M"+p1.x+","+p1.y+"L"+p2.x+","+p2.y).attr(
+            {   
+                stroke: '#ff0000'
+            });
+
+        } else {
+            this.tmpWall = grid.paper.path("M"+p1.x+","+p1.y+"L"+p2.x+","+p2.y);
+        }        
+
+        this.crossed = crossed;
     }
 
 
@@ -354,7 +417,7 @@ $(function() {
      * When the user draws a wall that the 'roomEndRad' is going to auto-complete, we
      * will visualize that the wall is in the range for this to happen by drawing a circle.
     **/
-    Room.prototype.visualizeRoomEnd = function (point) {
+    Room.prototype.visualizeRoomEnd = function () {
         var tmpCircle = this.tmpCircle;
 
         if (tmpCircle != null) {
@@ -365,7 +428,7 @@ $(function() {
         {
             fill: "#3366FF",
             'fill-opacity': 0.3, 
-            stroke: "#3366FF",     
+            stroke: "#3366FF"
         });
     }
 
