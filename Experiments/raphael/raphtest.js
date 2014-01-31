@@ -180,6 +180,12 @@ $(function() {
 
         this.lastPoint = point2;
 
+        // Check that the points are not the same, if it is quit function
+        if (point1.x == point2.x && point1.y == point2.y) {
+            return;
+
+        }
+
         // Creates the new wall.
         wall = new Wall (point1, point2);
 
