@@ -71,6 +71,7 @@ $(function() {
       ty = parseInt(ty / this.size);
       tx = Grid.range(tx, 0, this.width);
       ty = Grid.range(ty, 0, this.height);
+
       return new Point(tx, ty);
     }
 
@@ -102,6 +103,7 @@ $(function() {
         this.tmpCircle = null;
         this.proximity = false;
         this.crossed = false;
+        this.initRoom();
     }
 
     Room.prototype.plus = 5;
@@ -113,23 +115,25 @@ $(function() {
         var room = this;
 
         // Binds action for mousedown.
-        $('#canvas_container').mousedown(room, function(e) { 
+        $('#canvas_container').mousedown(room, function(e) {
+
+            var xy = crossBrowserXY(e);
 
             if (room.lastPoint == null) {
-                room.wallStart(e.offsetX, e.offsetY);
+                room.wallStart(xy[0], xy[1]);
             } else {
-                room.wallEnd(e.offsetX, e.offsetY);
+                room.wallEnd(xy[0], xy[1]);
             }
         });
 
         // Binds action for mouseover, specifically for showing temp shit
         $('#canvas_container').mousemove(room, function(e) {
 
-            if (room.lastPoint != null) {
-                var x = e.offsetX,
-                    y = e.offsetY,
-                    point1 = grid.getLatticePoint(x, y);
+            var xy = crossBrowserXY(e);
 
+            if (room.lastPoint != null) {
+
+                    point1 = grid.getLatticePoint(xy[0], xy[1]);
                     point2 = grid.getReal(point1);
 
                 if (room.lastPoint != point2) {
@@ -456,9 +460,23 @@ $(function() {
         this.endPoint = endPoint;
     }
 
-    
-    var myRoom = new Room(20);
-    myRoom.initRoom();
+    /**
+     *
+    **/
+    function crossBrowserXY(e) {
+
+        e = e || window.event;
+
+        if (e.offsetX == undefined) { 
+            e.offsetX = e.pageX - e.currentTarget.offsetLeft; 
+            e.offsetY = e.pageY - e.currentTarget.offsetTop; 
+        }
+
+        return [e.offsetX, e.offsetY];
+    }
+
+    // Starts the room creation progress!
+    new Room(20);
 
 
 });
