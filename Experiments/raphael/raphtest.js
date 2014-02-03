@@ -363,6 +363,9 @@ $(function() {
                 stroke: "#000000",
                 'stroke-width': 1
             });
+
+        options.refresh();
+
     }
 
     /**
@@ -476,8 +479,64 @@ $(function() {
     }
 
     // Starts the room creation progress!
-    new Room(20);
+    var ourRoom = new Room(20);
 
+
+
+    function Options(tableEle) {
+        this.tableEle = tableEle;
+        this.refresh();
+
+    }
+
+    /**
+     *  Function that updates the wall-table.
+     *
+    **/
+    Options.prototype.refresh = function() {
+
+        var walls = ourRoom.walls;
+
+        if (!walls.length) {
+            return;
+        }   
+
+        // Creating the column names
+        var myTable= "<table id='options'><tr><td>Wall number</td>";
+            myTable+= "<td>Wall length</td></tr>";
+
+        // Filling in information
+        for (var i = 0; i < walls.length; i++) {
+
+            // Wall number / name
+            myTable+="<tr><td>Number " + i + " :</td>";
+
+            // extract point x and y.
+            
+            myTable+="<td>" + vectorLength(walls[i].startPoint, walls[i].endPoint); + " </td>";
+        }  
+           myTable+="</table>";
+
+        $('#options_container').html(myTable);
+
+    }
+
+
+    // initiates the options_container
+    var options = new Options('options_container');
+
+    // Function that takes two points and calculates their vector length.
+    function vectorLength(p1, p2) {
+        var x1 = p1.x,
+            x2 = p2.x,
+            y1 = p1.y,
+            y2 = p2.y,
+            x = Math.pow((x2 - x1), 2),
+            y = Math.pow((y2 - y1), 2),
+            result = Math.pow((y + x), (1/2));
+
+        return result;
+    }
 
 });
 
