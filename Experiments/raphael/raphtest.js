@@ -92,6 +92,7 @@ $(function() {
     }
 
 
+
     /**
      *  Constructor for Room
     **/
@@ -115,29 +116,26 @@ $(function() {
         var room = this;
 
         // Binds action for mousedown.
-        $('#canvas_container').mousedown(room, function(e) {
+        $('#canvas_container').click(room, function(e) {
 
-            var xy = crossBrowserXY(e);
+            var point = crossBrowserXY(e);
 
             if (room.lastPoint == null) {
-                room.wallStart(xy[0], xy[1]);
+                room.lastPoint = point;
             } else {
-                room.wallEnd(xy[0], xy[1]);
+                room.wallEnd(point);
             }
         });
 
         // Binds action for mouseover, specifically for showing temp shit
         $('#canvas_container').mousemove(room, function(e) {
 
-            var xy = crossBrowserXY(e);
+            var point = crossBrowserXY(e);
 
             if (room.lastPoint != null) {
 
-                    point1 = grid.getLatticePoint(xy[0], xy[1]);
-                    point2 = grid.getReal(point1);
-
-                if (room.lastPoint != point2) {
-                    room.drawTempLine(point2);
+                if (room.lastPoint != point) {
+                    room.drawTempLine(point);
                 }
 
             }
@@ -146,41 +144,148 @@ $(function() {
     }
 
     /**
+     * Binds action listeners to mouse click and movement, especially for moving corners.
+     *
+    **/
+    Room.prototype.clickableCorners = function() {
+
+        var room = this;
+
+        $('#canvas_container').mousedown(room, function(e) {
+
+            room.dragCorner(e);
+
+        });
+
+        $('#canvas_container').mouseup(room, function(e) {
+
+            room.dropCorner(e);
+
+        });
+
+        // Binds action for mouseover, specifically for showing temp shit
+        $('#canvas_container').mousemove(room, function(e) {
+
+            room.visualizeCorner(e);
+
+        });
+
+    }
+
+    /**
+     * functionality that uses the "isProximity" function to check if hte clicked/mouseovered area is valid.
+     * Marks the points within proximity for either visualization or movement.
+    **/
+
+    Room.prototype.visualizeCorner = function (e) {
+        var point = crossBrowserXY(e),
+            match = this.findCorner(point);
+
+
+        if (match != null) {
+            this.visualizeRoomEnd(match);
+        } else {
+            this.tmpCircle.remove();
+        }
+
+    }
+
+    /**
+     * Function that goes through our wall array and finds two points that are the same.
+     *
+    **/
+    Room.prototype.findCorner = function(point) {
+
+        var walls = this.walls,
+            match = null;
+
+        for (var i = 0; i < walls.length; i++) {
+
+            var start = walls[i].startPoint,
+                end = walls[i].endPoint;
+
+            match = (this.isProximity(point, start)) ? start : null;
+            match = (match == null && this.isProximity(point, end)) ? end : null;
+
+            if (match != null) {
+                return match;
+            }
+
+        }
+    }
+
+
+    /**
+     * Functionality that lets you drag a corner.
+     * it will delete the previous two lines connected to the point matching.
+     * And proceed to draw temporary lines.
+    **/
+    Room.prototype.dragCorner = function (e) {
+        var point = crossBrowserXY(e),
+        match = this.findCorner(point),
+        x,
+        y,
+        walls = this.walls,
+        wall,
+        wallArr = [],
+        count = 0;
+
+
+        if (match != null) {
+            x = match.x, 
+            y = match.y;
+
+            for (var i = 0; i < walls.length; i++) {
+
+                var tmpWall = walls[i];
+
+                if (x == tmpWall.startPoint.x && y == tmpWall.startPoint.y) {
+                    wallArr.push(tmpWall);
+                } else if (x == tmpWall.endPoint.x && y == tmpWall.endPoint.y) {
+                    wallArr.push(tmpWall);
+
+                }
+            }
+
+            if (wallArr.length > 1) {
+                console.log(wallArr);
+            }
+
+        }
+    }
+
+    /** 
+     * Functionality that draws the two new walls after its new point has been "dropped".
+     *
+    **/
+    Room.prototype.dropCorner = function(e) {
+
+        //console.log("drop corner here!");
+
+    }
+
+    /**
      * Function that unbinds mouse actions related to creating a room.
     **/
     Room.prototype.finishRoom = function () {
 
-        $('#canvas_container').unbind('mousedown');
-
-        $('#canvas_container').unbind('mouseup');
-
+        $('#canvas_container').unbind('click');
         $('#canvas_container').unbind('mousemove');
+
+        this.clickableCorners();
     }
 
     /**
      * Function handling logic for the first point of a wall.
      * 
     **/
-    Room.prototype.wallStart = function (x, y) {
-        var point = grid.getLatticePoint(x, y);
-
-        this.lastPoint = grid.getReal(point);
-    }
-
-    /**
-     * Function handling logic for the first point of a wall.
-     * 
-    **/
-    Room.prototype.wallEnd = function (x, y) {
-        var point = grid.getLatticePoint(x, y),
-            point1 = this.lastPoint,
-            point2,
+    Room.prototype.wallEnd = function (point) {
+        var point1 = this.lastPoint,
+            point2 = point,
             wall,
             walls = this.walls,
             crossed = this.crossed,
             orgPoint;
-
-        point2 = grid.getReal(point);
 
         this.lastPoint = point2;
 
@@ -210,6 +315,8 @@ $(function() {
 
         }
 
+        // If the points are the same, it will be marked as "crossed = True",
+        // therefore drawing the new wall should be allowed anyways.
         if (crossed && point2.x == orgPoint.x && point2.y == orgPoint.y) {
             this.drawWall(wall);
             this.tmpCircle.remove();
@@ -225,12 +332,13 @@ $(function() {
     /** 
      * Function that checks if the ending point is in the vincinity of the initial point.
      * returns false if the point is not, and true if it is.
+     * Two arguments can be sent to this funcion, sending one will set point1.
     **/
-    Room.prototype.roomEndRad = function (point) {
-        var initPointX = this.walls[0].startPoint.x,
-            initPointY = this.walls[0].startPoint.y,
-            endPointX = point.x,
-            endPointY = point.y,
+    Room.prototype.isProximity = function (point1, point2) {
+        var initPointX = (point2 == undefined) ? this.walls[0].startPoint.x : point2.x,
+            initPointY = (point2 == undefined) ? this.walls[0].startPoint.y : point2.y,
+            endPointX = point1.x,
+            endPointY = point1.y,
             rad = this.radius,
             diffX = (initPointX > endPointX) ? (initPointX - endPointX) : (endPointX - initPointX), 
             diffY = (initPointY > endPointY) ? (initPointY - endPointY) : (endPointY - initPointY);
@@ -351,13 +459,14 @@ $(function() {
     **/
     Room.prototype.drawWall = function (line) {
 
-        var tmpWall = this.tmpWall;
+        var tmpWall = this.tmpWall,
+            wall;
 
         if (tmpWall != null) {
             tmpWall.remove();
         }
 
-        grid.paper.path("M"+line.startPoint.x+","+line.startPoint.y+"L"+line.endPoint.x+","+line.endPoint.y).attr(
+        wall = grid.paper.path("M"+line.startPoint.x+","+line.startPoint.y+"L"+line.endPoint.x+","+line.endPoint.y).attr(
             {
                 fill: "#00000", 
                 stroke: "#000000",
@@ -372,9 +481,9 @@ $(function() {
      * Visualization of the line that the user is about to draw.
      * This line will not be saved in our array.
     **/
-    Room.prototype.drawTempLine = function (point) {
-        var p2 = point,
-            p1 = this.lastPoint,
+    Room.prototype.drawTempLine = function (point2, point1) {
+        var p2 = point2,
+            p1 = (point1 == null) ? this.lastPoint : point1,
             tmpWall = this.tmpWall,
             walls = this.walls,
             wall = new Wall(p1, p2),
@@ -388,7 +497,7 @@ $(function() {
             }
 
             // See if we are in the area where the room gets 'auto-completed'.
-            if (this.roomEndRad(p2)) {
+            if (this.isProximity(p2)) {
                 this.visualizeRoomEnd();
                 this.proximity = true;
 
@@ -423,27 +532,29 @@ $(function() {
     }
 
 
-
-
-
     /**
-     * When the user draws a wall that the 'roomEndRad' is going to auto-complete, we
+     * When the user draws a wall that the 'isProximity' is going to auto-complete, we
      * will visualize that the wall is in the range for this to happen by drawing a circle.
     **/
-    Room.prototype.visualizeRoomEnd = function () {
-        var tmpCircle = this.tmpCircle;
+    Room.prototype.visualizeRoomEnd = function (point) {
+        var tmpCircle = this.tmpCircle,
+            point = (point == null) ? this.walls[0].startPoint : point;
 
         if (tmpCircle != null) {
             tmpCircle.remove();
         }
 
-        this.tmpCircle = grid.paper.circle(this.walls[0].startPoint.x, this.walls[0].startPoint.y, this.radius, 0, 2 * Math.PI, false).attr(
+        this.tmpCircle = grid.paper.circle(point.x, point.y, this.radius, 0, 2 * Math.PI, false).attr(
         {
             fill: "#3366FF",
             'fill-opacity': 0.3, 
             stroke: "#3366FF"
         });
     }
+
+
+    // Starts the room creation progress!
+    var ourRoom = new Room(20);
 
 
     /**
@@ -468,18 +579,22 @@ $(function() {
     **/
     function crossBrowserXY(e) {
 
-        e = e || window.event;
+        var point,
+            e = e || window.event;
 
         if (e.offsetX == undefined) { 
             e.offsetX = e.pageX - e.currentTarget.offsetLeft; 
             e.offsetY = e.pageY - e.currentTarget.offsetTop; 
         }
 
-        return [e.offsetX, e.offsetY];
+
+        point = grid.getLatticePoint(e.offsetX, e.offsetY);
+        point = grid.getReal(point);
+
+        return point;
     }
 
-    // Starts the room creation progress!
-    var ourRoom = new Room(20);
+
 
 
 
@@ -491,6 +606,7 @@ $(function() {
 
     /**
      *  Function that updates the wall-table.
+     *  also adds functionality to -/+ buttons.
      *
     **/
     Options.prototype.refresh = function() {
@@ -502,8 +618,8 @@ $(function() {
         }   
 
         // Creating the column names
-        var myTable= "<table id='options'><tr><td>Wall number</td>";
-            myTable+= "<td>Wall length</td></tr>";
+        var myTable= "<table id='options'><tr><th>Wall number</th>";
+            myTable+= "<th>Wall length</th></tr>";
 
         // Filling in information
         for (var i = 0; i < walls.length; i++) {
