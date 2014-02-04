@@ -104,6 +104,7 @@ $(function() {
         this.tmpCircle = null;
         this.proximity = false;
         this.crossed = false;
+        this.tmpCorners = [];
         this.initRoom();
     }
 
@@ -181,7 +182,6 @@ $(function() {
         var point = crossBrowserXY(e),
             match = this.findCorner(point);
 
-
         if (match != null) {
             this.visualizeRoomEnd(match);
         } else {
@@ -204,14 +204,19 @@ $(function() {
             var start = walls[i].startPoint,
                 end = walls[i].endPoint;
 
-            match = (this.isProximity(point, start)) ? start : null;
-            match = (match == null && this.isProximity(point, end)) ? end : null;
+
+            if (this.isProximity(point, start)) {
+                match = start;
+            } else if (this.isProximity(point, end)) {
+                match = end;
+            }
 
             if (match != null) {
                 return match;
             }
 
         }
+        return match;
     }
 
 
@@ -227,8 +232,9 @@ $(function() {
         y,
         walls = this.walls,
         wall,
-        wallArr = [],
-        count = 0;
+        indexArr = [],
+        count = 0,
+        tmpCorners = this.tmpCorners;
 
 
         if (match != null) {
@@ -237,18 +243,45 @@ $(function() {
 
             for (var i = 0; i < walls.length; i++) {
 
-                var tmpWall = walls[i];
+                var tmpWall = walls[i],
+                    tmpSP = tmpWall.startPoint,
+                    tmpEP = tmpWall.endPoint;
 
-                if (x == tmpWall.startPoint.x && y == tmpWall.startPoint.y) {
-                    wallArr.push(tmpWall);
-                } else if (x == tmpWall.endPoint.x && y == tmpWall.endPoint.y) {
-                    wallArr.push(tmpWall);
+                if (x == tmpSP.x && y == tmpSP.y) {
+                    indexArr.push(i);
+                    tmpCorners.push(tmpEP);
 
+                } else if (x == tmpEP.x && y == tmpEP.y) {
+                    indexArr.push(i);
+                    tmpCorners.push(tmpSP);
                 }
             }
 
-            if (wallArr.length > 1) {
-                console.log(wallArr);
+            if (indexArr.length > 1) {
+
+                var index1 = indexArr[0];
+                    index2 = indexArr[1];
+
+                // Delete the two paths
+                walls[index1].path.remove();
+                walls[index2].path.remove();
+
+                // Store the two "starting points".
+                // NO WAIT! We will do that inside our loop above!
+
+
+                // Remove the two walls from wall array.
+                // In such a way that indexes doesnt "disappear".
+                if (index1 < index2) {
+                    walls.splice(index1, 1);
+                    walls.splice((index2-1), 1);
+                } else {
+                    walls.splice(index2, 1);
+                    walls.splice(index1, 1);
+                }
+
+                // Tell mousemove to start drawing templines.
+                // TODO?
             }
 
         }
@@ -260,7 +293,21 @@ $(function() {
     **/
     Room.prototype.dropCorner = function(e) {
 
-        //console.log("drop corner here!");
+        var point = crossBrowserXY(e),
+            tmpCorners = this.tmpCorners;
+
+        if (tmpCorners.length == 2) {
+
+            for (var i = 0; i < 2; i++) {
+                this.drawWall(tmpCorners[i], point);
+            }   
+
+            tmpCorners.splice(1, 1);
+            tmpCorners.splice(0, 1);
+        }
+
+
+        
 
     }
 
@@ -280,53 +327,52 @@ $(function() {
      * 
     **/
     Room.prototype.wallEnd = function (point) {
-        var point1 = this.lastPoint,
-            point2 = point,
+        var newStart = this.lastPoint,
+            newEnd = point,
             wall,
             walls = this.walls,
-            crossed = this.crossed,
-            orgPoint;
+            initPoint = null,
+            crossed = this.crossed;
 
-        this.lastPoint = point2;
+        // If there are two or more walls, allow for room completion.
+        if (walls.length > 1) {
+            initPoint = walls[0].startPoint;
+        }
 
-        // Check that the points are not the same, if it is quit function
-        if (point1.x == point2.x && point1.y == point2.y) {
+
+        // Check that the points are not the same, if it is quit function.
+        if (newStart.x == newEnd.x && newStart.y == newEnd.y) {
+            console.log("points are the same");
             return;
-
         }
 
-        // Creates the new wall.
-        wall = new Wall (point1, point2);
 
+        if (initPoint != null) {
+            var setPoint = false;
 
-        // Stores the wall.
-        walls.push(wall);
+            if (this.proximity && !crossed) {
+                console.log("within proximity, not crossed");
+                setPoint = true;
 
+            } else if (newEnd.x == initPoint.x && newEnd.y == initPoint.y) {
+                console.log("the points match, let him draw");
+                setPoint = true;
+            }
 
-        orgPoint = walls[0].startPoint;
-
-        // Check if the ending point of this wall is near the starting point of the first wall
-        if (this.proximity && !crossed) {
-            walls.pop();
-            wall = new Wall (point1, orgPoint);
-            walls.push(wall);
-            this.tmpCircle.remove();
-            this.finishRoom();
-
+            if (setPoint == true) {
+                newEnd = initPoint;
+                this.tmpCircle.remove();
+                this.finishRoom();
+            }
         }
 
-        // If the points are the same, it will be marked as "crossed = True",
-        // therefore drawing the new wall should be allowed anyways.
-        if (crossed && point2.x == orgPoint.x && point2.y == orgPoint.y) {
-            this.drawWall(wall);
-            this.tmpCircle.remove();
-            this.finishRoom();
-        } else if (!crossed) {
-            this.drawWall(wall);
-        } else {
-            walls.pop();
-            this.lastPoint = point1;
+        if (crossed && !setPoint) {
+            console.log("paths cross");
+            return;
         }
+
+        this.lastPoint = newEnd;
+        this.drawWall(newStart, newEnd);
     }
 
     /** 
@@ -354,13 +400,9 @@ $(function() {
      * Function that checks if the line will cross a wall.
      *
     **/
-    Room.prototype.wallCross = function (line) {
+    Room.prototype.wallCross = function (x1, y1, x2, y2) {
 
-        var x1 = line.startPoint.x,
-            y1 = line.startPoint.y,
-            x2 = line.endPoint.x,
-            y2 = line.endPoint.y,
-            x, 
+        var x, 
             y, 
             x3,
             y3, 
@@ -457,21 +499,45 @@ $(function() {
      * Function that draws the line.
      *
     **/
-    Room.prototype.drawWall = function (line) {
+    Room.prototype.drawWall = function (point1, point2) {
 
         var tmpWall = this.tmpWall,
-            wall;
+            path;
 
         if (tmpWall != null) {
             tmpWall.remove();
         }
 
-        wall = grid.paper.path("M"+line.startPoint.x+","+line.startPoint.y+"L"+line.endPoint.x+","+line.endPoint.y).attr(
+        path = grid.paper.path("M"+point1.x+","+point1.y+"L"+point2.x+","+point2.y).attr(
             {
                 fill: "#00000", 
                 stroke: "#000000",
                 'stroke-width': 1
             });
+
+        this.walls.push(new Wall(point1, point2, path));
+
+
+
+        // This adds drag action on these paths, however our wall elements need updating aswell or the findcorner functionality will go to shits.
+        /**
+        var start = function () {
+          this.lastdx ? this.odx += this.lastdx : this.odx = 0;
+          this.lastdy ? this.ody += this.lastdy : this.ody = 0;
+          this.animate({"fill-opacity": 0.2}, 500);
+        },
+        move = function (dx, dy) {
+          this.transform("T"+(dx+this.odx)+","+(dy+this.ody));
+          this.lastdx = dx;
+          this.lastdy = dy;
+        },
+        up = function () {
+          this.animate({"fill-opacity": 1}, 500);
+        };
+
+        path.drag(move, start, up);
+
+        **/
 
         options.refresh();
 
@@ -486,11 +552,16 @@ $(function() {
             p1 = (point1 == null) ? this.lastPoint : point1,
             tmpWall = this.tmpWall,
             walls = this.walls,
-            wall = new Wall(p1, p2),
-            crossed = false;
+            crossed = false,
+            x1 = null,
+            y1 = null;
 
         if (walls.length > 1) {
-            if (this.wallCross(wall)) {
+
+            x1 = walls[0].startPoint.x;
+            y1 = walls[0].startPoint.y;
+
+            if (this.wallCross(p1.x, p1.y, p2.x, p2.y)) {
                 crossed = true;
             } else {
                 crossed = false;
@@ -512,13 +583,14 @@ $(function() {
 
         // Three steps:
         // 1: removing the last tmpwall if any.
-        // 2: deciding to color the tmpline red/black based on if it crosses another.
+        // 2: deciding to color the tmpline red/black based on if it crosses another,
+        // and if it is the same as the starting point of the first wall.
         // 3: assigning "this.crossed" to false/true based on the above. used in endWall().
         if (tmpWall != null) {
             tmpWall.remove();
         }
 
-        if (crossed) {
+        if (crossed && !(x1 == p2.x && y1 == p2.y)) {
             this.tmpWall = grid.paper.path("M"+p1.x+","+p1.y+"L"+p2.x+","+p2.y).attr(
             {   
                 stroke: '#ff0000'
@@ -569,9 +641,10 @@ $(function() {
     /**
      * Wall constructor
     **/
-    function Wall (startPoint, endPoint) {
+    function Wall (startPoint, endPoint, path) {
         this.startPoint = startPoint;
         this.endPoint = endPoint;
+        this.path = path;
     }
 
     /**
