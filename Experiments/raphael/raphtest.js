@@ -152,6 +152,8 @@ $(function() {
 
         var room = this;
 
+        /*
+
         $('#canvas_container').mousedown(room, function(e) {
 
             room.dragCorner(e);
@@ -163,6 +165,8 @@ $(function() {
             room.dropCorner(e);
 
         });
+
+        */
 
         // Binds action for mouseover, specifically for showing temp shit
         $('#canvas_container').mousemove(room, function(e) {
@@ -201,8 +205,8 @@ $(function() {
 
         for (var i = 0; i < walls.length; i++) {
 
-            var start = walls[i].startPoint,
-                end = walls[i].endPoint;
+            var start = [walls[i].attrs.path[0][1], walls[i].attrs.path[0][2]],
+                end = [walls[i].attrs.path[1][1], walls[i].attrs.path[1][2]];
 
 
             if (this.isProximity(point, start)) {
@@ -336,7 +340,8 @@ $(function() {
 
         // If there are two or more walls, allow for room completion.
         if (walls.length > 1) {
-            initPoint = walls[0].startPoint;
+
+            initPoint = [walls[0].attrs.path[0][1], walls[0].attrs.path[0][2]];
         }
 
 
@@ -354,13 +359,14 @@ $(function() {
                 console.log("within proximity, not crossed");
                 setPoint = true;
 
-            } else if (newEnd.x == initPoint.x && newEnd.y == initPoint.y) {
+            } else if (newEnd.x == initPoint[0] && newEnd.y == initPoint[1]) {
                 console.log("the points match, let him draw");
                 setPoint = true;
             }
 
             if (setPoint == true) {
-                newEnd = initPoint;
+                newEnd.x = initPoint[0];
+                newEnd.y = initPoint[1];
                 this.tmpCircle.remove();
                 this.finishRoom();
             }
@@ -381,8 +387,8 @@ $(function() {
      * Two arguments can be sent to this funcion, sending one will set point1.
     **/
     Room.prototype.isProximity = function (point1, point2) {
-        var initPointX = (point2 == undefined) ? this.walls[0].startPoint.x : point2.x,
-            initPointY = (point2 == undefined) ? this.walls[0].startPoint.y : point2.y,
+        var initPointX = (point2 == null) ? this.walls[0].attrs.path[0][1] : point2[0],
+            initPointY = (point2 == null) ? this.walls[0].attrs.path[0][2] : point2[1],
             endPointX = point1.x,
             endPointY = point1.y,
             rad = this.radius,
@@ -417,10 +423,10 @@ $(function() {
 
             crossed = true;
             tmpWall = walls[i];
-            x3 = tmpWall.startPoint.x;
-            y3 = tmpWall.startPoint.y;
-            x4 = tmpWall.endPoint.x;
-            y4 = tmpWall.endPoint.y;
+            x3 = tmpWall.attrs.path[0][1];
+            y3 = tmpWall.attrs.path[0][2];
+            x4 = tmpWall.attrs.path[1][1];
+            y4 = tmpWall.attrs.path[1][2];
 
             x = ((x1*y2-y1*x2) * (x3-x4)-(x1-x2) * (x3*y4-y3*x4)) / ((x1-x2) * (y3-y4) - (y1-y2) * (x3-x4));
             y = ((x1*y2-y1*x2) * (y3-y4)-(y1-y2) * (x3*y4-y3*x4)) / ((x1-x2) * (y3-y4) - (y1-y2) * (x3-x4));
@@ -508,19 +514,19 @@ $(function() {
             tmpWall.remove();
         }
 
-        path = grid.paper.path("M"+point1.x+","+point1.y+"L"+point2.x+","+point2.y).attr(
+        wall = grid.paper.path("M"+point1.x+","+point1.y+"L"+point2.x+","+point2.y).attr(
             {
                 fill: "#00000", 
                 stroke: "#000000",
                 'stroke-width': 1
             });
 
-        this.walls.push(new Wall(point1, point2, path));
+        this.walls.push(wall);
 
 
 
         // This adds drag action on these paths, however our wall elements need updating aswell or the findcorner functionality will go to shits.
-        /**
+        /*
         var start = function () {
           this.lastdx ? this.odx += this.lastdx : this.odx = 0;
           this.lastdy ? this.ody += this.lastdy : this.ody = 0;
@@ -537,8 +543,10 @@ $(function() {
 
         path.drag(move, start, up);
 
-        **/
-
+        console.log([path.attrs.path[0][1], path.attrs.path[0][2]], [path.attrs.path[1][1], path.attrs.path[1][2]]);
+        console.log([point1, point2]);
+        
+*/
         options.refresh();
 
     }
@@ -558,8 +566,9 @@ $(function() {
 
         if (walls.length > 1) {
 
-            x1 = walls[0].startPoint.x;
-            y1 = walls[0].startPoint.y;
+
+            x1 = walls[0].attrs.path[0][1];
+            y1 = walls[0].attrs.path[0][2];
 
             if (this.wallCross(p1.x, p1.y, p2.x, p2.y)) {
                 crossed = true;
@@ -578,6 +587,7 @@ $(function() {
                 }
                 this.proximity = false;
             }  
+
         }
 
 
@@ -610,13 +620,13 @@ $(function() {
     **/
     Room.prototype.visualizeRoomEnd = function (point) {
         var tmpCircle = this.tmpCircle,
-            point = (point == null) ? this.walls[0].startPoint : point;
+            point = (point == null) ? [this.walls[0].attrs.path[0][1], this.walls[0].attrs.path[0][2]] : point;
 
         if (tmpCircle != null) {
             tmpCircle.remove();
         }
 
-        this.tmpCircle = grid.paper.circle(point.x, point.y, this.radius, 0, 2 * Math.PI, false).attr(
+        this.tmpCircle = grid.paper.circle(point[0], point[1], this.radius, 0, 2 * Math.PI, false).attr(
         {
             fill: "#3366FF",
             'fill-opacity': 0.3, 
@@ -636,15 +646,6 @@ $(function() {
         this.x = x;
         this.y = y;
 
-    }
-
-    /**
-     * Wall constructor
-    **/
-    function Wall (startPoint, endPoint, path) {
-        this.startPoint = startPoint;
-        this.endPoint = endPoint;
-        this.path = path;
     }
 
     /**
@@ -702,7 +703,7 @@ $(function() {
 
             // extract point x and y.
             
-            myTable+="<td>" + vectorLength(walls[i].startPoint, walls[i].endPoint); + " </td>";
+            myTable+="<td>" + walls[i].getTotalLength(); + " </td>";
         }  
            myTable+="</table>";
 
