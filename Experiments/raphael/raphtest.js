@@ -106,6 +106,7 @@ $(function() {
         this.crossed = false;
         this.tmpCorners = [];
         this.initRoom();
+        this.handle = null;
     }
 
     Room.prototype.plus = 5;
@@ -152,14 +153,14 @@ $(function() {
 
         var room = this;
 
-        /*
-
         $('#canvas_container').mousedown(room, function(e) {
 
-            room.dragCorner(e);
-
+            if ((match = room.checkMatch(e)) != null) {
+                room.dragCorner(match);
+            }
         });
 
+        /*
         $('#canvas_container').mouseup(room, function(e) {
 
             room.dropCorner(e);
@@ -171,27 +172,26 @@ $(function() {
         // Binds action for mouseover, specifically for showing temp shit
         $('#canvas_container').mousemove(room, function(e) {
 
-            room.visualizeCorner(e);
+            if ((match = room.checkMatch(e)) != null && room.handle == null) {
+                room.visualizeRoomEnd(match);
+
+            } else if (room.tmpCircle != null) {
+                room.tmpCircle.remove();
+            }
 
         });
 
     }
 
-    /**
-     * functionality that uses the "isProximity" function to check if hte clicked/mouseovered area is valid.
-     * Marks the points within proximity for either visualization or movement.
-    **/
-
-    Room.prototype.visualizeCorner = function (e) {
+    Room.prototype.checkMatch = function(e) {
         var point = crossBrowserXY(e),
             match = this.findCorner(point);
 
         if (match != null) {
-            this.visualizeRoomEnd(match);
+            return match;
         } else {
-            this.tmpCircle.remove();
+            return null;
         }
-
     }
 
     /**
@@ -225,70 +225,110 @@ $(function() {
 
 
     /**
-     * Functionality that lets you drag a corner.
-     * it will delete the previous two lines connected to the point matching.
-     * And proceed to draw temporary lines.
+     * Functionality that adds drag action to the tmpCircle.
     **/
-    Room.prototype.dragCorner = function (e) {
-        var point = crossBrowserXY(e),
-        match = this.findCorner(point),
-        x,
-        y,
-        walls = this.walls,
-        wall,
-        indexArr = [],
-        count = 0,
-        tmpCorners = this.tmpCorners;
+    Room.prototype.dragCorner = function (point) {
+        var match = point,
+            x,
+            y,
+            walls = this.walls,
+            indexArr = [],
+            tmpSPx,
+            tmpSPy, 
+            tmpEPx,
+            tmpEPy;
 
-
-        if (match != null) {
-            x = match.x, 
-            y = match.y;
+            x = match[0], 
+            y = match[1];
 
             for (var i = 0; i < walls.length; i++) {
 
-                var tmpWall = walls[i],
-                    tmpSP = tmpWall.startPoint,
-                    tmpEP = tmpWall.endPoint;
+                var tmpWall = walls[i];
 
-                if (x == tmpSP.x && y == tmpSP.y) {
-                    indexArr.push(i);
-                    tmpCorners.push(tmpEP);
+                tmpSPx = tmpWall.attrs.path[0][1];
+                tmpSPy = tmpWall.attrs.path[0][2];
+                tmpEPx = tmpWall.attrs.path[1][1];
+                tmpEPy = tmpWall.attrs.path[1][2];
 
-                } else if (x == tmpEP.x && y == tmpEP.y) {
-                    indexArr.push(i);
-                    tmpCorners.push(tmpSP);
+                if (x == tmpSPx && y == tmpSPy) {
+                    indexArr.push([i, 0]);
+
+                } else if (x == tmpEPx && y == tmpEPy) {
+                    indexArr.push([i, 1]);
                 }
             }
 
             if (indexArr.length > 1) {
 
-                var index1 = indexArr[0];
-                    index2 = indexArr[1];
-
-                // Delete the two paths
-                walls[index1].path.remove();
-                walls[index2].path.remove();
-
-                // Store the two "starting points".
-                // NO WAIT! We will do that inside our loop above!
-
-
-                // Remove the two walls from wall array.
-                // In such a way that indexes doesnt "disappear".
-                if (index1 < index2) {
-                    walls.splice(index1, 1);
-                    walls.splice((index2-1), 1);
-                } else {
-                    walls.splice(index2, 1);
-                    walls.splice(index1, 1);
+                if (this.handle == null) {
+                    this.drag(indexArr, match);
                 }
+                
 
-                // Tell mousemove to start drawing templines.
-                // TODO?
-            }
-
+        } else {
         }
+    }
+
+    Room.prototype.drag = function(indexArr, match) {
+
+        var walls = this.walls,
+            path1 = walls[indexArr[0][0]],
+            path2 = walls[indexArr[1][0]],
+            path1Order = indexArr[0][1],    // if path1Order = 0 : startpunktet skal endres. om det er = 1, endpunktet skal endres.
+            path2Order = indexArr[1][1],    
+            pathArray1 = path1.attr("path"),
+            pathArray2 = path2.attr("path"),
+            mx = match[0],
+            my = match[1],
+            room = this;
+
+        this.handle = grid.paper.circle(mx,my,this.radius).attr({
+            fill: "#3366FF",
+            'fill-opacity': 0.3, 
+            cursor: "pointer",
+            stroke: "black"
+        });
+
+        var start = function () {
+          this.cx = this.attr("cx"),
+          this.cy = this.attr("cy");
+        },
+        move = function (dx, dy) {
+           var X = this.cx + dx,
+               Y = this.cy + dy;
+           this.attr({cx: X, cy: Y});
+
+           if (path1Order == 0) {
+               pathArray1[0][1] = X;
+               pathArray1[0][2] = Y;
+           } else {
+               pathArray1[1][1] = X;
+               pathArray1[1][2] = Y;
+           }
+
+           if (path2Order == 0) {
+               pathArray2[0][1] = X;
+               pathArray2[0][2] = Y;
+           } else {
+               pathArray2[1][1] = X;
+               pathArray2[1][2] = Y;
+           }
+
+           path1.attr({path: pathArray1});
+           path2.attr({path: pathArray2});
+        },
+        up = function () {
+           this.dx = this.dy = 0;
+           this.remove();
+           room.nullify();
+           options.refresh();
+        };
+        this.handle.drag(move, start, up);
+
+    }
+
+    Room.prototype.nullify = function() {
+        this.handle = null;
     }
 
     /** 
@@ -620,18 +660,28 @@ $(function() {
     **/
     Room.prototype.visualizeRoomEnd = function (point) {
         var tmpCircle = this.tmpCircle,
-            point = (point == null) ? [this.walls[0].attrs.path[0][1], this.walls[0].attrs.path[0][2]] : point;
+            point = (point == null) ? [this.walls[0].attrs.path[0][1], this.walls[0].attrs.path[0][2]] : point,
+            doCircle = (tmpCircle == null) ? true : (tmpCircle[0] == null);
 
-        if (tmpCircle != null) {
-            tmpCircle.remove();
+
+        if (doCircle) {
+            this.tmpCircle = grid.paper.circle(point[0], point[1], this.radius, 0, 2 * Math.PI, false).attr(
+            {
+                fill: "#008000",
+                'fill-opacity': 0.3, 
+                stroke: "#3366FF"
+            });
+
+            this.tmpCircle.toBack();
+
+        } else {
+
+            this.tmpCircle.attr({
+                path: [point[0], point[1]]
+            });
+
         }
 
-        this.tmpCircle = grid.paper.circle(point[0], point[1], this.radius, 0, 2 * Math.PI, false).attr(
-        {
-            fill: "#3366FF",
-            'fill-opacity': 0.3, 
-            stroke: "#3366FF"
-        });
     }
 
 
