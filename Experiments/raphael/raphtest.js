@@ -14,8 +14,8 @@ $(function() {
 
     // constructor
     function Grid() {
-            this.size = 6,               // How many pixels between each horizontal/vertical line.
-            this.cutPix = 0.5;           // Used so that the drawing of a line not overlaps on the previous pixel.
+        this.size = 6,               // How many pixels between each horizontal/vertical line.
+        this.cutPix = 0.5;           // Used so that the drawing of a line not overlaps on the previous pixel.
     }
 
     Grid.prototype.paper = Raphael(document.getElementById('canvas_container'));
@@ -33,28 +33,27 @@ $(function() {
 
         // Draw vertical lines, with 'size' number of pixels between each line.
         for (var i = 1; i <= width; i++) {
-            line = paper.path("M"+(i*size+cutPix)+", "+0+", L"+(i*size+cutPix)+", "+(size*height)).attr({'stroke-opacity': 0.3});   //Path-function is named 'paperproto.path' in raphael.js
-            // Make every 10th line a bit stronger.
-            if (i % 5 === 0) {
-                line.attr( {
-                    'stroke-opacity': 0.5
+            line = paper.path("M"+(i*size+cutPix)+", "+0+", L"+(i*size+cutPix)+", "+(size*height)).attr({'stroke-opacity': 0});   //Path-function is named 'paperproto.path' in raphael.js
+            // Make every 10th line stronger.
+            if (i % 10 === 0) {
+                line.attr({
+                    'stroke-opacity': 0.4
                 });
             }
         }
 
         // Draw horizontal lines, with 'size' number of pixels between each line.
         for (var i = 1; i <= height; i++) {
-           line = paper.path("M"+0+", "+(i*size+cutPix)+", L"+(size*width)+", "+(i*size+cutPix)).attr({'stroke-opacity': 0.3});
-           // Make every 10th line a bit stronger.
-           if (i % 5 === 0) {
+           line = paper.path("M"+0+", "+(i*size+cutPix)+", L"+(size*width)+", "+(i*size+cutPix)).attr({'stroke-opacity': 0});
+           // Make every 10th line stronger.
+           if (i % 10 === 0) {
                 line.attr( {
-                    'stroke-opacity': 0.5
+                    'stroke-opacity': 0.4
                 });
             } 
         }
 
         paper.setSize("100%" , "100%");
-
     }
 
     var grid = new Grid();
@@ -314,11 +313,13 @@ $(function() {
                pathArray2[1][2] = Y;
            }
 
+
            path1.attr({path: pathArray1});
            path2.attr({path: pathArray2});
         },
         up = function () {
            this.dx = this.dy = 0;
+           this.animate({"fill-opacity": 1}, 500);
            this.remove();
            room.nullify();
            options.refresh();
@@ -349,10 +350,6 @@ $(function() {
             tmpCorners.splice(1, 1);
             tmpCorners.splice(0, 1);
         }
-
-
-        
-
     }
 
     /**
@@ -380,7 +377,6 @@ $(function() {
 
         // If there are two or more walls, allow for room completion.
         if (walls.length > 1) {
-
             initPoint = [walls[0].attrs.path[0][1], walls[0].attrs.path[0][2]];
         }
 
@@ -460,6 +456,8 @@ $(function() {
             wallCount = (walls.length - 1);
 
         for (var i = 0; i < wallCount; i++) {
+
+
 
             crossed = true;
             tmpWall = walls[i];
@@ -548,8 +546,18 @@ $(function() {
     Room.prototype.drawWall = function (point1, point2) {
 
         var tmpWall = this.tmpWall,
-            path;
+            walls = this.walls;
 
+/*      Christians testing av pathIntersection
+        if (walls.length > 3) {
+                for (var i = 0; i < walls.length; i++) {
+                    console.log(walls);
+                    console.log(tmpWall.attrs.path);
+                    console.log(Raphael.pathIntersection(tmpWall.attrs.path, walls[2].attrs.path));
+                }
+            
+        }
+*/
         if (tmpWall != null) {
             tmpWall.remove();
         }
@@ -557,38 +565,14 @@ $(function() {
         wall = grid.paper.path("M"+point1.x+","+point1.y+"L"+point2.x+","+point2.y).attr(
             {
                 fill: "#00000", 
-                stroke: "#000000",
-                'stroke-width': 1
+                stroke: "#2F4F4F",
+                'stroke-width': 5,
+                'stroke-linecap': "round"
             });
 
         this.walls.push(wall);
 
-
-
-        // This adds drag action on these paths, however our wall elements need updating aswell or the findcorner functionality will go to shits.
-        /*
-        var start = function () {
-          this.lastdx ? this.odx += this.lastdx : this.odx = 0;
-          this.lastdy ? this.ody += this.lastdy : this.ody = 0;
-          this.animate({"fill-opacity": 0.2}, 500);
-        },
-        move = function (dx, dy) {
-          this.transform("T"+(dx+this.odx)+","+(dy+this.ody));
-          this.lastdx = dx;
-          this.lastdy = dy;
-        },
-        up = function () {
-          this.animate({"fill-opacity": 1}, 500);
-        };
-
-        path.drag(move, start, up);
-
-        console.log([path.attrs.path[0][1], path.attrs.path[0][2]], [path.attrs.path[1][1], path.attrs.path[1][2]]);
-        console.log([point1, point2]);
-        
-*/
         options.refresh();
-
     }
 
     /**
@@ -606,15 +590,15 @@ $(function() {
 
         if (walls.length > 1) {
 
-
             x1 = walls[0].attrs.path[0][1];
             y1 = walls[0].attrs.path[0][2];
 
-            if (this.wallCross(p1.x, p1.y, p2.x, p2.y)) {
+           if (this.wallCross(p1.x, p1.y, p2.x, p2.y)) {
                 crossed = true;
             } else {
                 crossed = false;
             }
+
 
             // See if we are in the area where the room gets 'auto-completed'.
             if (this.isProximity(p2)) {
@@ -627,7 +611,6 @@ $(function() {
                 }
                 this.proximity = false;
             }  
-
         }
 
 
@@ -649,7 +632,6 @@ $(function() {
         } else {
             this.tmpWall = grid.paper.path("M"+p1.x+","+p1.y+"L"+p2.x+","+p2.y);
         }        
-
         this.crossed = crossed;
     }
 
@@ -675,13 +657,10 @@ $(function() {
             this.tmpCircle.toBack();
 
         } else {
-
             this.tmpCircle.attr({
                 path: [point[0], point[1]]
             });
-
         }
-
     }
 
 
@@ -699,7 +678,7 @@ $(function() {
     }
 
     /**
-     *
+     * Some browser does not set the offsetX and offsetY variables on mouseclicks.
     **/
     function crossBrowserXY(e) {
 
@@ -710,7 +689,6 @@ $(function() {
             e.offsetX = e.pageX - e.currentTarget.offsetLeft; 
             e.offsetY = e.pageY - e.currentTarget.offsetTop; 
         }
-
 
         point = grid.getLatticePoint(e.offsetX, e.offsetY);
         point = grid.getReal(point);
@@ -725,7 +703,6 @@ $(function() {
     function Options(tableEle) {
         this.tableEle = tableEle;
         this.refresh();
-
     }
 
     /**
