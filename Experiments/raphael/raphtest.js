@@ -14,7 +14,7 @@ $(function() {
 
     // constructor
     function Grid() {
-        this.size = 6,               // How many pixels between each horizontal/vertical line.
+        this.size = 5,               // How many pixels between each horizontal/vertical line.
         this.cutPix = 0.5;           // Used so that the drawing of a line not overlaps on the previous pixel.
     }
 
@@ -828,8 +828,10 @@ $(function() {
             });
 
         var textPoint = m3.getPointAtLength((m3.getTotalLength()/2));
+        var len = new Number(m3.getTotalLength());
+        len = len.toFixed(0);
 
-        t = grid.paper.text(textPoint.x, textPoint.y, m3.getTotalLength());
+        t = grid.paper.text(textPoint.x, textPoint.y, len);
 
         this.measurements.push(m1,m2,m3,t);
 
