@@ -106,6 +106,7 @@ $(function() {
         this.tmpCorners = [];
         this.initRoom();
         this.handle = null;
+        this.finished = false;
     }
 
     Room.prototype.plus = 5;
@@ -144,6 +145,99 @@ $(function() {
         });
     }
 
+
+    /**
+     *  Function that adds drag and drop functionality to the walls.
+     *
+
+        var walls = this.walls,
+            path1 = walls[indexArr[0][0]],
+            path2 = walls[indexArr[1][0]],
+            path1Order = indexArr[0][1],    // if path1Order = 0 : startpunktet skal endres. om det er = 1, endpunktet skal endres.
+            path2Order = indexArr[1][1],    
+            pathArray1 = path1.attr("path"),
+            pathArray2 = path2.attr("path"),
+            mx = match[0],
+            my = match[1],
+            room = this;
+
+        this.handle = grid.paper.circle(mx,my,this.radius).attr({
+            fill: "#3366FF",
+            'fill-opacity': 0.3, 
+            cursor: "pointer",
+            stroke: "black"
+        });
+
+        var start = function () {
+          this.cx = this.attr("cx"),
+          this.cy = this.attr("cy");
+        },
+        move = function (dx, dy) {
+           var X = this.cx + dx,
+               Y = this.cy + dy;
+           this.attr({cx: X, cy: Y});
+
+           if (path1Order == 0) {
+               pathArray1[0][1] = X;
+               pathArray1[0][2] = Y;
+           } else {
+               pathArray1[1][1] = X;
+               pathArray1[1][2] = Y;
+           }
+
+           if (path2Order == 0) {
+               pathArray2[0][1] = X;
+               pathArray2[0][2] = Y;
+           } else {
+               pathArray2[1][1] = X;
+               pathArray2[1][2] = Y;
+           }
+
+
+           path1.attr({path: pathArray1});
+           path2.attr({path: pathArray2});
+        },
+        up = function () {
+           this.dx = this.dy = 0;
+           this.animate({"fill-opacity": 1}, 500);
+           this.remove();
+           room.nullify();
+           options.refresh();
+        };
+        this.handle.drag(move, start, up);
+
+    **/
+    Room.prototype.clickableWalls = function() {
+
+        var walls = this.walls;
+        
+        for (var i = 0; i < walls.length; i++) {
+
+
+
+
+            var start = function () {
+
+                this.lastdx ? this.odx += this.lastdx : this.odx = 0;
+                this.lastdy ? this.ody += this.lastdy : this.ody = 0;
+                this.animate({"fill-opacity": 0.2, fill: "#FF000"}, 500);
+
+            },
+            move = function (dx, dy) {
+              this.transform("T"+(dx+this.odx)+","+(dy+this.ody));
+              this.lastdx = dx;
+              this.lastdy = dy;
+            },
+            up = function () {
+              //this.animate({"fill-opacity": 1}, 500);
+            };
+
+            walls[i].drag(move, start, up);
+        }
+
+
+    }
+
     /**
      * Binds action listeners to mouse click and movement, especially for moving corners.
      *
@@ -158,15 +252,6 @@ $(function() {
                 room.dragCorner(match);
             }
         });
-
-        /*
-        $('#canvas_container').mouseup(room, function(e) {
-
-            room.dropCorner(e);
-
-        });
-
-        */
 
         // Binds action for mouseover, specifically for showing temp shit
         $('#canvas_container').mousemove(room, function(e) {
@@ -264,7 +349,6 @@ $(function() {
                 }
                 
 
-        } else {
         }
     }
 
@@ -332,26 +416,6 @@ $(function() {
         this.handle = null;
     }
 
-    /** 
-     * Functionality that draws the two new walls after its new point has been "dropped".
-     *
-    **/
-    Room.prototype.dropCorner = function(e) {
-
-        var point = crossBrowserXY(e),
-            tmpCorners = this.tmpCorners;
-
-        if (tmpCorners.length == 2) {
-
-            for (var i = 0; i < 2; i++) {
-                this.drawWall(tmpCorners[i], point);
-            }   
-
-            tmpCorners.splice(1, 1);
-            tmpCorners.splice(0, 1);
-        }
-    }
-
     /**
      * Function that unbinds mouse actions related to creating a room.
     **/
@@ -361,6 +425,8 @@ $(function() {
         $('#canvas_container').unbind('mousemove');
 
         this.clickableCorners();
+
+        this.finished = true;
     }
 
     /**
@@ -571,6 +637,12 @@ $(function() {
             });
 
         this.walls.push(wall);
+
+        // drawWall is called after certain other functions, 
+        // finished is set true within finished wall, therefore when drawing the last wall they should be made clickable.
+        if (this.finished) {
+            this.clickableWalls();
+        }
 
         options.refresh();
     }
