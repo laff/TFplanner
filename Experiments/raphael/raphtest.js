@@ -150,89 +150,82 @@ $(function() {
     /**
      *  Function that adds drag and drop functionality to the walls.
      *
-
-        var walls = this.walls,
-            path1 = walls[indexArr[0][0]],
-            path2 = walls[indexArr[1][0]],
-            path1Order = indexArr[0][1],    // if path1Order = 0 : startpunktet skal endres. om det er = 1, endpunktet skal endres.
-            path2Order = indexArr[1][1],    
-            pathArray1 = path1.attr("path"),
-            pathArray2 = path2.attr("path"),
-            mx = match[0],
-            my = match[1],
-            room = this;
-
-        this.handle = grid.paper.circle(mx,my,this.radius).attr({
-            fill: "#3366FF",
-            'fill-opacity': 0.3, 
-            cursor: "pointer",
-            stroke: "black"
-        });
-
-        var start = function () {
-          this.cx = this.attr("cx"),
-          this.cy = this.attr("cy");
-        },
-        move = function (dx, dy) {
-           var X = this.cx + dx,
-               Y = this.cy + dy;
-           this.attr({cx: X, cy: Y});
-
-           if (path1Order == 0) {
-               pathArray1[0][1] = X;
-               pathArray1[0][2] = Y;
-           } else {
-               pathArray1[1][1] = X;
-               pathArray1[1][2] = Y;
-           }
-
-           if (path2Order == 0) {
-               pathArray2[0][1] = X;
-               pathArray2[0][2] = Y;
-           } else {
-               pathArray2[1][1] = X;
-               pathArray2[1][2] = Y;
-           }
-
-
-           path1.attr({path: pathArray1});
-           path2.attr({path: pathArray2});
-        },
-        up = function () {
-           this.dx = this.dy = 0;
-           this.animate({"fill-opacity": 1}, 500);
-           this.remove();
-           room.nullify();
-           options.refresh();
-        };
-        this.handle.drag(move, start, up);
-
     **/
     Room.prototype.clickableWalls = function() {
 
-        var walls = this.walls;
-        
-        for (var i = 0; i < walls.length; i++) {
 
-            var start = function () {
-                this.lastdx ? this.odx += this.lastdx : this.odx = 0;
-                this.lastdy ? this.ody += this.lastdy : this.ody = 0;
-                this.animate({"fill-opacity": 0.2, fill: "#FF000"}, 500);
 
-            },
-            move = function (dx, dy) {
-              this.transform("T"+(dx+this.odx)+","+(dy+this.ody));
-              this.lastdx = dx;
-              this.lastdy = dy;
-            },
-            up = function () {
-              //this.animate({"fill-opacity": 1}, 500);
-            };
+        var walls = this.walls,
+            length = walls.length;
 
-            walls[i].drag(move, start, up);
+        for (var i = 0; i < length; i++) {
+
+            var prevWall = (walls[i-1] != null) ? walls[i-1] : walls[length-1],
+                thisWall = walls[i],
+                nextWall = (walls[i+1] != null) ? walls[i+1] : walls[0];
+
+            this.clickableWall(prevWall, thisWall, nextWall);
         }
 
 
+            
+
+    }
+
+    Room.prototype.clickableWall = function(prev, current, next) {
+
+        var room = this,
+            prevWall = prev,
+            thisWall = current,
+            nextWall = next,
+            pathArray1 = prevWall.attr("path"),
+            pathArray2 = thisWall.attr("path"),
+            pathArray3 = nextWall.attr("path"),
+
+            start = function () {
+                this.lastdx ? this.odx += this.lastdx : this.odx = 0;
+                this.lastdy ? this.ody += this.lastdy : this.ody = 0;
+
+            },
+        
+            move = function (dx, dy) {
+
+                var diffx = (this.lastdx != null) ? (this.lastdx - dx) : 0,
+                    diffy = (this.lastdy != null) ? (this.lastdy - dy): 0;
+
+                this.lastdx = dx;
+                this.lastdy = dy;
+
+                // Changing values of the end of path1
+                pathArray1[1][1] -= diffx;
+                pathArray1[1][2] -= diffy;
+
+                // Changing values of both "ends" of path2
+                pathArray2[0][1] -= diffx;
+                pathArray2[0][2] -= diffy;
+                pathArray2[1][1] -= diffx;
+                pathArray2[1][2] -= diffy;
+
+                // Changing values of the starting point of path3
+                pathArray3[0][1] -= diffx;
+                pathArray3[0][2] -= diffy;
+
+                // Updating the paths attr.
+                prevWall.attr({path: pathArray1});
+                thisWall.attr({path: pathArray2});
+                nextWall.attr({path: pathArray3});
+
+                room.refreshMeasurements();
+                options.refresh();
+
+            },
+            up = function () {
+                this.dx = this.dy = 0;
+              //this.animate({"fill-opacity": 1}, 500);
+            };
+
+        thisWall.drag(move, start, up);
+    
     }
 
     /**
@@ -395,20 +388,19 @@ $(function() {
            }
 
 
-           path1.attr({path: pathArray1});
-           path2.attr({path: pathArray2});
-                      room.refreshMeasurements();
-           options.refresh();
+            path1.attr({path: pathArray1});
+            path2.attr({path: pathArray2});
+            room.refreshMeasurements();
+            options.refresh();
            
         },
         up = function () {
            this.dx = this.dy = 0;
            this.animate({"fill-opacity": 1}, 500);
            this.remove();
-           room.nullify();
-
-           
+           room.nullify();           
         };
+
         this.handle.drag(move, start, up);
 
     }
@@ -826,11 +818,20 @@ $(function() {
                 'stroke-width': 1,
                 'stroke-linecap': "round"
             });
+/*
 
-        var textPoint = m3.getPointAtLength((m3.getTotalLength()/2));
+        Functionality that shows length and shit.. doesnt look very good.
 
-        t = grid.paper.text(textPoint.x, textPoint.y, m3.getTotalLength());
+        var textPoint = m3.getPointAtLength((m3.getTotalLength()/2)),
+            length = m3.getTotalLength(),
+            decimals = (length % 0.5);
+            decimal = (decimals > 0.25 && decimals < 0.75) ? 0.5 : 0;
 
+        console.log(decimal);
+        console.log(decimals);
+
+        t = grid.paper.text(textPoint.x, textPoint.y, m3.getTotalLength()+"("+decimal+")");
+*/
         this.measurements.push(m1,m2,m3,t);
 
     }
