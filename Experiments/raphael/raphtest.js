@@ -107,6 +107,7 @@ $(function() {
         this.initRoom();
         this.handle = null;
         this.finished = false;
+        this.measurements = grid.paper.set();
     }
 
     Room.prototype.plus = 5;
@@ -213,11 +214,7 @@ $(function() {
         
         for (var i = 0; i < walls.length; i++) {
 
-
-
-
             var start = function () {
-
                 this.lastdx ? this.odx += this.lastdx : this.odx = 0;
                 this.lastdy ? this.ody += this.lastdy : this.ody = 0;
                 this.animate({"fill-opacity": 0.2, fill: "#FF000"}, 500);
@@ -400,13 +397,17 @@ $(function() {
 
            path1.attr({path: pathArray1});
            path2.attr({path: pathArray2});
+                      room.refreshMeasurements();
+           options.refresh();
+           
         },
         up = function () {
            this.dx = this.dy = 0;
            this.animate({"fill-opacity": 1}, 500);
            this.remove();
            room.nullify();
-           options.refresh();
+
+           
         };
         this.handle.drag(move, start, up);
 
@@ -614,16 +615,6 @@ $(function() {
         var tmpWall = this.tmpWall,
             walls = this.walls;
 
-/*      Christians testing av pathIntersection
-        if (walls.length > 3) {
-                for (var i = 0; i < walls.length; i++) {
-                    console.log(walls);
-                    console.log(tmpWall.attrs.path);
-                    console.log(Raphael.pathIntersection(tmpWall.attrs.path, walls[2].attrs.path));
-                }
-            
-        }
-*/
         if (tmpWall != null) {
             tmpWall.remove();
         }
@@ -645,6 +636,7 @@ $(function() {
         }
 
         options.refresh();
+        this.refreshMeasurements();
     }
 
     /**
@@ -735,10 +727,116 @@ $(function() {
         }
     }
 
+    /**
+     * Function that renews the measurements visualized.
+     * This function should be called each time paths are drawn / changed.
+     *
+     * Goes through all walls and calls length and angle functions with appropriate variables.
+     * 
+     * OBS! Should it go through all walls or only the ones that have changed?
+     *
+    **/
+    Room.prototype.refreshMeasurements = function() {
+
+        var walls = this.walls;
+
+        this.measurements.remove();
+
+        for (var i = 0; i < walls.length; i++) {
+
+            this.lengthMeasurement(walls[i]);
+
+        }
+
+    }
+
+    Room.prototype.lengthMeasurement = function(wall) {
+
+        var startP1 = wall.attrs.path[0],
+            endP1 = wall.getPointAtLength(this.radius),
+            startP2 = wall.attrs.path[1],
+            endP2 = wall.getPointAtLength((wall.getTotalLength() - this.radius)),
+
+            m1 = grid.paper.path("M"+startP1[1]+","+startP1[2]+"L"+endP1.x+","+endP1.y).attr(
+            {
+                fill: "#00000", 
+                stroke: "#2F4F4F",
+                'stroke-width': 1,
+                'stroke-linecap': "round"
+            }),
+
+            m2 = grid.paper.path("M"+startP2[1]+","+startP2[2]+"L"+endP2.x+","+endP2.y).attr(
+            {
+                fill: "#00000", 
+                stroke: "#2F4F4F",
+                'stroke-width': 1,
+                'stroke-linecap': "round"
+            }),
+            bm1,
+            bm2,
+            m3p1x,
+            m3p1y,
+            m3p2x,
+            mep2y,
+
+
+            m3,
+            t;
+    
+
+        m1.transform("r90,"+startP1[1]+","+startP1[2]);
+        m2.transform("r270,"+startP2[1]+","+startP2[2]);
+
+        bm1 = m1.getBBox();
+        bm2 = m2.getBBox();
+
+        // Check what BBox value to use!
+        //
+        // Checking for the x value for point1 of our new  measurement line.
+        if (bm1.x == startP1[1]) {
+            m3p1x = bm1.x2;
+        } else if (bm1.x2 == startP1[1]) {
+            m3p1x = bm1.x;
+        } 
+        // checking for the y.
+        if (bm1.y == startP1[2]) {
+            m3p1y = bm1.y2;
+        } else if (bm1.y2 == startP1[2]) {
+            m3p1y = bm1.y;
+        }
+        // Checking for the x value for point2 of our new  measurement line.
+        if (bm1.x == startP1[1]) {
+            m3p2x = bm2.x2;
+        } else if (bm1.x2 == startP1[1]) {
+            m3p2x = bm2.x;
+        } 
+        // checking for the y.
+        if (bm1.y == startP1[2]) {
+            m3p2y = bm2.y2;
+        } else if (bm1.y2 == startP1[2]) {
+            m3p2y = bm2.y;
+        }
+
+        
+        // Drawing the line paralell to the wall.        
+        m3 = grid.paper.path("M"+m3p1x+","+m3p1y+"L"+m3p2x+","+m3p2y).attr(
+            {
+                fill: "#00000", 
+                stroke: "#2F4F4F",
+                'stroke-width': 1,
+                'stroke-linecap': "round"
+            });
+
+        var textPoint = m3.getPointAtLength((m3.getTotalLength()/2));
+
+        t = grid.paper.text(textPoint.x, textPoint.y, m3.getTotalLength());
+
+        this.measurements.push(m1,m2,m3,t);
+
+    }
 
     // Starts the room creation progress!
     var ourRoom = new Room(20);
-
 
     /**
      * Point constructor
