@@ -14,7 +14,7 @@ $(function() {
 
     // constructor
     function Grid() {
-        this.size = 6,               // How many pixels between each horizontal/vertical line.
+        this.size = 5,               // How many pixels between each horizontal/vertical line.
         this.cutPix = 0.5;           // Used so that the drawing of a line not overlaps on the previous pixel.
     }
 
@@ -818,22 +818,19 @@ $(function() {
                 'stroke-width': 1,
                 'stroke-linecap': "round"
             });
-/*
 
-        Functionality that shows length and shit.. doesnt look very good.
 
+        //Functionality that shows length and shit.. doesnt look very good.
         var textPoint = m3.getPointAtLength((m3.getTotalLength()/2)),
-            length = m3.getTotalLength(),
-            decimals = (length % 0.5);
-            decimal = (decimals > 0.25 && decimals < 0.75) ? 0.5 : 0;
+            len = new Number(m3.getTotalLength());
+            
+            len = len.toFixed(0);
 
-        console.log(decimal);
-        console.log(decimals);
+        t = grid.paper.text(textPoint.x, textPoint.y, len);
 
-        t = grid.paper.text(textPoint.x, textPoint.y, m3.getTotalLength()+"("+decimal+")");
-*/
+
+        // Adds to measurements set.
         this.measurements.push(m1,m2,m3,t);
-
     }
 
     // Starts the room creation progress!
