@@ -35,20 +35,10 @@ $(function() {
         for (var i = 1; i <= width; i++) {
             line = paper.path("M"+(i*size+cutPix)+", "+0+", L"+(i*size+cutPix)+", "+(size*height)).attr({'stroke-opacity': 0});   //Path-function is named 'paperproto.path' in raphael.js
             // Make every 10th line stronger.
-            if (i % 10 === 0 && i != 10) {
+            if (i % 10 === 0) {
                 line.attr({
                     'stroke-opacity': 0.4
                 });
-            }
-            //Draws scale box in upper left corner
-            else if (i == 10)
-            {
-                var tempLine = paper.path("M"+(i*size+cutPix)+", "+100+", L"+(i*size+cutPix)+", "+(size*height)).attr({'stroke-opacity': 0}),
-                    upperGreenLine = paper.path("M"+(i*size+cutPix)+", "+0+", L"+(i*size+cutPix)+", "+25).attr({'stroke-opacity': 0}),
-                    lowerGreenLine = paper.path("M"+(i*size+cutPix)+", "+75+", L"+(i*size+cutPix)+", "+100).attr({'stroke-opacity': 0});
-                tempLine.attr({'stroke-opacity': 0.4});
-                upperGreenLine.attr({'stroke-opacity': 0.8, 'stroke': "green", 'stroke-width': 3.0, "arrow-start": "classic-midium-midium"});
-                lowerGreenLine.attr({'stroke-opacity': 0.8, 'stroke': "green", 'stroke-width': 3.0, "arrow-end": "classic-midium-midium"});
             }
         }
 
@@ -56,30 +46,40 @@ $(function() {
         for (var i = 1; i <= height; i++) {
            line = paper.path("M"+0+", "+(i*size+cutPix)+", L"+(size*width)+", "+(i*size+cutPix)).attr({'stroke-opacity': 0});
            // Make every 10th line stronger.
-           if (i % 10 === 0 && i != 10) {
+           if (i % 10 === 0 ) {
                 line.attr( {
                     'stroke-opacity': 0.4
                 });
-            }
-            //Draws scale box in upper left corner
-            else if (i == 10)
-            {
-                var tempLine = paper.path("M"+100+", "+(i*size+cutPix)+", L"+(size*width)+", "+(i*size+cutPix)).attr({'stroke-opacity': 0}),
-                    leftGreenLine = paper.path("M"+0+", "+(i*size+cutPix)+", L"+25+", "+(i*size+cutPix)).attr({'stroke-opacity': 0}),
-                    rightGreenLine = paper.path("M"+75+", "+(i*size+cutPix)+", L"+100+", "+(i*size+cutPix)).attr({'stroke-opacity': 0}),
-                    t = grid.paper.text(50, 50, "100 cm");
-                tempLine.attr({'stroke-opacity': 0.4});
-                leftGreenLine.attr({'stroke-opacity': 0.8, 'stroke': "green", 'stroke-width': 3.0, "arrow-start": "classic-midium-midium"});
-                rightGreenLine.attr({'stroke-opacity': 0.8, 'stroke': "green", 'stroke-width': 3.0, "arrow-end": "classic-midium-midium"});
             }
         }
 
         paper.setSize("100%" , "100%");
     }
 
+    //X and Y values for upper left corner of box
+    Grid.prototype.scaleBox = function (x, y) {
+        var paper = this.paper,
+            box = paper.rect(x, y, 100, 100),
+            line1 = paper.path("M"+(50+x)+", " +y+", L"+(50+x)+", "+(25+y)).attr({'stroke-opacity': 0}),
+            line2 = paper.path("M"+(50+x)+", " +(75+y)+", L"+(50+x)+", "+(100+y)).attr({'stroke-opacity': 0}),
+            line3 = paper.path("M"+(x)+", " +(50+y)+", L"+(25+x)+", "+(50+y)).attr({'stroke-opacity': 0}),
+            line4 = paper.path("M"+(75+x)+", " +(50+y)+", L"+(100+x)+", "+(50+y)).attr({'stroke-opacity': 0});
+        box.attr({'stroke-opacity': 1.0, 'stroke': "green", 'stroke-width': 3.0, 'fill': "white", 'fill-opacity': 0.8});
+        line1.attr({'stroke-opacity': 1.0, 'stroke': "green", 'stroke-width': 3.0, "arrow-start": "classic-midium-midium"});
+        line2.attr({'stroke-opacity': 1.0, 'stroke': "green", 'stroke-width': 3.0, "arrow-end": "classic-midium-midium"});
+        line3.attr({'stroke-opacity': 1.0, 'stroke': "green", 'stroke-width': 3.0, "arrow-start": "classic-midium-midium"});
+        line4.attr({'stroke-opacity': 1.0, 'stroke': "green", 'stroke-width': 3.0, "arrow-end": "classic-midium-midium"}),
+        t = grid.paper.text(50+x, 50+y, "100 cm");
+
+    }
+
+
+
+
     var grid = new Grid();
 
-    grid.draw();
+    grid.draw();    
+    grid.scaleBox(50, 50);
 
     Grid.prototype.getLatticePoint = function(x, y) {
 
@@ -955,8 +955,6 @@ $(function() {
 
         return result;
     }
-
-
 
 });
 
