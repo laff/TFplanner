@@ -47,8 +47,8 @@ $(function() {
                     upperGreenLine = paper.path("M"+(i*size+cutPix)+", "+0+", L"+(i*size+cutPix)+", "+25).attr({'stroke-opacity': 0}),
                     lowerGreenLine = paper.path("M"+(i*size+cutPix)+", "+75+", L"+(i*size+cutPix)+", "+100).attr({'stroke-opacity': 0});
                 tempLine.attr({'stroke-opacity': 0.4});
-                upperGreenLine.attr({'stroke-opacity': 0.8, 'stroke': "green", 'stroke-width': 3.0});
-                lowerGreenLine.attr({'stroke-opacity': 0.8, 'stroke': "green", 'stroke-width': 3.0});
+                upperGreenLine.attr({'stroke-opacity': 0.8, 'stroke': "green", 'stroke-width': 3.0, "arrow-start": "classic-midium-midium"});
+                lowerGreenLine.attr({'stroke-opacity': 0.8, 'stroke': "green", 'stroke-width': 3.0, "arrow-end": "classic-midium-midium"});
             }
         }
 
@@ -69,8 +69,8 @@ $(function() {
                     rightGreenLine = paper.path("M"+75+", "+(i*size+cutPix)+", L"+100+", "+(i*size+cutPix)).attr({'stroke-opacity': 0}),
                     t = grid.paper.text(50, 50, "100 cm");
                 tempLine.attr({'stroke-opacity': 0.4});
-                leftGreenLine.attr({'stroke-opacity': 0.8, 'stroke': "green", 'stroke-width': 3.0});
-                rightGreenLine.attr({'stroke-opacity': 0.8, 'stroke': "green", 'stroke-width': 3.0});
+                leftGreenLine.attr({'stroke-opacity': 0.8, 'stroke': "green", 'stroke-width': 3.0, "arrow-start": "classic-midium-midium"});
+                rightGreenLine.attr({'stroke-opacity': 0.8, 'stroke': "green", 'stroke-width': 3.0, "arrow-end": "classic-midium-midium"});
             }
         }
 
