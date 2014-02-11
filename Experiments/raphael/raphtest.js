@@ -35,10 +35,20 @@ $(function() {
         for (var i = 1; i <= width; i++) {
             line = paper.path("M"+(i*size+cutPix)+", "+0+", L"+(i*size+cutPix)+", "+(size*height)).attr({'stroke-opacity': 0});   //Path-function is named 'paperproto.path' in raphael.js
             // Make every 10th line stronger.
-            if (i % 10 === 0) {
+            if (i % 10 === 0 && i != 10) {
                 line.attr({
                     'stroke-opacity': 0.4
                 });
+            }
+            //Draws scale box in upper left corner
+            else if (i == 10)
+            {
+                var tempLine = paper.path("M"+(i*size+cutPix)+", "+100+", L"+(i*size+cutPix)+", "+(size*height)).attr({'stroke-opacity': 0}),
+                    upperGreenLine = paper.path("M"+(i*size+cutPix)+", "+0+", L"+(i*size+cutPix)+", "+25).attr({'stroke-opacity': 0}),
+                    lowerGreenLine = paper.path("M"+(i*size+cutPix)+", "+75+", L"+(i*size+cutPix)+", "+100).attr({'stroke-opacity': 0});
+                tempLine.attr({'stroke-opacity': 0.4});
+                upperGreenLine.attr({'stroke-opacity': 0.8, 'stroke': "green", 'stroke-width': 3.0});
+                lowerGreenLine.attr({'stroke-opacity': 0.8, 'stroke': "green", 'stroke-width': 3.0});
             }
         }
 
@@ -46,11 +56,22 @@ $(function() {
         for (var i = 1; i <= height; i++) {
            line = paper.path("M"+0+", "+(i*size+cutPix)+", L"+(size*width)+", "+(i*size+cutPix)).attr({'stroke-opacity': 0});
            // Make every 10th line stronger.
-           if (i % 10 === 0) {
+           if (i % 10 === 0 && i != 10) {
                 line.attr( {
                     'stroke-opacity': 0.4
                 });
-            } 
+            }
+            //Draws scale box in upper left corner
+            else if (i == 10)
+            {
+                var tempLine = paper.path("M"+100+", "+(i*size+cutPix)+", L"+(size*width)+", "+(i*size+cutPix)).attr({'stroke-opacity': 0}),
+                    leftGreenLine = paper.path("M"+0+", "+(i*size+cutPix)+", L"+25+", "+(i*size+cutPix)).attr({'stroke-opacity': 0}),
+                    rightGreenLine = paper.path("M"+75+", "+(i*size+cutPix)+", L"+100+", "+(i*size+cutPix)).attr({'stroke-opacity': 0}),
+                    t = grid.paper.text(50, 50, "100 cm");
+                tempLine.attr({'stroke-opacity': 0.4});
+                leftGreenLine.attr({'stroke-opacity': 0.8, 'stroke': "green", 'stroke-width': 3.0});
+                rightGreenLine.attr({'stroke-opacity': 0.8, 'stroke': "green", 'stroke-width': 3.0});
+            }
         }
 
         paper.setSize("100%" , "100%");
@@ -79,7 +100,8 @@ $(function() {
           var y = latticePoint.y * this.size + this.offsetY;
 
         //  alert('real: ' + latticePoint.x + " = x: " + x + " y: " + y);
-        return new Point(x, y);
+        if (!(x<100 && y < 100) )
+            return new Point(x, y);
     }
 
     Grid.range = function(val, min, max) {
@@ -831,7 +853,7 @@ $(function() {
         var len = new Number(m3.getTotalLength());
         len = len.toFixed(0);
 
-        t = grid.paper.text(textPoint.x, textPoint.y, len);
+        t = grid.paper.text(textPoint.x, textPoint.y, len + " cm");
 
         this.measurements.push(m1,m2,m3,t);
 
@@ -927,5 +949,9 @@ $(function() {
         return result;
     }
 
+
+
 });
+
+
 
