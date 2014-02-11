@@ -35,10 +35,20 @@ $(function() {
         for (var i = 1; i <= width; i++) {
             line = paper.path("M"+(i*size+cutPix)+", "+0+", L"+(i*size+cutPix)+", "+(size*height)).attr({'stroke-opacity': 0});   //Path-function is named 'paperproto.path' in raphael.js
             // Make every 10th line stronger.
-            if (i % 10 === 0) {
+            if (i % 10 === 0 && i != 10) {
                 line.attr({
                     'stroke-opacity': 0.4
                 });
+            }
+            //Draws scale box in upper left corner
+            else if (i == 10)
+            {
+                var tempLine = paper.path("M"+(i*size+cutPix)+", "+100+", L"+(i*size+cutPix)+", "+(size*height)).attr({'stroke-opacity': 0}),
+                    upperGreenLine = paper.path("M"+(i*size+cutPix)+", "+0+", L"+(i*size+cutPix)+", "+25).attr({'stroke-opacity': 0}),
+                    lowerGreenLine = paper.path("M"+(i*size+cutPix)+", "+75+", L"+(i*size+cutPix)+", "+100).attr({'stroke-opacity': 0});
+                tempLine.attr({'stroke-opacity': 0.4});
+                upperGreenLine.attr({'stroke-opacity': 0.8, 'stroke': "green", 'stroke-width': 3.0, "arrow-start": "classic-midium-midium"});
+                lowerGreenLine.attr({'stroke-opacity': 0.8, 'stroke': "green", 'stroke-width': 3.0, "arrow-end": "classic-midium-midium"});
             }
         }
 
@@ -46,11 +56,22 @@ $(function() {
         for (var i = 1; i <= height; i++) {
            line = paper.path("M"+0+", "+(i*size+cutPix)+", L"+(size*width)+", "+(i*size+cutPix)).attr({'stroke-opacity': 0});
            // Make every 10th line stronger.
-           if (i % 10 === 0) {
+           if (i % 10 === 0 && i != 10) {
                 line.attr( {
                     'stroke-opacity': 0.4
                 });
-            } 
+            }
+            //Draws scale box in upper left corner
+            else if (i == 10)
+            {
+                var tempLine = paper.path("M"+100+", "+(i*size+cutPix)+", L"+(size*width)+", "+(i*size+cutPix)).attr({'stroke-opacity': 0}),
+                    leftGreenLine = paper.path("M"+0+", "+(i*size+cutPix)+", L"+25+", "+(i*size+cutPix)).attr({'stroke-opacity': 0}),
+                    rightGreenLine = paper.path("M"+75+", "+(i*size+cutPix)+", L"+100+", "+(i*size+cutPix)).attr({'stroke-opacity': 0}),
+                    t = grid.paper.text(50, 50, "100 cm");
+                tempLine.attr({'stroke-opacity': 0.4});
+                leftGreenLine.attr({'stroke-opacity': 0.8, 'stroke': "green", 'stroke-width': 3.0, "arrow-start": "classic-midium-midium"});
+                rightGreenLine.attr({'stroke-opacity': 0.8, 'stroke': "green", 'stroke-width': 3.0, "arrow-end": "classic-midium-midium"});
+            }
         }
 
         paper.setSize("100%" , "100%");
@@ -79,7 +100,8 @@ $(function() {
           var y = latticePoint.y * this.size + this.offsetY;
 
         //  alert('real: ' + latticePoint.x + " = x: " + x + " y: " + y);
-        return new Point(x, y);
+        if (!(x<100 && y < 100) )
+            return new Point(x, y);
     }
 
     Grid.range = function(val, min, max) {
@@ -517,11 +539,18 @@ $(function() {
      * Two arguments can be sent to this funcion, sending one will set point1.
     **/
     Room.prototype.isProximity = function (point1, point2) {
+
+        
         var initPointX = (point2 == null) ? this.walls[0].attrs.path[0][1] : point2[0],
-            initPointY = (point2 == null) ? this.walls[0].attrs.path[0][2] : point2[1],
-            endPointX = point1.x,
-            endPointY = point1.y,
-            rad = this.radius,
+            initPointY = (point2 == null) ? this.walls[0].attrs.path[0][2] : point2[1];
+
+            testLength = vectorLength([initPointX, initPointY], point1);
+
+
+            return (testLength <= this.radius);
+
+            /*
+
             diffX = (initPointX > endPointX) ? (initPointX - endPointX) : (endPointX - initPointX), 
             diffY = (initPointY > endPointY) ? (initPointY - endPointY) : (endPointY - initPointY);
 
@@ -530,6 +559,10 @@ $(function() {
         } else {
             return false;
         }
+
+        */
+
+
     }
 
     /**
@@ -858,11 +891,11 @@ $(function() {
 
         //Functionality that shows length and shit.. doesnt look very good.
         var textPoint = m3.getPointAtLength((m3.getTotalLength()/2)),
-            len = new Number(m3.getTotalLength());
+            len = new Number(m3.getTotalLength())/100;
             
-            len = len.toFixed(0);
+            len = len.toFixed(2);
 
-        t = grid.paper.text(textPoint.x, textPoint.y, len);
+        t = grid.paper.text(textPoint.x, textPoint.y, len + " m");
 
 
         // Adds to measurements set.
@@ -948,9 +981,9 @@ $(function() {
 
     // Function that takes two points and calculates their vector length.
     function vectorLength(p1, p2) {
-        var x1 = p1.x,
+        var x1 = p1[0],
             x2 = p2.x,
-            y1 = p1.y,
+            y1 = p1[1],
             y2 = p2.y,
             x = Math.pow((x2 - x1), 2),
             y = Math.pow((y2 - y1), 2),
@@ -959,5 +992,9 @@ $(function() {
         return result;
     }
 
+
+
 });
+
+
 
