@@ -106,6 +106,7 @@ $(function() {
         this.tmpCorners = [];
         this.initRoom();
         this.handle = null;
+        this.pathHandle = null;
         this.finished = false;
         this.measurements = grid.paper.set();
     }
@@ -151,26 +152,26 @@ $(function() {
      *  Function that adds drag and drop functionality to the walls.
      *
     **/
-    Room.prototype.clickableWalls = function() {
-
-
+    Room.prototype.clickableWalls = function(wMatch) {
 
         var walls = this.walls,
-            length = walls.length;
+            length = walls.length,
+            thisWall = wMatch,
+            prevWall = null,
+            nextWall = null;
 
         for (var i = 0; i < length; i++) {
 
+            if (walls[i] == thisWall) {
             var prevWall = (walls[i-1] != null) ? walls[i-1] : walls[length-1],
-                thisWall = walls[i],
                 nextWall = (walls[i+1] != null) ? walls[i+1] : walls[0];
-
-            this.clickableWall(prevWall, thisWall, nextWall);
+            }            
         }
-
-
-            
-
+            if (this.pathHandle == null && this.handle == null) {
+                this.clickableWall(prevWall, thisWall, nextWall);
+            }
     }
+
 
     Room.prototype.clickableWall = function(prev, current, next) {
 
@@ -180,21 +181,30 @@ $(function() {
             nextWall = next,
             pathArray1 = prevWall.attr("path"),
             pathArray2 = thisWall.attr("path"),
-            pathArray3 = nextWall.attr("path"),
+            pathArray3 = nextWall.attr("path");
 
-            start = function () {
-                this.lastdx ? this.odx += this.lastdx : this.odx = 0;
-                this.lastdy ? this.ody += this.lastdy : this.ody = 0;
+           this.pathHandle = grid.paper.path(thisWall.attrs.path).attr({
+                'stroke-width': (room.radius * 2),
+                'stroke-opacity': 0.3, 
+                cursor: "pointer",
+                stroke: "#3366FF"
+            });
 
+            
+
+           var start = function () {
+                //this.lastdx = this.attr("lastdx");
+                //this.lastdy = this.attr("lastdy");
+                //this.cx = this.attr("cx");
+                //this.cy = this.attr("cy");
             },
         
             move = function (dx, dy) {
 
                 var diffx = (this.lastdx != null) ? (this.lastdx - dx) : 0,
-                    diffy = (this.lastdy != null) ? (this.lastdy - dy): 0;
-
-                this.lastdx = dx;
-                this.lastdy = dy;
+                    diffy = (this.lastdy != null) ? (this.lastdy - dy) : 0;
+                    this.lastdx = dx;
+                    this.lastdy = dy;
 
                 // Changing values of the end of path1
                 pathArray1[1][1] -= diffx;
@@ -214,18 +224,40 @@ $(function() {
                 prevWall.attr({path: pathArray1});
                 thisWall.attr({path: pathArray2});
                 nextWall.attr({path: pathArray3});
+                this.attr({path: pathArray2});
+
 
                 room.refreshMeasurements();
                 options.refresh();
 
             },
             up = function () {
-                this.dx = this.dy = 0;
-              //this.animate({"fill-opacity": 1}, 500);
+                this.lastdx = this.lastdy = 0;
+                this.animate({"fill-opacity": 1}, 500);
+                this.remove();
+                room.nullify(); 
             };
+        this.pathHandle.drag(move, start, up);
+    }
 
-        thisWall.drag(move, start, up);
-    
+
+    Room.prototype.wallMatch = function(e) {
+        var walls = this.walls,
+            point = crossBrowserXY(e),
+            hit = null;
+
+        for (var i = 0; i < walls.length; i++) {
+
+           if (Raphael.isPointInsidePath(walls[i].attrs.path, point.x, point.y) != false) {
+                hit = walls[i];
+           }
+        }
+
+        if (hit != null) {
+            return hit;
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -234,12 +266,16 @@ $(function() {
     **/
     Room.prototype.clickableCorners = function() {
 
-        var room = this;
+        var room = this,
+         wMatch;
 
         $('#canvas_container').mousedown(room, function(e) {
 
             if ((match = room.checkMatch(e)) != null) {
                 room.dragCorner(match);
+
+            } else if ((wMatch = room.wallMatch(e)) != null) {
+                room.clickableWalls(wMatch);
             }
         });
 
@@ -334,11 +370,9 @@ $(function() {
 
             if (indexArr.length > 1) {
 
-                if (this.handle == null) {
+                if (this.handle == null && this.pathHandle == null) {
                     this.drag(indexArr, match);
                 }
-                
-
         }
     }
 
@@ -357,13 +391,13 @@ $(function() {
 
         this.handle = grid.paper.circle(mx,my,this.radius).attr({
             fill: "#3366FF",
-            'fill-opacity': 0.3, 
-            cursor: "pointer",
-            stroke: "black"
+            'fill-opacity': 0.3,
+            'stroke-opacity': 0,
+            cursor: "pointer"
         });
 
         var start = function () {
-          this.cx = this.attr("cx"),
+          this.cx = this.attr("cx");
           this.cy = this.attr("cy");
         },
         move = function (dx, dy) {
@@ -397,7 +431,7 @@ $(function() {
         up = function () {
            this.dx = this.dy = 0;
            this.animate({"fill-opacity": 1}, 500);
-           this.remove();
+           this.remove()
            room.nullify();           
         };
 
@@ -407,6 +441,7 @@ $(function() {
 
     Room.prototype.nullify = function() {
         this.handle = null;
+        this.pathHandle = null;
     }
 
     /**
@@ -624,7 +659,7 @@ $(function() {
         // drawWall is called after certain other functions, 
         // finished is set true within finished wall, therefore when drawing the last wall they should be made clickable.
         if (this.finished) {
-            this.clickableWalls();
+          //  this.clickableWalls();
         }
 
         options.refresh();
@@ -706,8 +741,9 @@ $(function() {
             this.tmpCircle = grid.paper.circle(point[0], point[1], this.radius, 0, 2 * Math.PI, false).attr(
             {
                 fill: "#008000",
-                'fill-opacity': 0.3, 
-                stroke: "#3366FF"
+                'fill-opacity': 0.3,
+                'stroke-opacity': 0,
+                cursor: "pointer"
             });
 
             this.tmpCircle.toBack();
