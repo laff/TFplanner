@@ -504,11 +504,18 @@ $(function() {
      * Two arguments can be sent to this funcion, sending one will set point1.
     **/
     Room.prototype.isProximity = function (point1, point2) {
+
+        
         var initPointX = (point2 == null) ? this.walls[0].attrs.path[0][1] : point2[0],
-            initPointY = (point2 == null) ? this.walls[0].attrs.path[0][2] : point2[1],
-            endPointX = point1.x,
-            endPointY = point1.y,
-            rad = this.radius,
+            initPointY = (point2 == null) ? this.walls[0].attrs.path[0][2] : point2[1];
+
+            testLength = vectorLength([initPointX, initPointY], point1);
+
+
+            return (testLength <= this.radius);
+
+            /*
+
             diffX = (initPointX > endPointX) ? (initPointX - endPointX) : (endPointX - initPointX), 
             diffY = (initPointY > endPointY) ? (initPointY - endPointY) : (endPointY - initPointY);
 
@@ -517,6 +524,10 @@ $(function() {
         } else {
             return false;
         }
+
+        */
+
+
     }
 
     /**
@@ -844,11 +855,11 @@ $(function() {
 
         //Functionality that shows length and shit.. doesnt look very good.
         var textPoint = m3.getPointAtLength((m3.getTotalLength()/2)),
-            len = new Number(m3.getTotalLength());
+            len = new Number(m3.getTotalLength())/100;
             
-            len = len.toFixed(0);
+            len = len.toFixed(2);
 
-        t = grid.paper.text(textPoint.x, textPoint.y, len + " cm");
+        t = grid.paper.text(textPoint.x, textPoint.y, len + " m");
 
 
         // Adds to measurements set.
@@ -934,9 +945,9 @@ $(function() {
 
     // Function that takes two points and calculates their vector length.
     function vectorLength(p1, p2) {
-        var x1 = p1.x,
+        var x1 = p1[0],
             x2 = p2.x,
-            y1 = p1.y,
+            y1 = p1[1],
             y2 = p2.y,
             x = Math.pow((x2 - x1), 2),
             y = Math.pow((y2 - y1), 2),
