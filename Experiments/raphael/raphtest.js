@@ -129,6 +129,7 @@ $(function() {
         this.initRoom();
         this.handle = null;
         this.pathHandle = null;
+        this.pathVisual = null;
         this.finished = false;
         this.measurements = grid.paper.set();
     }
@@ -226,7 +227,6 @@ $(function() {
             },
         
             move = function (dx, dy) {
-
                 var diffx = (this.lastdx != null) ? (this.lastdx - dx) : 0,
                     diffy = (this.lastdy != null) ? (this.lastdy - dy) : 0;
                     this.lastdx = dx;
@@ -276,10 +276,13 @@ $(function() {
 
         for (var i = 0; i < walls.length; i++) {
 
-            // Built-in Raphael-functionality that returns 'true' if the clicked point is on one of our paths.
-           if (Raphael.isPointInsidePath(walls[i].attrs.path, point.x, point.y) != false) {
-                hit = walls[i];
-           }
+            // If some text is on top of the paper, we might get an undefined point.
+            if (point != undefined) {
+                // Built-in Raphael-functionality that returns 'true' if the clicked point is on one of our paths.
+                if (Raphael.isPointInsidePath(walls[i].attrs.path, point.x, point.y) != false) {
+                    hit = walls[i];
+                }
+            }
         }
         // If we have targeted a wall, we returns it, unless 'null'.
         if (hit != null) {
@@ -288,6 +291,27 @@ $(function() {
             return null;
         }
     }
+
+    /**
+     * On a wall-mouseover this function will visualise that a wall is under the mousepoint.
+    **/
+
+    Room.prototype.visualizeTargetWall = function (targetWall) {
+        
+        var doWall = (this.pathVisual == null) ? true : (this.pathVisual[0] == null);
+
+        // No need to show wall as 'mouseovered' if the tmpCircle is already visible
+        if (doWall) {
+            // Draws a light-green wall to show which wall that is mouseovered.
+           this.pathVisual = grid.paper.path(targetWall.attrs.path).attr({
+                'stroke-width': (this.radius * 2),
+                'stroke-opacity': 0.3,
+                stroke: "#008000"
+            });
+           this.pathVisual.toBack();
+       } 
+    }
+
 
     /**
      * Binds action listeners to mouse click and movement, especially for moving corners and walls.
@@ -309,12 +333,20 @@ $(function() {
 
         // Binds action for mouseover, specifically for showing temp shit
         $('#canvas_container').mousemove(room, function(e) {
-
-            if ((match = room.checkMatch(e)) != null && room.handle == null) {
+            // No need to draw the circle if a corner or a wall already is targeted.
+            if ((match = room.checkMatch(e)) != null && room.handle == null && room.pathHandle == null && room.pathVisual == null) {
                 room.visualizeRoomEnd(match);
 
             } else if (room.tmpCircle != null) {
                 room.tmpCircle.remove();
+                room.tmpCircle = null;
+
+            } else if ((wMatch = room.wallMatch(e)) != null && room.handle == null && room.pathHandle == null && room.tmpCircle == null) {
+                room.visualizeTargetWall(wMatch);
+
+            } else if (room.pathVisual != null) {
+                room.pathVisual.remove();
+                room.pathVisual = null;
             }
 
         });
@@ -552,6 +584,8 @@ $(function() {
         var initPointX = (point2 == null) ? this.walls[0].attrs.path[0][1] : point2[0],
             initPointY = (point2 == null) ? this.walls[0].attrs.path[0][2] : point2[1];
 
+            // No need to check the length if point1 is undefined. (Might occur over text at the grid)
+            if (point1 == undefined) {return;}
             testLength = vectorLength([initPointX, initPointY], point1);
 
 
@@ -685,6 +719,7 @@ $(function() {
 
         if (tmpWall != null) {
             tmpWall.remove();
+            this.tmpWall = null;
         }
 
         wall = grid.paper.path("M"+point1.x+","+point1.y+"L"+point2.x+","+point2.y).attr(
@@ -696,12 +731,6 @@ $(function() {
             });
 
         this.walls.push(wall);
-
-        // drawWall is called after certain other functions, 
-        // finished is set true within finished wall, therefore when drawing the last wall they should be made clickable.
-        if (this.finished) {
-          //  this.clickableWalls();
-        }
 
         options.refresh();
         this.refreshMeasurements();
@@ -747,23 +776,35 @@ $(function() {
 
 
         // Three steps:
-        // 1: removing the last tmpwall if any.
+        // 1: If the tmpWall is 'null' we draw it, if it already exist we just change the attributes.
         // 2: deciding to color the tmpline red/black based on if it crosses another,
         // and if it is the same as the starting point of the first wall.
         // 3: assigning "this.crossed" to false/true based on the above. used in endWall().
-        if (tmpWall != null) {
-            tmpWall.remove();
-        }
+
 
         if (crossed && !(x1 == p2.x && y1 == p2.y)) {
-            this.tmpWall = grid.paper.path("M"+p1.x+","+p1.y+"L"+p2.x+","+p2.y).attr(
-            {   
-                stroke: '#ff0000'
-            });
+
+            if (tmpWall == null) {
+                this.tmpWall = grid.paper.path("M"+p1.x+","+p1.y+"L"+p2.x+","+p2.y).attr({
+                    stroke: '#ff0000'
+                });
+
+            } else {
+                tmpWall.attr({
+                    path: ["M"+p1.x+","+p1.y+"L"+p2.x+","+p2.y],
+                    stroke: '#ff0000'
+                });
+            }
+
+        } else if (tmpWall == null) {
+            this.tmpWall = grid.paper.path("M"+p1.x+","+p1.y+"L"+p2.x+","+p2.y);
 
         } else {
-            this.tmpWall = grid.paper.path("M"+p1.x+","+p1.y+"L"+p2.x+","+p2.y);
-        }        
+            tmpWall.attr({
+                path: ["M"+p1.x+","+p1.y+"L"+p2.x+","+p2.y],
+                stroke: '#000000'
+            });
+        }
         this.crossed = crossed;
     }
 
@@ -777,14 +818,12 @@ $(function() {
             point = (point == null) ? [this.walls[0].attrs.path[0][1], this.walls[0].attrs.path[0][2]] : point,
             doCircle = (tmpCircle == null) ? true : (tmpCircle[0] == null);
 
-
         if (doCircle) {
             this.tmpCircle = grid.paper.circle(point[0], point[1], this.radius, 0, 2 * Math.PI, false).attr(
             {
                 fill: "#008000",
                 'fill-opacity': 0.3,
-                'stroke-opacity': 0,
-                cursor: "pointer"
+                'stroke-opacity': 0
             });
 
             this.tmpCircle.toBack();
@@ -905,7 +944,6 @@ $(function() {
 
         t = grid.paper.text(textPoint.x, textPoint.y, len + " m");
 
-
         // Adds to measurements set.
         this.measurements.push(m1,m2,m3,t);
     }
@@ -989,6 +1027,7 @@ $(function() {
 
     // Function that takes two points and calculates their vector length.
     function vectorLength(p1, p2) {
+
         var x1 = p1[0],
             x2 = p2.x,
             y1 = p1[1],
