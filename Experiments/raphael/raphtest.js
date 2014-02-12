@@ -74,10 +74,13 @@ $(function() {
         t = grid.paper.text(50+x, 50+y, "100 cm");
 
         //Event handler for clear button
-        clearButton.click(function(e) {
-            //this.clearButton = paper.image("Graphics/clear_pressed.png", x+115, y+10, 70, 30);
-            ourRoom.clearRoom();
-            ourRoom = new Room(20);
+        clearButton.mousedown(function(e) {
+            var pressedButton = paper.image("Graphics/clear_pressed.png", x+115, y+10, 70, 30);
+            if (ourRoom.finished == true) {
+                ourRoom.clearRoom();
+                ourRoom = new Room(20);
+            }
+            setTimeout(function(){pressedButton.remove()}, 300);
         });
 
     }
@@ -977,10 +980,11 @@ $(function() {
             tmpCorners.pop();
         }
         this.refreshMeasurements();
+        options.refresh();
 
         //Removes mousehandlers from ClickableCorners
-        $('#canvas_container').unbind('mousedown');
-        $('#canvas_container').unbind('mousemove');
+        //$('#canvas_container').unbind('mousedown');
+       //$('#canvas_container').unbind('mousemove');
     }
 
     // Starts the room creation progress!
@@ -1031,10 +1035,7 @@ $(function() {
     Options.prototype.refresh = function() {
 
         var walls = ourRoom.walls;
-
-        if (!walls.length) {
-            return;
-        }   
+ 
 
         // Creating the column names
         var myTable= "<table id='options'><tr><th>Wall number</th>";
