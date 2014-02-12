@@ -171,7 +171,7 @@ $(function() {
 
 
     /**
-     *  Function that adds drag and drop functionality to the walls.
+     * Called when we have targeted a wall. Used to find the 'neighbour-walls' of our target.
      *
     **/
     Room.prototype.clickableWalls = function(wMatch) {
@@ -184,17 +184,23 @@ $(function() {
 
         for (var i = 0; i < length; i++) {
 
+            // When wall number 'i' is the same as our targeted wall, we can easily find the two walls
+            // connected to it. (Some special-cases when we have targeted the first or the last wall)
             if (walls[i] == thisWall) {
             var prevWall = (walls[i-1] != null) ? walls[i-1] : walls[length-1],
                 nextWall = (walls[i+1] != null) ? walls[i+1] : walls[0];
             }            
         }
+            // If we not already have targeted a wall or a corner, we can select the wanted one.
             if (this.pathHandle == null && this.handle == null) {
                 this.clickableWall(prevWall, thisWall, nextWall);
             }
     }
 
-
+    /**
+     *  Function that adds drag and drop functionality to the walls.
+     *  Parameters are our targeted wall, and it`s two neighbours.
+    **/
     Room.prototype.clickableWall = function(prev, current, next) {
 
         var room = this,
@@ -205,20 +211,18 @@ $(function() {
             pathArray2 = thisWall.attr("path"),
             pathArray3 = nextWall.attr("path");
 
+            // Handler used so we easily can target and drag a wall.
            this.pathHandle = grid.paper.path(thisWall.attrs.path).attr({
                 'stroke-width': (room.radius * 2),
                 'stroke-opacity': 0.3, 
                 cursor: "pointer",
                 stroke: "#3366FF"
             });
-
             
 
            var start = function () {
-                //this.lastdx = this.attr("lastdx");
-                //this.lastdy = this.attr("lastdy");
-                //this.cx = this.attr("cx");
-                //this.cy = this.attr("cy");
+                this.lastdx = this.attr("lastdx");
+                this.lastdy = this.attr("lastdy");
             },
         
             move = function (dx, dy) {
@@ -228,41 +232,43 @@ $(function() {
                     this.lastdx = dx;
                     this.lastdy = dy;
 
-                // Changing values of the end of path1
+                // Changing values of the end of the wall 'before' the target-wall.
                 pathArray1[1][1] -= diffx;
                 pathArray1[1][2] -= diffy;
 
-                // Changing values of both "ends" of path2
+                // Changing values of both ends of our dragged target.
                 pathArray2[0][1] -= diffx;
                 pathArray2[0][2] -= diffy;
                 pathArray2[1][1] -= diffx;
                 pathArray2[1][2] -= diffy;
 
-                // Changing values of the starting point of path3
+                // Changing values of the wall 'after' our target-wall.
                 pathArray3[0][1] -= diffx;
                 pathArray3[0][2] -= diffy;
 
-                // Updating the paths attr.
+                // Updating the attributes of the three walls, so they are redrawn as they are dragged.
                 prevWall.attr({path: pathArray1});
                 thisWall.attr({path: pathArray2});
                 nextWall.attr({path: pathArray3});
                 this.attr({path: pathArray2});
-
 
                 room.refreshMeasurements();
                 options.refresh();
 
             },
             up = function () {
+                // Clear variables and delete the handler on mouseup.
                 this.lastdx = this.lastdy = 0;
-                this.animate({"fill-opacity": 1}, 500);
                 this.remove();
                 room.nullify(); 
             };
         this.pathHandle.drag(move, start, up);
     }
 
-
+    /**
+     * Find the matching wall for our mouseclick-event(e), if there is a wall that matches the clicked point.
+     *
+    **/
     Room.prototype.wallMatch = function(e) {
         var walls = this.walls,
             point = crossBrowserXY(e),
@@ -270,11 +276,12 @@ $(function() {
 
         for (var i = 0; i < walls.length; i++) {
 
+            // Built-in Raphael-functionality that returns 'true' if the clicked point is on one of our paths.
            if (Raphael.isPointInsidePath(walls[i].attrs.path, point.x, point.y) != false) {
                 hit = walls[i];
            }
         }
-
+        // If we have targeted a wall, we returns it, unless 'null'.
         if (hit != null) {
             return hit;
         } else {
@@ -283,13 +290,12 @@ $(function() {
     }
 
     /**
-     * Binds action listeners to mouse click and movement, especially for moving corners.
+     * Binds action listeners to mouse click and movement, especially for moving corners and walls.
      *
     **/
     Room.prototype.clickableCorners = function() {
 
-        var room = this,
-         wMatch;
+        var room = this;
 
         $('#canvas_container').mousedown(room, function(e) {
 
@@ -458,9 +464,11 @@ $(function() {
         };
 
         this.handle.drag(move, start, up);
-
     }
 
+    /**
+     * Function to make sure our handlers are cleared, and nullified.
+    **/
     Room.prototype.nullify = function() {
         this.handle = null;
         this.pathHandle = null;
