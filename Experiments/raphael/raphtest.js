@@ -854,13 +854,15 @@ $(function() {
 
         for (var i = 0; i < len; i++) {
 
-            this.lengthMeasurement(walls[i]);
+            
             
             if (finished) {
                 this.angleMeasurement(i);
             } else if (i >= 1) {
                 this.angleMeasurement(i);
             }
+
+        this.lengthMeasurement(walls[i]);
             
         }
     }
@@ -1023,6 +1025,8 @@ $(function() {
                 'stroke-width': 1,
                 'stroke-linecap': "round"
             }),
+            angle1,
+            angle2,
             bm1,
             bm2,
             m3p1x,
@@ -1035,8 +1039,18 @@ $(function() {
             t;
     
 
-        m1.transform("r90,"+startP1[1]+","+startP1[2]);
-        m2.transform("r270,"+startP2[1]+","+startP2[2]);
+        console.log("inverted: "+this.inverted);
+
+        if (this.inverted) {
+            angle1 = 270;
+            angle2 = 90;
+        } else {
+            angle1 = 90;
+            angle2 = 270;
+        }
+
+        m1.transform("r"+angle1+","+startP1[1]+","+startP1[2]);
+        m2.transform("r"+angle2+","+startP2[1]+","+startP2[2]);
 
         bm1 = m1.getBBox();
         bm2 = m2.getBBox();
