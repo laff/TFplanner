@@ -11,7 +11,6 @@ $(function() {
     	var rectangle = paper.rect(200, 200, 250, 100); 
     */
 
-
     // constructor
     function Grid() {
         this.size = 5,               // How many pixels between each horizontal/vertical line.
@@ -59,17 +58,30 @@ $(function() {
     //X and Y values for upper left corner of box
     Grid.prototype.scaleBox = function (x, y) {
         var paper = this.paper,
+            frame = paper.rect(x-5, y-5, 310, 110),
             box = paper.rect(x, y, 100, 100),
             line1 = paper.path("M"+(50+x)+", " +y+", L"+(50+x)+", "+(25+y)).attr({'stroke-opacity': 0}),
             line2 = paper.path("M"+(50+x)+", " +(75+y)+", L"+(50+x)+", "+(100+y)).attr({'stroke-opacity': 0}),
             line3 = paper.path("M"+(x)+", " +(50+y)+", L"+(25+x)+", "+(50+y)).attr({'stroke-opacity': 0}),
-            line4 = paper.path("M"+(75+x)+", " +(50+y)+", L"+(100+x)+", "+(50+y)).attr({'stroke-opacity': 0});
-        box.attr({'stroke-opacity': 1.0, 'stroke': "green", 'stroke-width': 3.0, 'fill': "white", 'fill-opacity': 0.8});
+            line4 = paper.path("M"+(75+x)+", " +(50+y)+", L"+(100+x)+", "+(50+y)).attr({'stroke-opacity': 0})
+            clearButton = paper.image("Graphics/clear_unpressed.png", x+115, y+10, 70, 30);
+        frame.attr({'stroke-opacity': 1.0, 'stroke': "black", 'stroke-width': 3.0, 'fill': "white", 'fill-opacity': 0.8});
+        box.attr({'stroke-opacity': 1.0, 'stroke': "green", 'stroke-width': 3.0, 'fill': "white", 'fill-opacity': 0.1});
         line1.attr({'stroke-opacity': 1.0, 'stroke': "green", 'stroke-width': 3.0, "arrow-start": "classic-midium-midium"});
         line2.attr({'stroke-opacity': 1.0, 'stroke': "green", 'stroke-width': 3.0, "arrow-end": "classic-midium-midium"});
         line3.attr({'stroke-opacity': 1.0, 'stroke': "green", 'stroke-width': 3.0, "arrow-start": "classic-midium-midium"});
         line4.attr({'stroke-opacity': 1.0, 'stroke': "green", 'stroke-width': 3.0, "arrow-end": "classic-midium-midium"}),
         t = grid.paper.text(50+x, 50+y, "100 cm");
+
+        //Event handler for clear button
+        clearButton.mousedown(function(e) {
+            var pressedButton = paper.image("Graphics/clear_pressed.png", x+115, y+10, 70, 30);
+            if (ourRoom.finished == true) {
+                ourRoom.clearRoom();
+                ourRoom = new Room(20);
+            }
+            setTimeout(function(){pressedButton.remove()}, 300);
+        });
 
     }
 
@@ -100,7 +112,7 @@ $(function() {
           var y = latticePoint.y * this.size + this.offsetY;
 
         //  alert('real: ' + latticePoint.x + " = x: " + x + " y: " + y);
-        if (!(x<100 && y < 100) )
+        if (!(x<360 && y < 160) )
             return new Point(x, y);
     }
 
@@ -120,7 +132,7 @@ $(function() {
     function Room (radius) {
         this.radius = radius;   // Custom wall-end-force-field
         this.lastPoint = null;
-        this.walls = [];
+        this.walls = grid.paper.set();
         this.tmpWall = null;
         this.tmpCircle = null;
         this.proximity = false;
@@ -833,11 +845,12 @@ $(function() {
     **/
     Room.prototype.refreshMeasurements = function() {
 
-        var walls = this.walls;
+        var walls = this.walls,
+            len = walls.length;
 
         this.measurements.remove();
 
-        for (var i = 0; i < walls.length; i++) {
+        for (var i = 0; i < len; ++i) {
 
             this.lengthMeasurement(walls[i]);
 
@@ -935,6 +948,32 @@ $(function() {
         this.measurements.push(m1,m2,m3,t);
     }
 
+    //Function removes the currently drawn room)
+    Room.prototype.clearRoom = function() {
+        var walls = this.walls, 
+            tmpCorners = this.tmpCorners,
+            len = walls.length;
+
+        //Empties arrays
+        for (var i = len-1; i >= 0; --i)
+        {
+            walls[i].remove();
+        }
+        walls.clear();
+        len = tmpCorners.length;
+        for (var i = len-1; i >= 0; --i)
+        {
+            tmpCorners[i].remove();
+            tmpCorners.pop();
+        }
+        this.refreshMeasurements();
+        options.refresh();
+
+        //Removes mousehandlers from ClickableCorners
+        //$('#canvas_container').unbind('mousedown');
+       //$('#canvas_container').unbind('mousemove');
+    }
+
     // Starts the room creation progress!
     var ourRoom = new Room(20);
 
@@ -983,10 +1022,7 @@ $(function() {
     Options.prototype.refresh = function() {
 
         var walls = ourRoom.walls;
-
-        if (!walls.length) {
-            return;
-        }   
+ 
 
         // Creating the column names
         var myTable= "<table id='options'><tr><th>Wall number</th>";
