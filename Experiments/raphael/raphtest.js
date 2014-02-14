@@ -141,6 +141,7 @@ $(function() {
         this.initRoom();
         this.handle = null;
         this.pathHandle = null;
+        this.hoverWall = null;
         this.finished = false;
         this.measurements = grid.paper.set();
     }
@@ -175,7 +176,6 @@ $(function() {
                 if (room.lastPoint != point) {
                     room.drawTempLine(point);
                 }
-
             }
 
         });
@@ -225,15 +225,14 @@ $(function() {
 
             // Handler used so we easily can target and drag a wall.
            this.pathHandle = grid.paper.path(thisWall.attrs.path).attr({
+                stroke: "#3366FF",
                 'stroke-width': room.radius,
                 'stroke-opacity': 0.5, 
                 'stroke-linecap': "butt",
-                stroke: "#3366FF",
-                cursor: "pointer"
+                cursor: "move"
             });
            
            var start = function () {
-            console.log(this);
                 //this.lastdx = this.attr("lastdx");
                 //this.lastdy = this.attr("lastdy");
             },
@@ -268,13 +267,14 @@ $(function() {
                 options.refresh();
 
             },
+
             up = function () {
                 // Clear variables and delete the handler on mouseup.
                 this.lastdx = this.lastdy = 0;
                 this.remove();
                 room.nullify(); 
-                console.log("up!!");
             };
+
         this.pathHandle.drag(move, start, up);
     }
 
@@ -288,14 +288,19 @@ $(function() {
             room = this;
 
         for (var i = 0; i < walls.length; i++) {
+
             walls[i].mouseover(function() {
-                this.attr({                
-                    'stroke-width': room.radius,
-                    'stroke-opacity': 0.5,
-                    'stroke-linecap': "butt", 
-                    cursor: "pointer",
-                    stroke: "#008000"
-                })
+                // Do not visualize the mouseovered wall, if an other wall or corner is targeted.
+                if (room.handle == null && room.tmpCircle == null && room.pathHandle == null) {
+                    room.hoverWall = true;
+                    this.attr({    
+                        stroke: "#008000",            
+                        'stroke-width': room.radius,
+                        'stroke-opacity': 0.5,
+                        'stroke-linecap': "butt",
+                        cursor: "pointer"      
+                    })
+                }
             })
 
             walls[i].mousedown(function() {
@@ -303,17 +308,18 @@ $(function() {
             })
             
             walls[i].mouseout(function() {
+                room.hoverWall = null;
                 this.attr({
                     fill: "#00000", 
                     stroke: "#2F4F4F",
                     'stroke-width': 5,
                     'stroke-linecap': "square",
-                    'stroke-opacity': 1
+                    'stroke-opacity': 1,
+                    cursor: "default"
                 })
             })
         }
     }
-
 
     /**
      * Binds action listeners to mouse click and movement, especially for moving corners and walls.
@@ -332,7 +338,7 @@ $(function() {
         // Binds action for mouseover, specifically for showing temp shit
         $('#canvas_container').mousemove(room, function(e) {
             // No need to draw the circle if a corner or a wall already is targeted.
-            if ((match = room.checkMatch(e)) != null && room.handle == null && room.pathHandle == null) {
+            if ((match = room.checkMatch(e)) != null && room.handle == null && room.pathHandle == null && room.hoverWall == null) {
                 room.visualizeRoomEnd(match);
 
             } else if (room.tmpCircle != null) {
@@ -450,6 +456,7 @@ $(function() {
           this.cx = this.attr("cx");
           this.cy = this.attr("cy");
         },
+
         move = function (dx, dy) {
            var X = this.cx + dx,
                Y = this.cy + dy;
@@ -475,9 +482,9 @@ $(function() {
             path1.attr({path: pathArray1});
             path2.attr({path: pathArray2});
             room.refreshMeasurements();
-            options.refresh();
-           
+            options.refresh();    
         },
+
         up = function () {
            this.dx = this.dy = 0;
            this.animate({"fill-opacity": 1}, 500);
@@ -561,9 +568,6 @@ $(function() {
 
         this.lastPoint = newEnd;
         this.drawWall(newStart, newEnd);
-
-
-
     }
 
     /** 
@@ -716,8 +720,7 @@ $(function() {
             this.tmpWall = null;
         }
 
-        wall = grid.paper.path("M"+point1.x+","+point1.y+"L"+point2.x+","+point2.y).attr(
-            {
+        wall = grid.paper.path("M"+point1.x+","+point1.y+"L"+point2.x+","+point2.y).attr({
                 fill: "#00000", 
                 stroke: "#2F4F4F",
                 'stroke-width': 5,
@@ -818,14 +821,11 @@ $(function() {
             doCircle = (tmpCircle == null) ? true : (tmpCircle[0] == null);
 
         if (doCircle) {
-            this.tmpCircle = grid.paper.circle(point[0], point[1], this.radius, 0, 2 * Math.PI, false).attr(
-            {
+            this.tmpCircle = grid.paper.circle(point[0], point[1], this.radius, 0, 2 * Math.PI, false).attr({
                 fill: "#008000",
                 'fill-opacity': 0.5,
                 'stroke-opacity': 0.5
             });
-
-            this.tmpCircle.toBack();
 
         } else {
             this.tmpCircle.attr({
@@ -843,7 +843,7 @@ $(function() {
      * OBS! Should it go through all walls or only the ones that have changed?
      *
     **/
-    Room.prototype.refreshMeasurements = function() {
+    Room.prototype.refreshMeasurements = function () {
 
         var walls = this.walls,
             len = walls.length;
@@ -858,7 +858,7 @@ $(function() {
 
     }
 
-    Room.prototype.lengthMeasurement = function(wall) {
+    Room.prototype.lengthMeasurement = function (wall) {
 
         var startP1 = wall.attrs.path[0],
             endP1 = wall.getPointAtLength(this.radius),
