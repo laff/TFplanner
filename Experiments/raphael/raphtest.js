@@ -129,7 +129,6 @@ $(function() {
         this.initRoom();
         this.handle = null;
         this.pathHandle = null;
-        this.pathVisual = null;
         this.finished = false;
         this.measurements = grid.paper.set();
     }
@@ -170,7 +169,6 @@ $(function() {
         });
     }
 
-
     /**
      * Called when we have targeted a wall. Used to find the 'neighbour-walls' of our target.
      *
@@ -186,9 +184,9 @@ $(function() {
         for (var i = 0; i < length; i++) {
 
             // When wall number 'i' is the same as our targeted wall, we can easily find the two walls
-            // connected to it. (Some special-cases when we have targeted the first or the last wall)
+            // connected to it. (Some special-cases when we have targeted the first or the last wall in the array)
             if (walls[i] == thisWall) {
-            var prevWall = (walls[i-1] != null) ? walls[i-1] : walls[length-1],
+                prevWall = (walls[i-1] != null) ? walls[i-1] : walls[length-1];
                 nextWall = (walls[i+1] != null) ? walls[i+1] : walls[0];
             }            
         }
@@ -212,18 +210,20 @@ $(function() {
             pathArray2 = thisWall.attr("path"),
             pathArray3 = nextWall.attr("path");
 
+
             // Handler used so we easily can target and drag a wall.
            this.pathHandle = grid.paper.path(thisWall.attrs.path).attr({
-                'stroke-width': (room.radius * 2),
-                'stroke-opacity': 0.3, 
-                cursor: "pointer",
-                stroke: "#3366FF"
+                'stroke-width': room.radius,
+                'stroke-opacity': 0.5, 
+                'stroke-linecap': "butt",
+                stroke: "#3366FF",
+                cursor: "pointer"
             });
-            
-
+           
            var start = function () {
-                this.lastdx = this.attr("lastdx");
-                this.lastdy = this.attr("lastdy");
+            console.log(this);
+                //this.lastdx = this.attr("lastdx");
+                //this.lastdy = this.attr("lastdy");
             },
         
             move = function (dx, dy) {
@@ -261,55 +261,45 @@ $(function() {
                 this.lastdx = this.lastdy = 0;
                 this.remove();
                 room.nullify(); 
+                console.log("up!!");
             };
         this.pathHandle.drag(move, start, up);
     }
 
+
     /**
-     * Find the matching wall for our mouseclick-event(e), if there is a wall that matches the clicked point.
+     * Functionality for adding mouse-handlers to all the walls. Called when the 'finishRoom'-variable is set.
      *
     **/
-    Room.prototype.wallMatch = function(e) {
+    Room.prototype.setHandlers = function() {
         var walls = this.walls,
-            point = crossBrowserXY(e),
-            hit = null;
+            room = this;
 
         for (var i = 0; i < walls.length; i++) {
+            walls[i].mouseover(function() {
+                this.attr({                
+                    'stroke-width': room.radius,
+                    'stroke-opacity': 0.5,
+                    'stroke-linecap': "butt", 
+                    cursor: "pointer",
+                    stroke: "#008000"
+                })
+            })
 
-            // If some text is on top of the paper, we might get an undefined point.
-            if (point != undefined) {
-                // Built-in Raphael-functionality that returns 'true' if the clicked point is on one of our paths.
-                if (Raphael.isPointInsidePath(walls[i].attrs.path, point.x, point.y) != false) {
-                    hit = walls[i];
-                }
-            }
+            walls[i].mousedown(function() {
+                room.clickableWalls(this);
+            })
+            
+            walls[i].mouseout(function() {
+                this.attr({
+                    fill: "#00000", 
+                    stroke: "#2F4F4F",
+                    'stroke-width': 5,
+                    'stroke-linecap': "square",
+                    'stroke-opacity': 1
+                })
+            })
         }
-        // If we have targeted a wall, we returns it, unless 'null'.
-        if (hit != null) {
-            return hit;
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * On a wall-mouseover this function will visualise that a wall is under the mousepoint.
-    **/
-
-    Room.prototype.visualizeTargetWall = function (targetWall) {
-        
-        var doWall = (this.pathVisual == null) ? true : (this.pathVisual[0] == null);
-
-        // No need to show wall as 'mouseovered' if the tmpCircle is already visible
-        if (doWall) {
-            // Draws a light-green wall to show which wall that is mouseovered.
-           this.pathVisual = grid.paper.path(targetWall.attrs.path).attr({
-                'stroke-width': (this.radius * 2),
-                'stroke-opacity': 0.3,
-                stroke: "#008000"
-            });
-           this.pathVisual.toBack();
-       } 
     }
 
 
@@ -322,33 +312,21 @@ $(function() {
         var room = this;
 
         $('#canvas_container').mousedown(room, function(e) {
-
             if ((match = room.checkMatch(e)) != null) {
                 room.dragCorner(match);
-
-            } else if ((wMatch = room.wallMatch(e)) != null) {
-                room.clickableWalls(wMatch);
             }
         });
 
         // Binds action for mouseover, specifically for showing temp shit
         $('#canvas_container').mousemove(room, function(e) {
             // No need to draw the circle if a corner or a wall already is targeted.
-            if ((match = room.checkMatch(e)) != null && room.handle == null && room.pathHandle == null && room.pathVisual == null) {
+            if ((match = room.checkMatch(e)) != null && room.handle == null && room.pathHandle == null) {
                 room.visualizeRoomEnd(match);
 
             } else if (room.tmpCircle != null) {
                 room.tmpCircle.remove();
                 room.tmpCircle = null;
-
-            } else if ((wMatch = room.wallMatch(e)) != null && room.handle == null && room.pathHandle == null && room.tmpCircle == null) {
-                room.visualizeTargetWall(wMatch);
-
-            } else if (room.pathVisual != null) {
-                room.pathVisual.remove();
-                room.pathVisual = null;
-            }
-
+            } 
         });
 
     }
@@ -451,8 +429,8 @@ $(function() {
 
         this.handle = grid.paper.circle(mx,my,this.radius).attr({
             fill: "#3366FF",
-            'fill-opacity': 0.3,
-            'stroke-opacity': 0,
+            'fill-opacity': 0.5,
+            'stroke-opacity': 0.5,
             cursor: "pointer"
         });
 
@@ -571,6 +549,9 @@ $(function() {
 
         this.lastPoint = newEnd;
         this.drawWall(newStart, newEnd);
+
+
+
     }
 
     /** 
@@ -715,7 +696,8 @@ $(function() {
     Room.prototype.drawWall = function (point1, point2) {
 
         var tmpWall = this.tmpWall,
-            walls = this.walls;
+            walls = this.walls,
+            room = this;
 
         if (tmpWall != null) {
             tmpWall.remove();
@@ -734,6 +716,11 @@ $(function() {
 
         options.refresh();
         this.refreshMeasurements();
+
+        // When the room is finished, we can add handlers to the walls.
+        if (room.finished) {
+            room.setHandlers();
+        }
     }
 
     /**
@@ -822,8 +809,8 @@ $(function() {
             this.tmpCircle = grid.paper.circle(point[0], point[1], this.radius, 0, 2 * Math.PI, false).attr(
             {
                 fill: "#008000",
-                'fill-opacity': 0.3,
-                'stroke-opacity': 0
+                'fill-opacity': 0.5,
+                'stroke-opacity': 0.5
             });
 
             this.tmpCircle.toBack();
