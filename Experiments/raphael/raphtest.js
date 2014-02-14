@@ -189,6 +189,7 @@ $(function() {
 
         var walls = this.walls,
             length = walls.length,
+            room = this,
             thisWall = wMatch,
             prevWall = null,
             nextWall = null;
@@ -203,8 +204,8 @@ $(function() {
             }            
         }
             // If we not already have targeted a wall or a corner, we can select the wanted one.
-            if (this.pathHandle == null && this.handle == null) {
-                this.clickableWall(prevWall, thisWall, nextWall);
+            if (room.pathHandle == null && room.handle == null) {
+                room.clickableWall(prevWall, thisWall, nextWall);
             }
     }
 
@@ -224,7 +225,7 @@ $(function() {
 
 
             // Handler used so we easily can target and drag a wall.
-           this.pathHandle = grid.paper.path(thisWall.attrs.path).attr({
+           room.pathHandle = grid.paper.path(thisWall.attrs.path).attr({
                 stroke: "#3366FF",
                 'stroke-width': room.radius,
                 'stroke-opacity': 0.5, 
@@ -275,7 +276,7 @@ $(function() {
                 room.nullify(); 
             };
 
-        this.pathHandle.drag(move, start, up);
+        room.pathHandle.drag(move, start, up);
     }
 
 
@@ -287,38 +288,38 @@ $(function() {
         var walls = this.walls,
             room = this;
 
-        for (var i = 0; i < walls.length; i++) {
+            // Looping through the set of walls, and adding handlers to all of them.
+            walls.forEach(function(element) {
 
-            walls[i].mouseover(function() {
-                // Do not visualize the mouseovered wall, if an other wall or corner is targeted.
-                if (room.handle == null && room.tmpCircle == null && room.pathHandle == null) {
-                    room.hoverWall = true;
-                    this.attr({    
-                        stroke: "#008000",            
-                        'stroke-width': room.radius,
-                        'stroke-opacity': 0.5,
-                        'stroke-linecap': "butt",
-                        cursor: "pointer"      
-                    })
-                }
-            })
+                 element.mouseover(function() {
+                    // Do not visualize the mouseovered wall, if an other wall or corner is targeted.
+                    if (room.handle == null && room.tmpCircle == null && room.pathHandle == null) {
+                        room.hoverWall = true;
+                        this.attr({
+                            stroke: "#008000",            
+                            'stroke-width': room.radius,
+                            'stroke-opacity': 0.5,
+                            'stroke-linecap': "butt",
+                            cursor: "pointer"      
+                        })
+                    }
+                })
 
-            walls[i].mousedown(function() {
-                room.clickableWalls(this);
-            })
+                element.mousedown(function() {
+                    room.clickableWalls(this);
+                })
             
-            walls[i].mouseout(function() {
-                room.hoverWall = null;
-                this.attr({
-                    fill: "#00000", 
-                    stroke: "#2F4F4F",
-                    'stroke-width': 5,
-                    'stroke-linecap': "square",
-                    'stroke-opacity': 1,
-                    cursor: "default"
+                element.mouseout(function() {
+                    room.hoverWall = null;
+                    this.attr({
+                        stroke: "#2F4F4F",
+                        'stroke-width': 5,
+                        'stroke-linecap': "square",
+                        'stroke-opacity': 1,
+                        cursor: "default"
+                    })
                 })
             })
-        }
     }
 
     /**
@@ -445,11 +446,11 @@ $(function() {
             my = match[1],
             room = this;
 
-        this.handle = grid.paper.circle(mx,my,this.radius).attr({
+        room.handle = grid.paper.circle(mx,my,this.radius).attr({
             fill: "#3366FF",
             'fill-opacity': 0.5,
             'stroke-opacity': 0.5,
-            cursor: "pointer"
+            cursor: "move"
         });
 
         var start = function () {
@@ -492,7 +493,7 @@ $(function() {
            room.nullify();           
         };
 
-        this.handle.drag(move, start, up);
+        room.handle.drag(move, start, up);
     }
 
     /**
@@ -523,7 +524,6 @@ $(function() {
     Room.prototype.wallEnd = function (point) {
         var newStart = this.lastPoint,
             newEnd = point,
-            wall,
             walls = this.walls,
             initPoint = null,
             crossed = this.crossed;
@@ -623,8 +623,6 @@ $(function() {
 
         for (var i = 0; i < wallCount; i++) {
 
-
-
             crossed = true;
             tmpWall = walls[i];
             x3 = tmpWall.attrs.path[0][1];
@@ -717,20 +715,19 @@ $(function() {
 
         if (tmpWall != null) {
             tmpWall.remove();
-            this.tmpWall = null;
+            room.tmpWall = null;
         }
 
-        wall = grid.paper.path("M"+point1.x+","+point1.y+"L"+point2.x+","+point2.y).attr({
-                fill: "#00000", 
+        wall = grid.paper.path("M"+point1.x+","+point1.y+"L"+point2.x+","+point2.y).attr({ 
                 stroke: "#2F4F4F",
                 'stroke-width': 5,
                 'stroke-linecap': "round"
             });
 
-        this.walls.push(wall);
+        room.walls.push(wall);
 
         options.refresh();
-        this.refreshMeasurements();
+        room.refreshMeasurements();
 
         // When the room is finished, we can add handlers to the walls.
         if (room.finished) {
@@ -853,9 +850,7 @@ $(function() {
         for (var i = 0; i < len; ++i) {
 
             this.lengthMeasurement(walls[i]);
-
         }
-
     }
 
     Room.prototype.lengthMeasurement = function (wall) {
