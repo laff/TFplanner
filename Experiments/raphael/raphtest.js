@@ -108,6 +108,7 @@ $(function() {
         this.handle = null;
         this.finished = false;
         this.measurements = grid.paper.set();
+        this.inverted = null;
     }
 
     Room.prototype.plus = 5;
@@ -189,9 +190,8 @@ $(function() {
             },
         
             move = function (dx, dy) {
-
                 var diffx = (this.lastdx != null) ? (this.lastdx - dx) : 0,
-                    diffy = (this.lastdy != null) ? (this.lastdy - dy): 0;
+                    diffy = (this.lastdy != null) ? (this.lastdy - dy) : 0;
 
                 this.lastdx = dx;
                 this.lastdy = dy;
@@ -221,7 +221,8 @@ $(function() {
             },
             up = function () {
                 this.dx = this.dy = 0;
-              //this.animate({"fill-opacity": 1}, 500);
+                this.lastdy = this.lastdx = 0;
+                // this.odx = this.ody = 0;
             };
 
         thisWall.drag(move, start, up);
@@ -369,6 +370,7 @@ $(function() {
         move = function (dx, dy) {
            var X = this.cx + dx,
                Y = this.cy + dy;
+
            this.attr({cx: X, cy: Y});
 
            if (path1Order == 0) {
@@ -395,10 +397,8 @@ $(function() {
            
         },
         up = function () {
-           this.dx = this.dy = 0;
-           this.animate({"fill-opacity": 1}, 500);
-           this.remove();
-           room.nullify();           
+            this.remove();
+            room.nullify();           
         };
 
         this.handle.drag(move, start, up);
@@ -730,18 +730,159 @@ $(function() {
     **/
     Room.prototype.refreshMeasurements = function() {
 
-        var walls = this.walls;
+        var walls = this.walls,
+            finished = this.finished;
 
         this.measurements.remove();
 
         for (var i = 0; i < walls.length; i++) {
 
             this.lengthMeasurement(walls[i]);
-
+            
+            if (finished) {
+                this.angleMeasurement(i);
+            } else if (i >= 1) {
+                this.angleMeasurement(i);
+            }
+            
         }
+    }
+
+    /**
+     *
+     *
+    **/
+    Room.prototype.angleMeasurement = function (index) {
+
+        var connected = this.returnConnectingPaths(index),
+            circleRad = (this.radius * 2),
+            p1,
+            p2,
+            p3,
+            angle,
+            tPoint = [],
+            startAngle, 
+            endAngle,
+            diffAngle,
+            inverted,
+            halfCircleP1,
+            halfCircleP2,
+            halfCircle;
+
+            // Setting point1, 2 and 3 used for calculating angles.
+            p1 = connected[0].attrs.path[0];
+            p2 = connected[0].attrs.path[1];
+            p3 = connected[1].attrs.path[1];
+
+            // finding the points used for positioning the halfcircle.
+            halfCircleP1 = connected[0].getPointAtLength((connected[0].getTotalLength() - circleRad));
+            halfCircleP2 = connected[1].getPointAtLength(circleRad);
+
+            // Calculating the angle.
+            angle = Raphael.angle(p1[1], p1[2], p3[1], p3[2], p2[1], p2[2]);
+
+            // Need the start and ending angles between paths/points are needed for checking.
+            startAngle = Raphael.angle(connected[0].attrs.path[0][1], connected[0].attrs.path[0][2], connected[0].attrs.path[1][1], connected[0].attrs.path[1][2]);
+            endAngle = Raphael.angle(connected[1].attrs.path[0][1], connected[1].attrs.path[0][2], connected[1].attrs.path[1][1], connected[1].attrs.path[1][2]);
+
+            diffAngle = endAngle - startAngle;
+
+            // decides if the drawing is inverted or not
+            if (this.inverted == null) {
+                this.inverted = (angle > 0 && angle < 180);
+            }
+            inverted = this.inverted; 
+
+            // if inverted, always draw from the right.
+            if (inverted) {
+
+                if (angle < 0) {
+                    angle = 360 + angle;
+                }
+
+                halfCircle = this.sector(p2[1], p2[2], halfCircleP1, halfCircleP2, angle, circleRad);
+            
+            } else {
+
+                // Ensure that angle is positive.
+                if (angle < 0) {
+                    angle = angle * (-1);   
+                }
+              
+                // angles that have an endangle larger and startangle larger than 180.
+                if (endAngle >= 180 && startAngle >= 180) {
+                    angle = 360 - angle;
+
+                // All angles that have endangles and startangles thar are smaller than 180, 
+                // and also have a difference (diffangle) lower than -180.
+                } else if (startAngle >= 180) {
+
+                    if (diffAngle < -180) {
+                        angle = 360 - angle;
+                    }
+                }
+
+                var tmp = halfCircleP2;
+                halfCircleP2 = halfCircleP1;
+                halfCircleP1 = tmp;
+
+                halfCircle = this.sector(p2[1], p2[2], halfCircleP1, halfCircleP2, angle, circleRad);
+            }
+
+
+
+
+        this.measurements.push(halfCircle);
+    }
+    /**
+     * Function that creates a "circle" from point1 to point2.
+     * 
+     *
+    **/
+    Room.prototype.sector = function (centerX, centerY, p1, p2, angle, r) {
+        var big = (angle >= 180) ? 1 : 0,
+            x1 = p1.x, 
+            x2 = p2.x, 
+            y1 = p1.y,
+            y2 = p2.y;
+
+        return grid.paper.path(["M", centerX, centerY, "L", x1, y1, "A", r, r, 0, big, 0, x2, y2, "z"]).attr(            
+            {
+                fill: "#00000", 
+                stroke: "#2F4F4F",
+                'stroke-width': 1,
+                'stroke-linecap': "round"
+            });
+    }
+
+
+    /**
+     * Function that gets the connecting walls.
+     *
+    **/
+    Room.prototype.returnConnectingPaths = function (index) {
+
+        var walls = this.walls,
+            prevWall,
+            thisWall;
+
+            if (this.finished) {
+                prevWall = walls[index];
+                thisWall = (walls[index+1] != null) ? walls[index+1] : walls[0];
+            } else {
+                prevWall = walls[index-1];
+                thisWall = walls[index];
+            }
+
+        return [prevWall, thisWall];
 
     }
 
+
+    /**
+     * Function that creates a graphical representation of the walls length
+     *
+    **/
     Room.prototype.lengthMeasurement = function(wall) {
 
         var startP1 = wall.attrs.path[0],
