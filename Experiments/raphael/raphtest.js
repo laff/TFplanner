@@ -243,7 +243,6 @@ $(function() {
                 var diffx = (this.lastdx != null) ? (this.lastdx - dx) : 0,
                     diffy = (this.lastdy != null) ? (this.lastdy - dy) : 0;
 
-                // Skulle detta vekk? fucked up merging - Olaf
                 this.lastdx = dx;
                 this.lastdy = dy;
 
@@ -908,7 +907,7 @@ $(function() {
 
             // decides if the drawing is inverted or not
             if (this.inverted == null) {
-                this.inverted = (angle > 0 && angle < 180);
+                this.inverted = (angle > 0 && angle < 180 || angle < - 180);
             }
             inverted = this.inverted; 
 
@@ -1037,9 +1036,6 @@ $(function() {
 
             m3,
             t;
-    
-
-        console.log("inverted: "+this.inverted);
 
         if (this.inverted) {
             angle1 = 270;
