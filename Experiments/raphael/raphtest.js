@@ -249,6 +249,7 @@ $(function() {
         this.finished = false;
         this.measurements = grid.paper.set();
         this.inverted = null;
+        this.tmpAngle = null;
     }
 
     Room.prototype.plus = 5;
@@ -855,9 +856,10 @@ $(function() {
             walls = this.walls,
             crossed = false,
             x1 = null,
-            y1 = null;
+            y1 = null,
+            length = walls.length;
 
-        if (walls.length > 1) {
+        if (length > 1) {
 
             x1 = walls[0].attrs.path[0][1];
             y1 = walls[0].attrs.path[0][2];
@@ -880,6 +882,7 @@ $(function() {
                 }
                 this.proximity = false;
             }  
+
         }
 
 
@@ -914,6 +917,19 @@ $(function() {
             });
         }
         this.crossed = crossed;
+
+
+        // show temporary Angle
+
+        if (length >= 1 && this.tmpWall.getTotalLength() > (this.radius * 2)) {
+
+            this.angleMeasurement(null, this.tmpWall);
+
+        } else if (this.tmpAngle != null) {
+
+            this.tmpAngle.remove();
+            this.tmpAngle = null;
+        }
     }
 
 
@@ -976,13 +992,9 @@ $(function() {
      *
      *
     **/
-    Room.prototype.angleMeasurement = function (index) {
+    Room.prototype.angleMeasurement = function (index, overload) {
 
-        var connected = this.returnConnectingPaths(index),
-            circleRad = (this.radius * 2),
-            p1,
-            p2,
-            p3,
+        var circleRad = (this.radius * 2),
             angle,
             tPoint = [],
             startAngle, 
@@ -991,29 +1003,57 @@ $(function() {
             inverted,
             halfCircleP1,
             halfCircleP2,
-            halfCircle;
+            halfCircle,
+            p1, 
+            p2, 
+            p3 = [];
 
-            // Setting point1, 2 and 3 used for calculating angles.
+        if (overload == null) {
+            var connected = this.returnConnectingPaths(index);
+
             p1 = connected[0].attrs.path[0];
             p2 = connected[0].attrs.path[1];
-            p3 = connected[1].attrs.path[1];
+            p3 = connected[1].attrs.path[1];  
 
             // finding the points used for positioning the halfcircle.
             halfCircleP1 = connected[0].getPointAtLength((connected[0].getTotalLength() - circleRad));
             halfCircleP2 = connected[1].getPointAtLength(circleRad);
 
+        } else {
+
+            if (this.tmpAngle !=  null) {
+                this.tmpAngle.remove();
+                this.tmpAngle = null;
+            }
+            
+            var walls = this.walls,
+                index = (walls.length - 1);
+
+            p1 = walls[index].attrs.path[0];
+            p2 = walls[index].attrs.path[1];
+            p3 = overload.attrs.path[1];
+
+            halfCircleP1 = walls[index].getPointAtLength((walls[index].getTotalLength() - circleRad));
+            halfCircleP2 = overload.getPointAtLength(circleRad);
+        }
+
+
+
+
             // Calculating the angle.
             angle = Raphael.angle(p1[1], p1[2], p3[1], p3[2], p2[1], p2[2]);
 
             // Need the start and ending angles between paths/points are needed for checking.
-            startAngle = Raphael.angle(connected[0].attrs.path[0][1], connected[0].attrs.path[0][2], connected[0].attrs.path[1][1], connected[0].attrs.path[1][2]);
-            endAngle = Raphael.angle(connected[1].attrs.path[0][1], connected[1].attrs.path[0][2], connected[1].attrs.path[1][1], connected[1].attrs.path[1][2]);
+            startAngle = Raphael.angle(p1[1], p1[2], p2[1], p2[2]);
+            endAngle = Raphael.angle(p2[1], p2[2], p3[1], p3[2]);
 
             diffAngle = endAngle - startAngle;
 
+
+
             // decides if the drawing is inverted or not
-            if (this.inverted == null) {
-                this.inverted = (angle > 0 && angle < 180 || angle < - 180);
+            if (this.inverted == null && overload == null) {
+                this.inverted = (angle > 0 && angle < 180);
             }
             inverted = this.inverted; 
 
@@ -1028,20 +1068,28 @@ $(function() {
             
             } else {
 
+
                 // Ensure that angle is positive.
                 if (angle < 0) {
                     angle = angle * (-1);   
                 }
               
                 // angles that have an endangle larger and startangle larger than 180.
-                if (endAngle >= 180 && startAngle >= 180) {
-                    angle = 360 - angle;
+                if (endAngle >= 180) {
+
+                    if (startAngle >= 180) {
+                        angle = 360 - angle;
+
+                    } else if (diffAngle < 180) {
+                        angle = 360 - angle;
+                    }
+
 
                 // All angles that have endangles and startangles thar are smaller than 180, 
                 // and also have a difference (diffangle) lower than -180.
-                } else if (startAngle >= 180) {
+                } else {
 
-                    if (diffAngle < -180) {
+                    if (startAngle >= 180 && diffAngle < - 180) {
                         angle = 360 - angle;
                     }
                 }
@@ -1055,8 +1103,14 @@ $(function() {
 
 
 
-
-        this.measurements.push(halfCircle);
+        // Either store the circle with the room (as its only one temporary circle).
+        // Or store it in the raphael set, so we can easily remove them all laterd.
+        if (overload != null) {
+            this.tmpAngle = halfCircle;
+        } else {
+            this.measurements.push(halfCircle);
+        }
+        
     }
     /**
      * Function that creates a "circle" from point1 to point2.
