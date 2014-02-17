@@ -245,9 +245,10 @@ $(function() {
         this.initRoom();
         this.handle = null;
         this.pathHandle = null;
-        this.pathVisual = null;
+        this.hoverWall = null;
         this.finished = false;
         this.measurements = grid.paper.set();
+        this.inverted = null;
     }
 
     Room.prototype.plus = 5;
@@ -282,12 +283,10 @@ $(function() {
                 if (room.lastPoint != point) {
                     room.drawTempLine(point);
                 }
-
             }
 
         });
     }
-
 
     /**
      * Called when we have targeted a wall. Used to find the 'neighbour-walls' of our target.
@@ -297,6 +296,7 @@ $(function() {
 
         var walls = this.walls,
             length = walls.length,
+            room = this,
             thisWall = wMatch,
             prevWall = null,
             nextWall = null;
@@ -304,15 +304,15 @@ $(function() {
         for (var i = 0; i < length; i++) {
 
             // When wall number 'i' is the same as our targeted wall, we can easily find the two walls
-            // connected to it. (Some special-cases when we have targeted the first or the last wall)
+            // connected to it. (Some special-cases when we have targeted the first or the last wall in the array)
             if (walls[i] == thisWall) {
-            var prevWall = (walls[i-1] != null) ? walls[i-1] : walls[length-1],
+                prevWall = (walls[i-1] != null) ? walls[i-1] : walls[length-1];
                 nextWall = (walls[i+1] != null) ? walls[i+1] : walls[0];
             }            
         }
             // If we not already have targeted a wall or a corner, we can select the wanted one.
-            if (this.pathHandle == null && this.handle == null) {
-                this.clickableWall(prevWall, thisWall, nextWall);
+            if (room.pathHandle == null && room.handle == null) {
+                room.clickableWall(prevWall, thisWall, nextWall);
             }
     }
 
@@ -330,25 +330,28 @@ $(function() {
             pathArray2 = thisWall.attr("path"),
             pathArray3 = nextWall.attr("path");
 
-            // Handler used so we easily can target and drag a wall.
-           this.pathHandle = grid.paper.path(thisWall.attrs.path).attr({
-                'stroke-width': (room.radius * 2),
-                'stroke-opacity': 0.3, 
-                cursor: "pointer",
-                stroke: "#3366FF"
-            });
-            
 
+            // Handler used so we easily can target and drag a wall.
+           room.pathHandle = grid.paper.path(thisWall.attrs.path).attr({
+                stroke: "#3366FF",
+                'stroke-width': room.radius,
+                'stroke-opacity': 0.5, 
+                'stroke-linecap': "butt",
+                cursor: "move"
+            });
+           
            var start = function () {
-                this.lastdx = this.attr("lastdx");
-                this.lastdy = this.attr("lastdy");
+                //this.lastdx = this.attr("lastdx");
+                //this.lastdy = this.attr("lastdy");
             },
         
             move = function (dx, dy) {
                 var diffx = (this.lastdx != null) ? (this.lastdx - dx) : 0,
                     diffy = (this.lastdy != null) ? (this.lastdy - dy) : 0;
-                    this.lastdx = dx;
-                    this.lastdy = dy;
+
+                // Skulle detta vekk? fucked up merging - Olaf
+                this.lastdx = dx;
+                this.lastdy = dy;
 
                 // Changing values of the end of the wall 'before' the target-wall.
                 pathArray1[1][1] -= diffx;
@@ -374,62 +377,59 @@ $(function() {
                 options.refresh();
 
             },
+
             up = function () {
                 // Clear variables and delete the handler on mouseup.
                 this.lastdx = this.lastdy = 0;
                 this.remove();
                 room.nullify(); 
             };
-        this.pathHandle.drag(move, start, up);
+
+        room.pathHandle.drag(move, start, up);
     }
 
+
     /**
-     * Find the matching wall for our mouseclick-event(e), if there is a wall that matches the clicked point.
+     * Functionality for adding mouse-handlers to all the walls. Called when the 'finishRoom'-variable is set.
      *
     **/
-    Room.prototype.wallMatch = function(e) {
+    Room.prototype.setHandlers = function() {
         var walls = this.walls,
-            point = crossBrowserXY(e),
-            hit = null;
+            room = this;
 
-        for (var i = 0; i < walls.length; i++) {
+            // Looping through the set of walls, and adding handlers to all of them.
+            walls.forEach(function(element) {
 
-            // If some text is on top of the paper, we might get an undefined point.
-            if (point != undefined) {
-                // Built-in Raphael-functionality that returns 'true' if the clicked point is on one of our paths.
-                if (Raphael.isPointInsidePath(walls[i].attrs.path, point.x, point.y) != false) {
-                    hit = walls[i];
-                }
-            }
-        }
-        // If we have targeted a wall, we returns it, unless 'null'.
-        if (hit != null) {
-            return hit;
-        } else {
-            return null;
-        }
+                 element.mouseover(function() {
+                    // Do not visualize the mouseovered wall, if an other wall or corner is targeted.
+                    if (room.handle == null && room.tmpCircle == null && room.pathHandle == null) {
+                        room.hoverWall = true;
+                        this.attr({
+                            stroke: "#008000",            
+                            'stroke-width': room.radius,
+                            'stroke-opacity': 0.5,
+                            'stroke-linecap': "butt",
+                            cursor: "pointer"      
+                        })
+                    }
+                })
+
+                element.mousedown(function() {
+                    room.clickableWalls(this);
+                })
+            
+                element.mouseout(function() {
+                    room.hoverWall = null;
+                    this.attr({
+                        stroke: "#2F4F4F",
+                        'stroke-width': 5,
+                        'stroke-linecap': "square",
+                        'stroke-opacity': 1,
+                        cursor: "default"
+                    })
+                })
+            })
     }
-
-    /**
-     * On a wall-mouseover this function will visualise that a wall is under the mousepoint.
-    **/
-
-    Room.prototype.visualizeTargetWall = function (targetWall) {
-        
-        var doWall = (this.pathVisual == null) ? true : (this.pathVisual[0] == null);
-
-        // No need to show wall as 'mouseovered' if the tmpCircle is already visible
-        if (doWall) {
-            // Draws a light-green wall to show which wall that is mouseovered.
-           this.pathVisual = grid.paper.path(targetWall.attrs.path).attr({
-                'stroke-width': (this.radius * 2),
-                'stroke-opacity': 0.3,
-                stroke: "#008000"
-            });
-           this.pathVisual.toBack();
-       } 
-    }
-
 
     /**
      * Binds action listeners to mouse click and movement, especially for moving corners and walls.
@@ -440,33 +440,21 @@ $(function() {
         var room = this;
 
         $('#canvas_container').mousedown(room, function(e) {
-
             if ((match = room.checkMatch(e)) != null) {
                 room.dragCorner(match);
-
-            } else if ((wMatch = room.wallMatch(e)) != null) {
-                room.clickableWalls(wMatch);
             }
         });
 
         // Binds action for mouseover, specifically for showing temp shit
         $('#canvas_container').mousemove(room, function(e) {
             // No need to draw the circle if a corner or a wall already is targeted.
-            if ((match = room.checkMatch(e)) != null && room.handle == null && room.pathHandle == null && room.pathVisual == null) {
+            if ((match = room.checkMatch(e)) != null && room.handle == null && room.pathHandle == null && room.hoverWall == null) {
                 room.visualizeRoomEnd(match);
 
             } else if (room.tmpCircle != null) {
                 room.tmpCircle.remove();
                 room.tmpCircle = null;
-
-            } else if ((wMatch = room.wallMatch(e)) != null && room.handle == null && room.pathHandle == null && room.tmpCircle == null) {
-                room.visualizeTargetWall(wMatch);
-
-            } else if (room.pathVisual != null) {
-                room.pathVisual.remove();
-                room.pathVisual = null;
-            }
-
+            } 
         });
 
     }
@@ -567,20 +555,22 @@ $(function() {
             my = match[1],
             room = this;
 
-        this.handle = grid.paper.circle(mx,my,this.radius).attr({
+        room.handle = grid.paper.circle(mx,my,this.radius).attr({
             fill: "#3366FF",
-            'fill-opacity': 0.3,
-            'stroke-opacity': 0,
-            cursor: "pointer"
+            'fill-opacity': 0.5,
+            'stroke-opacity': 0.5,
+            cursor: "move"
         });
 
         var start = function () {
           this.cx = this.attr("cx");
           this.cy = this.attr("cy");
         },
+
         move = function (dx, dy) {
            var X = this.cx + dx,
                Y = this.cy + dy;
+
            this.attr({cx: X, cy: Y});
 
            if (path1Order == 0) {
@@ -603,9 +593,9 @@ $(function() {
             path1.attr({path: pathArray1});
             path2.attr({path: pathArray2});
             room.refreshMeasurements();
-            options.refresh();
-           
+            options.refresh();    
         },
+
         up = function () {
            this.dx = this.dy = 0;
            this.animate({"fill-opacity": 1}, 500);
@@ -613,7 +603,7 @@ $(function() {
            room.nullify();           
         };
 
-        this.handle.drag(move, start, up);
+        room.handle.drag(move, start, up);
     }
 
     /**
@@ -644,7 +634,6 @@ $(function() {
     Room.prototype.wallEnd = function (point) {
         var newStart = this.lastPoint,
             newEnd = point,
-            wall,
             walls = this.walls,
             initPoint = null,
             crossed = this.crossed;
@@ -744,8 +733,6 @@ $(function() {
 
         for (var i = 0; i < wallCount; i++) {
 
-
-
             crossed = true;
             tmpWall = walls[i];
             x3 = tmpWall.attrs.path[0][1];
@@ -833,25 +820,29 @@ $(function() {
     Room.prototype.drawWall = function (point1, point2) {
 
         var tmpWall = this.tmpWall,
-            walls = this.walls;
+            walls = this.walls,
+            room = this;
 
         if (tmpWall != null) {
             tmpWall.remove();
-            this.tmpWall = null;
+            room.tmpWall = null;
         }
 
-        wall = grid.paper.path("M"+point1.x+","+point1.y+"L"+point2.x+","+point2.y).attr(
-            {
-                fill: "#00000", 
+        wall = grid.paper.path("M"+point1.x+","+point1.y+"L"+point2.x+","+point2.y).attr({ 
                 stroke: "#2F4F4F",
                 'stroke-width': 5,
                 'stroke-linecap': "round"
             });
 
-        this.walls.push(wall);
+        room.walls.push(wall);
 
         options.refresh();
-        this.refreshMeasurements();
+        room.refreshMeasurements();
+
+        // When the room is finished, we can add handlers to the walls.
+        if (room.finished) {
+            room.setHandlers();
+        }
     }
 
     /**
@@ -937,14 +928,11 @@ $(function() {
             doCircle = (tmpCircle == null) ? true : (tmpCircle[0] == null);
 
         if (doCircle) {
-            this.tmpCircle = grid.paper.circle(point[0], point[1], this.radius, 0, 2 * Math.PI, false).attr(
-            {
+            this.tmpCircle = grid.paper.circle(point[0], point[1], this.radius, 0, 2 * Math.PI, false).attr({
                 fill: "#008000",
-                'fill-opacity': 0.3,
-                'stroke-opacity': 0
+                'fill-opacity': 0.5,
+                'stroke-opacity': 0.5
             });
-
-            this.tmpCircle.toBack();
 
         } else {
             this.tmpCircle.attr({
@@ -962,22 +950,166 @@ $(function() {
      * OBS! Should it go through all walls or only the ones that have changed?
      *
     **/
-    Room.prototype.refreshMeasurements = function() {
+    Room.prototype.refreshMeasurements = function () {
 
         var walls = this.walls,
+            finished = this.finished,
             len = walls.length;
 
         this.measurements.remove();
 
-        for (var i = 0; i < len; ++i) {
+        for (var i = 0; i < len; i++) {
 
-            this.lengthMeasurement(walls[i]);
+            
+            
+            if (finished) {
+                this.angleMeasurement(i);
+            } else if (i >= 1) {
+                this.angleMeasurement(i);
+            }
 
+        this.lengthMeasurement(walls[i]);
+            
         }
+    }
+
+    /**
+     *
+     *
+    **/
+    Room.prototype.angleMeasurement = function (index) {
+
+        var connected = this.returnConnectingPaths(index),
+            circleRad = (this.radius * 2),
+            p1,
+            p2,
+            p3,
+            angle,
+            tPoint = [],
+            startAngle, 
+            endAngle,
+            diffAngle,
+            inverted,
+            halfCircleP1,
+            halfCircleP2,
+            halfCircle;
+
+            // Setting point1, 2 and 3 used for calculating angles.
+            p1 = connected[0].attrs.path[0];
+            p2 = connected[0].attrs.path[1];
+            p3 = connected[1].attrs.path[1];
+
+            // finding the points used for positioning the halfcircle.
+            halfCircleP1 = connected[0].getPointAtLength((connected[0].getTotalLength() - circleRad));
+            halfCircleP2 = connected[1].getPointAtLength(circleRad);
+
+            // Calculating the angle.
+            angle = Raphael.angle(p1[1], p1[2], p3[1], p3[2], p2[1], p2[2]);
+
+            // Need the start and ending angles between paths/points are needed for checking.
+            startAngle = Raphael.angle(connected[0].attrs.path[0][1], connected[0].attrs.path[0][2], connected[0].attrs.path[1][1], connected[0].attrs.path[1][2]);
+            endAngle = Raphael.angle(connected[1].attrs.path[0][1], connected[1].attrs.path[0][2], connected[1].attrs.path[1][1], connected[1].attrs.path[1][2]);
+
+            diffAngle = endAngle - startAngle;
+
+            // decides if the drawing is inverted or not
+            if (this.inverted == null) {
+                this.inverted = (angle > 0 && angle < 180);
+            }
+            inverted = this.inverted; 
+
+            // if inverted, always draw from the right.
+            if (inverted) {
+
+                if (angle < 0) {
+                    angle = 360 + angle;
+                }
+
+                halfCircle = this.sector(p2[1], p2[2], halfCircleP1, halfCircleP2, angle, circleRad);
+            
+            } else {
+
+                // Ensure that angle is positive.
+                if (angle < 0) {
+                    angle = angle * (-1);   
+                }
+              
+                // angles that have an endangle larger and startangle larger than 180.
+                if (endAngle >= 180 && startAngle >= 180) {
+                    angle = 360 - angle;
+
+                // All angles that have endangles and startangles thar are smaller than 180, 
+                // and also have a difference (diffangle) lower than -180.
+                } else if (startAngle >= 180) {
+
+                    if (diffAngle < -180) {
+                        angle = 360 - angle;
+                    }
+                }
+
+                var tmp = halfCircleP2;
+                halfCircleP2 = halfCircleP1;
+                halfCircleP1 = tmp;
+
+                halfCircle = this.sector(p2[1], p2[2], halfCircleP1, halfCircleP2, angle, circleRad);
+            }
+
+
+
+
+        this.measurements.push(halfCircle);
+    }
+    /**
+     * Function that creates a "circle" from point1 to point2.
+     * 
+     *
+    **/
+    Room.prototype.sector = function (centerX, centerY, p1, p2, angle, r) {
+        var big = (angle >= 180) ? 1 : 0,
+            x1 = p1.x, 
+            x2 = p2.x, 
+            y1 = p1.y,
+            y2 = p2.y;
+
+        return grid.paper.path(["M", centerX, centerY, "L", x1, y1, "A", r, r, 0, big, 0, x2, y2, "z"]).attr(            
+            {
+                fill: "#00000", 
+                stroke: "#2F4F4F",
+                'stroke-width': 1,
+                'stroke-linecap': "round"
+            });
+    }
+
+
+    /**
+     * Function that gets the connecting walls.
+     *
+    **/
+    Room.prototype.returnConnectingPaths = function (index) {
+
+        var walls = this.walls,
+            prevWall,
+            thisWall;
+
+            if (this.finished) {
+                prevWall = walls[index];
+                thisWall = (walls[index+1] != null) ? walls[index+1] : walls[0];
+            } else {
+                prevWall = walls[index-1];
+                thisWall = walls[index];
+            }
+
+        return [prevWall, thisWall];
 
     }
 
-    Room.prototype.lengthMeasurement = function(wall) {
+
+    /**
+     * Function that creates a graphical representation of the walls length
+     *
+    **/
+
+    Room.prototype.lengthMeasurement = function (wall) {
 
         var startP1 = wall.attrs.path[0],
             endP1 = wall.getPointAtLength(this.radius),
@@ -999,6 +1131,8 @@ $(function() {
                 'stroke-width': 1,
                 'stroke-linecap': "round"
             }),
+            angle1,
+            angle2,
             bm1,
             bm2,
             m3p1x,
@@ -1011,8 +1145,18 @@ $(function() {
             t;
     
 
-        m1.transform("r90,"+startP1[1]+","+startP1[2]);
-        m2.transform("r270,"+startP2[1]+","+startP2[2]);
+        console.log("inverted: "+this.inverted);
+
+        if (this.inverted) {
+            angle1 = 270;
+            angle2 = 90;
+        } else {
+            angle1 = 90;
+            angle2 = 270;
+        }
+
+        m1.transform("r"+angle1+","+startP1[1]+","+startP1[2]);
+        m2.transform("r"+angle2+","+startP2[1]+","+startP2[2]);
 
         bm1 = m1.getBBox();
         bm2 = m2.getBBox();
