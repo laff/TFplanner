@@ -1334,7 +1334,7 @@ $(function() {
     }
 
     ResultGrid.prototype.getWalls = function () {
-        var walls = 
+        var walls;
     }
 
 });
