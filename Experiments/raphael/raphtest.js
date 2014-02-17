@@ -1128,8 +1128,11 @@ $(function() {
 
             if (halfCircle != null) {
                 var textPoint = halfCircle.getPointAtLength((halfCircle.getTotalLength()/2)),
-                angle = angle.toFixed(1),
-                hc = grid.paper.text(textPoint.x, textPoint.y, angle + String.fromCharCode(176));
+                    newAngle = angle.toFixed(1),
+                    hc,
+                    textPoint = midPoint(textPoint, p2);
+
+                hc = grid.paper.text(textPoint[0], textPoint[1], newAngle + String.fromCharCode(176));
             }
 
 
@@ -1408,6 +1411,20 @@ $(function() {
         return result;
     }
     
+    /**
+     * midpoint formula
+    **/
+    function midPoint(p1, p2) {
+        var x1 = p1.x,
+            x2 = p2[1],
+            y1 = p1.y,
+            y2 = p2[2],
+            x = ( (x1 + x2) / 2),
+            y = ( (y1 + y2) / 2);
+
+        return ([x, y]);
+    }
+
     //Constructor for the result display
     function ResultGrid() {
         this.size = 5;
