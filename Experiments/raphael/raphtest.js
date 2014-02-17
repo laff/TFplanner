@@ -238,6 +238,7 @@ $(function() {
         this.lastPoint = null;
         this.walls = grid.paper.set();
         this.tmpWall = null;
+        this.tmpLen = null;
         this.tmpCircle = null;
         this.proximity = false;
         this.crossed = false;
@@ -248,6 +249,7 @@ $(function() {
         this.hoverWall = null;
         this.finished = false;
         this.measurements = grid.paper.set();
+        this.tmpMeasurements = grid.paper.set();
         this.inverted = null;
     }
 
@@ -819,13 +821,15 @@ $(function() {
     **/
     Room.prototype.drawWall = function (point1, point2) {
 
-        var tmpWall = this.tmpWall,
-            walls = this.walls,
-            room = this;
+        var room = this;
 
-        if (tmpWall != null) {
-            tmpWall.remove();
+        // If we have a temp-wall, we want to remove it, and at the same time remove the shown length of it.
+        if (room.tmpWall != null) {
+
+            room.tmpWall.remove();
             room.tmpWall = null;
+            room.tmpLen.remove();
+            room.tmpLen = null;
         }
 
         wall = grid.paper.path("M"+point1.x+","+point1.y+"L"+point2.x+","+point2.y).attr({ 
@@ -840,19 +844,21 @@ $(function() {
         room.refreshMeasurements();
 
         // When the room is finished, we can add handlers to the walls.
-        if (room.finished) {
+        if (room.finished) { 
             room.setHandlers();
         }
     }
 
     /**
-     * Visualization of the line that the user is about to draw.
+     * Visualization of the line that the user is about to draw, and the length of the line.
      * This line will not be saved in our array.
     **/
     Room.prototype.drawTempLine = function (point2, point1) {
+
         var p2 = point2,
             p1 = (point1 == null) ? this.lastPoint : point1,
             tmpWall = this.tmpWall,
+            tmpLen = this.tmpLen,
             walls = this.walls,
             crossed = false,
             x1 = null,
@@ -881,6 +887,25 @@ $(function() {
                 }
                 this.proximity = false;
             }  
+        }
+
+
+        // Shows or updates the length of the temp-wall.
+        if (tmpWall != null) {
+            var textPoint = tmpWall.getPointAtLength((tmpWall.getTotalLength()/2)),
+                len = new Number(tmpWall.getTotalLength())/100;
+                len = len.toFixed(2);
+
+            if (tmpLen == null) {
+                this.tmpLen = grid.paper.text(textPoint.x, textPoint.y, len + " m");
+
+            } else {
+                tmpLen.attr({
+                    x: textPoint.x,
+                    y: textPoint.y,
+                    text: len + " m",
+               });
+            }
         }
 
 
@@ -914,6 +939,7 @@ $(function() {
                 stroke: '#000000'
             });
         }
+
         this.crossed = crossed;
     }
 
@@ -960,8 +986,6 @@ $(function() {
 
         for (var i = 0; i < len; i++) {
 
-            
-            
             if (finished) {
                 this.angleMeasurement(i);
             } else if (i >= 1) {
@@ -1052,12 +1076,16 @@ $(function() {
                 halfCircleP1 = tmp;
 
                 halfCircle = this.sector(p2[1], p2[2], halfCircleP1, halfCircleP2, angle, circleRad);
+
+                // Add the size of the angle as text.
+                if (halfCircle != null) {
+                    var textPoint = halfCircle.getPointAtLength((halfCircle.getTotalLength()/2)),
+                    angle = angle.toFixed(1),
+                    hc = grid.paper.text(textPoint.x, textPoint.y, angle + String.fromCharCode(176));
+                }
             }
 
-
-
-
-        this.measurements.push(halfCircle);
+        this.measurements.push(halfCircle, hc);
     }
     /**
      * Function that creates a "circle" from point1 to point2.
@@ -1139,13 +1167,9 @@ $(function() {
             m3p1y,
             m3p2x,
             mep2y,
-
-
             m3,
-            t;
-    
-
-        console.log("inverted: "+this.inverted);
+            t,
+            r;
 
         if (this.inverted) {
             angle1 = 270;
@@ -1190,8 +1214,7 @@ $(function() {
 
         
         // Drawing the line paralell to the wall.        
-        m3 = grid.paper.path("M"+m3p1x+","+m3p1y+"L"+m3p2x+","+m3p2y).attr(
-            {
+        m3 = grid.paper.path("M"+m3p1x+","+m3p1y+"L"+m3p2x+","+m3p2y).attr({
                 fill: "#00000", 
                 stroke: "#2F4F4F",
                 'stroke-width': 1,
@@ -1199,16 +1222,26 @@ $(function() {
             });
 
 
-        //Functionality that shows length and shit.. doesnt look very good.
+        // Functionality that shows length and shit.. doesnt look very good.
         var textPoint = m3.getPointAtLength((m3.getTotalLength()/2)),
             len = new Number(m3.getTotalLength())/100;
-            
             len = len.toFixed(2);
+        // Draws a rectangle at the middle of the line
+        r = grid.paper.rect(textPoint.x-25, textPoint.y-10, 50, 20, 5, 5).attr({
+            opacity: 1,
+            fill: "white"
+        });
 
-        t = grid.paper.text(textPoint.x, textPoint.y, len + " m");
+        // Adds text on top of the rectangle, to display the length of the wall.
+        t = grid.paper.text(textPoint.x, textPoint.y, len + " m").attr({
+            opacity: 1,
+            'font-size': 12,
+            'font-family': "verdana",
+            'font-style': "oblique"
+        });
 
         // Adds to measurements set.
-        this.measurements.push(m1,m2,m3,t);
+        this.measurements.push(m1, m2, m3, t, r);
     }
 
     //Function removes the currently drawn room)
@@ -1334,7 +1367,7 @@ $(function() {
     }
 
     ResultGrid.prototype.getWalls = function () {
-        var walls = 
+        
     }
 
 });
