@@ -24,12 +24,13 @@ $(function() {
     Grid.prototype.draw = function() {
 
         var paper = this.paper,
+            canvas = $('#canvas_container'),
             size = this.size,               
             cutPix = this.cutPix,           
             line,                   // Saves the path to a variable during construction.
-            width = paper.width;    // The width and the height of the svg-element.
-            height = paper.height;  
-
+            width = (canvas.width()).toFixed();    // The width and the height of the svg-element.
+            height = (canvas.height()).toFixed();
+        
         // Draw vertical lines, with 'size' number of pixels between each line.
         for (var i = 1; i <= width; i++) {
             line = paper.path("M"+(i*size+cutPix)+", "+0+", L"+(i*size+cutPix)+", "+(size*height)).attr({'stroke-opacity': 0});   //Path-function is named 'paperproto.path' in raphael.js
@@ -56,15 +57,16 @@ $(function() {
     }
 
     //X and Y values for upper left corner of box
-    Grid.prototype.scaleBox = function (x, y) {
+    Grid.prototype.menuBox = function (x, y) {
         var paper = this.paper,
-            frame = paper.rect(x-5, y-5, 310, 110),
+            frame = paper.rect(x, y, 310, 110),
             box = paper.rect(x, y, 100, 100),
             line1 = paper.path("M"+(50+x)+", " +y+", L"+(50+x)+", "+(25+y)).attr({'stroke-opacity': 0}),
             line2 = paper.path("M"+(50+x)+", " +(75+y)+", L"+(50+x)+", "+(100+y)).attr({'stroke-opacity': 0}),
             line3 = paper.path("M"+(x)+", " +(50+y)+", L"+(25+x)+", "+(50+y)).attr({'stroke-opacity': 0}),
             line4 = paper.path("M"+(75+x)+", " +(50+y)+", L"+(100+x)+", "+(50+y)).attr({'stroke-opacity': 0})
             clearButton = paper.image("Graphics/clear_unpressed.png", x+115, y+10, 70, 30);
+
         frame.attr({'stroke-opacity': 1.0, 'stroke': "black", 'stroke-width': 3.0, 'fill': "white", 'fill-opacity': 0.8});
         box.attr({'stroke-opacity': 1.0, 'stroke': "green", 'stroke-width': 3.0, 'fill': "white", 'fill-opacity': 0.1});
         line1.attr({'stroke-opacity': 1.0, 'stroke': "green", 'stroke-width': 3.0, "arrow-start": "classic-midium-midium"});
@@ -75,14 +77,114 @@ $(function() {
 
         //Event handler for clear button
         clearButton.mousedown(function(e) {
+            //Loads image of pressed button
             var pressedButton = paper.image("Graphics/clear_pressed.png", x+115, y+10, 70, 30);
             if (ourRoom.finished == true) {
                 ourRoom.clearRoom();
                 ourRoom = new Room(20);
             }
-            setTimeout(function(){pressedButton.remove()}, 300);
+            //"Unclicks" button
+            setTimeout(function(){ pressedButton.remove() }, 300);
         });
+    }
 
+    //TODO: This function's a'gonna DIE!
+    //Is not currently called anywhere
+    Grid.prototype.resultDraw = function() {
+
+        var paper = this.paper,
+            size = 5,               
+            cutPix = this.cutPix,
+            walls = ourRoom.walls,           
+            line, 
+            width = 0, 
+            height = 0,
+            numberOfWalls = walls.length,
+            minX = 100000,                          //Random large number
+            maxX = 0,
+            minY = 100000,                          //Random large number
+            maxY = 0, 
+            xOffset = 0,
+            yOffset = 0, 
+            viewbox,
+            viewset = grid.paper.set();
+
+        for (var i = 0; i < numberOfWalls; ++i)
+        {
+            //Find largest and smallest X value
+            if ( (walls[i].attrs.path[0][1]) > maxX )
+                maxX = walls[i].attrs.path[0][1];
+            if ( (walls[i].attrs.path[1][1]) > maxX)
+                maxX = walls[i].attrs.path[1][1];
+            if ( (walls[i].attrs.path[0][1]) < minX )
+                minX = walls[i].attrs.path[0][1];
+            if ( (walls[i].attrs.path[1][1]) < minX )
+                minX = walls[i].attrs.path[1][1];
+
+            //Find smallest and largest Y value
+            if ( (walls[i].attrs.path[0][2]) > maxY )
+                maxY = walls[i].attrs.path[0][2];
+            if ( (walls[i].attrs.path[1][2]) > maxY )
+                maxY = walls[i].attrs.path[1][2];
+            if ( (walls[i].attrs.path[0][2]) < minY )
+                minY = walls[i].attrs.path[0][2];
+            if ( (walls[i].attrs.path[1][2]) < minY )
+                minY = walls[i].attrs.path[1][2];
+        }
+
+        width = (maxX - minX) + 100;
+        height = (maxY - minY) + 100;
+        console.log(width);
+
+        xOffset = (minX %50);
+        yOffset = (minY %50);
+
+        viewbox = paper.rect(0, 0, width, height);
+        viewbox.attr({'fill-opacity': 1.0, 'fill': "yellow"});
+        viewset.push(viewbox);
+
+
+        
+        // Draw vertical lines, with 'size' number of pixels between each line.
+        for (var i = 1; i <= width; i++) {
+            line = paper.path("M"+(i*size+cutPix)+", "+0+", L"+(i*size+cutPix)+", "+(size*height)).attr({'stroke-opacity': 0});   //Path-function is named 'paperproto.path' in raphael.js
+            // Make every 10th line stronger.
+            if (i % 10 === 0) {
+                line.attr({
+                    'stroke-opacity': 0.5,
+                });
+                viewset.push(line);
+            }
+        }
+
+        // Draw horizontal lines, with 'size' number of pixels between each line.
+        for (var i = 1; i <= height; i++) {
+           line = paper.path("M"+0+", "+(i*size+cutPix)+", L"+(size*width)+", "+(i*size+cutPix)).attr({'stroke-opacity': 0});
+           // Make every 10th line stronger and push to set
+           if (i % 10 === 0 ) {
+                line.attr( {
+                    'stroke-opacity': 0.5
+                });
+                viewset.push(line);
+            }
+        }
+        var test = $('#canvas_container');
+        console.log( test.height());
+        //viewbox.scale(test.height(), test.width());
+        viewset.hide();
+
+
+        setTimeout(function(){ viewset.show() }, 500);
+        setTimeout(function(){ viewset.transform( "S"+3.0 )}, 750);
+
+        $('#canvas_container').click(viewbox, function (e) {
+            var point = crossBrowserXY(e);
+            if (viewbox.isPointInside(point.x, point.y))
+                console.log("Hey macarena");
+        });   
+        setTimeout(function(){ viewset.remove() }, 10000);
+
+        //paper.setSize("width" , "height");
     }
 
 
@@ -91,7 +193,7 @@ $(function() {
     var grid = new Grid();
 
     grid.draw();    
-    grid.scaleBox(50, 50);
+    grid.menuBox(0, 0);
 
     Grid.prototype.getLatticePoint = function(x, y) {
 
@@ -112,8 +214,10 @@ $(function() {
           var y = latticePoint.y * this.size + this.offsetY;
 
         //  alert('real: ' + latticePoint.x + " = x: " + x + " y: " + y);
-        if (!(x<360 && y < 160) )
+        if (!(x<310 && y < 110) )
             return new Point(x, y);
+        else
+            return new Point(-1, -1);
     }
 
     Grid.range = function(val, min, max) {
@@ -159,7 +263,9 @@ $(function() {
 
             var point = crossBrowserXY(e);
 
-            if (room.lastPoint == null) {
+            // TEMPROARY SOLUTION: if click is inside the menu box => not registered
+            if (point.x == -1) {}
+            else if (room.lastPoint == null) {
                 room.lastPoint = point;
             } else {
                 room.wallEnd(point);
@@ -171,7 +277,7 @@ $(function() {
 
             var point = crossBrowserXY(e);
 
-            if (room.lastPoint != null) {
+            if (room.lastPoint != null && point.x != -1) {
 
                 if (room.lastPoint != point) {
                     room.drawTempLine(point);
@@ -982,9 +1088,7 @@ $(function() {
         this.refreshMeasurements();
         options.refresh();
 
-        //Removes mousehandlers from ClickableCorners
-        //$('#canvas_container').unbind('mousedown');
-       //$('#canvas_container').unbind('mousemove');
+        ourRoom.finished = false;
     }
 
     // Starts the room creation progress!
@@ -1073,6 +1177,20 @@ $(function() {
             result = Math.pow((y + x), (1/2));
 
         return result;
+    }
+    
+    //Constructor for the result display
+    function ResultGrid() {
+        this.size = 5;
+    }
+
+    //Draws 
+    ResultGrid.prototype.draw = function() {
+        var canvas = $('#canvas_container');
+    }
+
+    ResultGrid.prototype.getWalls = function () {
+        var walls = 
     }
 
 });
