@@ -880,8 +880,8 @@ $(function() {
         // checking if x or y is set to aligned
         console.log(this.yAligned);
         console.log(this.yAligned);
-        point2.x = (this.xAligned) ? point1.x : point2.x;
-        point2.y = (this.yAligned) ? point1.y : point2.y;
+        point2.x = (this.xAligned && !this.proximity) ? point1.x : point2.x;
+        point2.y = (this.yAligned && !this.proximity) ? point1.y : point2.y;
 
         // If we have a temp-wall, we want to remove it, and at the same time remove the shown length of it.
         if (room.tmpWall != null) {
@@ -952,8 +952,12 @@ $(function() {
 
 
             // See if we are in the area where the room gets 'auto-completed'.
+            // visualize roomend by circle.
+            // set ending point (p2) to the starting point of wall[0].
             if (this.isProximity(p2)) {
                 this.visualizeRoomEnd();
+                p2.x = x1;
+                p2.y = y1;
                 this.proximity = true;
 
             } else {
@@ -974,7 +978,7 @@ $(function() {
         diffX = (p1.x >= p2.x) ? (p1.x - p2.x) : (p2.x - p1.x);
         diffY = (p1.y >= p2.y) ? (p1.y - p2.y) : (p2.y - p1.y);
 
-        if (tmpLen) {
+        if (!this.proximity) {
             // Checking if x value is in range
             if (diffX < (tmpLen * tmpMultiplier)) {
 
@@ -1024,9 +1028,10 @@ $(function() {
             this.tmpWall = grid.paper.path("M"+p1.x+","+p1.y+"L"+p2.x+","+p2.y);
 
         } else {
+
             tmpWall.attr({
                 path: ["M"+p1.x+","+p1.y+"L"+p2.x+","+p2.y],
-                stroke: '#000000'
+                stroke: "#000000"
             });
         }
 
