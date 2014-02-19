@@ -255,6 +255,8 @@ $(function() {
         this.measurements = grid.paper.set();
         this.tmpMeasurements = grid.paper.set();
         this.inverted = null;
+        this.xAligned = false;
+        this.yAligned = false;
     }
 
     Room.prototype.plus = 5;
@@ -747,7 +749,7 @@ $(function() {
 
             // No need to check the length if point1 is undefined. (Might occur over text at the grid)
             if (point1 == undefined) {return;}
-            testLength = vectorLength([initPointX, initPointY], point1);
+            testLength = vectorLength(initPointX, initPointY, point1.x, point1.y);
 
 
             return (testLength <= this.radius);
@@ -875,6 +877,12 @@ $(function() {
 
         var room = this;
 
+        // checking if x or y is set to aligned
+        console.log(this.yAligned);
+        console.log(this.yAligned);
+        point2.x = (this.xAligned) ? point1.x : point2.x;
+        point2.y = (this.yAligned) ? point1.y : point2.y;
+
         // If we have a temp-wall, we want to remove it, and at the same time remove the shown length of it.
         if (room.tmpWall != null) {
 
@@ -915,15 +923,24 @@ $(function() {
             p1 = (point1 == null) ? this.lastPoint : point1,
             tmpWall = this.tmpWall,
             tmpRect = this.tmpRect,
-            tmpLen = this.tmpLen,
+            tmpLen,
+            diffX, 
+            diffY,
+            tmpMultiplier = 0.05,
             walls = this.walls,
             crossed = false,
             x1 = null,
             y1 = null,
             length = walls.length;
+            //xAligned = this.xAligned,
+            //yAligned = this.yAligned;
 
         if (length > 1) {
 
+
+            // Logic for the second wall:
+            //
+            // Checking if it crosses.
             x1 = walls[0].attrs.path[0][1];
             y1 = walls[0].attrs.path[0][2];
 
@@ -944,9 +961,43 @@ $(function() {
                     this.tmpCircle.remove();
                 }
                 this.proximity = false;
-            }  
+            } 
 
         }
+
+
+        // Forcing 90 degree angles
+        // 
+        // calculate temp length
+        tmpLen = vectorLength(p1.x, p1.y, p2.x, p2.y);
+
+        diffX = (p1.x >= p2.x) ? (p1.x - p2.x) : (p2.x - p1.x);
+        diffY = (p1.y >= p2.y) ? (p1.y - p2.y) : (p2.y - p1.y);
+
+        if (tmpLen) {
+            // Checking if x value is in range
+            if (diffX < (tmpLen * tmpMultiplier)) {
+
+                p2.x = p1.x;
+                this.xAligned = true;
+                console.log("X aligned");
+
+            // Checking if y value is in range.
+            } else if (diffY < (tmpLen * tmpMultiplier)) {
+
+                p2.y = p1.y;
+                this.yAligned = true;
+                console.log("Y aligned");
+
+            // set both alignements to false.
+            } else {
+
+                this.xAligned = false;
+                this.yAligned = false;
+
+            }
+        }
+
 
         // Three steps:
         // 1: If the tmpWall is 'null' we draw it, if it already exist we just change the attributes.
@@ -1435,13 +1486,9 @@ $(function() {
     var options = new Options('options_container');
 
     // Function that takes two points and calculates their vector length.
-    function vectorLength(p1, p2) {
+    function vectorLength(x1, y1, x2, y2) {
 
-        var x1 = p1[0],
-            x2 = p2.x,
-            y1 = p1[1],
-            y2 = p2.y,
-            x = Math.pow((x2 - x1), 2),
+        var x = Math.pow((x2 - x1), 2),
             y = Math.pow((y2 - y1), 2),
             result = Math.pow((y + x), (1/2));
 
