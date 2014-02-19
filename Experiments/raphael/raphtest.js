@@ -31,25 +31,21 @@ $(function() {
             width = (canvas.width()).toFixed();    // The width and the height of the svg-element.
             height = (canvas.height()).toFixed();
         
-        // Draw vertical lines, with 'size' number of pixels between each line.
+        // Draw vertical lines on the screen (lines are drawn so that the screen is filled even on min. zoom)
         for (var i = 1; i <= width; i++) {
-            line = paper.path("M"+(i*size+cutPix)+", "+0+", L"+(i*size+cutPix)+", "+(size*height)).attr({'stroke-opacity': 0});   //Path-function is named 'paperproto.path' in raphael.js
-            // Make every 10th line stronger.
+            
+            // Draw on every 10th pixel
             if (i % 10 === 0) {
-                line.attr({
-                    'stroke-opacity': 0.4
-                });
+                line = paper.path("M"+(i*size+cutPix)+", "+0+", L"+(i*size+cutPix)+", "+(size*height)).attr({'stroke-opacity': 0.4});   //Path-function is named 'paperproto.path' in raphael.js
             }
         }
 
-        // Draw horizontal lines, with 'size' number of pixels between each line.
+        // Draw horizontal lines on the screen (lines are drawn so that the screen is filled even on min. zoom)
         for (var i = 1; i <= height; i++) {
-           line = paper.path("M"+0+", "+(i*size+cutPix)+", L"+(size*width)+", "+(i*size+cutPix)).attr({'stroke-opacity': 0});
-           // Make every 10th line stronger.
+
+           // Make every 10th pixel.
            if (i % 10 === 0 ) {
-                line.attr( {
-                    'stroke-opacity': 0.4
-                });
+                line = paper.path("M"+0+", "+(i*size+cutPix)+", L"+(size*width)+", "+(i*size+cutPix)).attr({'stroke-opacity': 0.4});
             }
         }
 
@@ -195,6 +191,9 @@ $(function() {
     grid.draw();    
     grid.menuBox(0, 0);
 
+// This is the old functionality for "locking" a wall to a corner in the grid.
+// TODO: This should be removed
+/*
     Grid.prototype.getLatticePoint = function(x, y) {
 
       var tx = x - this.offsetX;
@@ -206,15 +205,19 @@ $(function() {
       tx = Grid.range(tx, 0, this.width);
       ty = Grid.range(ty, 0, this.height);
 
-      return new Point(tx, ty);
+      return new Point(x, y);
     }
+*/
+    /**
+     * Makes sure that the user can`t draw in the left corner, where the 'scale' is.
+     * TODO: Old functionality commented, should be removed!
+    **/
 
-    Grid.prototype.getReal = function(latticePoint) {
-          var x = latticePoint.x * this.size + this.offsetX;
-          var y = latticePoint.y * this.size + this.offsetY;
+    Grid.prototype.getRestriction = function(x, y) {
+          //var x = latticePoint.x* this.size + this.offsetX;
+          //var y = latticePoint.y * this.size + this.offsetY;
 
-        //  alert('real: ' + latticePoint.x + " = x: " + x + " y: " + y);
-        if (!(x<310 && y < 110) )
+        if (!(x < 310 && y < 110))
             return new Point(x, y);
         else
             return new Point(-1, -1);
@@ -239,6 +242,7 @@ $(function() {
         this.walls = grid.paper.set();
         this.tmpWall = null;
         this.tmpLen = null;
+        this.tmpRect = null;
         this.tmpCircle = null;
         this.proximity = false;
         this.crossed = false;
@@ -283,11 +287,60 @@ $(function() {
             if (room.lastPoint != null && point.x != -1) {
 
                 if (room.lastPoint != point) {
-                    room.drawTempLine(point);
+                    var tmp = room.drawTempLine(point);
+
+                    if (tmp != null) {
+                        room.tmpLength(tmp);
+                    }
                 }
             }
 
         });
+    }
+
+    /**
+     * Function that receives the temporary wall, and shows the length of it, as the mouse is moved around.
+    **/
+    Room.prototype.tmpLength = function(tmpWall) {
+
+        var tmpLen = this.tmpLen,
+            tmpRect = this.tmpRect,
+            textPoint = tmpWall.getPointAtLength((tmpWall.getTotalLength()/2)),
+            len = new Number(tmpWall.getTotalLength())/100;
+
+            len = len.toFixed(2);
+
+            // Draws a rectangle, where the length can be displayed.
+            if (tmpRect == null) {
+                this.tmpRect = grid.paper.rect(textPoint.x-25, textPoint.y-10, 50, 20, 5, 5).attr({
+                    opacity: 1,
+                    fill: "white"
+                });
+            // If the rectangle already exists, we only update its position.
+            } else {
+                tmpRect.attr({
+                    x: textPoint.x-25,
+                    y: textPoint.y-10,
+                });
+            }
+
+            // The text-element that show the length of the wall.
+            if (tmpLen == null) {
+                this.tmpLen = grid.paper.text(textPoint.x, textPoint.y, len + " m").attr({
+                opacity: 1,
+                'font-size': 12,
+                'font-family': "verdana",
+                'font-style': "oblique"
+                });
+
+            // If the text-element already exist, we just update the position and the text that is shown.
+            } else {
+                tmpLen.attr({
+                    x: textPoint.x,
+                    y: textPoint.y,
+                    text: len + " m" 
+               });
+            }
     }
 
     /**
@@ -827,6 +880,8 @@ $(function() {
 
             room.tmpWall.remove();
             room.tmpWall = null;
+            room.tmpRect.remove();
+            room.tmpRect = null;
             room.tmpLen.remove();
             room.tmpLen = null;
             room.tmpMeasurements.remove();
@@ -854,11 +909,12 @@ $(function() {
      * Visualization of the line that the user is about to draw, and the length of the line.
      * This line will not be saved in our array.
     **/
-    Room.prototype.drawTempLine = function (point2, point1) {
+    Room.prototype.drawTempLine = function (point2, point1, callback) {
 
         var p2 = point2,
             p1 = (point1 == null) ? this.lastPoint : point1,
             tmpWall = this.tmpWall,
+            tmpRect = this.tmpRect,
             tmpLen = this.tmpLen,
             walls = this.walls,
             crossed = false,
@@ -891,26 +947,6 @@ $(function() {
             }  
 
         }
-
-
-        // Shows or updates the length of the temp-wall.
-        if (tmpWall != null) {
-            var textPoint = tmpWall.getPointAtLength((tmpWall.getTotalLength()/2)),
-                len = new Number(tmpWall.getTotalLength())/100;
-                len = len.toFixed(2);
-
-            if (tmpLen == null) {
-                this.tmpLen = grid.paper.text(textPoint.x, textPoint.y, len + " m");
-
-            } else {
-                tmpLen.attr({
-                    x: textPoint.x,
-                    y: textPoint.y,
-                    text: len + " m",
-               });
-            }
-        }
-
 
         // Three steps:
         // 1: If the tmpWall is 'null' we draw it, if it already exist we just change the attributes.
@@ -956,6 +992,8 @@ $(function() {
             this.tmpMeasurements.remove();
             this.tmpMeasurements.clear();
         }
+
+        return tmpWall;
     }
 
 
@@ -1279,7 +1317,7 @@ $(function() {
 
         // Functionality that shows length and shit.. doesnt look very good.
         var textPoint = m3.getPointAtLength((m3.getTotalLength()/2)),
-            len = new Number(m3.getTotalLength())/100;
+            len = new Number(wall.getTotalLength())/100;
             len = len.toFixed(2);
         // Draws a rectangle at the middle of the line
         r = grid.paper.rect(textPoint.x-25, textPoint.y-10, 50, 20, 5, 5).attr({
@@ -1348,8 +1386,7 @@ $(function() {
             e.offsetY = e.pageY - e.currentTarget.offsetTop; 
         }
 
-        point = grid.getLatticePoint(e.offsetX, e.offsetY);
-        point = grid.getReal(point);
+        point = grid.getRestriction(e.offsetX, e.offsetY);
 
         return point;
     }
