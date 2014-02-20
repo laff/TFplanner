@@ -76,6 +76,11 @@ $(function() {
             //Loads image of pressed button
             var pressedButton = paper.image("Graphics/clear_pressed.png", x+115, y+10, 70, 30);
             if (ourRoom.finished == true) {
+                paper.clear();
+                var resultGrid = new ResultGrid();
+
+                grid.draw();
+                grid.menuBox(0,0);
                 ourRoom.clearRoom();
                 ourRoom = new Room(20);
             }
@@ -84,111 +89,11 @@ $(function() {
         });
     }
 
-    //TODO: This function's a'gonna DIE!
-    //Is not currently called anywhere
-    Grid.prototype.resultDraw = function() {
-
-        var paper = this.paper,
-            size = 5,               
-            cutPix = this.cutPix,
-            walls = ourRoom.walls,           
-            line, 
-            width = 0, 
-            height = 0,
-            numberOfWalls = walls.length,
-            minX = 100000,                          //Random large number
-            maxX = 0,
-            minY = 100000,                          //Random large number
-            maxY = 0, 
-            xOffset = 0,
-            yOffset = 0, 
-            viewbox,
-            viewset = grid.paper.set();
-
-        for (var i = 0; i < numberOfWalls; ++i)
-        {
-            //Find largest and smallest X value
-            if ( (walls[i].attrs.path[0][1]) > maxX )
-                maxX = walls[i].attrs.path[0][1];
-            if ( (walls[i].attrs.path[1][1]) > maxX)
-                maxX = walls[i].attrs.path[1][1];
-            if ( (walls[i].attrs.path[0][1]) < minX )
-                minX = walls[i].attrs.path[0][1];
-            if ( (walls[i].attrs.path[1][1]) < minX )
-                minX = walls[i].attrs.path[1][1];
-
-            //Find smallest and largest Y value
-            if ( (walls[i].attrs.path[0][2]) > maxY )
-                maxY = walls[i].attrs.path[0][2];
-            if ( (walls[i].attrs.path[1][2]) > maxY )
-                maxY = walls[i].attrs.path[1][2];
-            if ( (walls[i].attrs.path[0][2]) < minY )
-                minY = walls[i].attrs.path[0][2];
-            if ( (walls[i].attrs.path[1][2]) < minY )
-                minY = walls[i].attrs.path[1][2];
-        }
-
-        width = (maxX - minX) + 100;
-        height = (maxY - minY) + 100;
-        console.log(width);
-
-        xOffset = (minX %50);
-        yOffset = (minY %50);
-
-        viewbox = paper.rect(0, 0, width, height);
-        viewbox.attr({'fill-opacity': 1.0, 'fill': "yellow"});
-        viewset.push(viewbox);
-
-
-        
-        // Draw vertical lines, with 'size' number of pixels between each line.
-        for (var i = 1; i <= width; i++) {
-            line = paper.path("M"+(i*size+cutPix)+", "+0+", L"+(i*size+cutPix)+", "+(size*height)).attr({'stroke-opacity': 0});   //Path-function is named 'paperproto.path' in raphael.js
-            // Make every 10th line stronger.
-            if (i % 10 === 0) {
-                line.attr({
-                    'stroke-opacity': 0.5,
-                });
-                viewset.push(line);
-            }
-        }
-
-        // Draw horizontal lines, with 'size' number of pixels between each line.
-        for (var i = 1; i <= height; i++) {
-           line = paper.path("M"+0+", "+(i*size+cutPix)+", L"+(size*width)+", "+(i*size+cutPix)).attr({'stroke-opacity': 0});
-           // Make every 10th line stronger and push to set
-           if (i % 10 === 0 ) {
-                line.attr( {
-                    'stroke-opacity': 0.5
-                });
-                viewset.push(line);
-            }
-        }
-        var test = $('#canvas_container');
-        console.log( test.height());
-        //viewbox.scale(test.height(), test.width());
-        viewset.hide();
-
-
-        setTimeout(function(){ viewset.show() }, 500);
-        setTimeout(function(){ viewset.transform( "S"+3.0 )}, 750);
-
-        $('#canvas_container').click(viewbox, function (e) {
-            var point = crossBrowserXY(e);
-            if (viewbox.isPointInside(point.x, point.y))
-                console.log("Hey macarena");
-        });   
-        setTimeout(function(){ viewset.remove() }, 10000);
-
-        //paper.setSize("width" , "height");
-    }
-
-
-
 
     var grid = new Grid();
 
-    grid.draw();    
+    grid.draw();
+
     grid.menuBox(0, 0);
 
 // This is the old functionality for "locking" a wall to a corner in the grid.
@@ -243,7 +148,7 @@ $(function() {
         this.tmpRect = null;
         this.tmpCircle = null;
         this.proximity = false;
-        this.crossed = false;
+        this.invalid = false;
         this.tmpCorners = [];
         this.initRoom();
         this.handle = null;
@@ -254,6 +159,10 @@ $(function() {
         this.tmpMeasurements = grid.paper.set();
         this.inverted = null;
         this.measurementValues = [];
+        this.xAligned = false;
+        this.yAligned = false;
+        this.minAngle = 29.95;
+        this.maxAngle = 330.05;
     }
 
     Room.prototype.plus = 5;
@@ -689,7 +598,7 @@ $(function() {
             newEnd = point,
             walls = this.walls,
             initPoint = null,
-            crossed = this.crossed;
+            invalid = this.invalid;
 
             console.log(this.lastPoint);
 
@@ -709,8 +618,8 @@ $(function() {
         if (initPoint != null) {
             var setPoint = false;
 
-            if (this.proximity && !crossed) {
-                console.log("within proximity, not crossed");
+            if (this.proximity && !invalid) {
+                console.log("within proximity, not valid");
                 setPoint = true;
 
             } else if (newEnd.x == initPoint[0] && newEnd.y == initPoint[1]) {
@@ -730,8 +639,8 @@ $(function() {
             }
         }
 
-        if (crossed && !setPoint) {
-            console.log("paths cross");
+        if (invalid && !setPoint) {
+            console.log("paths invalid");
             return;
         }
 
@@ -752,7 +661,7 @@ $(function() {
 
             // No need to check the length if point1 is undefined. (Might occur over text at the grid)
             if (point1 == undefined) {return;}
-            testLength = vectorLength([initPointX, initPointY], point1);
+            testLength = vectorLength(initPointX, initPointY, point1.x, point1.y);
 
 
             return (testLength <= this.radius);
@@ -880,6 +789,10 @@ $(function() {
 
         var room = this;
 
+        // checking if x or y is set to aligned
+        point2.x = (this.xAligned && !this.proximity) ? point1.x : point2.x;
+        point2.y = (this.yAligned && !this.proximity) ? point1.y : point2.y;
+
         // If we have a temp-wall, we want to remove it, and at the same time remove the shown length of it.
         if (room.tmpWall != null) {
 
@@ -921,17 +834,30 @@ $(function() {
             p1 = (point1 == null) ? this.lastPoint : point1,
             tmpWall = this.tmpWall,
             tmpRect = this.tmpRect,
-            tmpLen = this.tmpLen,
+            tmpLen,
+            diffX, 
+            diffY,
+            tmpMultiplier = 0.05,
             walls = this.walls,
             crossed = false,
             x1 = null,
             y1 = null,
-            length = walls.length;
+            length = walls.length,
+            xAligned,
+            yAligned;
 
         if (length > 1) {
 
+            // Store x and y for the starting point of first wall.
+            // used further down the line.
             x1 = walls[0].attrs.path[0][1];
             y1 = walls[0].attrs.path[0][2];
+
+
+            // Logic for the second wall:
+            //
+            // Checking if it crosses.
+
 
            if (this.wallCross(p1.x, p1.y, p2.x, p2.y)) {
                 crossed = true;
@@ -941,8 +867,12 @@ $(function() {
 
 
             // See if we are in the area where the room gets 'auto-completed'.
+            // visualize roomend by circle.
+            // set ending point (p2) to the starting point of wall[0].
             if (this.isProximity(p2)) {
                 this.visualizeRoomEnd();
+                p2.x = x1;
+                p2.y = y1;
                 this.proximity = true;
 
             } else {
@@ -950,9 +880,43 @@ $(function() {
                     this.tmpCircle.remove();
                 }
                 this.proximity = false;
-            }  
+            } 
 
         }
+
+
+        // Forcing 90 degree angles!
+        // 
+        // calculate temp length
+        tmpLen = vectorLength(p1.x, p1.y, p2.x, p2.y);
+
+        diffX = (p1.x >= p2.x) ? (p1.x - p2.x) : (p2.x - p1.x);
+        diffY = (p1.y >= p2.y) ? (p1.y - p2.y) : (p2.y - p1.y);
+
+        if (!this.proximity) {
+            // Checking if x value is in range
+            if (diffX < (tmpLen * tmpMultiplier)) {
+
+                p2.x = p1.x;
+                xAligned = true;
+
+            // Checking if y value is in range.
+            } else if (diffY < (tmpLen * tmpMultiplier)) {
+
+                p2.y = p1.y;
+                yAligned = true;
+
+            // set both alignements to false.
+            } else {
+
+                xAligned = false;
+                yAligned = false;
+            }
+
+            this.xAligned = xAligned;
+            this.yAligned = yAligned;
+        }
+
 
         // Three steps:
         // 1: If the tmpWall is 'null' we draw it, if it already exist we just change the attributes.
@@ -979,20 +943,37 @@ $(function() {
             this.tmpWall = grid.paper.path("M"+p1.x+","+p1.y+"L"+p2.x+","+p2.y);
 
         } else {
+
             tmpWall.attr({
                 path: ["M"+p1.x+","+p1.y+"L"+p2.x+","+p2.y],
-                stroke: '#000000'
+                stroke: "#000000"
             });
         }
 
-        this.crossed = crossed;
-
 
         // show temporary Angle
-
         if (length >= 1 && this.tmpWall.getTotalLength() > (this.radius * 2)) {
 
-            this.angleMeasurement(null, this.tmpWall);
+
+            // Store temporary angle.
+            var tmpAngle = this.angleMeasurement(null, this.tmpWall),
+                tmpBool = false;
+
+            // Check if angle is smaller than 30 and larger than 330 ellen degenerees.
+            // If the angle this is true, change the color to  red (like when crossed);
+            if (tmpAngle > this.maxAngle || tmpAngle < this.minAngle) {
+
+                tmpWall.attr({
+                    stroke: '#ff0000'
+                });
+
+
+                tmpBool = true;
+            } 
+
+            // Update this.invalid boolean (used in wallend)
+            this.invalid = (crossed) ? crossed : tmpBool;
+
 
         } else if (this.tmpMeasurements != null) {
             this.tmpMeasurements.remove();
@@ -1203,12 +1184,13 @@ $(function() {
             x1 = p1.x, 
             x2 = p2.x, 
             y1 = p1.y,
-            y2 = p2.y;
+            y2 = p2.y,
+            strokeColor = (angle < this.minAngle || angle > this.maxAngle) ? "ff0000" : "2F4F4F";
 
         return grid.paper.path(["M", centerX, centerY, "L", x1, y1, "A", r, r, 0, big, 0, x2, y2, "z"]).attr(            
             {
                 fill: "#00000", 
-                stroke: "#2F4F4F",
+                stroke: strokeColor,
                 'stroke-width': 1,
                 'stroke-linecap': "round"
             });
@@ -1617,13 +1599,9 @@ $(function() {
     var options = new Options('options_container');
 
     // Function that takes two points and calculates their vector length.
-    function vectorLength(p1, p2) {
+    function vectorLength(x1, y1, x2, y2) {
 
-        var x1 = p1[0],
-            x2 = p2.x,
-            y1 = p1[1],
-            y2 = p2.y,
-            x = Math.pow((x2 - x1), 2),
+        var x = Math.pow((x2 - x1), 2),
             y = Math.pow((y2 - y1), 2),
             result = Math.pow((y + x), (1/2));
 
@@ -1647,19 +1625,246 @@ $(function() {
     //Constructor for the result display
     function ResultGrid() {
         this.size = 5;
+        this.height = 0;
+        this.width = 0;
+        this.offsetX = 0;
+        this.offsetY = 0;
+        this.scale = 1;
+        this.paper = Raphael(document.getElementById('canvas_container'));
+        this.squares = this.paper.set();
+
+        this.findDimension();
+
+        //No scaling of image
+        this.path = this.getWalls(this.offsetX, this.offsetY);
+
+        this.populateSquares();
+
+       // this.draw(this.height, this.width, this.path);
     }
 
-    //Draws 
-    ResultGrid.prototype.draw = function() {
-        var canvas = $('#canvas_container');
+    //Function finds the height and width of the figure, as well as the height
+    // and width of the screen. Also sets scale of image based on relation
+    // between screen height/width and room height/width
+    ResultGrid.prototype.findDimension = function() {
+        var minX = 1000000, 
+            maxX = 0, 
+            minY = 1000000, 
+            maxY = 0, 
+            walls = ourRoom.walls,
+            numberOfWalls = walls.length,
+            yscale,
+            xscale,
+            canvas = $('#canvas_container');
+
+        for (var i = 0; i < numberOfWalls; ++i)
+        {
+            //Find largest and smallest X value
+            if ( (walls[i].attrs.path[0][1]) > maxX )
+                maxX = walls[i].attrs.path[0][1];
+            if ( (walls[i].attrs.path[1][1]) > maxX)
+                maxX = walls[i].attrs.path[1][1];
+            if ( (walls[i].attrs.path[0][1]) < minX )
+                minX = walls[i].attrs.path[0][1];
+            if ( (walls[i].attrs.path[1][1]) < minX )
+                minX = walls[i].attrs.path[1][1];
+
+            //Find smallest and largest Y value
+            if ( (walls[i].attrs.path[0][2]) > maxY )
+                maxY = walls[i].attrs.path[0][2];
+            if ( (walls[i].attrs.path[1][2]) > maxY )
+                maxY = walls[i].attrs.path[1][2];
+            if ( (walls[i].attrs.path[0][2]) < minY )
+                minY = walls[i].attrs.path[0][2];
+            if ( (walls[i].attrs.path[1][2]) < minY )
+                minY = walls[i].attrs.path[1][2];
+        } 
+
+        //Sets ResultGrid variables
+        this.offsetX = minX;
+        this.offsetY = minY;
+        this.width = (maxX - minX);
+        this.height = (maxY - minY);
+
+        //Finds a scale for final room, used to draw result
+        xscale = canvas.width()/this.width,
+        yscale = canvas.height()/this.height;
+        this.scale = (xscale < yscale)?xscale:yscale;
     }
 
-    ResultGrid.prototype.getWalls = function () {
 
-        var walls;
+
+    //Draws a scaled version of the path. VERY UNFINISHED!
+    ResultGrid.prototype.draw = function(h, w, path) {
+        var canvas = $('#canvas_container'), 
+            xscale = canvas.width()/w,
+            yscale = canvas.height()/h;
+        path.scale(xscale < yscale?xscale:yscale);
+
 
     }
 
+
+    //Gets wall elements from ourroom and translates to new grid 
+    ResultGrid.prototype.getWalls = function (offsetX, offsetY, scale) {
+        
+        var scalefactor;
+        (scale!=null)?scalefactor = scale:scalefactor = 1;
+
+        var walls = ourRoom.walls,
+            paper = this.paper,
+            size = this.size,
+            width = 0, 
+            height = 0,
+            numberOfWalls = walls.length,
+            pathString, 
+            tempString,
+            xstart = (walls[0].attrs.path[0][1]- offsetX)*scalefactor, 
+            ystart = (walls[0].attrs.path[0][2]- offsetY)*scalefactor,
+            xcurrent,
+            ycurrent,
+            path;
+
+        pathString = new String("M "+xstart + ", "+ ystart);
+
+        for (var i = 1; i < numberOfWalls; ++i)
+        {
+            xcurrent = (walls[i].attrs.path[0][1]- offsetX)*scalefactor; 
+            ycurrent = (walls[i].attrs.path[0][2]- offsetY)*scalefactor;
+
+            tempString = " L"+xcurrent + ", "+ ycurrent;
+            pathString += tempString;
+        }
+
+        tempString = " Z";
+        pathString += tempString;
+        path = paper.path(pathString);
+        path.attr({
+            'stroke-width':     3.0,
+            'stroke':           "Black",
+            'stroke-opacity':   1.0 
+        });
+
+        return pathString;
+    }
+
+
+    ResultGrid.prototype.populateSquares = function() {
+        var squares = this.squares,
+            paper = this.paper,
+            path = this.path,
+            xdim = 50, 
+            ydim = 50,
+            width = this.width,
+            height = this.height,
+            square;
+
+        height = height + (50-height%50);
+        width = width + (50-width%50);
+
+        for (var i = 0; i < height; i += ydim) {
+            for (var j = 0; j < width; j += xdim) {
+                square = new Square(j, i, path, paper);
+                squares.push(square);
+            }
+        }
+
+
+    }
+
+    function Square (x, y, path, paper) {
+        this.xpos = x/50;
+        this.ypos = y/50;
+        this.insideRoom = false;
+        this.hasObstacles = false;
+        this.hasWall = false;
+        this.populated = false;
+        this.subsquares = [];
+
+        var xdim = 50, 
+            ydim = 50,
+            xsubdim = 10, 
+            ysubdim = 10, 
+            subsquare,
+            subsquares = this.subsquares,
+            self = paper.rect(x, y, xdim, ydim),
+            
+            ul = Raphael.isPointInsidePath( path, x,y ),
+            ur = Raphael.isPointInsidePath( path, x + xdim, y ), 
+            ll = Raphael.isPointInsidePath( path, x, y + ydim ),
+            lr = Raphael.isPointInsidePath( path, x+xdim, y+ydim );
+
+        //If whole square is inside
+        if (  ul && ur && ll && lr ) {
+
+            self.attr({
+                'fill': "cyan",
+                'fill-opacity': 0.2
+            });
+            insideRoom = true;
+        }
+        //If at least one corner is inside   
+        else if ( ul || ur || ll || lr) {
+            var id = 0;
+            for ( var i = 0; i < ydim; i += ysubdim) {
+                for (var j = 0; j < xdim; j += xsubdim) {
+                    subsquare = new Subsquare(x+j, y+i, path, paper, id++);
+                    this.hasWall = true;
+                    self.attr({
+                        'stroke': "blue"
+                    });
+                    this.subsquares.push(subsquare);
+                }
+            }
+        }
+        //Whole square outside
+        else {
+            self.attr({
+                'fill': "red",
+                'fill-opacity': 0.2
+            });
+        }
+    }
+
+    function Subsquare (x, y, path, paper, squarenumber) {
+        this.id = squarenumber;
+        this.insideRoom = false;
+        this.hasObstacles = false;
+        this.hasWall = false;
+        this.populated = false;
+
+        var xdim = 10,
+            ydim = 10,
+            ul = Raphael.isPointInsidePath( path, x,y ),
+            ur = Raphael.isPointInsidePath( path, x + xdim, y ), 
+            ll = Raphael.isPointInsidePath( path, x, y + ydim ),
+            lr = Raphael.isPointInsidePath( path, x+xdim, y+ydim ),
+            self = paper.rect(x, y, xdim, ydim);
+
+        //Subsquares are either in or out
+        if ( ul && ur && ll && lr) {
+            self.attr({
+                'fill': "green",
+                'fill-opacity': 0.2,
+                'stroke-width': 0.1
+            });
+            this.insideRoom = true;
+        } 
+        else if (ul || ur || ll || lr) {
+            self.attr({
+                'fill': "blue",
+                'fill-opacity': 0.2,
+                'stroke-width': 0.1
+            });
+        }
+        else {
+            self.attr ({
+                'fill': "yellow",
+                'fill-opacity': 0.2,
+                'stroke-width': 0.1
+            });
+        }
+    }
 });
 
 
