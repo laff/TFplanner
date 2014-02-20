@@ -1056,7 +1056,6 @@ $(function() {
                     stroke: '#ff0000'
                 });
 
-                console.log(tmpAngle);
 
                 tmpBool = true;
             } 
