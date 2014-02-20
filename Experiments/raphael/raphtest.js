@@ -231,8 +231,6 @@ $(function() {
       return val;
     }
 
-
-
     /**
      *  Constructor for Room
     **/
@@ -255,6 +253,7 @@ $(function() {
         this.measurements = grid.paper.set();
         this.tmpMeasurements = grid.paper.set();
         this.inverted = null;
+        this.measurementValues = [];
     }
 
     Room.prototype.plus = 5;
@@ -692,6 +691,8 @@ $(function() {
             initPoint = null,
             crossed = this.crossed;
 
+            console.log(this.lastPoint);
+
         // If there are two or more walls, allow for room completion.
         if (walls.length > 1) {
             initPoint = [walls[0].attrs.path[0][1], walls[0].attrs.path[0][2]];
@@ -720,8 +721,12 @@ $(function() {
             if (setPoint == true) {
                 newEnd.x = initPoint[0];
                 newEnd.y = initPoint[1];
-                this.tmpCircle.remove();
+                
+                if(this.tmpCircle != null) {
+                    this.tmpCircle.remove();
+                }
                 this.finishRoom();
+                console.log("Finish this!");
             }
         }
 
@@ -896,12 +901,13 @@ $(function() {
 
         room.walls.push(wall);
 
-        options.refresh();
+        //options.refresh();
         room.refreshMeasurements();
 
         // When the room is finished, we can add handlers to the walls.
         if (room.finished) { 
             room.setHandlers();
+            options.refresh();
         }
     }
 
@@ -1033,19 +1039,22 @@ $(function() {
 
         var walls = this.walls,
             finished = this.finished,
-            len = walls.length;
+            len = walls.length,
+            measurementValues = this.measurementValues;
+
+        measurementValues.length = 0;
 
         this.measurements.remove();
 
         for (var i = 0; i < len; i++) {
 
-            if (finished) {
-                this.angleMeasurement(i);
-            } else if (i >= 1) {
-                this.angleMeasurement(i);
+            measurementValues.push([]);
+
+            if (finished || i >= 1) {
+              measurementValues[i].push(this.angleMeasurement(i));
             }
 
-        this.lengthMeasurement(walls[i]);
+        measurementValues[i].push(this.lengthMeasurement(walls[i]));
             
         }
     }
@@ -1179,6 +1188,9 @@ $(function() {
         } else {
             this.measurements.push(halfCircle, hc);
         }
+
+        // return angle for our measurementValues array.
+        return angle;
     }
 
     /**
@@ -1335,6 +1347,9 @@ $(function() {
 
         // Adds to measurements set.
         this.measurements.push(m1, m2, m3, t, r);
+
+        // return length for our measurementValues array.
+        return wall.getTotalLength();
     }
 
     //Function removes the currently drawn room)
@@ -1355,10 +1370,75 @@ $(function() {
             tmpCorners[i].remove();
             tmpCorners.pop();
         }
+
+        this.lastPoint = null;
+        this.proximity = false;
+
         this.refreshMeasurements();
         options.refresh();
 
         ourRoom.finished = false;
+    }
+
+
+    /**
+     * Function to be used for 'pre-defined' rooms. All drawing will be done 'clockwise', and
+     * will follow the angle-axis predefined. (180 is straight to the right, 270 is downwards etc.)
+     * @param len - Array with the length of each wall (entered by the user).
+     * @param ang - Array with predefined angles for the chosen room-shape.
+    **/
+    Room.prototype.createRoom = function(len, ang) {
+
+        var p1,
+            p2,
+            initPoint,
+            room = this,
+            p2tmp,
+            tmpAng;
+
+            room.clearRoom();
+
+            // Looping through the number of walls in the room.
+        for (var i = 0; i < len.length; i++) {
+
+            // The first wall is a horizontal wall, starting in point (150, 150).
+            // The wall is ending in p2, which is the length of the wall, added to p1.
+            if (i == 0) {
+                p1 = new Point(150, 150);
+                p2tmp = parseInt(len[i]);
+                p2 = new Point(p2tmp+p1.x, p1.y);
+                initPoint = p1;
+
+                // A special case for the first wall, used inn 'wallEnd'-function.
+                if (this.lastPoint == null) {
+                    this.lastPoint = p1;
+                }
+
+            // The ending point of the walls are calculated out from the angles stored in the array.
+            } else {
+                p1 = this.lastPoint;
+                tmpAng = parseInt(ang[i-1]);
+                p2tmp = parseInt(len[i]);
+
+                if (tmpAng == 270) {
+                    p2 = new Point(p1.x, p1.y+p2tmp);
+
+                } else if (tmpAng == 180) {
+                    p2 = new Point(p1.x+p2tmp, p1.y);
+
+                } else if (tmpAng == 360) {
+                    p2 = new Point(p1.x-p2tmp, p1.y);
+
+                } else if (tmpAng == 90 && i != len.length-1) {
+                    p2 = new Point(p1.x, p1.y-p2tmp);
+                // This means 'finish the room'
+                } else if (i == len.length-1 && tmpAng == 90) {
+                    p2 = initPoint;
+                }
+            }
+            // Uses the same functionality as when the user is 'manually' drawing a room.
+            room.wallEnd(p2);
+        }
     }
 
     // Starts the room creation progress!
@@ -1370,7 +1450,6 @@ $(function() {
     function Point (x, y) {
         this.x = x;
         this.y = y;
-
     }
 
     /**
@@ -1407,28 +1486,131 @@ $(function() {
     **/
     Options.prototype.refresh = function() {
 
-        var walls = ourRoom.walls;
- 
+        var measurementValues = ourRoom.measurementValues;
+        var lengthArr = [],
+            angleArr = [];
 
         // Creating the column names
-        var myTable= "<table id='options'><tr><th>Wall number</th>";
-            myTable+= "<th>Wall length</th></tr>";
+        var myForm= "<form id='options'>";
 
-        // Filling in information
-        for (var i = 0; i < walls.length; i++) {
+     /*   // Filling in information
+        for (var i = 0; i < measurementValues.length; i++) {
 
             // Wall number / name
-            myTable+="<tr><td>Number " + i + " :</td>";
+            myForm += "wall" + i + " length";
+
+            // wallinput
+            myForm += "<input type='text' id=walll"+i+" value=" + measurementValues[i][1];
+            myForm += "><br>";
+
+
+            // Wall number / name
+            myForm += "wall" + i + " angle";
+
+            // wallinput
+            myForm += "<input type='text' id=walla"+i+" value=" + measurementValues[i][0];
+            myForm += "><br>";
 
             // extract point x and y.
             
-            myTable+="<td>" + walls[i].getTotalLength(); + " </td>";
-        }  
-           myTable+="</table>";
+           // myTable+="<td>" + walls[i].getTotalLength(); + " </td>";
+        }
+            myForm+="</form>";
 
-        $('#options_container').html(myTable);
+
+        $('#options_container').html(myForm);
+
+        */  
+
+        //OBS: To get the 'original' functionality, that update the wall-lengths etc, just out-comment the below code, and add the above code instead.
+
+        //TODO: Hardcoded to be sure we create enough fields
+        // The buttons should be created first, and the fields should be created afterwards (so it depends on the number of walls in the chosen shape)
+        //TODO2: When a room is finished, the form outcommented above should be shown, including the length of the walls etc.
+
+        for (var i = 0; i < 8; i++) {
+
+            // Wall number / name
+            myForm += "wall" + i + " length";
+
+            // wallinput
+            myForm += "<input type='text' id=walll"+i+" value=";
+            myForm += "><br>";
+
+        }
+            myForm += "<button id='rect' type='button'>Rectangle</button>";
+            myForm += "<button id='lshape' type='button'>L-shape</button>";
+            myForm += "<button id='tshape' type='button'>T-shape</button>";
+
+            myForm+="</form>";
+
+
+        $('#options_container').html(myForm);
+
+
+
+        //TODO: This is basically the same functionality duplicated, maybe som other structure should be used
+
+        $('#rect').click(function() {
+
+            for (var i = 0; i < 4; i++) {
+                lengthArr.push($('#walll'+i).val());
+            }
+
+            angleArr = new PreDefRoom(0);
+
+            ourRoom.createRoom(lengthArr, angleArr);
+        });
+
+        $('#lshape').click(function() {
+
+            for (var i = 0; i < 6; i++) {
+                lengthArr.push($('#walll'+i).val());
+            }
+
+            angleArr = new PreDefRoom(1);
+
+            ourRoom.createRoom(lengthArr, angleArr);
+        });
+
+        $('#tshape').click(function() {
+
+            for (var i = 0; i < 8; i++) {
+                lengthArr.push($('#walll'+i).val());
+            }
+
+            angleArr = new PreDefRoom(2);
+
+            ourRoom.createRoom(lengthArr, angleArr);
+        });
 
     }
+
+    /**
+     * Function that holds the shapes of 'predefined' rooms.
+     * The angles for each shape is hardcoded, so that the user do not need to care about this.
+    **/
+
+    function PreDefRoom (value) {
+        var rectArr = [],     //Rectangle-shaped
+            lArr = [],        //L-shaped 
+            tArr = [];        //T-shaped
+
+            rectArr = [270, 360, 90];
+            lArr = [270, 180, 270, 360, 90];
+            tArr = [270, 360, 270, 360, 90, 360, 90];
+
+            if (value == 0) {
+                return rectArr;
+            }
+            else if (value == 1) {
+                return lArr;
+            }
+            else if (value == 2) {
+                return tArr;
+            }
+    }
+
 
 
     // initiates the options_container
