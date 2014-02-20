@@ -31,25 +31,21 @@ $(function() {
             width = (canvas.width()).toFixed();    // The width and the height of the svg-element.
             height = (canvas.height()).toFixed();
         
-        // Draw vertical lines, with 'size' number of pixels between each line.
+        // Draw vertical lines on the screen (lines are drawn so that the screen is filled even on min. zoom)
         for (var i = 1; i <= width; i++) {
-            line = paper.path("M"+(i*size+cutPix)+", "+0+", L"+(i*size+cutPix)+", "+(size*height)).attr({'stroke-opacity': 0});   //Path-function is named 'paperproto.path' in raphael.js
-            // Make every 10th line stronger.
+            
+            // Draw on every 10th pixel
             if (i % 10 === 0) {
-                line.attr({
-                    'stroke-opacity': 0.4
-                });
+                line = paper.path("M"+(i*size+cutPix)+", "+0+", L"+(i*size+cutPix)+", "+(size*height)).attr({'stroke-opacity': 0.4});   //Path-function is named 'paperproto.path' in raphael.js
             }
         }
 
-        // Draw horizontal lines, with 'size' number of pixels between each line.
+        // Draw horizontal lines on the screen (lines are drawn so that the screen is filled even on min. zoom)
         for (var i = 1; i <= height; i++) {
-           line = paper.path("M"+0+", "+(i*size+cutPix)+", L"+(size*width)+", "+(i*size+cutPix)).attr({'stroke-opacity': 0});
-           // Make every 10th line stronger.
+
+           // Make every 10th pixel.
            if (i % 10 === 0 ) {
-                line.attr( {
-                    'stroke-opacity': 0.4
-                });
+                line = paper.path("M"+0+", "+(i*size+cutPix)+", L"+(size*width)+", "+(i*size+cutPix)).attr({'stroke-opacity': 0.4});
             }
         }
 
@@ -100,6 +96,9 @@ $(function() {
 
     grid.menuBox(0, 0);
 
+// This is the old functionality for "locking" a wall to a corner in the grid.
+// TODO: This should be removed
+/*
     Grid.prototype.getLatticePoint = function(x, y) {
 
       var tx = x - this.offsetX;
@@ -111,15 +110,19 @@ $(function() {
       tx = Grid.range(tx, 0, this.width);
       ty = Grid.range(ty, 0, this.height);
 
-      return new Point(tx, ty);
+      return new Point(x, y);
     }
+*/
+    /**
+     * Makes sure that the user can`t draw in the left corner, where the 'scale' is.
+     * TODO: Old functionality commented, should be removed!
+    **/
 
-    Grid.prototype.getReal = function(latticePoint) {
-          var x = latticePoint.x * this.size + this.offsetX;
-          var y = latticePoint.y * this.size + this.offsetY;
+    Grid.prototype.getRestriction = function(x, y) {
+          //var x = latticePoint.x* this.size + this.offsetX;
+          //var y = latticePoint.y * this.size + this.offsetY;
 
-        //  alert('real: ' + latticePoint.x + " = x: " + x + " y: " + y);
-        if (!(x<310 && y < 110) )
+        if (!(x < 310 && y < 110))
             return new Point(x, y);
         else
             return new Point(-1, -1);
@@ -143,9 +146,11 @@ $(function() {
         this.lastPoint = null;
         this.walls = grid.paper.set();
         this.tmpWall = null;
+        this.tmpLen = null;
+        this.tmpRect = null;
         this.tmpCircle = null;
         this.proximity = false;
-        this.crossed = false;
+        this.invalid = false;
         this.tmpCorners = [];
         this.initRoom();
         this.handle = null;
@@ -153,7 +158,12 @@ $(function() {
         this.hoverWall = null;
         this.finished = false;
         this.measurements = grid.paper.set();
+        this.tmpMeasurements = grid.paper.set();
         this.inverted = null;
+        this.xAligned = false;
+        this.yAligned = false;
+        this.minAngle = 29.95;
+        this.maxAngle = 330.05;
     }
 
     Room.prototype.plus = 5;
@@ -186,11 +196,60 @@ $(function() {
             if (room.lastPoint != null && point.x != -1) {
 
                 if (room.lastPoint != point) {
-                    room.drawTempLine(point);
+                    var tmp = room.drawTempLine(point);
+
+                    if (tmp != null) {
+                        room.tmpLength(tmp);
+                    }
                 }
             }
 
         });
+    }
+
+    /**
+     * Function that receives the temporary wall, and shows the length of it, as the mouse is moved around.
+    **/
+    Room.prototype.tmpLength = function(tmpWall) {
+
+        var tmpLen = this.tmpLen,
+            tmpRect = this.tmpRect,
+            textPoint = tmpWall.getPointAtLength((tmpWall.getTotalLength()/2)),
+            len = new Number(tmpWall.getTotalLength())/100;
+
+            len = len.toFixed(2);
+
+            // Draws a rectangle, where the length can be displayed.
+            if (tmpRect == null) {
+                this.tmpRect = grid.paper.rect(textPoint.x-25, textPoint.y-10, 50, 20, 5, 5).attr({
+                    opacity: 1,
+                    fill: "white"
+                });
+            // If the rectangle already exists, we only update its position.
+            } else {
+                tmpRect.attr({
+                    x: textPoint.x-25,
+                    y: textPoint.y-10,
+                });
+            }
+
+            // The text-element that show the length of the wall.
+            if (tmpLen == null) {
+                this.tmpLen = grid.paper.text(textPoint.x, textPoint.y, len + " m").attr({
+                opacity: 1,
+                'font-size': 12,
+                'font-family': "verdana",
+                'font-style': "oblique"
+                });
+
+            // If the text-element already exist, we just update the position and the text that is shown.
+            } else {
+                tmpLen.attr({
+                    x: textPoint.x,
+                    y: textPoint.y,
+                    text: len + " m" 
+               });
+            }
     }
 
     /**
@@ -254,7 +313,6 @@ $(function() {
                 var diffx = (this.lastdx != null) ? (this.lastdx - dx) : 0,
                     diffy = (this.lastdy != null) ? (this.lastdy - dy) : 0;
 
-                // Skulle detta vekk? fucked up merging - Olaf
                 this.lastdx = dx;
                 this.lastdy = dy;
 
@@ -541,7 +599,7 @@ $(function() {
             newEnd = point,
             walls = this.walls,
             initPoint = null,
-            crossed = this.crossed;
+            invalid = this.invalid;
 
         // If there are two or more walls, allow for room completion.
         if (walls.length > 1) {
@@ -559,8 +617,8 @@ $(function() {
         if (initPoint != null) {
             var setPoint = false;
 
-            if (this.proximity && !crossed) {
-                console.log("within proximity, not crossed");
+            if (this.proximity && !invalid) {
+                console.log("within proximity, not valid");
                 setPoint = true;
 
             } else if (newEnd.x == initPoint[0] && newEnd.y == initPoint[1]) {
@@ -576,8 +634,8 @@ $(function() {
             }
         }
 
-        if (crossed && !setPoint) {
-            console.log("paths cross");
+        if (invalid && !setPoint) {
+            console.log("paths invalid");
             return;
         }
 
@@ -598,7 +656,7 @@ $(function() {
 
             // No need to check the length if point1 is undefined. (Might occur over text at the grid)
             if (point1 == undefined) {return;}
-            testLength = vectorLength([initPointX, initPointY], point1);
+            testLength = vectorLength(initPointX, initPointY, point1.x, point1.y);
 
 
             return (testLength <= this.radius);
@@ -724,13 +782,23 @@ $(function() {
     **/
     Room.prototype.drawWall = function (point1, point2) {
 
-        var tmpWall = this.tmpWall,
-            walls = this.walls,
-            room = this;
+        var room = this;
 
-        if (tmpWall != null) {
-            tmpWall.remove();
+        // checking if x or y is set to aligned
+        point2.x = (this.xAligned && !this.proximity) ? point1.x : point2.x;
+        point2.y = (this.yAligned && !this.proximity) ? point1.y : point2.y;
+
+        // If we have a temp-wall, we want to remove it, and at the same time remove the shown length of it.
+        if (room.tmpWall != null) {
+
+            room.tmpWall.remove();
             room.tmpWall = null;
+            room.tmpRect.remove();
+            room.tmpRect = null;
+            room.tmpLen.remove();
+            room.tmpLen = null;
+            room.tmpMeasurements.remove();
+            room.tmpMeasurements.clear();
         }
 
         wall = grid.paper.path("M"+point1.x+","+point1.y+"L"+point2.x+","+point2.y).attr({ 
@@ -745,28 +813,45 @@ $(function() {
         room.refreshMeasurements();
 
         // When the room is finished, we can add handlers to the walls.
-        if (room.finished) {
+        if (room.finished) { 
             room.setHandlers();
         }
     }
 
     /**
-     * Visualization of the line that the user is about to draw.
+     * Visualization of the line that the user is about to draw, and the length of the line.
      * This line will not be saved in our array.
     **/
-    Room.prototype.drawTempLine = function (point2, point1) {
+    Room.prototype.drawTempLine = function (point2, point1, callback) {
+
         var p2 = point2,
             p1 = (point1 == null) ? this.lastPoint : point1,
             tmpWall = this.tmpWall,
+            tmpRect = this.tmpRect,
+            tmpLen,
+            diffX, 
+            diffY,
+            tmpMultiplier = 0.05,
             walls = this.walls,
             crossed = false,
             x1 = null,
-            y1 = null;
+            y1 = null,
+            length = walls.length,
+            xAligned,
+            yAligned;
 
-        if (walls.length > 1) {
+        if (length > 1) {
 
+            // Store x and y for the starting point of first wall.
+            // used further down the line.
             x1 = walls[0].attrs.path[0][1];
             y1 = walls[0].attrs.path[0][2];
+
+
+            // Logic for the second wall:
+            //
+            // Checking if it crosses.
+
 
            if (this.wallCross(p1.x, p1.y, p2.x, p2.y)) {
                 crossed = true;
@@ -776,8 +861,12 @@ $(function() {
 
 
             // See if we are in the area where the room gets 'auto-completed'.
+            // visualize roomend by circle.
+            // set ending point (p2) to the starting point of wall[0].
             if (this.isProximity(p2)) {
                 this.visualizeRoomEnd();
+                p2.x = x1;
+                p2.y = y1;
                 this.proximity = true;
 
             } else {
@@ -785,7 +874,41 @@ $(function() {
                     this.tmpCircle.remove();
                 }
                 this.proximity = false;
-            }  
+            } 
+
+        }
+
+
+        // Forcing 90 degree angles!
+        // 
+        // calculate temp length
+        tmpLen = vectorLength(p1.x, p1.y, p2.x, p2.y);
+
+        diffX = (p1.x >= p2.x) ? (p1.x - p2.x) : (p2.x - p1.x);
+        diffY = (p1.y >= p2.y) ? (p1.y - p2.y) : (p2.y - p1.y);
+
+        if (!this.proximity) {
+            // Checking if x value is in range
+            if (diffX < (tmpLen * tmpMultiplier)) {
+
+                p2.x = p1.x;
+                xAligned = true;
+
+            // Checking if y value is in range.
+            } else if (diffY < (tmpLen * tmpMultiplier)) {
+
+                p2.y = p1.y;
+                yAligned = true;
+
+            // set both alignements to false.
+            } else {
+
+                xAligned = false;
+                yAligned = false;
+            }
+
+            this.xAligned = xAligned;
+            this.yAligned = yAligned;
         }
 
 
@@ -814,12 +937,44 @@ $(function() {
             this.tmpWall = grid.paper.path("M"+p1.x+","+p1.y+"L"+p2.x+","+p2.y);
 
         } else {
+
             tmpWall.attr({
                 path: ["M"+p1.x+","+p1.y+"L"+p2.x+","+p2.y],
-                stroke: '#000000'
+                stroke: "#000000"
             });
         }
-        this.crossed = crossed;
+
+
+        // show temporary Angle
+        if (length >= 1 && this.tmpWall.getTotalLength() > (this.radius * 2)) {
+
+
+            // Store temporary angle.
+            var tmpAngle = this.angleMeasurement(null, this.tmpWall),
+                tmpBool = false;
+
+            // Check if angle is smaller than 30 and larger than 330 ellen degenerees.
+            // If the angle this is true, change the color to  red (like when crossed);
+            if (tmpAngle > this.maxAngle || tmpAngle < this.minAngle) {
+
+                tmpWall.attr({
+                    stroke: '#ff0000'
+                });
+
+
+                tmpBool = true;
+            } 
+
+            // Update this.invalid boolean (used in wallend)
+            this.invalid = (crossed) ? crossed : tmpBool;
+
+
+        } else if (this.tmpMeasurements != null) {
+            this.tmpMeasurements.remove();
+            this.tmpMeasurements.clear();
+        }
+
+        return tmpWall;
     }
 
 
@@ -865,8 +1020,6 @@ $(function() {
 
         for (var i = 0; i < len; i++) {
 
-            
-            
             if (finished) {
                 this.angleMeasurement(i);
             } else if (i >= 1) {
@@ -882,13 +1035,9 @@ $(function() {
      *
      *
     **/
-    Room.prototype.angleMeasurement = function (index) {
+    Room.prototype.angleMeasurement = function (index, overload) {
 
-        var connected = this.returnConnectingPaths(index),
-            circleRad = (this.radius * 2),
-            p1,
-            p2,
-            p3,
+        var circleRad = (this.radius * 2),
             angle,
             tPoint = [],
             startAngle, 
@@ -897,28 +1046,56 @@ $(function() {
             inverted,
             halfCircleP1,
             halfCircleP2,
-            halfCircle;
+            halfCircle,
+            p1, 
+            p2, 
+            p3 = [];
 
-            // Setting point1, 2 and 3 used for calculating angles.
+        if (overload == null) {
+            var connected = this.returnConnectingPaths(index);
+
             p1 = connected[0].attrs.path[0];
             p2 = connected[0].attrs.path[1];
-            p3 = connected[1].attrs.path[1];
+            p3 = connected[1].attrs.path[1];  
 
             // finding the points used for positioning the halfcircle.
             halfCircleP1 = connected[0].getPointAtLength((connected[0].getTotalLength() - circleRad));
             halfCircleP2 = connected[1].getPointAtLength(circleRad);
 
+        } else {
+
+            if (this.tmpMeasurements !=  null) {
+                this.tmpMeasurements.remove();
+                this.tmpMeasurements.clear();
+            }
+            
+            var walls = this.walls,
+                index = (walls.length - 1);
+
+            p1 = walls[index].attrs.path[0];
+            p2 = walls[index].attrs.path[1];
+            p3 = overload.attrs.path[1];
+
+            halfCircleP1 = walls[index].getPointAtLength((walls[index].getTotalLength() - circleRad));
+            halfCircleP2 = overload.getPointAtLength(circleRad);
+        }
+
+
+
+
             // Calculating the angle.
             angle = Raphael.angle(p1[1], p1[2], p3[1], p3[2], p2[1], p2[2]);
 
             // Need the start and ending angles between paths/points are needed for checking.
-            startAngle = Raphael.angle(connected[0].attrs.path[0][1], connected[0].attrs.path[0][2], connected[0].attrs.path[1][1], connected[0].attrs.path[1][2]);
-            endAngle = Raphael.angle(connected[1].attrs.path[0][1], connected[1].attrs.path[0][2], connected[1].attrs.path[1][1], connected[1].attrs.path[1][2]);
+            startAngle = Raphael.angle(p1[1], p1[2], p2[1], p2[2]);
+            endAngle = Raphael.angle(p2[1], p2[2], p3[1], p3[2]);
 
             diffAngle = endAngle - startAngle;
 
+
+
             // decides if the drawing is inverted or not
-            if (this.inverted == null) {
+            if (this.inverted == null && overload == null) {
                 this.inverted = (angle > 0 && angle < 180);
             }
             inverted = this.inverted; 
@@ -934,20 +1111,28 @@ $(function() {
             
             } else {
 
+
                 // Ensure that angle is positive.
                 if (angle < 0) {
                     angle = angle * (-1);   
                 }
               
                 // angles that have an endangle larger and startangle larger than 180.
-                if (endAngle >= 180 && startAngle >= 180) {
-                    angle = 360 - angle;
+                if (endAngle >= 180) {
+
+                    if (startAngle >= 180) {
+                        angle = 360 - angle;
+
+                    } else if (diffAngle < 180) {
+                        angle = 360 - angle;
+                    }
+
 
                 // All angles that have endangles and startangles thar are smaller than 180, 
                 // and also have a difference (diffangle) lower than -180.
-                } else if (startAngle >= 180) {
+                } else {
 
-                    if (diffAngle < -180) {
+                    if (startAngle >= 180 && diffAngle < - 180) {
                         angle = 360 - angle;
                     }
                 }
@@ -957,13 +1142,28 @@ $(function() {
                 halfCircleP1 = tmp;
 
                 halfCircle = this.sector(p2[1], p2[2], halfCircleP1, halfCircleP2, angle, circleRad);
+
+            }
+
+            if (halfCircle != null) {
+                var textPoint = halfCircle.getPointAtLength((halfCircle.getTotalLength()/2)),
+                    newAngle = angle.toFixed(1),
+                    hc,
+                    textPoint = midPoint(textPoint, p2);
+
+                hc = grid.paper.text(textPoint[0], textPoint[1], newAngle + String.fromCharCode(176));
             }
 
 
+        if (overload != null) {
+            this.tmpMeasurements.push(halfCircle, hc);
+        } else {
+            this.measurements.push(halfCircle, hc);
+        }
 
-
-        this.measurements.push(halfCircle);
+        return angle;
     }
+
     /**
      * Function that creates a "circle" from point1 to point2.
      * 
@@ -974,12 +1174,13 @@ $(function() {
             x1 = p1.x, 
             x2 = p2.x, 
             y1 = p1.y,
-            y2 = p2.y;
+            y2 = p2.y,
+            strokeColor = (angle < this.minAngle || angle > this.maxAngle) ? "ff0000" : "2F4F4F";
 
         return grid.paper.path(["M", centerX, centerY, "L", x1, y1, "A", r, r, 0, big, 0, x2, y2, "z"]).attr(            
             {
                 fill: "#00000", 
-                stroke: "#2F4F4F",
+                stroke: strokeColor,
                 'stroke-width': 1,
                 'stroke-linecap': "round"
             });
@@ -1044,14 +1245,9 @@ $(function() {
             m3p1y,
             m3p2x,
             mep2y,
-
-
             m3,
-            t;
-    
-
-        console.log("inverted: "+this.inverted);
-
+            t,
+            r;
         if (this.inverted) {
             angle1 = 270;
             angle2 = 90;
@@ -1095,8 +1291,7 @@ $(function() {
 
         
         // Drawing the line paralell to the wall.        
-        m3 = grid.paper.path("M"+m3p1x+","+m3p1y+"L"+m3p2x+","+m3p2y).attr(
-            {
+        m3 = grid.paper.path("M"+m3p1x+","+m3p1y+"L"+m3p2x+","+m3p2y).attr({
                 fill: "#00000", 
                 stroke: "#2F4F4F",
                 'stroke-width': 1,
@@ -1104,16 +1299,26 @@ $(function() {
             });
 
 
-        //Functionality that shows length and shit.. doesnt look very good.
+        // Functionality that shows length and shit.. doesnt look very good.
         var textPoint = m3.getPointAtLength((m3.getTotalLength()/2)),
-            len = new Number(m3.getTotalLength())/100;
-            
+            len = new Number(wall.getTotalLength())/100;
             len = len.toFixed(2);
+        // Draws a rectangle at the middle of the line
+        r = grid.paper.rect(textPoint.x-25, textPoint.y-10, 50, 20, 5, 5).attr({
+            opacity: 1,
+            fill: "white"
+        });
 
-        t = grid.paper.text(textPoint.x, textPoint.y, len + " m");
+        // Adds text on top of the rectangle, to display the length of the wall.
+        t = grid.paper.text(textPoint.x, textPoint.y, len + " m").attr({
+            opacity: 1,
+            'font-size': 12,
+            'font-family': "verdana",
+            'font-style': "oblique"
+        });
 
         // Adds to measurements set.
-        this.measurements.push(m1,m2,m3,t);
+        this.measurements.push(m1, m2, m3, t, r);
     }
 
     //Function removes the currently drawn room)
@@ -1165,8 +1370,7 @@ $(function() {
             e.offsetY = e.pageY - e.currentTarget.offsetTop; 
         }
 
-        point = grid.getLatticePoint(e.offsetX, e.offsetY);
-        point = grid.getReal(point);
+        point = grid.getRestriction(e.offsetX, e.offsetY);
 
         return point;
     }
@@ -1215,19 +1419,29 @@ $(function() {
     var options = new Options('options_container');
 
     // Function that takes two points and calculates their vector length.
-    function vectorLength(p1, p2) {
+    function vectorLength(x1, y1, x2, y2) {
 
-        var x1 = p1[0],
-            x2 = p2.x,
-            y1 = p1[1],
-            y2 = p2.y,
-            x = Math.pow((x2 - x1), 2),
+        var x = Math.pow((x2 - x1), 2),
             y = Math.pow((y2 - y1), 2),
             result = Math.pow((y + x), (1/2));
 
         return result;
     }
     
+    /**
+     * midpoint formula
+    **/
+    function midPoint(p1, p2) {
+        var x1 = p1.x,
+            x2 = p2[1],
+            y1 = p1.y,
+            y2 = p2[2],
+            x = ( (x1 + x2) / 2),
+            y = ( (y1 + y2) / 2);
+
+        return ([x, y]);
+    }
+
     //Constructor for the result display
     function ResultGrid() {
         this.size = 5;
@@ -1377,7 +1591,6 @@ $(function() {
 
 
     }
-
 
     function Square (x, y, path, paper) {
         this.xpos = x/50;
