@@ -1476,7 +1476,7 @@ $(function() {
             angleArr = [];
 
         // Creating the column names
-        var myForm= "<form id='options'>";
+        var myForm = "<form id='options'>";
 
      /*   // Filling in information
         for (var i = 0; i < measurementValues.length; i++) {
@@ -1507,9 +1507,9 @@ $(function() {
 
         */  
 
-        //OBS: To get the 'original' functionality, that update the wall-lengths etc, just out-comment the below code, and add the above code instead.
+        //OBS: To get the 'original' functionality that update the wall-lengths etc, just out-comment the below code, and add the above code instead.
 
-        //TODO: Hardcoded to be sure we create enough fields
+        //TODO: Hardcoded number of walls to be sure we create enough fields when testing.
         // The buttons should be created first, and the fields should be created afterwards (so it depends on the number of walls in the chosen shape)
         //TODO2: When a room is finished, the form outcommented above should be shown, including the length of the walls etc.
 
@@ -1526,49 +1526,43 @@ $(function() {
             myForm += "<button id='rect' type='button'>Rectangle</button>";
             myForm += "<button id='lshape' type='button'>L-shape</button>";
             myForm += "<button id='tshape' type='button'>T-shape</button>";
+            myForm += "<button id='generate' type='button'>Generate Room</button>";
 
             myForm+="</form>";
 
 
         $('#options_container').html(myForm);
 
+        //TODO: The input-fields in myForm should be made AFTER the shape-buttons is clicked.
+        // The user first choose the shape of the room, then the angleArr is set, based on what button was clicked.
+     
+        $('#generate').click(function() {
+            for (var i = 0; i < angleArr.length+1; i++) {
+                // Checks if an valid integer is entered and checks if the field is empty (TODO: Should maybe check if it is > 50cm or something)
 
-
-        //TODO: This is basically the same functionality duplicated, maybe som other structure should be used
+                if (!isNaN($('#walll'+i).val()) && ($('#walll'+i).val()) != "") {
+                    lengthArr.push($('#walll'+i).val());
+                } else {
+                    alert("Alle felter må fylles med tall!");
+                    //Empties the array (just to be sure!).
+                    lengthArr = [];
+                    return;
+                }
+            }
+            ourRoom.createRoom(lengthArr, angleArr);
+        });
 
         $('#rect').click(function() {
-
-            for (var i = 0; i < 4; i++) {
-                lengthArr.push($('#walll'+i).val());
-            }
-
             angleArr = new PreDefRoom(0);
-
-            ourRoom.createRoom(lengthArr, angleArr);
         });
 
         $('#lshape').click(function() {
-
-            for (var i = 0; i < 6; i++) {
-                lengthArr.push($('#walll'+i).val());
-            }
-
             angleArr = new PreDefRoom(1);
-
-            ourRoom.createRoom(lengthArr, angleArr);
         });
 
         $('#tshape').click(function() {
-
-            for (var i = 0; i < 8; i++) {
-                lengthArr.push($('#walll'+i).val());
-            }
-
             angleArr = new PreDefRoom(2);
-
-            ourRoom.createRoom(lengthArr, angleArr);
         });
-
     }
 
     /**
@@ -1577,13 +1571,9 @@ $(function() {
     **/
 
     function PreDefRoom (value) {
-        var rectArr = [],     //Rectangle-shaped
-            lArr = [],        //L-shaped 
-            tArr = [];        //T-shaped
-
-            rectArr = [270, 360, 90];
-            lArr = [270, 180, 270, 360, 90];
-            tArr = [270, 360, 270, 360, 90, 360, 90];
+        var rectArr = [270, 360, 90],                   //Rectangle-shaped
+            lArr = [270, 180, 270, 360, 90],            //L-shaped 
+            tArr = [270, 360, 270, 360, 90, 360, 90];   //T-shaped
 
             if (value == 0) {
                 return rectArr;
