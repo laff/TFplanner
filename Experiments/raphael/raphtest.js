@@ -245,7 +245,7 @@ $(function() {
         this.tmpRect = null;
         this.tmpCircle = null;
         this.proximity = false;
-        this.crossed = false;
+        this.invalid = false;
         this.tmpCorners = [];
         this.initRoom();
         this.handle = null;
@@ -257,6 +257,8 @@ $(function() {
         this.inverted = null;
         this.xAligned = false;
         this.yAligned = false;
+        this.minAngle = 29.95;
+        this.maxAngle = 330.05;
     }
 
     Room.prototype.plus = 5;
@@ -692,7 +694,7 @@ $(function() {
             newEnd = point,
             walls = this.walls,
             initPoint = null,
-            crossed = this.crossed;
+            invalid = this.invalid;
 
         // If there are two or more walls, allow for room completion.
         if (walls.length > 1) {
@@ -710,8 +712,8 @@ $(function() {
         if (initPoint != null) {
             var setPoint = false;
 
-            if (this.proximity && !crossed) {
-                console.log("within proximity, not crossed");
+            if (this.proximity && !invalid) {
+                console.log("within proximity, not valid");
                 setPoint = true;
 
             } else if (newEnd.x == initPoint[0] && newEnd.y == initPoint[1]) {
@@ -727,8 +729,8 @@ $(function() {
             }
         }
 
-        if (crossed && !setPoint) {
-            console.log("paths cross");
+        if (invalid && !setPoint) {
+            console.log("paths invalid");
             return;
         }
 
@@ -878,8 +880,6 @@ $(function() {
         var room = this;
 
         // checking if x or y is set to aligned
-        console.log(this.yAligned);
-        console.log(this.yAligned);
         point2.x = (this.xAligned && !this.proximity) ? point1.x : point2.x;
         point2.y = (this.yAligned && !this.proximity) ? point1.y : point2.y;
 
@@ -931,18 +931,22 @@ $(function() {
             crossed = false,
             x1 = null,
             y1 = null,
-            length = walls.length;
-            //xAligned = this.xAligned,
-            //yAligned = this.yAligned;
+            length = walls.length,
+            xAligned,
+            yAligned;
 
         if (length > 1) {
+
+            // Store x and y for the starting point of first wall.
+            // used further down the line.
+            x1 = walls[0].attrs.path[0][1];
+            y1 = walls[0].attrs.path[0][2];
 
 
             // Logic for the second wall:
             //
             // Checking if it crosses.
-            x1 = walls[0].attrs.path[0][1];
-            y1 = walls[0].attrs.path[0][2];
+
 
            if (this.wallCross(p1.x, p1.y, p2.x, p2.y)) {
                 crossed = true;
@@ -970,7 +974,7 @@ $(function() {
         }
 
 
-        // Forcing 90 degree angles
+        // Forcing 90 degree angles!
         // 
         // calculate temp length
         tmpLen = vectorLength(p1.x, p1.y, p2.x, p2.y);
@@ -983,23 +987,23 @@ $(function() {
             if (diffX < (tmpLen * tmpMultiplier)) {
 
                 p2.x = p1.x;
-                this.xAligned = true;
-                console.log("X aligned");
+                xAligned = true;
 
             // Checking if y value is in range.
             } else if (diffY < (tmpLen * tmpMultiplier)) {
 
                 p2.y = p1.y;
-                this.yAligned = true;
-                console.log("Y aligned");
+                yAligned = true;
 
             // set both alignements to false.
             } else {
 
-                this.xAligned = false;
-                this.yAligned = false;
-
+                xAligned = false;
+                yAligned = false;
             }
+
+            this.xAligned = xAligned;
+            this.yAligned = yAligned;
         }
 
 
@@ -1035,14 +1039,31 @@ $(function() {
             });
         }
 
-        this.crossed = crossed;
-
 
         // show temporary Angle
-
         if (length >= 1 && this.tmpWall.getTotalLength() > (this.radius * 2)) {
 
-            this.angleMeasurement(null, this.tmpWall);
+
+            // Store temporary angle.
+            var tmpAngle = this.angleMeasurement(null, this.tmpWall),
+                tmpBool = false;
+
+            // Check if angle is smaller than 30 and larger than 330 ellen degenerees.
+            // If the angle this is true, change the color to  red (like when crossed);
+            if (tmpAngle > this.maxAngle || tmpAngle < this.minAngle) {
+
+                tmpWall.attr({
+                    stroke: '#ff0000'
+                });
+
+                console.log(tmpAngle);
+
+                tmpBool = true;
+            } 
+
+            // Update this.invalid boolean (used in wallend)
+            this.invalid = (crossed) ? crossed : tmpBool;
+
 
         } else if (this.tmpMeasurements != null) {
             this.tmpMeasurements.remove();
@@ -1235,6 +1256,8 @@ $(function() {
         } else {
             this.measurements.push(halfCircle, hc);
         }
+
+        return angle;
     }
 
     /**
@@ -1247,12 +1270,13 @@ $(function() {
             x1 = p1.x, 
             x2 = p2.x, 
             y1 = p1.y,
-            y2 = p2.y;
+            y2 = p2.y,
+            strokeColor = (angle < this.minAngle || angle > this.maxAngle) ? "ff0000" : "2F4F4F";
 
         return grid.paper.path(["M", centerX, centerY, "L", x1, y1, "A", r, r, 0, big, 0, x2, y2, "z"]).attr(            
             {
                 fill: "#00000", 
-                stroke: "#2F4F4F",
+                stroke: strokeColor,
                 'stroke-width': 1,
                 'stroke-linecap': "round"
             });
