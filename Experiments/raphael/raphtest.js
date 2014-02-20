@@ -78,11 +78,14 @@ $(function() {
             if (ourRoom.finished == true) {
                 paper.clear();
                 var resultGrid = new ResultGrid();
-
-                grid.draw();
-                grid.menuBox(0,0);
                 ourRoom.clearRoom();
                 ourRoom = new Room(20);
+                setTimeout(function(){
+                    resultGrid.clear();
+                    grid.draw();
+                    grid.menuBox(0,0);
+                }, 5000);
+                
             }
             //"Unclicks" button
             setTimeout(function(){ pressedButton.remove() }, 300);
@@ -1451,7 +1454,8 @@ $(function() {
         this.offsetY = 0;
         this.scale = 1;
         this.paper = Raphael(document.getElementById('canvas_container'));
-        this.squares = this.paper.set();
+        this.squares = [];
+        this.area = 0;
 
         this.findDimension();
 
@@ -1460,8 +1464,9 @@ $(function() {
 
         this.populateSquares();
 
-       // this.draw(this.height, this.width, this.path);
+        this.draw(this.height, this.width, this.path);
     }
+
 
     //Function finds the height and width of the figure, as well as the height
     // and width of the screen. Also sets scale of image based on relation
@@ -1501,8 +1506,8 @@ $(function() {
         } 
 
         //Sets ResultGrid variables
-        this.offsetX = minX;
-        this.offsetY = minY;
+        this.offsetX = minX -49;
+        this.offsetY = minY - 49;
         this.width = (maxX - minX);
         this.height = (maxY - minY);
 
@@ -1510,18 +1515,19 @@ $(function() {
         xscale = canvas.width()/this.width,
         yscale = canvas.height()/this.height;
         this.scale = (xscale < yscale)?xscale:yscale;
+        this.scale = this.scale.toFixed();
     }
 
 
 
     //Draws a scaled version of the path. VERY UNFINISHED!
     ResultGrid.prototype.draw = function(h, w, path) {
+        paper = this.paper;
         var canvas = $('#canvas_container'), 
             xscale = canvas.width()/w,
-            yscale = canvas.height()/h;
-        path.scale(xscale < yscale?xscale:yscale);
-
-
+            yscale = canvas.height()/h,
+            squares = this.squares;
+        //path.scale(xscale < yscale?xscale:yscale);
     }
 
 
@@ -1568,7 +1574,8 @@ $(function() {
         return pathString;
     }
 
-
+    //Divides the areaa into suqares, does wall and obstacle detecetion and
+    // calculates the area to be covered
     ResultGrid.prototype.populateSquares = function() {
         var squares = this.squares,
             paper = this.paper,
@@ -1579,19 +1586,26 @@ $(function() {
             height = this.height,
             square;
 
-        height = height + (50-height%50);
-        width = width + (50-width%50);
+        //The grid is slightly larger than the figure, 
+        // and grid is padded so that we don't get partial squares 
+        height = height +100 + (50-height%50);
+        width = width + 100 +(50-width%50);
 
         for (var i = 0; i < height; i += ydim) {
             for (var j = 0; j < width; j += xdim) {
                 square = new Square(j, i, path, paper);
                 squares.push(square);
+                this.area += square.area;
             }
         }
-
+        console.log("Availabe area: " + this.area + " square cm");
+        this.area = this.area/(100*100);
+        this.area = Math.floor(this.area);
+        console.log("Usable area: " + this.area + " square meters");
 
     }
 
+    //Constructor for a 0.5m X 0.5m square
     function Square (x, y, path, paper) {
         this.xpos = x/50;
         this.ypos = y/50;
@@ -1600,6 +1614,7 @@ $(function() {
         this.hasWall = false;
         this.populated = false;
         this.subsquares = [];
+        this.area = 0;
 
         var xdim = 50, 
             ydim = 50,
@@ -1622,6 +1637,7 @@ $(function() {
                 'fill-opacity': 0.2
             });
             insideRoom = true;
+            this.area = xdim*ydim;
         }
         //If at least one corner is inside   
         else if ( ul || ur || ll || lr) {
@@ -1633,7 +1649,10 @@ $(function() {
                     self.attr({
                         'stroke': "blue"
                     });
+                    insideRoom = true;
                     this.subsquares.push(subsquare);
+                    if (subsquare.insideRoom)
+                        this.area += xsubdim*ysubdim;
                 }
             }
         }
@@ -1646,6 +1665,8 @@ $(function() {
         }
     }
 
+
+    //Constructor for 0.1m X 0.1m square
     function Subsquare (x, y, path, paper, squarenumber) {
         this.id = squarenumber;
         this.insideRoom = false;
@@ -1676,6 +1697,7 @@ $(function() {
                 'fill-opacity': 0.2,
                 'stroke-width': 0.1
             });
+            this.hasWall = true;
         }
         else {
             self.attr ({
@@ -1685,6 +1707,31 @@ $(function() {
             });
         }
     }
+
+
+    ResultGrid.prototype.clear = function () {
+
+        //Cleans up arrays
+        var squares = this.squares, 
+            len = squares.length,
+            square,
+            arr;
+        for (var i = 0; i < len; ++i) {
+            square = squares.pop();
+            if (square.subsquares.length != 0) {
+                arr = square.subsquares;
+                for ( var j = 0; j < 25; j++)
+                    arr.pop();
+            }
+        }
+
+        //Removes the drawing
+        this.paper.remove();
+    }
+
+
+
+//End of 
 });
 
 
