@@ -39,7 +39,6 @@
 }
 
 #options table {
-	
 	border: 1;
 	border-color: #aaa;
 }
@@ -49,6 +48,32 @@
 }	
 
 #options td {
+
+	text-align: left;
+	width: 100%;
+}
+
+button {
+	background-color:#4B819A;
+	border: 2px solid #4B819A;
+	color: #FFF;
+	text-align: center;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	padding: 8px;
+}
+
+#fields table {
+	border: 1;
+	border-color: #aaa;
+}
+
+#fields tr {
+	border: 1;
+}	
+
+#fields td {
 
 	text-align: left;
 	width: 100%;
