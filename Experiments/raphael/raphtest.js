@@ -603,8 +603,6 @@ $(function() {
             initPoint = null,
             invalid = this.invalid;
 
-            console.log(this.lastPoint);
-
         // If there are two or more walls, allow for room completion.
         if (walls.length > 1) {
             initPoint = [walls[0].attrs.path[0][1], walls[0].attrs.path[0][2]];
@@ -1372,7 +1370,7 @@ $(function() {
      * @param len - Array with the length of each wall (entered by the user).
      * @param ang - Array with predefined angles for the chosen room-shape.
     **/
-    Room.prototype.createRoom = function(len, ang) {
+    Room.prototype.createRoom = function(ang) {
 
         var p1,
             p2,
@@ -1382,15 +1380,16 @@ $(function() {
             tmpAng;
 
             room.clearRoom();
-
+            
             // Looping through the number of walls in the room.
-        for (var i = 0; i < len.length; i++) {
+        for (var i = 0; i < ang[0].length; i++) {
+
 
             // The first wall is a horizontal wall, starting in point (150, 150).
             // The wall is ending in p2, which is the length of the wall, added to p1.
             if (i == 0) {
-                p1 = new Point(150, 150);
-                p2tmp = parseInt(len[i]);
+                p1 = new Point(350, 150);
+                p2tmp = parseInt(ang[1][i]);
                 p2 = new Point(p2tmp+p1.x, p1.y);
                 initPoint = p1;
 
@@ -1402,8 +1401,8 @@ $(function() {
             // The ending point of the walls are calculated out from the angles stored in the array.
             } else {
                 p1 = this.lastPoint;
-                tmpAng = parseInt(ang[i-1]);
-                p2tmp = parseInt(len[i]);
+                tmpAng = parseInt(ang[0][i]);
+                p2tmp = parseInt(ang[1][i]);
 
                 if (tmpAng == 270) {
                     p2 = new Point(p1.x, p1.y+p2tmp);
@@ -1414,10 +1413,10 @@ $(function() {
                 } else if (tmpAng == 360) {
                     p2 = new Point(p1.x-p2tmp, p1.y);
 
-                } else if (tmpAng == 90 && i != len.length-1) {
+                } else if (tmpAng == 90 && i != ang[0].length-1) {
                     p2 = new Point(p1.x, p1.y-p2tmp);
                 // This means 'finish the room'
-                } else if (i == len.length-1 && tmpAng == 90) {
+                } else if (i == ang[0].length-1 && tmpAng == 90) {
                     p2 = initPoint;
                 }
             }
@@ -1471,8 +1470,7 @@ $(function() {
     **/
     Options.prototype.refresh = function() {
 
-        var measurementValues = ourRoom.measurementValues;
-        var lengthArr = [],
+        var measurementValues = ourRoom.measurementValues,
             angleArr = [];
 
         // Creating the column names
@@ -1513,7 +1511,7 @@ $(function() {
         // The buttons should be created first, and the fields should be created afterwards (so it depends on the number of walls in the chosen shape)
         //TODO2: When a room is finished, the form outcommented above should be shown, including the length of the walls etc.
 
-        for (var i = 0; i < 8; i++) {
+   /*     for (var i = 0; i < 8; i++) {
 
             // Wall number / name
             myForm += "wall" + i + " length";
@@ -1523,12 +1521,14 @@ $(function() {
             myForm += "><br>";
 
         }
-            myForm += "<button id='rect' type='button'>Rectangle</button>";
+        */
+
+            myForm = "<button id='rect' type='button'>Rectangle</button>";
             myForm += "<button id='lshape' type='button'>L-shape</button>";
             myForm += "<button id='tshape' type='button'>T-shape</button>";
             myForm += "<button id='generate' type='button'>Generate Room</button>";
 
-            myForm+="</form>";
+           // myForm+="</form>";
 
 
         $('#options_container').html(myForm);
@@ -1537,10 +1537,10 @@ $(function() {
         // The user first choose the shape of the room, then the angleArr is set, based on what button was clicked.
      
         $('#generate').click(function() {
-            for (var i = 0; i < angleArr.length+1; i++) {
+           // for (var i = 0; i < angleArr.length+1; i++) {
                 // Checks if an valid integer is entered and checks if the field is empty (TODO: Should maybe check if it is > 50cm or something)
 
-                if (!isNaN($('#walll'+i).val()) && ($('#walll'+i).val()) != "") {
+       /*     if (!isNaN($('#walll'+i).val()) && ($('#walll'+i).val()) != "") {
                     lengthArr.push($('#walll'+i).val());
                 } else {
                     alert("Alle felter må fylles med tall!");
@@ -1549,41 +1549,56 @@ $(function() {
                     return;
                 }
             }
-            ourRoom.createRoom(lengthArr, angleArr);
+
+        */
+
+            angleArr = new PreDefRoom(8);
+            ourRoom.createRoom(angleArr);
+
+            
         });
 
         $('#rect').click(function() {
             angleArr = new PreDefRoom(0);
+            ourRoom.createRoom(angleArr);
         });
 
         $('#lshape').click(function() {
             angleArr = new PreDefRoom(1);
+            ourRoom.createRoom(angleArr);
         });
 
         $('#tshape').click(function() {
             angleArr = new PreDefRoom(2);
+            ourRoom.createRoom(angleArr);
         });
     }
 
     /**
-     * Function that holds the shapes of 'predefined' rooms.
-     * The angles for each shape is hardcoded, so that the user do not need to care about this.
+     * Function that holds the shapes and wall-lengths of 'predefined' rooms.
     **/
-
     function PreDefRoom (value) {
-        var rectArr = [270, 360, 90],                   //Rectangle-shaped
-            lArr = [270, 180, 270, 360, 90],            //L-shaped 
-            tArr = [270, 360, 270, 360, 90, 360, 90];   //T-shaped
 
-            if (value == 0) {
-                return rectArr;
-            }
-            else if (value == 1) {
-                return lArr;
-            }
-            else if (value == 2) {
-                return tArr;
-            }
+        switch(value) {
+            case 0:
+                return rectArr = [[180, 270, 360, 90],[300, 200, 300, 200]];                                            //Rectangle-shaped
+            case 1:
+                return lArr = [[180, 270, 180, 270, 360, 90],[200, 150, 200, 150, 400, 300]];                           //L-shaped
+            case 2:
+                return tArr = [[180, 270, 360, 270, 360, 90, 360, 90],[450, 150, 150, 250, 150, 250, 150, 150]];        //T-shaped
+            case 3:
+                return lRot90 = [[180, 270, 360, 270, 360, 90],[400, 150, 200, 150, 200, 300]];                         //L-shape rotated 90 degrees.
+            case 4:
+                return lRot180 = [[180, 270, 360, 90, 360, 90], [400, 350, 200, 200, 200, 150]];                        //L-shape rotated 180 degrees.
+            case 5:
+                return lRot270 = [[180, 270, 360, 90, 180, 90],[200, 300, 400, 150, 200, 150]];                         //L-shape rotated 270 degrees.
+            case 6:
+                return tRot90 = [[180, 270, 360, 90, 360, 90, 180, 90], [150, 450, 150, 150, 250, 150, 250, 150,]];     //T-shape rotated 90 degrees.
+            case 7:
+                return tRot180 = [[180, 270, 180, 270, 360, 90, 180, 90], [150, 250, 150, 150, 450, 150, 150, 250]];    //T-shape rotated 180 degrees.
+            case 8:
+                return tRot270 = [[180, 270, 180, 270, 360, 270, 360, 90], [150, 150, 250, 150, 250, 150, 150, 450]];  //T-shape rotated 270 degrees.
+        }
     }
 
 
