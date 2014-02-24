@@ -1790,11 +1790,94 @@ $(function() {
 
 
 
+  
 
 
-    function Options(tableEle) {
-        this.tableEle = tableEle;
+
+    function Options() {
+      //  this.tableEle = tableEle;
         this.refresh();
+    }
+
+    // Create a new Raphael-paper for the options-container.
+    Options.prototype.optPaper = Raphael(document.getElementById('options_container'));
+
+    /*
+     * Sets up the 'options-container', and create buttons and handlers.
+    **/
+    Options.prototype.initOpt = function () {
+        var paper = this.optPaper,
+            rectColl = paper.set(),
+            tColl = paper.set(),
+            buttonT, tImg,
+            buttonRect, rectImg,
+            angleArr = [];
+
+
+        // Set backgroundcolor of the options-container canvas.
+        paper.canvas.style.backgroundColor = '#767676';
+
+        // Create the button used when creating a predefined rectangular room.
+        buttonRect = paper.rect(12, 15, 65, 35, 10).attr({
+            fill: '#3878A7',
+            stroke: '#3B4449',
+            'stroke-width': 1,
+            title: "Auto-create a rectangular room"
+        });
+        // Drawing a rectangle on the button.
+        rectImg = paper.rect(25, 23, 40, 20, 0).attr({
+            fill: '#3878A7',
+            stroke: 'black',
+            'stroke-width': 1,
+            title: "Auto-create a rectangular room"
+        });
+
+        // Adds the rectangle-button to a set, and add mousehandlers to the button.
+        rectColl.push(buttonRect, rectImg);
+
+        rectColl.attr({
+            cursor: 'pointer',
+        }).mouseover(function(e) {
+            buttonRect.attr('fill', '#1F679C');
+
+        }).mouseout(function(e) {
+            buttonRect.attr('fill', '#3878A7');
+
+        }).mouseup(function(e) {
+            angleArr = new PreDefRoom(0);
+            ourRoom.createRoom(angleArr);
+        });
+
+
+        buttonT = paper.rect(12, 55, 65, 35, 10).attr({
+            fill: '#3878A7',
+            stroke: '#3B4449',
+            'stroke-width': 1,
+            title: "Auto-create a T-shaped room"
+        });
+        // Drawing a T on the button.
+        tImg = paper.path('M 25 60 L 65 60 L 65 70 L 50 70 L 50 85 L 40 85 L 40 70 L 25 70 L 25 60').attr({
+            fill: '#3878A7',
+            stroke: 'black',
+            'stroke-width': 1,
+            title: "Auto-create a T-shaped room"
+        });
+
+        // Adds the T-button-stuff to a set, and then create the mousehandlers for it!
+        tColl.push(buttonT, tImg);
+
+        tColl.attr({
+            cursor: 'pointer',
+        }).mouseover(function(e) {
+            buttonT.attr('fill', '#1F679C');
+
+        }).mouseout(function(e) {
+            buttonT.attr('fill', '#3878A7');
+
+        }).mouseup(function(e) {
+            angleArr = new PreDefRoom(2);
+            ourRoom.createRoom(angleArr);
+        });
     }
 
     /**
@@ -1805,10 +1888,26 @@ $(function() {
     Options.prototype.refresh = function() {
 
         var measurementValues = ourRoom.measurementValues,
+            paper = this.optPaper,
+            padding = 30,
+            textNodes = [],
             angleArr = [];
 
+        for (var i = 0; i < measurementValues.length; i++) {
+
+            // Creating text-nodes that show the length of each wall. (Not editable).
+            textNodes[i] = paper.text(50, i*padding+120, "Wall "+i+": "+measurementValues[i][1].toFixed(0)+"cm").attr({
+                opacity: 1,
+                'font-size': 12,
+                'font-family': "verdana",
+                'font-style': "oblique"
+            });
+
+            ourRoom.measurements.push(textNodes[i]);
+        }
+
         // Creating the column names
-        var myForm = "<form id='options'>";
+       // var myForm = "<form id='options'>";
 
      /*   // Filling in information
         for (var i = 0; i < measurementValues.length; i++) {
@@ -1856,7 +1955,7 @@ $(function() {
 
         }
         */
-
+/*
             myForm = "<button id='rect' type='button'>Rectangle</button>";
             myForm += "<button id='lshape' type='button'>L-shape</button>";
             myForm += "<button id='tshape' type='button'>T-shape</button>";
@@ -1873,7 +1972,7 @@ $(function() {
         $('#generate').click(function() {
            // for (var i = 0; i < angleArr.length+1; i++) {
                 // Checks if an valid integer is entered and checks if the field is empty (TODO: Should maybe check if it is > 50cm or something)
-
+*/
        /*     if (!isNaN($('#walll'+i).val()) && ($('#walll'+i).val()) != "") {
                     lengthArr.push($('#walll'+i).val());
                 } else {
@@ -1885,7 +1984,7 @@ $(function() {
             }
 
         */
-
+/*
             angleArr = new PreDefRoom(8);
             ourRoom.createRoom(angleArr);
 
@@ -1906,7 +2005,7 @@ $(function() {
             angleArr = new PreDefRoom(2);
             ourRoom.createRoom(angleArr);
         });
-    }
+*/    }
 
     /**
      * Function that holds the shapes and wall-lengths of 'predefined' rooms.
@@ -1931,14 +2030,15 @@ $(function() {
             case 7:
                 return tRot180 = [[180, 270, 180, 270, 360, 90, 180, 90], [150, 250, 150, 150, 450, 150, 150, 250]];    //T-shape rotated 180 degrees.
             case 8:
-                return tRot270 = [[180, 270, 180, 270, 360, 270, 360, 90], [150, 150, 250, 150, 250, 150, 150, 450]];  //T-shape rotated 270 degrees.
+                return tRot270 = [[180, 270, 180, 270, 360, 270, 360, 90], [150, 150, 250, 150, 250, 150, 150, 450]];   //T-shape rotated 270 degrees.
         }
     }
 
 
 
     // initiates the options_container
-    var options = new Options('options_container');
+    var options = new Options();
+    options.initOpt();
 
     // Function that takes two points and calculates their vector length.
     function vectorLength(x1, y1, x2, y2) {
