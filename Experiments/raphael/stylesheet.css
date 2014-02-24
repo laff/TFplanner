@@ -63,18 +63,3 @@ button {
 	border-radius: 4px;
 	padding: 8px;
 }
-
-#fields table {
-	border: 1;
-	border-color: #aaa;
-}
-
-#fields tr {
-	border: 1;
-}	
-
-#fields td {
-
-	text-align: left;
-	width: 100%;
-}

@@ -28,9 +28,12 @@ $(function() {
             size = this.size,               
             cutPix = this.cutPix,           
             line,                   // Saves the path to a variable during construction.
-            width = (canvas.width()).toFixed();    // The width and the height of the svg-element.
+            width = (canvas.width()).toFixed(),    // The width and the height of the svg-element.
             height = (canvas.height()).toFixed();
+
+        paper.setViewBox(0, 0, paper.width, paper.height); 
         
+
         // Draw vertical lines on the screen (lines are drawn so that the screen is filled even on min. zoom)
         for (var i = 1; i <= width; i++) {
             
@@ -49,7 +52,7 @@ $(function() {
             }
         }
 
-        paper.setSize("100%" , "100%");
+        //paper.setSize("100%" , "100%");
     }
 
     //X and Y values for upper left corner of box
@@ -121,7 +124,10 @@ $(function() {
      * TODO: Old functionality commented, should be removed!
     **/
 
-    Grid.prototype.getRestriction = function(x, y) {
+    Grid.prototype.getRestriction = function(xy) {
+
+        var x = xy[0],
+            y = xy[1];
           //var x = latticePoint.x* this.size + this.offsetX;
           //var y = latticePoint.y * this.size + this.offsetY;
 
@@ -312,11 +318,12 @@ $(function() {
             },
         
             move = function (dx, dy) {
-                var diffx = (this.lastdx != null) ? (this.lastdx - dx) : 0,
-                    diffy = (this.lastdy != null) ? (this.lastdy - dy) : 0;
+                var xy = getZoomedXY(dx, dy),
+                    diffx = (this.lastdx != null) ? (this.lastdx - xy[0]) : 0,
+                    diffy = (this.lastdy != null) ? (this.lastdy - xy[1]) : 0;
 
-                this.lastdx = dx;
-                this.lastdy = dy;
+                this.lastdx = xy[0];
+                this.lastdy = xy[1];
 
                 // Changing values of the end of the wall 'before' the target-wall.
                 pathArray1[1][1] -= diffx;
@@ -533,8 +540,9 @@ $(function() {
         },
 
         move = function (dx, dy) {
-           var X = this.cx + dx,
-               Y = this.cy + dy;
+            var xy = getZoomedXY(dx, dy), 
+            X = this.cx + xy[0],
+            Y = this.cy + xy[1];
 
            this.attr({cx: X, cy: Y});
 
@@ -590,6 +598,7 @@ $(function() {
         this.clickableCorners();
 
         this.finished = true;
+        //this.zoom();
     }
 
     /**
@@ -602,8 +611,6 @@ $(function() {
             walls = this.walls,
             initPoint = null,
             invalid = this.invalid;
-
-            console.log(this.lastPoint);
 
         // If there are two or more walls, allow for room completion.
         if (walls.length > 1) {
@@ -1041,6 +1048,8 @@ $(function() {
         measurementValues[i].push(this.lengthMeasurement(walls[i]));
             
         }
+
+
     }
 
     /**
@@ -1235,6 +1244,7 @@ $(function() {
             startP2 = wall.attrs.path[1],
             endP2 = wall.getPointAtLength((wall.getTotalLength() - this.radius)),
 
+
             m1 = grid.paper.path("M"+startP1[1]+","+startP1[2]+"L"+endP1.x+","+endP1.y).attr(
             {
                 fill: "#00000", 
@@ -1252,15 +1262,20 @@ $(function() {
             }),
             angle1,
             angle2,
+            m1x,
+            m1y,
+            m2x,
+            m2y,
             bm1,
             bm2,
             m3p1x,
             m3p1y,
             m3p2x,
-            mep2y,
+            m3p2y,
             m3,
             t,
             r;
+
         if (this.inverted) {
             angle1 = 270;
             angle2 = 90;
@@ -1269,42 +1284,97 @@ $(function() {
             angle2 = 270;
         }
 
+        //m1.transform("r"+angle1+","+startP1[1]+","+startP1[2]);
+        //m2.transform("r"+angle2+","+startP2[1]+","+startP2[2]);
+
+
+        var //transform = m1.attr('transform'),
+            transform1 = "r"+angle1+","+startP1[1]+","+startP1[2],
+            transformedPath = Raphael.transformPath(m1.attr('path'), transform1);
+
+        thinLine.startLine(transformedPath[1][3], transformedPath[1][4]);
+
+
+         //transform = m2.attr('transform'),
+            transform1 = "r"+angle2+","+startP2[1]+","+startP2[2],
+            transformedPath = Raphael.transformPath(m2.attr('path'), transform1);
+
+        thinLine.endLine(transformedPath[1][3], transformedPath[1][4]);
+
         m1.transform("r"+angle1+","+startP1[1]+","+startP1[2]);
         m2.transform("r"+angle2+","+startP2[1]+","+startP2[2]);
 
-        bm1 = m1.getBBox();
-        bm2 = m2.getBBox();
+        /*
+
+        m1.animate( 
+            {
+                
+            },
+            0,
+            "none",
+            function() {
+                var transform = this.attr('transform'),
+                    transformedPath = Raphael.transformPath(this.attr('path'), transform);
+
+                thinLine.startLine(transformedPath[1][3], transformedPath[1][4]);
+                
+
+            }
+        )
+
+        m2.animate( 
+            {
+                transform: "r"+angle2+","+startP2[1]+","+startP2[2]
+            },
+            0,
+            "none",
+            function() {
+                var transform = this.attr('transform'),
+                    transformedPath = Raphael.transformPath(this.attr('path'), transform);
+
+                thinLine.endLine(transformedPath[1][3], transformedPath[1][4]);
+
+            }
+        )
+    
+        */
+
+        //bm1 = m1.getBBox();
+       // bm2 = m2.getBBox();
+
 
         // Check what BBox value to use!
         //
         // Checking for the x value for point1 of our new  measurement line.
+        /*
         if (bm1.x == startP1[1]) {
             m3p1x = bm1.x2;
-        } else if (bm1.x2 == startP1[1]) {
+        } else {
             m3p1x = bm1.x;
         } 
         // checking for the y.
         if (bm1.y == startP1[2]) {
             m3p1y = bm1.y2;
-        } else if (bm1.y2 == startP1[2]) {
+        } else {
             m3p1y = bm1.y;
         }
+
+
         // Checking for the x value for point2 of our new  measurement line.
-        if (bm1.x == startP1[1]) {
+        if (bm2.x == startP2[1]) {
             m3p2x = bm2.x2;
-        } else if (bm1.x2 == startP1[1]) {
+        } else {
             m3p2x = bm2.x;
         } 
         // checking for the y.
-        if (bm1.y == startP1[2]) {
+        if (bm2.y == startP2[2]) {
             m3p2y = bm2.y2;
-        } else if (bm1.y2 == startP1[2]) {
+        } else {
             m3p2y = bm2.y;
         }
-
-        
+*/
         // Drawing the line paralell to the wall.        
-        m3 = grid.paper.path("M"+m3p1x+","+m3p1y+"L"+m3p2x+","+m3p2y).attr({
+      /*  m3 = grid.paper.path("M"+m3p1x+","+m3p1y+"L"+m3p2x+","+m3p2y).attr({
                 fill: "#00000", 
                 stroke: "#2F4F4F",
                 'stroke-width': 1,
@@ -1330,11 +1400,62 @@ $(function() {
             'font-style': "oblique"
         });
 
+*/
+
         // Adds to measurements set.
-        this.measurements.push(m1, m2, m3, t, r);
+        this.measurements.push(m1, m2);
 
         // return length for our measurementValues array.
         return wall.getTotalLength();
+    }
+
+
+    function ThinLine() {
+        this.startX; 
+        this.startY;
+    }
+
+    ThinLine.prototype.startLine = function(x, y) {
+        this.startX = x;
+        this.startY = y;
+    }
+
+    ThinLine.prototype.endLine = function(x, y) {
+
+        var x1 = this.startX,
+            y1 = this.startY,
+
+        // Drawing the line paralell to the wall.        
+        m = grid.paper.path("M"+x1+","+y1+"L"+x+","+y).attr({
+                fill: "#00000", 
+                stroke: "#2F4F4F",
+                'stroke-width': 1,
+                'stroke-linecap': "round"
+            }),
+
+        // Functionality that shows length and shit.. doesnt look very good.
+        textPoint = m.getPointAtLength((m.getTotalLength()/2)),
+        len = new Number(m.getTotalLength())/100,
+        len = len.toFixed(2),
+
+        // Draws a rectangle at the middle of the line
+        r = grid.paper.rect(textPoint.x-25, textPoint.y-10, 50, 20, 5, 5).attr({
+            opacity: 1,
+            fill: "white"
+        }),
+
+        // Adds text on top of the rectangle, to display the length of the wall.
+        t = grid.paper.text(textPoint.x, textPoint.y, len + " m").attr({
+            opacity: 1,
+            'font-size': 12,
+            'font-family': "verdana",
+            'font-style': "oblique"
+        });
+
+
+
+        ourRoom.measurements.push(m, r, t);
+
     }
 
     //Function removes the currently drawn room)
@@ -1426,8 +1547,178 @@ $(function() {
         }
     }
 
+    /**
+     *  Zoom functionality
+     *
+     * Sauce: http://jsfiddle.net/9zu4U/147/
+    **/
+    Room.prototype.zoom = function() {
+
+        var paper = grid.paper,
+            canvasID = "#canvas_container",
+
+            viewBoxWidth = paper.width,
+            viewBoxHeight = paper.height,
+            
+            startX,
+            startY,
+            mousedown = false,
+            dX,
+            dY,
+            oX = 0,
+            oY = 0,
+            oWidth = viewBoxWidth,
+            oHeight = viewBoxHeight,
+
+            // View box
+            viewBox = paper.setViewBox(oX, oY, viewBoxWidth, viewBoxHeight);
+            viewBox.X = oX;
+            viewBox.Y = oY;
+
+
+        /** 
+         * This is high-level function.
+         * It must react to delta being more/less than zero.
+         */
+        function handle(delta) {
+
+
+            /*
+                TODO:
+
+                - New plan, change grid scale and redraw room? 5-10 steps?
+                - No, no no.. No plan.
+            */
+
+            
+
+
+            vBHo = viewBoxHeight;
+            vBWo = viewBoxWidth;
+
+            if (delta < 0) {
+                viewBoxWidth *= 0.95;
+                viewBoxHeight*= 0.95;
+
+            } else {
+                viewBoxWidth *= 1.05;
+                viewBoxHeight *= 1.05;
+            }
+
+            viewBox.X -= (viewBoxWidth - vBWo) / 2;
+            viewBox.Y -= (viewBoxHeight - vBHo) / 2;
+
+            paper.setViewBox(0, 0, /*viewBox.X,viewBox.Y,*/viewBoxWidth,viewBoxHeight);
+        }
+
+        /** 
+         * Event handler for mouse wheel event.
+         */
+        function wheel(event){
+            var delta = 0;
+
+            /* For IE. */
+            if (!event) {
+                event = window.event;
+            }
+            /* IE/Opera. */
+            if (event.wheelDelta) { 
+                delta = event.wheelDelta/120;
+
+            /** Mozilla case. */
+            } else if (event.detail) { 
+                /** In Mozilla, sign of delta is different than in IE.
+                * Also, delta is multiple of 3.
+                */
+                delta = -event.detail/3;
+            }
+            /** If delta is nonzero, handle it.
+            * Basically, delta is now positive if wheel was scrolled up,
+            * and negative, if wheel was scrolled down.
+            */
+            if (delta) {
+                handle(delta);
+            }
+                
+
+            /** Prevent default actions caused by mouse wheel.
+            * That might be ugly, but we handle scrolls somehow
+            * anyway, so don't bother here..
+            */
+            if (event.preventDefault) {
+                event.preventDefault();
+            }
+                 
+            event.returnValue = false;
+        }
+
+        /** Initialization code. 
+        * If you use your own event management code, change it as required.
+        */
+        if (window.addEventListener) {
+            /** DOMMouseScroll is for mozilla. */
+            window.addEventListener('DOMMouseScroll', wheel, false);
+        }
+        /** IE/Opera. */
+        window.onmousewheel = document.onmousewheel = wheel;
+
+        //Pane
+        
+        if (this.finished) {
+
+            $(canvasID).mousedown(function(e){
+
+                if (paper.getElementByPoint( e.pageX, e.pageY ) != null) {
+                    return;
+                }
+
+                mousedown = true;
+                startX = e.pageX; 
+                startY = e.pageY;    
+            });
+
+
+
+            $(canvasID).mousemove(function(e){
+
+                if (mousedown == false) {
+                    return;
+                }
+
+                dX = startX - e.pageX;
+                dY = startY - e.pageY;
+                x = viewBoxWidth / paper.width; 
+                y = viewBoxHeight / paper.height; 
+
+                dX *= x; 
+                dY *= y; 
+                //alert(viewBoxWidth +" "+ paper.width );
+
+                paper.setViewBox(viewBox.X + dX, viewBox.Y + dY, viewBoxWidth, viewBoxHeight);
+
+            })
+
+            $(canvasID).mouseup(function(e){
+
+                if ( mousedown == false ) {
+                    return;
+                }
+
+                viewBox.X += dX; 
+                viewBox.Y += dY; 
+                mousedown = false; 
+
+            });
+
+        }
+    }
+
     // Starts the room creation progress!
     var ourRoom = new Room(20);
+
+    var thinLine = new ThinLine();
+
+    ourRoom.zoom();
 
     /**
      * Point constructor
@@ -1437,22 +1728,63 @@ $(function() {
         this.y = y;
     }
 
+
     /**
      * Some browser does not set the offsetX and offsetY variables on mouseclicks.
     **/
     function crossBrowserXY(e) {
 
         var point,
-            e = e || window.event;
+            e = e || window.event,
+            x, 
+            y,
+            paper = grid.paper;
+
+
+        x = e.offsetX;
+        y = e.offsetY;
+
+         // FF FIX        
 
         if (e.offsetX == undefined) { 
-            e.offsetX = e.pageX - e.currentTarget.offsetLeft; 
-            e.offsetY = e.pageY - e.currentTarget.offsetTop; 
+            x = e.screenX;//e.pageX;//- e.currentTarget.offsetLeft; 
+            y = e.screenY;//e.pageY;// - e.currentTarget.offsetTop; 
         }
+    
 
-        point = grid.getRestriction(e.offsetX, e.offsetY);
+
+
+
+
+
+
+
+
+        // I used to use offsetX and Y, I still do, but i used to too.
+
+        point = grid.getRestriction(getZoomedXY(x, y));
 
         return point;
+    }
+
+    function getZoomedXY(x, y) {
+        var paper = grid.paper,
+            sX = paper._viewBox[2],
+            sY = paper._viewBox[3],
+            oX = paper.width,
+            oY = paper.height,
+            ratio;
+
+
+        if (sX != oX && sY != oY) {
+
+            ratio = (sX / oX).toFixed(5);
+
+            x *= ratio;
+            y *= ratio;
+        }
+
+        return [x, y];
     }
 
 
@@ -1900,9 +2232,5 @@ $(function() {
     }
 
 
-
 //End of 
 });
-
-
-
