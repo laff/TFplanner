@@ -527,7 +527,7 @@ $(function() {
             my = match[1],
             room = this;
 
-        room.handle = grid.paper.circle(mx,my,this.radius).attr({
+        this.handle = grid.paper.circle(mx,my,this.radius).attr({
             fill: "#3366FF",
             'fill-opacity': 0.5,
             'stroke-opacity': 0.5,
@@ -1815,18 +1815,19 @@ $(function() {
 
 
         // Set backgroundcolor of the options-container canvas.
-        paper.canvas.style.backgroundColor = '#767676';
+        paper.canvas.style.backgroundColor = 'white';
+        paper.canvas.style.border = "1px solid";
 
         // Create the button used when creating a predefined rectangular room.
-        buttonRect = paper.rect(12, 15, 65, 35, 10).attr({
-            fill: '#3878A7',
+        buttonRect = paper.rect(12, 15, 65, 35, 0).attr({
+            fill: '#6d8383',
             stroke: '#3B4449',
             'stroke-width': 1,
             title: "Auto-create a rectangular room"
         });
         // Drawing a rectangle on the button.
         rectImg = paper.rect(25, 23, 40, 20, 0).attr({
-            fill: '#3878A7',
+            fill: '#fafdd5',
             stroke: 'black',
             'stroke-width': 1,
             title: "Auto-create a rectangular room"
@@ -1838,10 +1839,10 @@ $(function() {
         rectColl.attr({
             cursor: 'pointer',
         }).mouseover(function(e) {
-            buttonRect.attr('fill', '#1F679C');
+            buttonRect.attr('fill', '#d8d8d8');
 
         }).mouseout(function(e) {
-            buttonRect.attr('fill', '#3878A7');
+            buttonRect.attr('fill', '#6d8383');
 
         }).mouseup(function(e) {
             angleArr = new PreDefRoom(0);
@@ -1849,15 +1850,15 @@ $(function() {
         });
 
 
-        buttonT = paper.rect(12, 55, 65, 35, 10).attr({
-            fill: '#3878A7',
+        buttonT = paper.rect(12, 55, 65, 35, 0).attr({
+            fill: '#6d8383',
             stroke: '#3B4449',
             'stroke-width': 1,
             title: "Auto-create a T-shaped room"
         });
         // Drawing a T on the button.
         tImg = paper.path('M 25 60 L 65 60 L 65 70 L 50 70 L 50 85 L 40 85 L 40 70 L 25 70 L 25 60').attr({
-            fill: '#3878A7',
+            fill: '#fafdd5',
             stroke: 'black',
             'stroke-width': 1,
             title: "Auto-create a T-shaped room"
@@ -1869,10 +1870,10 @@ $(function() {
         tColl.attr({
             cursor: 'pointer',
         }).mouseover(function(e) {
-            buttonT.attr('fill', '#1F679C');
+            buttonT.attr('fill', '#d8d8d8');
 
         }).mouseout(function(e) {
-            buttonT.attr('fill', '#3878A7');
+            buttonT.attr('fill', '#6d8383');
 
         }).mouseup(function(e) {
             angleArr = new PreDefRoom(2);

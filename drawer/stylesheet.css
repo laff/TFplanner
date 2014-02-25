@@ -1,0 +1,55 @@
+#container {
+				width: 100%;
+				min-width: 1000px;
+				margin: 0 auto;
+				cursor: default;
+}
+
+#options_container {
+	float: left;
+	box-sizing:border-box;
+	-moz-box-sizing:border-box;
+	-webkit-box-sizing:border-box;
+	width: 20%;
+	min-width: 200px;
+	height: 100%;
+	border:1px solid #aaa;
+
+}
+
+#canvas_container {  
+	float: right;
+	box-sizing:border-box;
+	-moz-box-sizing:border-box;
+	-webkit-box-sizing:border-box;
+	width: 80%;
+	min-width: 800px;
+	height: 100%;
+	border:1px solid #aaa;
+}
+
+#options table {
+	border: 1;
+	border-color: #aaa;
+}
+
+#options tr {
+	border: 1;
+}	
+
+#options td {
+
+	text-align: left;
+	width: 100%;
+}
+
+button {
+	background-color:#4B819A;
+	border: 2px solid #4B819A;
+	color: #FFF;
+	text-align: center;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	padding: 8px;
+}
