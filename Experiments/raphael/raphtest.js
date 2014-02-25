@@ -172,6 +172,8 @@ $(function() {
         this.yAligned = false;
         this.minAngle = 29.95;
         this.maxAngle = 330.05;
+        this.zoomFrom = null;
+        this.zoomTo = null;
     }
 
     Room.prototype.plus = 5;
@@ -196,10 +198,12 @@ $(function() {
             }
         });
 
-        // Binds action for mouseover, specifically for showing temp shit
+        // Binds action for mousemove, specifically for showing temp shit
         $('#canvas_container').mousemove(room, function(e) {
 
             var point = crossBrowserXY(e);
+
+            room.zoomTo = point;
 
             if (room.lastPoint != null && point.x != -1) {
 
@@ -211,6 +215,16 @@ $(function() {
                     }
                 }
             }
+
+        });
+
+
+        // Binds action for mouseover, specifically for scrolling to mouse center
+        $('#canvas_container').mouseover(room, function(e) {
+
+            var point = crossBrowserXY(e);
+
+            room.zoomTo = point;
 
         });
     }
@@ -318,7 +332,7 @@ $(function() {
             },
         
             move = function (dx, dy) {
-                var xy = getZoomedXY(dx, dy),
+                var xy = getZoomPanXY(dx, dy),
                     diffx = (this.lastdx != null) ? (this.lastdx - xy[0]) : 0,
                     diffy = (this.lastdy != null) ? (this.lastdy - xy[1]) : 0;
 
@@ -540,7 +554,7 @@ $(function() {
         },
 
         move = function (dx, dy) {
-            var xy = getZoomedXY(dx, dy), 
+            var xy = getZoomPanXY(dx, dy), 
             X = this.cx + xy[0],
             Y = this.cy + xy[1];
 
@@ -598,7 +612,6 @@ $(function() {
         this.clickableCorners();
 
         this.finished = true;
-        //this.zoom();
     }
 
     /**
@@ -1573,8 +1586,6 @@ $(function() {
 
             // View box
             viewBox = paper.setViewBox(oX, oY, viewBoxWidth, viewBoxHeight);
-            viewBox.X = oX;
-            viewBox.Y = oY;
 
 
         /** 
@@ -1583,21 +1594,13 @@ $(function() {
          */
         function handle(delta) {
 
+            var vB = paper._viewBox,
+                zoomTo = ourRoom.zoomTo,
+                zoomFrom = ourRoom.zoomFrom,
+                vX,
+                vY;
 
-            /*
-                TODO:
-
-                - New plan, change grid scale and redraw room? 5-10 steps?
-                - No, no no.. No plan.
-            */
-
-            
-
-
-            vBHo = viewBoxHeight;
-            vBWo = viewBoxWidth;
-
-            if (delta < 0) {
+            if (delta > 0) {
                 viewBoxWidth *= 0.95;
                 viewBoxHeight*= 0.95;
 
@@ -1606,10 +1609,18 @@ $(function() {
                 viewBoxHeight *= 1.05;
             }
 
-            viewBox.X -= (viewBoxWidth - vBWo) / 2;
-            viewBox.Y -= (viewBoxHeight - vBHo) / 2;
 
-            paper.setViewBox(0, 0, /*viewBox.X,viewBox.Y,*/viewBoxWidth,viewBoxHeight);
+
+            // This will zoom into middle. want?
+            vX = (vB[0] - ((viewBoxWidth - vB[2]) / 2));
+            vY = (vB[1] - ((viewBoxHeight - vB[3]) / 2));
+
+
+            paper.setViewBox(vX, vY, viewBoxWidth, viewBoxHeight);
+
+
+            // Store current zoomTo.
+            ourRoom.zoomFrom = zoomTo;
         }
 
         /** 
@@ -1663,8 +1674,40 @@ $(function() {
         /** IE/Opera. */
         window.onmousewheel = document.onmousewheel = wheel;
 
-        //Pane
-        
+        // Pane functionality binded on arrow keys.
+        document.onkeydown = function(e) {
+
+            var keyCode = e.keyCode,
+                steps = 20,
+                vB = paper._viewBox;
+
+            switch (keyCode) {
+
+                // Left
+                case 37:
+                    paper.setViewBox(vB[0] - steps, vB[1], vB[2], vB[3]);
+                    break;
+
+                // Up
+                case 38:
+                    paper.setViewBox(vB[0], vB[1] - steps, vB[2], vB[3]);
+                    break;
+
+                // Right
+                case 39:
+                    paper.setViewBox(vB[0] + steps, vB[1], vB[2], vB[3]);
+                    break;
+
+                // Down
+                case 40:
+                    paper.setViewBox(vB[0], vB[1] + steps, vB[2], vB[3]);
+                    break;
+
+            }
+        };
+
+    
+        /*        
         if (this.finished) {
 
             $(canvasID).mousedown(function(e){
@@ -1712,6 +1755,7 @@ $(function() {
             });
 
         }
+        */
     }
 
     // Starts the room creation progress!
@@ -1752,38 +1796,47 @@ $(function() {
             y = e.screenY;//e.pageY;// - e.currentTarget.offsetTop; 
         }
     
-
-
-
-
-
-
-
-
-
         // I used to use offsetX and Y, I still do, but i used to too.
 
-        point = grid.getRestriction(getZoomedXY(x, y));
+        point = grid.getRestriction(getZoomPanXY(x, y));
 
         return point;
     }
 
-    function getZoomedXY(x, y) {
+
+    /**
+     * Function that gives correct X and Y variables after Zoom and pan has been done.
+     *
+    **/
+    function getZoomPanXY(x, y) {
         var paper = grid.paper,
-            sX = paper._viewBox[2],
-            sY = paper._viewBox[3],
-            oX = paper.width,
-            oY = paper.height,
+
+            // Starting height and width
+            sH = paper._viewBox[2],
+            sW = paper._viewBox[3],
+
+            // Original height and width
+            oH = paper.width,
+            oW = paper.height,
+
+            // Viewbox X and Y.
+            vX = paper._viewBox[0],
+            vY = paper._viewBox[1],
+
+            // Calculated ratio.
             ratio;
 
 
-        if (sX != oX && sY != oY) {
+        if (sH != oH && sW != oW) {
 
-            ratio = (sX / oX).toFixed(5);
+            ratio = (sH / oH).toFixed(5);
 
             x *= ratio;
             y *= ratio;
         }
+
+        x += vX;
+        y += vY;
 
         return [x, y];
     }
