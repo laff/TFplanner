@@ -172,6 +172,8 @@ $(function() {
         this.yAligned = false;
         this.minAngle = 29.95;
         this.maxAngle = 330.05;
+        this.zoomFrom = null;
+        this.zoomTo = null;
     }
 
     Room.prototype.plus = 5;
@@ -196,10 +198,12 @@ $(function() {
             }
         });
 
-        // Binds action for mouseover, specifically for showing temp shit
+        // Binds action for mousemove, specifically for showing temp shit
         $('#canvas_container').mousemove(room, function(e) {
 
             var point = crossBrowserXY(e);
+
+            room.zoomTo = point;
 
             if (room.lastPoint != null && point.x != -1) {
 
@@ -211,6 +215,16 @@ $(function() {
                     }
                 }
             }
+
+        });
+
+
+        // Binds action for mouseover, specifically for scrolling to mouse center
+        $('#canvas_container').mouseover(room, function(e) {
+
+            var point = crossBrowserXY(e);
+
+            room.zoomTo = point;
 
         });
     }
@@ -598,7 +612,6 @@ $(function() {
         this.clickableCorners();
 
         this.finished = true;
-        //this.zoom();
     }
 
     /**
@@ -1573,8 +1586,6 @@ $(function() {
 
             // View box
             viewBox = paper.setViewBox(oX, oY, viewBoxWidth, viewBoxHeight);
-            viewBox.X = oX;
-            viewBox.Y = oY;
 
 
         /** 
@@ -1583,19 +1594,11 @@ $(function() {
          */
         function handle(delta) {
 
-
-            /*
-                TODO:
-
-                - New plan, change grid scale and redraw room? 5-10 steps?
-                - No, no no.. No plan.
-            */
-
-            
-
-
-            vBHo = viewBoxHeight;
-            vBWo = viewBoxWidth;
+            var vB = paper._viewBox,
+                zoomTo = ourRoom.zoomTo,
+                zoomFrom = ourRoom.zoomFrom,
+                vX,
+                vY;
 
             if (delta > 0) {
                 viewBoxWidth *= 0.95;
@@ -1606,10 +1609,18 @@ $(function() {
                 viewBoxHeight *= 1.05;
             }
 
-            viewBox.X -= (viewBoxWidth - vBWo) / 2;
-            viewBox.Y -= (viewBoxHeight - vBHo) / 2;
 
-            paper.setViewBox(0, 0, /*viewBox.X,viewBox.Y,*/viewBoxWidth,viewBoxHeight);
+
+            // This will zoom into middle. want?
+            vX = (vB[0] - ((viewBoxWidth - vB[2]) / 2));
+            vY = (vB[1] - ((viewBoxHeight - vB[3]) / 2));
+
+
+            paper.setViewBox(vX, vY, viewBoxWidth, viewBoxHeight);
+
+
+            // Store current zoomTo.
+            ourRoom.zoomFrom = zoomTo;
         }
 
         /** 
@@ -1669,8 +1680,6 @@ $(function() {
             var keyCode = e.keyCode,
                 steps = 20,
                 vB = paper._viewBox;
-
-            console.log(keyCode);
 
             switch (keyCode) {
 
