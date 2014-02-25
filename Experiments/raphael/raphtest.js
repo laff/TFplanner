@@ -318,7 +318,7 @@ $(function() {
             },
         
             move = function (dx, dy) {
-                var xy = getZoomedXY(dx, dy),
+                var xy = getZoomPanXY(dx, dy),
                     diffx = (this.lastdx != null) ? (this.lastdx - xy[0]) : 0,
                     diffy = (this.lastdy != null) ? (this.lastdy - xy[1]) : 0;
 
@@ -540,7 +540,7 @@ $(function() {
         },
 
         move = function (dx, dy) {
-            var xy = getZoomedXY(dx, dy), 
+            var xy = getZoomPanXY(dx, dy), 
             X = this.cx + xy[0],
             Y = this.cy + xy[1];
 
@@ -1597,7 +1597,7 @@ $(function() {
             vBHo = viewBoxHeight;
             vBWo = viewBoxWidth;
 
-            if (delta < 0) {
+            if (delta > 0) {
                 viewBoxWidth *= 0.95;
                 viewBoxHeight*= 0.95;
 
@@ -1663,8 +1663,42 @@ $(function() {
         /** IE/Opera. */
         window.onmousewheel = document.onmousewheel = wheel;
 
-        //Pane
-        
+        // Pane functionality binded on arrow keys.
+        document.onkeydown = function(e) {
+
+            var keyCode = e.keyCode,
+                steps = 20,
+                vB = paper._viewBox;
+
+            console.log(keyCode);
+
+            switch (keyCode) {
+
+                // Left
+                case 37:
+                    paper.setViewBox(vB[0] - steps, vB[1], vB[2], vB[3]);
+                    break;
+
+                // Up
+                case 38:
+                    paper.setViewBox(vB[0], vB[1] - steps, vB[2], vB[3]);
+                    break;
+
+                // Right
+                case 39:
+                    paper.setViewBox(vB[0] + steps, vB[1], vB[2], vB[3]);
+                    break;
+
+                // Down
+                case 40:
+                    paper.setViewBox(vB[0], vB[1] + steps, vB[2], vB[3]);
+                    break;
+
+            }
+        };
+
+    
+        /*        
         if (this.finished) {
 
             $(canvasID).mousedown(function(e){
@@ -1712,6 +1746,7 @@ $(function() {
             });
 
         }
+        */
     }
 
     // Starts the room creation progress!
@@ -1752,38 +1787,47 @@ $(function() {
             y = e.screenY;//e.pageY;// - e.currentTarget.offsetTop; 
         }
     
-
-
-
-
-
-
-
-
-
         // I used to use offsetX and Y, I still do, but i used to too.
 
-        point = grid.getRestriction(getZoomedXY(x, y));
+        point = grid.getRestriction(getZoomPanXY(x, y));
 
         return point;
     }
 
-    function getZoomedXY(x, y) {
+
+    /**
+     * Function that gives correct X and Y variables after Zoom and pan has been done.
+     *
+    **/
+    function getZoomPanXY(x, y) {
         var paper = grid.paper,
-            sX = paper._viewBox[2],
-            sY = paper._viewBox[3],
-            oX = paper.width,
-            oY = paper.height,
+
+            // Starting height and width
+            sH = paper._viewBox[2],
+            sW = paper._viewBox[3],
+
+            // Original height and width
+            oH = paper.width,
+            oW = paper.height,
+
+            // Viewbox X and Y.
+            vX = paper._viewBox[0],
+            vY = paper._viewBox[1],
+
+            // Calculated ratio.
             ratio;
 
 
-        if (sX != oX && sY != oY) {
+        if (sH != oH && sW != oW) {
 
-            ratio = (sX / oX).toFixed(5);
+            ratio = (sH / oH).toFixed(5);
 
             x *= ratio;
             y *= ratio;
         }
+
+        x += vX;
+        y += vY;
 
         return [x, y];
     }
