@@ -1,12 +1,15 @@
-
-
-    // Constructor
+    /**
+     * Class that creates our grid, and adds some of the basic-functionality to it (zoom etc.)
+    **/
     function Grid() {
         this.size = 5;               // How many pixels between each horizontal/vertical line.
         this.cutPix = 0.5;           // Used so that the drawing of a line not overlaps on the previous pixel.
         this.paper = Raphael(document.getElementById('canvas_container'));
         this.offsetX = 0.5;
         this.offsetY = 0.5;
+        this.draw();
+        this.menuBox(0, 0);
+        this.zoom();
     }
 
     Grid.prototype.draw = function() {
@@ -15,8 +18,8 @@
             canvas = $('#canvas_container'),
             size = this.size,               
             cutPix = this.cutPix,           
-            line,                   // Saves the path to a variable during construction.
-            width = (canvas.width()).toFixed(),    // The width and the height of the svg-element.
+            line,                                   // Saves the path to a variable during construction.
+            width = (canvas.width()).toFixed(),     // The width and the height of the svg-element.
             height = (canvas.height()).toFixed();
 
         paper.setViewBox(0, 0, paper.width, paper.height); 
@@ -69,8 +72,8 @@
             if (ourRoom.finished == true) {
                 paper.clear();
                 var resultGrid = new ResultGrid();
-                ourRoom.clearRoom();
-                ourRoom = new Room(20);
+        //         ourRoom.clearRoom();
+        //         ourRoom = new Room(20);
                 setTimeout(function(){
                     resultGrid.clear();
                     grid.draw();
@@ -81,19 +84,16 @@
             //"Unclicks" button
             setTimeout(function(){ pressedButton.remove() }, 300);
         });
+
     }
 
     /**
      * Makes sure that the user can`t draw in the left corner, where the 'scale' is.
-     * TODO: Old functionality commented, should be removed!
     **/
-
     Grid.prototype.getRestriction = function(xy) {
 
         var x = xy[0],
             y = xy[1];
-          //var x = latticePoint.x* this.size + this.offsetX;
-          //var y = latticePoint.y * this.size + this.offsetY;
 
         if (!(x < 310 && y < 110))
             return new Point(x, y);
@@ -109,7 +109,6 @@
             return max;
       return val;
     }
-
 
 
     /**
@@ -246,7 +245,6 @@
 
                 dX *= x; 
                 dY *= y; 
-                //alert(viewBoxWidth +" "+ paper.width );
 
                 paper.setViewBox(viewBox.X + dX, viewBox.Y + dY, viewBoxWidth, viewBoxHeight);
 
@@ -275,11 +273,9 @@
             oY = paper.height,
             ratio;
 
-
         if (sX != oX && sY != oY) {
 
             ratio = (sX / oX).toFixed(5);
-
             x *= ratio;
             y *= ratio;
         }

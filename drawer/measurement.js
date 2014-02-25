@@ -23,7 +23,6 @@ Measurement.prototype.refreshMeasurements = function () {
         measurementValues = this.measurementValues;
 
     measurementValues.length = 0;
-
     this.measurements.remove();
 
     if (finished) {
@@ -35,11 +34,10 @@ Measurement.prototype.refreshMeasurements = function () {
         measurementValues.push([]);
         
         if (finished || i >= 1) {
-          measurementValues[i].push(this.angleMeasurement(i));
+            measurementValues[i].push(this.angleMeasurement(i));
         }
 
-    measurementValues[i].push(this.lengthMeasurement(walls[i]));
-        
+    measurementValues[i].push(this.lengthMeasurement(walls[i]));   
     }
 }
 

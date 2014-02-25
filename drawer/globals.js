@@ -8,10 +8,8 @@ var grid,
 
 $(document).ready(function() {  
 
+    //Creates the grid on our page!
     grid = new Grid();
-    grid.draw();
-    grid.menuBox(0, 0);
-    grid.zoom();
 
     // Starts the room creation progress!
     measurement = new Measurement();
