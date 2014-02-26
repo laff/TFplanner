@@ -1,7 +1,7 @@
     /**
      * Class that holds the functionality to draw a room from scratch
     **/
-    function drawRoom(radius) {
+    function DrawRoom(radius) {
         this.radius = radius;   // Custom wall-end-force-field
         this.lastPoint = null;
         this.walls = grid.paper.set();
@@ -23,7 +23,7 @@
     /**
      * Function that initiates drawing of a room.
     **/
-    drawRoom.prototype.initRoom = function () {
+    DrawRoom.prototype.initRoom = function () {
         var room = this;
 
         // Binds action for mousedown.
@@ -62,7 +62,7 @@
     /**
      * Function that receives the temporary wall, and shows the length of it, as the mouse is moved around.
     **/
-    drawRoom.prototype.tmpLength = function(tmpWall) {
+    DrawRoom.prototype.tmpLength = function(tmpWall) {
 
         var tmpLen = this.tmpLen,
             tmpRect = this.tmpRect,
@@ -109,7 +109,7 @@
      * Function that goes through our wall array and finds two points that are the same.
      *
     **/
-    drawRoom.prototype.findCorner = function(point) {
+    DrawRoom.prototype.findCorner = function(point) {
 
         var walls = this.walls,
             match = null;
@@ -136,7 +136,7 @@
     /**
      * Function that unbinds mouse actions related to creating a room.
     **/
-    drawRoom.prototype.finishRoom = function () {
+    DrawRoom.prototype.finishRoom = function () {
 
         $('#canvas_container').unbind('click');
         $('#canvas_container').unbind('mousemove');
@@ -153,7 +153,7 @@
     /**
      * Function handling logic for the first point of a wall.
     **/
-    drawRoom.prototype.wallEnd = function (point) {
+    DrawRoom.prototype.wallEnd = function (point) {
         var newStart = this.lastPoint,
             newEnd = point,
             walls = this.walls,
@@ -211,7 +211,7 @@
      * returns false if the point is not, and true if it is.
      * Two arguments can be sent to this funcion, sending one will set point1.
     **/
-    drawRoom.prototype.isProximity = function (point1, point2) {
+    DrawRoom.prototype.isProximity = function (point1, point2) {
 
         
         var initPointX = (point2 == null) ? this.walls[0].attrs.path[0][1] : point2[0],
@@ -228,7 +228,7 @@
      * Function that checks if the line will cross a wall.
      *
     **/
-    drawRoom.prototype.wallCross = function (x1, y1, x2, y2) {
+    DrawRoom.prototype.wallCross = function (x1, y1, x2, y2) {
 
         var x, 
             y, 
@@ -326,7 +326,7 @@
      * Function that draws the line.
      *
     **/
-    drawRoom.prototype.drawWall = function (point1, point2) {
+    DrawRoom.prototype.drawWall = function (point1, point2) {
 
         // checking if x or y is set to aligned
         point2.x = (this.xAligned && !this.proximity) ? point1.x : point2.x;
@@ -364,7 +364,7 @@
      * Visualization of the line that the user is about to draw, and the length of the line.
      * This line will not be saved in our array.
     **/
-    drawRoom.prototype.drawTempLine = function (point2, point1, callback) {
+    DrawRoom.prototype.drawTempLine = function (point2, point1, callback) {
 
         var p2 = point2,
             p1 = (point1 == null) ? this.lastPoint : point1,
@@ -522,7 +522,7 @@
      * When the user draws a wall that the 'isProximity' is going to auto-complete, we
      * will visualize that the wall is in the range for this to happen by drawing a circle.
     **/
-    drawRoom.prototype.visualizeRoomEnd = function (point) {
+    DrawRoom.prototype.visualizeRoomEnd = function (point) {
         var tmpCircle = this.tmpCircle,
             point = (point == null) ? [this.walls[0].attrs.path[0][1], this.walls[0].attrs.path[0][2]] : point,
             doCircle = (tmpCircle == null) ? true : (tmpCircle[0] == null);
@@ -544,7 +544,7 @@
     /**
      * Some browser does not set the offsetX and offsetY variables on mouseclicks.
     **/
-    drawRoom.prototype.crossBrowserXY = function(e) {
+    DrawRoom.prototype.crossBrowserXY = function(e) {
 
         var point,
             room = this,
@@ -567,7 +567,7 @@
     }
 
     // Function that takes two points and calculates their vector length.
-    drawRoom.prototype.vectorLength = function(x1, y1, x2, y2) {
+    DrawRoom.prototype.vectorLength = function(x1, y1, x2, y2) {
 
         var x = Math.pow((x2 - x1), 2),
             y = Math.pow((y2 - y1), 2),
@@ -582,7 +582,7 @@
      * will follow the angle-axis predefined. (180 is straight to the right, 270 is downwards etc.)
      * @param ang - Array with predefined angles and wall-lengths for the chosen room-shape.
     **/
-   drawRoom.prototype.createRoom = function(ang) {
+   DrawRoom.prototype.createRoom = function(ang) {
 
         var p1,
             p2,
@@ -639,7 +639,7 @@
 
 
     //Function removes the currently drawn room
-   drawRoom.prototype.clearRoom = function() {
+   DrawRoom.prototype.clearRoom = function() {
         var walls = this.walls, 
             len = walls.length;
 

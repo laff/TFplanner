@@ -16,7 +16,6 @@ function FinishedRoom (radius) {
 
         this.clickableCorners();
         this.setHandlers();
-
     }
 
     /**

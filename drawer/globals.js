@@ -13,7 +13,7 @@ $(document).ready(function() {
 
     // Starts the room creation progress!
     measurement = new Measurement();
-    ourRoom = new drawRoom(20);
+    ourRoom = new DrawRoom(20);
 
     
     // initiates the options_container
