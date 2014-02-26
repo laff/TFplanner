@@ -72,9 +72,10 @@
             if (ourRoom.finished == true) {
                 paper.clear();
                 var resultGrid = new ResultGrid();
-        //         ourRoom.clearRoom();
-        //         ourRoom = new Room(20);
+                ourRoom.clearRoom();
+                
                 setTimeout(function(){
+                    ourRoom = new DrawRoom(20);
                     resultGrid.clear();
                     grid.draw();
                     grid.menuBox(0,0);

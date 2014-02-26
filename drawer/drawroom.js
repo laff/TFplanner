@@ -18,6 +18,7 @@
         this.minAngle = 29.95;
         this.maxAngle = 330.05; 
         this.initRoom();
+        finishedRoom = null;
     }
 
     /**
@@ -587,11 +588,10 @@
         var p1,
             p2,
             initPoint,
-            room = this,
             p2tmp,
             tmpAng;
 
-            room.clearRoom();
+            this.clearRoom();
             
             // Looping through the number of walls in the room.
         for (var i = 0; i < ang[0].length; i++) {
@@ -633,7 +633,7 @@
                 }
             }
             // Uses the same functionality as when the user is 'manually' drawing a room.
-            room.wallEnd(p2);
+            this.wallEnd(p2);
         }
     }
 
