@@ -69,6 +69,8 @@
         yscale = canvas.height()/this.height;
         this.scale = (xscale < yscale)?xscale:yscale;
         this.scale = this.scale.toFixed();
+
+        this.paper.setViewBox(0, 0, this.width*this.scale, this.height*this.scale, true);
     }
 
 
@@ -80,7 +82,6 @@
             xscale = canvas.width()/w,
             yscale = canvas.height()/h,
             squares = this.squares;
-        //path.scale(xscale < yscale?xscale:yscale);
     }
 
 
