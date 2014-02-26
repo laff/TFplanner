@@ -221,29 +221,29 @@
         document.onkeydown = function(e) {
 
             var keyCode = e.keyCode,
-                steps = 20,
+                ticks = 50,
                 vB = paper._viewBox;
 
             switch (keyCode) {
 
                 // Left
                 case 37:
-                    paper.setViewBox(vB[0] - steps, vB[1], vB[2], vB[3]);
+                    paper.setViewBox(vB[0] - ticks, vB[1], vB[2], vB[3]);
                     break;
 
                 // Up
                 case 38:
-                    paper.setViewBox(vB[0], vB[1] - steps, vB[2], vB[3]);
+                    paper.setViewBox(vB[0], vB[1] - ticks, vB[2], vB[3]);
                     break;
 
                 // Right
                 case 39:
-                    paper.setViewBox(vB[0] + steps, vB[1], vB[2], vB[3]);
+                    paper.setViewBox(vB[0] + ticks, vB[1], vB[2], vB[3]);
                     break;
 
                 // Down
                 case 40:
-                    paper.setViewBox(vB[0], vB[1] + steps, vB[2], vB[3]);
+                    paper.setViewBox(vB[0], vB[1] + ticks, vB[2], vB[3]);
                     break;
 
             }

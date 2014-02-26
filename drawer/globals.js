@@ -17,8 +17,8 @@ $(document).ready(function() {
 
     
     // initiates the options_container
-    options = new Options();
-    options.initOpt();
+    //options = new Options();
+    //options.initOpt();
 
 });
 
