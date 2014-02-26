@@ -28,9 +28,12 @@ $(function() {
             size = this.size,               
             cutPix = this.cutPix,           
             line,                   // Saves the path to a variable during construction.
-            width = (canvas.width()).toFixed();    // The width and the height of the svg-element.
+            width = (canvas.width()).toFixed(),    // The width and the height of the svg-element.
             height = (canvas.height()).toFixed();
+
+        paper.setViewBox(0, 0, paper.width, paper.height); 
         
+
         // Draw vertical lines on the screen (lines are drawn so that the screen is filled even on min. zoom)
         for (var i = 1; i <= width; i++) {
             
@@ -49,7 +52,7 @@ $(function() {
             }
         }
 
-        paper.setSize("100%" , "100%");
+        //paper.setSize("100%" , "100%");
     }
 
     //X and Y values for upper left corner of box
@@ -121,7 +124,10 @@ $(function() {
      * TODO: Old functionality commented, should be removed!
     **/
 
-    Grid.prototype.getRestriction = function(x, y) {
+    Grid.prototype.getRestriction = function(xy) {
+
+        var x = xy[0],
+            y = xy[1];
           //var x = latticePoint.x* this.size + this.offsetX;
           //var y = latticePoint.y * this.size + this.offsetY;
 
@@ -166,6 +172,8 @@ $(function() {
         this.yAligned = false;
         this.minAngle = 29.95;
         this.maxAngle = 330.05;
+        this.zoomFrom = null;
+        this.zoomTo = null;
     }
 
     Room.prototype.plus = 5;
@@ -190,10 +198,12 @@ $(function() {
             }
         });
 
-        // Binds action for mouseover, specifically for showing temp shit
+        // Binds action for mousemove, specifically for showing temp shit
         $('#canvas_container').mousemove(room, function(e) {
 
             var point = crossBrowserXY(e);
+
+            room.zoomTo = point;
 
             if (room.lastPoint != null && point.x != -1) {
 
@@ -205,6 +215,16 @@ $(function() {
                     }
                 }
             }
+
+        });
+
+
+        // Binds action for mouseover, specifically for scrolling to mouse center
+        $('#canvas_container').mouseover(room, function(e) {
+
+            var point = crossBrowserXY(e);
+
+            room.zoomTo = point;
 
         });
     }
@@ -312,11 +332,12 @@ $(function() {
             },
         
             move = function (dx, dy) {
-                var diffx = (this.lastdx != null) ? (this.lastdx - dx) : 0,
-                    diffy = (this.lastdy != null) ? (this.lastdy - dy) : 0;
+                var xy = getZoomPanXY(dx, dy),
+                    diffx = (this.lastdx != null) ? (this.lastdx - xy[0]) : 0,
+                    diffy = (this.lastdy != null) ? (this.lastdy - xy[1]) : 0;
 
-                this.lastdx = dx;
-                this.lastdy = dy;
+                this.lastdx = xy[0];
+                this.lastdy = xy[1];
 
                 // Changing values of the end of the wall 'before' the target-wall.
                 pathArray1[1][1] -= diffx;
@@ -520,7 +541,7 @@ $(function() {
             my = match[1],
             room = this;
 
-        room.handle = grid.paper.circle(mx,my,this.radius).attr({
+        this.handle = grid.paper.circle(mx,my,this.radius).attr({
             fill: "#3366FF",
             'fill-opacity': 0.5,
             'stroke-opacity': 0.5,
@@ -533,8 +554,9 @@ $(function() {
         },
 
         move = function (dx, dy) {
-           var X = this.cx + dx,
-               Y = this.cy + dy;
+            var xy = getZoomPanXY(dx, dy), 
+            X = this.cx + xy[0],
+            Y = this.cy + xy[1];
 
            this.attr({cx: X, cy: Y});
 
@@ -602,8 +624,6 @@ $(function() {
             walls = this.walls,
             initPoint = null,
             invalid = this.invalid;
-
-            console.log(this.lastPoint);
 
         // If there are two or more walls, allow for room completion.
         if (walls.length > 1) {
@@ -1041,6 +1061,8 @@ $(function() {
         measurementValues[i].push(this.lengthMeasurement(walls[i]));
             
         }
+
+
     }
 
     /**
@@ -1235,6 +1257,7 @@ $(function() {
             startP2 = wall.attrs.path[1],
             endP2 = wall.getPointAtLength((wall.getTotalLength() - this.radius)),
 
+
             m1 = grid.paper.path("M"+startP1[1]+","+startP1[2]+"L"+endP1.x+","+endP1.y).attr(
             {
                 fill: "#00000", 
@@ -1252,15 +1275,20 @@ $(function() {
             }),
             angle1,
             angle2,
+            m1x,
+            m1y,
+            m2x,
+            m2y,
             bm1,
             bm2,
             m3p1x,
             m3p1y,
             m3p2x,
-            mep2y,
+            m3p2y,
             m3,
             t,
             r;
+
         if (this.inverted) {
             angle1 = 270;
             angle2 = 90;
@@ -1269,42 +1297,97 @@ $(function() {
             angle2 = 270;
         }
 
+        //m1.transform("r"+angle1+","+startP1[1]+","+startP1[2]);
+        //m2.transform("r"+angle2+","+startP2[1]+","+startP2[2]);
+
+
+        var //transform = m1.attr('transform'),
+            transform1 = "r"+angle1+","+startP1[1]+","+startP1[2],
+            transformedPath = Raphael.transformPath(m1.attr('path'), transform1);
+
+        thinLine.startLine(transformedPath[1][3], transformedPath[1][4]);
+
+
+         //transform = m2.attr('transform'),
+            transform1 = "r"+angle2+","+startP2[1]+","+startP2[2],
+            transformedPath = Raphael.transformPath(m2.attr('path'), transform1);
+
+        thinLine.endLine(transformedPath[1][3], transformedPath[1][4]);
+
         m1.transform("r"+angle1+","+startP1[1]+","+startP1[2]);
         m2.transform("r"+angle2+","+startP2[1]+","+startP2[2]);
 
-        bm1 = m1.getBBox();
-        bm2 = m2.getBBox();
+        /*
+
+        m1.animate( 
+            {
+                
+            },
+            0,
+            "none",
+            function() {
+                var transform = this.attr('transform'),
+                    transformedPath = Raphael.transformPath(this.attr('path'), transform);
+
+                thinLine.startLine(transformedPath[1][3], transformedPath[1][4]);
+                
+
+            }
+        )
+
+        m2.animate( 
+            {
+                transform: "r"+angle2+","+startP2[1]+","+startP2[2]
+            },
+            0,
+            "none",
+            function() {
+                var transform = this.attr('transform'),
+                    transformedPath = Raphael.transformPath(this.attr('path'), transform);
+
+                thinLine.endLine(transformedPath[1][3], transformedPath[1][4]);
+
+            }
+        )
+    
+        */
+
+        //bm1 = m1.getBBox();
+       // bm2 = m2.getBBox();
+
 
         // Check what BBox value to use!
         //
         // Checking for the x value for point1 of our new  measurement line.
+        /*
         if (bm1.x == startP1[1]) {
             m3p1x = bm1.x2;
-        } else if (bm1.x2 == startP1[1]) {
+        } else {
             m3p1x = bm1.x;
         } 
         // checking for the y.
         if (bm1.y == startP1[2]) {
             m3p1y = bm1.y2;
-        } else if (bm1.y2 == startP1[2]) {
+        } else {
             m3p1y = bm1.y;
         }
+
+
         // Checking for the x value for point2 of our new  measurement line.
-        if (bm1.x == startP1[1]) {
+        if (bm2.x == startP2[1]) {
             m3p2x = bm2.x2;
-        } else if (bm1.x2 == startP1[1]) {
+        } else {
             m3p2x = bm2.x;
         } 
         // checking for the y.
-        if (bm1.y == startP1[2]) {
+        if (bm2.y == startP2[2]) {
             m3p2y = bm2.y2;
-        } else if (bm1.y2 == startP1[2]) {
+        } else {
             m3p2y = bm2.y;
         }
-
-        
+*/
         // Drawing the line paralell to the wall.        
-        m3 = grid.paper.path("M"+m3p1x+","+m3p1y+"L"+m3p2x+","+m3p2y).attr({
+      /*  m3 = grid.paper.path("M"+m3p1x+","+m3p1y+"L"+m3p2x+","+m3p2y).attr({
                 fill: "#00000", 
                 stroke: "#2F4F4F",
                 'stroke-width': 1,
@@ -1330,11 +1413,62 @@ $(function() {
             'font-style': "oblique"
         });
 
+*/
+
         // Adds to measurements set.
-        this.measurements.push(m1, m2, m3, t, r);
+        this.measurements.push(m1, m2);
 
         // return length for our measurementValues array.
         return wall.getTotalLength();
+    }
+
+
+    function ThinLine() {
+        this.startX; 
+        this.startY;
+    }
+
+    ThinLine.prototype.startLine = function(x, y) {
+        this.startX = x;
+        this.startY = y;
+    }
+
+    ThinLine.prototype.endLine = function(x, y) {
+
+        var x1 = this.startX,
+            y1 = this.startY,
+
+        // Drawing the line paralell to the wall.        
+        m = grid.paper.path("M"+x1+","+y1+"L"+x+","+y).attr({
+                fill: "#00000", 
+                stroke: "#2F4F4F",
+                'stroke-width': 1,
+                'stroke-linecap': "round"
+            }),
+
+        // Functionality that shows length and shit.. doesnt look very good.
+        textPoint = m.getPointAtLength((m.getTotalLength()/2)),
+        len = new Number(m.getTotalLength())/100,
+        len = len.toFixed(2),
+
+        // Draws a rectangle at the middle of the line
+        r = grid.paper.rect(textPoint.x-25, textPoint.y-10, 50, 20, 5, 5).attr({
+            opacity: 1,
+            fill: "white"
+        }),
+
+        // Adds text on top of the rectangle, to display the length of the wall.
+        t = grid.paper.text(textPoint.x, textPoint.y, len + " m").attr({
+            opacity: 1,
+            'font-size': 12,
+            'font-family': "verdana",
+            'font-style': "oblique"
+        });
+
+
+
+        ourRoom.measurements.push(m, r, t);
+
     }
 
     //Function removes the currently drawn room)
@@ -1372,7 +1506,7 @@ $(function() {
      * @param len - Array with the length of each wall (entered by the user).
      * @param ang - Array with predefined angles for the chosen room-shape.
     **/
-    Room.prototype.createRoom = function(len, ang) {
+    Room.prototype.createRoom = function(ang) {
 
         var p1,
             p2,
@@ -1382,15 +1516,16 @@ $(function() {
             tmpAng;
 
             room.clearRoom();
-
+            
             // Looping through the number of walls in the room.
-        for (var i = 0; i < len.length; i++) {
+        for (var i = 0; i < ang[0].length; i++) {
+
 
             // The first wall is a horizontal wall, starting in point (150, 150).
             // The wall is ending in p2, which is the length of the wall, added to p1.
             if (i == 0) {
-                p1 = new Point(150, 150);
-                p2tmp = parseInt(len[i]);
+                p1 = new Point(350, 150);
+                p2tmp = parseInt(ang[1][i]);
                 p2 = new Point(p2tmp+p1.x, p1.y);
                 initPoint = p1;
 
@@ -1402,8 +1537,8 @@ $(function() {
             // The ending point of the walls are calculated out from the angles stored in the array.
             } else {
                 p1 = this.lastPoint;
-                tmpAng = parseInt(ang[i-1]);
-                p2tmp = parseInt(len[i]);
+                tmpAng = parseInt(ang[0][i]);
+                p2tmp = parseInt(ang[1][i]);
 
                 if (tmpAng == 270) {
                     p2 = new Point(p1.x, p1.y+p2tmp);
@@ -1414,10 +1549,10 @@ $(function() {
                 } else if (tmpAng == 360) {
                     p2 = new Point(p1.x-p2tmp, p1.y);
 
-                } else if (tmpAng == 90 && i != len.length-1) {
+                } else if (tmpAng == 90 && i != ang[0].length-1) {
                     p2 = new Point(p1.x, p1.y-p2tmp);
                 // This means 'finish the room'
-                } else if (i == len.length-1 && tmpAng == 90) {
+                } else if (i == ang[0].length-1 && tmpAng == 90) {
                     p2 = initPoint;
                 }
             }
@@ -1426,8 +1561,209 @@ $(function() {
         }
     }
 
+    /**
+     *  Zoom functionality
+     *
+     * Sauce: http://jsfiddle.net/9zu4U/147/
+    **/
+    Room.prototype.zoom = function() {
+
+        var paper = grid.paper,
+            canvasID = "#canvas_container",
+
+            viewBoxWidth = paper.width,
+            viewBoxHeight = paper.height,
+            
+            startX,
+            startY,
+            mousedown = false,
+            dX,
+            dY,
+            oX = 0,
+            oY = 0,
+            oWidth = viewBoxWidth,
+            oHeight = viewBoxHeight,
+
+            // View box
+            viewBox = paper.setViewBox(oX, oY, viewBoxWidth, viewBoxHeight);
+
+
+        /** 
+         * This is high-level function.
+         * It must react to delta being more/less than zero.
+         */
+        function handle(delta) {
+
+            var vB = paper._viewBox,
+                zoomTo = ourRoom.zoomTo,
+                zoomFrom = ourRoom.zoomFrom,
+                vX,
+                vY;
+
+            if (delta > 0) {
+                viewBoxWidth *= 0.95;
+                viewBoxHeight*= 0.95;
+
+            } else {
+                viewBoxWidth *= 1.05;
+                viewBoxHeight *= 1.05;
+            }
+
+
+
+            // This will zoom into middle. want?
+            vX = (vB[0] - ((viewBoxWidth - vB[2]) / 2));
+            vY = (vB[1] - ((viewBoxHeight - vB[3]) / 2));
+
+
+            paper.setViewBox(vX, vY, viewBoxWidth, viewBoxHeight);
+
+
+            // Store current zoomTo.
+            ourRoom.zoomFrom = zoomTo;
+        }
+
+        /** 
+         * Event handler for mouse wheel event.
+         */
+        function wheel(event){
+            var delta = 0;
+
+            /* For IE. */
+            if (!event) {
+                event = window.event;
+            }
+            /* IE/Opera. */
+            if (event.wheelDelta) { 
+                delta = event.wheelDelta/120;
+
+            /** Mozilla case. */
+            } else if (event.detail) { 
+                /** In Mozilla, sign of delta is different than in IE.
+                * Also, delta is multiple of 3.
+                */
+                delta = -event.detail/3;
+            }
+            /** If delta is nonzero, handle it.
+            * Basically, delta is now positive if wheel was scrolled up,
+            * and negative, if wheel was scrolled down.
+            */
+            if (delta) {
+                handle(delta);
+            }
+                
+
+            /** Prevent default actions caused by mouse wheel.
+            * That might be ugly, but we handle scrolls somehow
+            * anyway, so don't bother here..
+            */
+            if (event.preventDefault) {
+                event.preventDefault();
+            }
+                 
+            event.returnValue = false;
+        }
+
+        /** Initialization code. 
+        * If you use your own event management code, change it as required.
+        */
+        if (window.addEventListener) {
+            /** DOMMouseScroll is for mozilla. */
+            window.addEventListener('DOMMouseScroll', wheel, false);
+        }
+        /** IE/Opera. */
+        window.onmousewheel = document.onmousewheel = wheel;
+
+        // Pane functionality binded on arrow keys.
+        document.onkeydown = function(e) {
+
+            var keyCode = e.keyCode,
+                steps = 20,
+                vB = paper._viewBox;
+
+            switch (keyCode) {
+
+                // Left
+                case 37:
+                    paper.setViewBox(vB[0] - steps, vB[1], vB[2], vB[3]);
+                    break;
+
+                // Up
+                case 38:
+                    paper.setViewBox(vB[0], vB[1] - steps, vB[2], vB[3]);
+                    break;
+
+                // Right
+                case 39:
+                    paper.setViewBox(vB[0] + steps, vB[1], vB[2], vB[3]);
+                    break;
+
+                // Down
+                case 40:
+                    paper.setViewBox(vB[0], vB[1] + steps, vB[2], vB[3]);
+                    break;
+
+            }
+        };
+
+    
+        /*        
+        if (this.finished) {
+
+            $(canvasID).mousedown(function(e){
+
+                if (paper.getElementByPoint( e.pageX, e.pageY ) != null) {
+                    return;
+                }
+
+                mousedown = true;
+                startX = e.pageX; 
+                startY = e.pageY;    
+            });
+
+
+
+            $(canvasID).mousemove(function(e){
+
+                if (mousedown == false) {
+                    return;
+                }
+
+                dX = startX - e.pageX;
+                dY = startY - e.pageY;
+                x = viewBoxWidth / paper.width; 
+                y = viewBoxHeight / paper.height; 
+
+                dX *= x; 
+                dY *= y; 
+                //alert(viewBoxWidth +" "+ paper.width );
+
+                paper.setViewBox(viewBox.X + dX, viewBox.Y + dY, viewBoxWidth, viewBoxHeight);
+
+            })
+
+            $(canvasID).mouseup(function(e){
+
+                if ( mousedown == false ) {
+                    return;
+                }
+
+                viewBox.X += dX; 
+                viewBox.Y += dY; 
+                mousedown = false; 
+
+            });
+
+        }
+        */
+    }
+
     // Starts the room creation progress!
     var ourRoom = new Room(20);
+
+    var thinLine = new ThinLine();
+
+    ourRoom.zoom();
 
     /**
      * Point constructor
@@ -1437,31 +1773,165 @@ $(function() {
         this.y = y;
     }
 
+
     /**
      * Some browser does not set the offsetX and offsetY variables on mouseclicks.
     **/
     function crossBrowserXY(e) {
 
         var point,
-            e = e || window.event;
+            e = e || window.event,
+            x, 
+            y,
+            paper = grid.paper;
+
+
+        x = e.offsetX;
+        y = e.offsetY;
+
+         // FF FIX        
 
         if (e.offsetX == undefined) { 
-            e.offsetX = e.pageX - e.currentTarget.offsetLeft; 
-            e.offsetY = e.pageY - e.currentTarget.offsetTop; 
+            x = e.screenX;//e.pageX;//- e.currentTarget.offsetLeft; 
+            y = e.screenY;//e.pageY;// - e.currentTarget.offsetTop; 
         }
+    
+        // I used to use offsetX and Y, I still do, but i used to too.
 
-        point = grid.getRestriction(e.offsetX, e.offsetY);
+        point = grid.getRestriction(getZoomPanXY(x, y));
 
         return point;
     }
 
 
+    /**
+     * Function that gives correct X and Y variables after Zoom and pan has been done.
+     *
+    **/
+    function getZoomPanXY(x, y) {
+        var paper = grid.paper,
+
+            // Starting height and width
+            sH = paper._viewBox[2],
+            sW = paper._viewBox[3],
+
+            // Original height and width
+            oH = paper.width,
+            oW = paper.height,
+
+            // Viewbox X and Y.
+            vX = paper._viewBox[0],
+            vY = paper._viewBox[1],
+
+            // Calculated ratio.
+            ratio;
+
+
+        if (sH != oH && sW != oW) {
+
+            ratio = (sH / oH).toFixed(5);
+
+            x *= ratio;
+            y *= ratio;
+        }
+
+        x += vX;
+        y += vY;
+
+        return [x, y];
+    }
 
 
 
-    function Options(tableEle) {
-        this.tableEle = tableEle;
+  
+
+
+
+    function Options() {
+      //  this.tableEle = tableEle;
         this.refresh();
+    }
+
+    // Create a new Raphael-paper for the options-container.
+    Options.prototype.optPaper = Raphael(document.getElementById('options_container'));
+
+    /*
+     * Sets up the 'options-container', and create buttons and handlers.
+    **/
+    Options.prototype.initOpt = function () {
+        var paper = this.optPaper,
+            rectColl = paper.set(),
+            tColl = paper.set(),
+            buttonT, tImg,
+            buttonRect, rectImg,
+            angleArr = [];
+
+
+        // Set backgroundcolor of the options-container canvas.
+        paper.canvas.style.backgroundColor = 'white';
+        paper.canvas.style.border = "1px solid";
+
+        // Create the button used when creating a predefined rectangular room.
+        buttonRect = paper.rect(12, 15, 65, 35, 0).attr({
+            fill: '#6d8383',
+            stroke: '#3B4449',
+            'stroke-width': 1,
+            title: "Auto-create a rectangular room"
+        });
+        // Drawing a rectangle on the button.
+        rectImg = paper.rect(25, 23, 40, 20, 0).attr({
+            fill: '#fafdd5',
+            stroke: 'black',
+            'stroke-width': 1,
+            title: "Auto-create a rectangular room"
+        });
+
+        // Adds the rectangle-button to a set, and add mousehandlers to the button.
+        rectColl.push(buttonRect, rectImg);
+
+        rectColl.attr({
+            cursor: 'pointer',
+        }).mouseover(function(e) {
+            buttonRect.attr('fill', '#d8d8d8');
+
+        }).mouseout(function(e) {
+            buttonRect.attr('fill', '#6d8383');
+
+        }).mouseup(function(e) {
+            angleArr = new PreDefRoom(0);
+            ourRoom.createRoom(angleArr);
+        });
+
+
+        buttonT = paper.rect(12, 55, 65, 35, 0).attr({
+            fill: '#6d8383',
+            stroke: '#3B4449',
+            'stroke-width': 1,
+            title: "Auto-create a T-shaped room"
+        });
+        // Drawing a T on the button.
+        tImg = paper.path('M 25 60 L 65 60 L 65 70 L 50 70 L 50 85 L 40 85 L 40 70 L 25 70 L 25 60').attr({
+            fill: '#fafdd5',
+            stroke: 'black',
+            'stroke-width': 1,
+            title: "Auto-create a T-shaped room"
+        });
+
+        // Adds the T-button-stuff to a set, and then create the mousehandlers for it!
+        tColl.push(buttonT, tImg);
+
+        tColl.attr({
+            cursor: 'pointer',
+        }).mouseover(function(e) {
+            buttonT.attr('fill', '#d8d8d8');
+
+        }).mouseout(function(e) {
+            buttonT.attr('fill', '#6d8383');
+
+        }).mouseup(function(e) {
+            angleArr = new PreDefRoom(2);
+            ourRoom.createRoom(angleArr);
+        });
     }
 
     /**
@@ -1471,12 +1941,27 @@ $(function() {
     **/
     Options.prototype.refresh = function() {
 
-        var measurementValues = ourRoom.measurementValues;
-        var lengthArr = [],
+        var measurementValues = ourRoom.measurementValues,
+            paper = this.optPaper,
+            padding = 30,
+            textNodes = [],
             angleArr = [];
 
+        for (var i = 0; i < measurementValues.length; i++) {
+
+            // Creating text-nodes that show the length of each wall. (Not editable).
+            textNodes[i] = paper.text(50, i*padding+120, "Wall "+i+": "+measurementValues[i][1].toFixed(0)+"cm").attr({
+                opacity: 1,
+                'font-size': 12,
+                'font-family': "verdana",
+                'font-style': "oblique"
+            });
+
+            ourRoom.measurements.push(textNodes[i]);
+        }
+
         // Creating the column names
-        var myForm= "<form id='options'>";
+       // var myForm = "<form id='options'>";
 
      /*   // Filling in information
         for (var i = 0; i < measurementValues.length; i++) {
@@ -1507,13 +1992,13 @@ $(function() {
 
         */  
 
-        //OBS: To get the 'original' functionality, that update the wall-lengths etc, just out-comment the below code, and add the above code instead.
+        //OBS: To get the 'original' functionality that update the wall-lengths etc, just out-comment the below code, and add the above code instead.
 
-        //TODO: Hardcoded to be sure we create enough fields
+        //TODO: Hardcoded number of walls to be sure we create enough fields when testing.
         // The buttons should be created first, and the fields should be created afterwards (so it depends on the number of walls in the chosen shape)
         //TODO2: When a room is finished, the form outcommented above should be shown, including the length of the walls etc.
 
-        for (var i = 0; i < 8; i++) {
+   /*     for (var i = 0; i < 8; i++) {
 
             // Wall number / name
             myForm += "wall" + i + " length";
@@ -1523,83 +2008,91 @@ $(function() {
             myForm += "><br>";
 
         }
-            myForm += "<button id='rect' type='button'>Rectangle</button>";
+        */
+/*
+            myForm = "<button id='rect' type='button'>Rectangle</button>";
             myForm += "<button id='lshape' type='button'>L-shape</button>";
             myForm += "<button id='tshape' type='button'>T-shape</button>";
+            myForm += "<button id='generate' type='button'>Generate Room</button>";
 
-            myForm+="</form>";
+           // myForm+="</form>";
 
 
         $('#options_container').html(myForm);
 
-
-
-        //TODO: This is basically the same functionality duplicated, maybe som other structure should be used
-
-        $('#rect').click(function() {
-
-            for (var i = 0; i < 4; i++) {
-                lengthArr.push($('#walll'+i).val());
+        //TODO: The input-fields in myForm should be made AFTER the shape-buttons is clicked.
+        // The user first choose the shape of the room, then the angleArr is set, based on what button was clicked.
+     
+        $('#generate').click(function() {
+           // for (var i = 0; i < angleArr.length+1; i++) {
+                // Checks if an valid integer is entered and checks if the field is empty (TODO: Should maybe check if it is > 50cm or something)
+*/
+       /*     if (!isNaN($('#walll'+i).val()) && ($('#walll'+i).val()) != "") {
+                    lengthArr.push($('#walll'+i).val());
+                } else {
+                    alert("Alle felter må fylles med tall!");
+                    //Empties the array (just to be sure!).
+                    lengthArr = [];
+                    return;
+                }
             }
 
-            angleArr = new PreDefRoom(0);
+        */
+/*
+            angleArr = new PreDefRoom(8);
+            ourRoom.createRoom(angleArr);
 
-            ourRoom.createRoom(lengthArr, angleArr);
+            
+        });
+
+        $('#rect').click(function() {
+            angleArr = new PreDefRoom(0);
+            ourRoom.createRoom(angleArr);
         });
 
         $('#lshape').click(function() {
-
-            for (var i = 0; i < 6; i++) {
-                lengthArr.push($('#walll'+i).val());
-            }
-
             angleArr = new PreDefRoom(1);
-
-            ourRoom.createRoom(lengthArr, angleArr);
+            ourRoom.createRoom(angleArr);
         });
 
         $('#tshape').click(function() {
-
-            for (var i = 0; i < 8; i++) {
-                lengthArr.push($('#walll'+i).val());
-            }
-
             angleArr = new PreDefRoom(2);
-
-            ourRoom.createRoom(lengthArr, angleArr);
+            ourRoom.createRoom(angleArr);
         });
-
-    }
+*/    }
 
     /**
-     * Function that holds the shapes of 'predefined' rooms.
-     * The angles for each shape is hardcoded, so that the user do not need to care about this.
+     * Function that holds the shapes and wall-lengths of 'predefined' rooms.
     **/
-
     function PreDefRoom (value) {
-        var rectArr = [],     //Rectangle-shaped
-            lArr = [],        //L-shaped 
-            tArr = [];        //T-shaped
 
-            rectArr = [270, 360, 90];
-            lArr = [270, 180, 270, 360, 90];
-            tArr = [270, 360, 270, 360, 90, 360, 90];
-
-            if (value == 0) {
-                return rectArr;
-            }
-            else if (value == 1) {
-                return lArr;
-            }
-            else if (value == 2) {
-                return tArr;
-            }
+        switch(value) {
+            case 0:
+                return rectArr = [[180, 270, 360, 90],[300, 200, 300, 200]];                                            //Rectangle-shaped
+            case 1:
+                return lArr = [[180, 270, 180, 270, 360, 90],[200, 150, 200, 150, 400, 300]];                           //L-shaped
+            case 2:
+                return tArr = [[180, 270, 360, 270, 360, 90, 360, 90],[450, 150, 150, 250, 150, 250, 150, 150]];        //T-shaped
+            case 3:
+                return lRot90 = [[180, 270, 360, 270, 360, 90],[400, 150, 200, 150, 200, 300]];                         //L-shape rotated 90 degrees.
+            case 4:
+                return lRot180 = [[180, 270, 360, 90, 360, 90], [400, 350, 200, 200, 200, 150]];                        //L-shape rotated 180 degrees.
+            case 5:
+                return lRot270 = [[180, 270, 360, 90, 180, 90],[200, 300, 400, 150, 200, 150]];                         //L-shape rotated 270 degrees.
+            case 6:
+                return tRot90 = [[180, 270, 360, 90, 360, 90, 180, 90], [150, 450, 150, 150, 250, 150, 250, 150,]];     //T-shape rotated 90 degrees.
+            case 7:
+                return tRot180 = [[180, 270, 180, 270, 360, 90, 180, 90], [150, 250, 150, 150, 450, 150, 150, 250]];    //T-shape rotated 180 degrees.
+            case 8:
+                return tRot270 = [[180, 270, 180, 270, 360, 270, 360, 90], [150, 150, 250, 150, 250, 150, 150, 450]];   //T-shape rotated 270 degrees.
+        }
     }
 
 
 
     // initiates the options_container
-    var options = new Options('options_container');
+    var options = new Options();
+    options.initOpt();
 
     // Function that takes two points and calculates their vector length.
     function vectorLength(x1, y1, x2, y2) {
@@ -1910,9 +2403,5 @@ $(function() {
     }
 
 
-
 //End of 
 });
-
-
-

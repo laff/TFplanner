@@ -28,16 +28,6 @@
 	border:1px solid #aaa;
 }
 
-#results_container {
-	float: right;
-	box-sizing:border-box;
-	-moz-box-sizing:border-box;
-	-webkit-box-sizing:border-box;
-	width: 80%;
-	height: 20%;
-	border:1px solid #aaa;
-}
-
 #options table {
 	border: 1;
 	border-color: #aaa;
