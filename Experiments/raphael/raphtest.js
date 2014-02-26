@@ -172,8 +172,6 @@ $(function() {
         this.yAligned = false;
         this.minAngle = 29.95;
         this.maxAngle = 330.05;
-        this.zoomFrom = null;
-        this.zoomTo = null;
     }
 
     Room.prototype.plus = 5;
@@ -203,8 +201,6 @@ $(function() {
 
             var point = crossBrowserXY(e);
 
-            room.zoomTo = point;
-
             if (room.lastPoint != null && point.x != -1) {
 
                 if (room.lastPoint != point) {
@@ -215,16 +211,6 @@ $(function() {
                     }
                 }
             }
-
-        });
-
-
-        // Binds action for mouseover, specifically for scrolling to mouse center
-        $('#canvas_container').mouseover(room, function(e) {
-
-            var point = crossBrowserXY(e);
-
-            room.zoomTo = point;
 
         });
     }
@@ -1595,8 +1581,6 @@ $(function() {
         function handle(delta) {
 
             var vB = paper._viewBox,
-                zoomTo = ourRoom.zoomTo,
-                zoomFrom = ourRoom.zoomFrom,
                 vX,
                 vY;
 
@@ -1618,9 +1602,6 @@ $(function() {
 
             paper.setViewBox(vX, vY, viewBoxWidth, viewBoxHeight);
 
-
-            // Store current zoomTo.
-            ourRoom.zoomFrom = zoomTo;
         }
 
         /** 
