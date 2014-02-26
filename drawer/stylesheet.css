@@ -1,8 +1,8 @@
 #container {
-				width: 100%;
-				min-width: 1000px;
-				margin: 0 auto;
-				cursor: default;
+	width: 100%;
+	min-width: 1000px;
+	margin: 0 auto;
+	cursor: default;
 }
 
 #options_container {
@@ -13,7 +13,6 @@
 	width: 20%;
 	min-width: 200px;
 	height: 100%;
-	border:1px solid #aaa;
 }
 
 #submenu {	
@@ -24,7 +23,20 @@
 	-webkit-box-sizing:border-box;
 	width: 80%;
 	height: 10%;
+	background: #3366FF;
+	opacity: 0.5;
 
+}
+
+#menucorner {
+	float: right;
+	box-sizing:border-box;
+	-moz-box-sizing:border-box;
+	-webkit-box-sizing:border-box;
+	width: 20%;
+	height: 10%;
+	background: #008000;
+	opacity: 0.5;
 
 }
 
@@ -35,12 +47,41 @@
 	-moz-box-sizing:border-box;
 	-webkit-box-sizing:border-box;
 	width: 20%;
-	height: 100%;	
+	height: 90%;
+
 }
+
 
 .menutab {
 	width: 100%;
 	height: 33.33%;
+	background: #008000;
+	opacity: 0.5;
+	text-align: center;
+	vertical-align: middle;
+
+}
+
+.hovered {
+	background: #ff0000;
+	opacity: 0.5;
+}
+
+.selected {
+	background: #3366FF;
+	opacity: 0.5;
+}
+
+
+#content_container {
+	float: left;
+	box-sizing:border-box;
+	-moz-box-sizing:border-box;
+	-webkit-box-sizing:border-box;
+	width: 80%;
+	height: 90%;
+	opacity: 0.5;
+	background: #3366FF;
 }
 
 #canvas_container {  
@@ -51,15 +92,10 @@
 	width: 80%;
 	min-width: 800px;
 	height: 100%;
-	border:1px solid #aaa;
 }
 
 
 #navigation_container {
-
-
-	float: right;
-
 
 	box-sizing:border-box;
 	-moz-box-sizing:border-box;
@@ -71,11 +107,14 @@
 	z-index: 1;
 	position: fixed;
 
-
 	margin-left: 88%;
 	margin-top: 0.5%;
 
 }
+
+
+
+
 
 #options table {
 	border: 1;
@@ -101,4 +140,9 @@ button {
 	-moz-border-radius: 4px;
 	border-radius: 4px;
 	padding: 8px;
+}
+
+span {
+
+	margin-top: 20px;
 }
