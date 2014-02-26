@@ -136,8 +136,6 @@
 
             // View box
             viewBox = paper.setViewBox(oX, oY, viewBoxWidth, viewBoxHeight);
-            viewBox.X = oX;
-            viewBox.Y = oY;
 
 
         /** 
@@ -146,10 +144,11 @@
          */
         function handle(delta) {
             
-            vBHo = viewBoxHeight;
-            vBWo = viewBoxWidth;
+            var vB = paper._viewBox,
+                vX,
+                vY;
 
-            if (delta < 0) {
+            if (delta > 0) {
                 viewBoxWidth *= 0.95;
                 viewBoxHeight*= 0.95;
 
@@ -158,10 +157,12 @@
                 viewBoxHeight *= 1.05;
             }
 
-            viewBox.X -= (viewBoxWidth - vBWo) / 2;
-            viewBox.Y -= (viewBoxHeight - vBHo) / 2;
+            // This will zoom into middle of the screen.
+            vX = (vB[0] - ((viewBoxWidth - vB[2]) / 2));
+            vY = (vB[1] - ((viewBoxHeight - vB[3]) / 2));
 
-            paper.setViewBox(0, 0, viewBoxWidth, viewBoxHeight);
+
+            paper.setViewBox(vX, vY, viewBoxWidth, viewBoxHeight);
         }
 
         /** 
@@ -215,70 +216,69 @@
         /** IE/Opera. */
         window.onmousewheel = document.onmousewheel = wheel;
 
-        //Pane
-        
-        if (this.finished) {
 
-            $(canvasID).mousedown(function(e){
+        // Pane functionality binded on arrow keys.
+        document.onkeydown = function(e) {
 
-                if (paper.getElementByPoint( e.pageX, e.pageY ) != null) {
-                    return;
-                }
+            var keyCode = e.keyCode,
+                steps = 20,
+                vB = paper._viewBox;
 
-                mousedown = true;
-                startX = e.pageX; 
-                startY = e.pageY;    
-            });
+            switch (keyCode) {
 
+                // Left
+                case 37:
+                    paper.setViewBox(vB[0] - steps, vB[1], vB[2], vB[3]);
+                    break;
 
+                // Up
+                case 38:
+                    paper.setViewBox(vB[0], vB[1] - steps, vB[2], vB[3]);
+                    break;
 
-            $(canvasID).mousemove(function(e){
+                // Right
+                case 39:
+                    paper.setViewBox(vB[0] + steps, vB[1], vB[2], vB[3]);
+                    break;
 
-                if (mousedown == false) {
-                    return;
-                }
+                // Down
+                case 40:
+                    paper.setViewBox(vB[0], vB[1] + steps, vB[2], vB[3]);
+                    break;
 
-                dX = startX - e.pageX;
-                dY = startY - e.pageY;
-                x = viewBoxWidth / paper.width; 
-                y = viewBoxHeight / paper.height; 
-
-                dX *= x; 
-                dY *= y; 
-
-                paper.setViewBox(viewBox.X + dX, viewBox.Y + dY, viewBoxWidth, viewBoxHeight);
-
-            })
-
-            $(canvasID).mouseup(function(e){
-
-                if ( mousedown == false ) {
-                    return;
-                }
-
-                viewBox.X += dX; 
-                viewBox.Y += dY; 
-                mousedown = false; 
-
-            });
-
-        }
+            }
+        };
     }
 
     Grid.prototype.getZoomedXY = function(x, y) {
-        var paper = this.paper,
-            sX = paper._viewBox[2],
-            sY = paper._viewBox[3],
-            oX = paper.width,
-            oY = paper.height,
+        var paper = grid.paper,
+
+            // Starting height and width
+            sH = paper._viewBox[2],
+            sW = paper._viewBox[3],
+
+            // Original height and width
+            oH = paper.width,
+            oW = paper.height,
+
+            // Viewbox X and Y.
+            vX = paper._viewBox[0],
+            vY = paper._viewBox[1],
+
+            // Calculated ratio.
             ratio;
 
-        if (sX != oX && sY != oY) {
 
-            ratio = (sX / oX).toFixed(5);
+        if (sH != oH && sW != oW) {
+
+            ratio = (sH / oH).toFixed(5);
+
             x *= ratio;
             y *= ratio;
         }
+
+        x += vX;
+        y += vY;
 
         return [x, y];
     }
