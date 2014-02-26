@@ -87,7 +87,7 @@ $(function() {
                     resultGrid.clear();
                     grid.draw();
                     grid.menuBox(0,0);
-                }, 5000);
+                }, 10000);
                 
             }
             //"Unclicks" button
