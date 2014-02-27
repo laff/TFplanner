@@ -2,7 +2,7 @@ function Options() {
       //  this.tableEle = tableEle;
         this.refresh();
         // Create a new Raphael-paper for the options-container.
-     //   this.optPaper = Raphael(document.getElementById('options_container'));
+        this.optPaper = Raphael(document.getElementById('content_container'));
     }
 
     
@@ -20,8 +20,7 @@ function Options() {
 
 
         // Set backgroundcolor of the options-container canvas.
-        paper.canvas.style.backgroundColor = 'white';
-        paper.canvas.style.border = "1px solid";
+        paper.canvas.style.backgroundColor = '#FF7D40';
 
         // Create the button used when creating a predefined rectangular room.
         buttonRect = paper.rect(12, 15, 65, 35, 0).attr({

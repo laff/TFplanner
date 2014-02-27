@@ -74,8 +74,7 @@
 	-webkit-box-sizing:border-box;
 	width: 80%;
 	height: 95%;
-	opacity: 0.5;
-	background: #3366FF;
+	background: #FCFBE3;
 }
 
 #canvas_container {  
@@ -103,12 +102,7 @@
 
 	margin-left: 88%;
 	margin-top: 0.5%;
-
 }
-
-
-
-
 
 #options table {
 	border: 1;

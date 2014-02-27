@@ -72,6 +72,11 @@ Tabs.prototype.initTabs = function () {
             rooms.attr('opacity', 1); 
 
         }).mouseup(function(e) {
+
+        	if (options == null) {
+        	 	options = new Options();
+    		 	options.initOpt();
+    		}
         	// We gonna need some action, we gonna need some action soon!
     });
 
