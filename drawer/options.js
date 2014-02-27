@@ -2,7 +2,7 @@ function Options() {
       //  this.tableEle = tableEle;
         this.refresh();
         // Create a new Raphael-paper for the options-container.
-        this.optPaper = Raphael(document.getElementById('options_container'));
+     //   this.optPaper = Raphael(document.getElementById('options_container'));
     }
 
     

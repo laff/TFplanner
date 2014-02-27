@@ -15,19 +15,15 @@
 	height: 100%;
 }
 
-#submenu {	
-
+#headmenu {	
 	float: left;
 	box-sizing:border-box;
 	-moz-box-sizing:border-box;
 	-webkit-box-sizing:border-box;
 	width: 80%;
-	height: 10%;
-	background: #3366FF;
-	opacity: 0.5;
-
+	height: 5%;
 }
-
+/*
 #menucorner {
 	float: right;
 	box-sizing:border-box;
@@ -39,20 +35,18 @@
 	opacity: 0.5;
 
 }
-
+*/
 #menu {
-
 	float: right;
 	box-sizing:border-box;
 	-moz-box-sizing:border-box;
 	-webkit-box-sizing:border-box;
 	width: 20%;
-	height: 90%;
-
+	height: 100%;
 }
 
 
-.menutab {
+/*.menutab {
 	width: 100%;
 	height: 33.33%;
 	background: #008000;
@@ -71,7 +65,7 @@
 	background: #3366FF;
 	opacity: 0.5;
 }
-
+*/
 
 #content_container {
 	float: left;
@@ -79,7 +73,7 @@
 	-moz-box-sizing:border-box;
 	-webkit-box-sizing:border-box;
 	width: 80%;
-	height: 90%;
+	height: 95%;
 	opacity: 0.5;
 	background: #3366FF;
 }
