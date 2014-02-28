@@ -5,7 +5,7 @@ var grid,
     ourRoom,
     options,
     finishedRoom = null,
-    scrollBox;
+    scrollBox,
     headmenu,
     tabs;
 
@@ -23,16 +23,10 @@ $(document).ready(function() {
 
     headmenu = new HeadMenu();
     tabs = new Tabs();
-    options = new Options();
-
-
-
-
-    
+  
     // initiates the options_container
     options = new Options();
-    options.initOpt();
-
+    //options.initDraw();
 });
 
 

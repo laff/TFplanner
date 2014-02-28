@@ -19,21 +19,6 @@ function ScrollBox() {
 		'fill-opacity': 0.4
 	});
 
-	
-/*
-	for (var i = 0; i <= 100; i+=10) {
-
-             //Path-function is named 'paperproto.path' in raphael.js           
-            line = paper.path("M"+(i)+", "+0+", L"+(i)+", "+(100)).attr({'stroke-opacity': 0.4});  
-        }
-
-        // Draw horizontal lines on the screen (lines are drawn so that the screen is filled even on min. zoom)
-        for (var i = 0; i <= 100; i+=10) {
-
-            line = paper.path("M"+0+", "+(i)+", L"+(100)+", "+(i)).attr({'stroke-opacity': 0.4});
-        }
-        */
-        
 
     //The strings and stroke settings for the arrow buttons
 	var stroke = {stroke: "red", "stroke-width": 3, "stroke-linejoin": "round", opacity: .5, 'fill': "yellow"},
