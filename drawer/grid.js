@@ -10,6 +10,8 @@
         this.draw();
         this.menuBox(0, 0);
         this.zoom();
+        this.viewBoxWidth = this.paper.width;
+        this.viewBoxHeight = this.paper.height;
     }
 
     Grid.prototype.draw = function() {
@@ -26,22 +28,30 @@
         
 
         // Draw vertical lines on the screen (lines are drawn so that the screen is filled even on min. zoom)
-        for (var i = 1; i <= width; i++) {
-            
-            // Draw on every 10th pixel
-            if (i % 10 === 0) {
-                line = paper.path("M"+(i*size+cutPix)+", "+0+", L"+(i*size+cutPix)+", "+(size*height)).attr({'stroke-opacity': 0.4});   //Path-function is named 'paperproto.path' in raphael.js
-            }
+        for (var i = 0; i <= width; i+=10) {
+
+             //Path-function is named 'paperproto.path' in raphael.js           
+            line = paper.path("M"+(i*size+cutPix)+", "+0+", L"+(i*size+cutPix)+", "+(size*height)).attr({'stroke-opacity': 0.4});  
         }
 
         // Draw horizontal lines on the screen (lines are drawn so that the screen is filled even on min. zoom)
-        for (var i = 1; i <= height; i++) {
+        for (var i = 0; i <= height; i+=10) {
 
-           // Make every 10th pixel.
-           if (i % 10 === 0 ) {
-                line = paper.path("M"+0+", "+(i*size+cutPix)+", L"+(size*width)+", "+(i*size+cutPix)).attr({'stroke-opacity': 0.4});
-            }
+            line = paper.path("M"+0+", "+(i*size+cutPix)+", L"+(size*width)+", "+(i*size+cutPix)).attr({'stroke-opacity': 0.4});
         }
+
+        var box = paper.rect(0, 0, 100, 100),
+            line1 = paper.path("M"+50+", " +0+", L"+50+", "+25).attr({'stroke-opacity': 0}),
+            line2 = paper.path("M"+50+", " +75+", L"+50+", "+100).attr({'stroke-opacity': 0}),
+            line3 = paper.path("M"+0+", " +50+", L"+25+", "+50).attr({'stroke-opacity': 0}),
+            line4 = paper.path("M"+75+", " +50+", L"+100+", "+50).attr({'stroke-opacity': 0});
+
+        box.attr({'stroke-opacity': 1.0, 'stroke': "green", 'stroke-width': 3.0, 'fill': "white", 'fill-opacity': 0.7});
+        line1.attr({'stroke-opacity': 1.0, 'stroke': "green", 'stroke-width': 3.0, "arrow-start": "classic-midium-midium"});
+        line2.attr({'stroke-opacity': 1.0, 'stroke': "green", 'stroke-width': 3.0, "arrow-end": "classic-midium-midium"});
+        line3.attr({'stroke-opacity': 1.0, 'stroke': "green", 'stroke-width': 3.0, "arrow-start": "classic-midium-midium"});
+        line4.attr({'stroke-opacity': 1.0, 'stroke': "green", 'stroke-width': 3.0, "arrow-end": "classic-midium-midium"}),
+        t = paper.text(50, 50, "100 cm");
 
         //paper.setSize("100%" , "100%");
     }
@@ -49,21 +59,8 @@
     //X and Y values for upper left corner of box
     Grid.prototype.menuBox = function (x, y) {
         var paper = this.paper,
-            frame = paper.rect(x, y, 310, 110),
-            box = paper.rect(x, y, 100, 100),
-            line1 = paper.path("M"+(50+x)+", " +y+", L"+(50+x)+", "+(25+y)).attr({'stroke-opacity': 0}),
-            line2 = paper.path("M"+(50+x)+", " +(75+y)+", L"+(50+x)+", "+(100+y)).attr({'stroke-opacity': 0}),
-            line3 = paper.path("M"+(x)+", " +(50+y)+", L"+(25+x)+", "+(50+y)).attr({'stroke-opacity': 0}),
-            line4 = paper.path("M"+(75+x)+", " +(50+y)+", L"+(100+x)+", "+(50+y)).attr({'stroke-opacity': 0})
             clearButton = paper.image("Graphics/clear_unpressed.png", x+115, y+10, 70, 30);
-
-        frame.attr({'stroke-opacity': 1.0, 'stroke': "black", 'stroke-width': 3.0, 'fill': "white", 'fill-opacity': 0.8});
-        box.attr({'stroke-opacity': 1.0, 'stroke': "green", 'stroke-width': 3.0, 'fill': "white", 'fill-opacity': 0.1});
-        line1.attr({'stroke-opacity': 1.0, 'stroke': "green", 'stroke-width': 3.0, "arrow-start": "classic-midium-midium"});
-        line2.attr({'stroke-opacity': 1.0, 'stroke': "green", 'stroke-width': 3.0, "arrow-end": "classic-midium-midium"});
-        line3.attr({'stroke-opacity': 1.0, 'stroke': "green", 'stroke-width': 3.0, "arrow-start": "classic-midium-midium"});
-        line4.attr({'stroke-opacity': 1.0, 'stroke': "green", 'stroke-width': 3.0, "arrow-end": "classic-midium-midium"}),
-        t = paper.text(50+x, 50+y, "100 cm");
+            
 
         //Event handler for clear button
         clearButton.mousedown(function(e) {
@@ -72,7 +69,7 @@
             if (ourRoom.finished == true) {
                 paper.clear();
                 var resultGrid = new ResultGrid();
-                ourRoom.clearRoom();
+               ourRoom.clearRoom();
                 
                 setTimeout(function(){
                     ourRoom = new DrawRoom(20);
@@ -96,7 +93,7 @@
         var x = xy[0],
             y = xy[1];
 
-        if (!(x < 310 && y < 110))
+        if (!(x < 200 && y < 10))
             return new Point(x, y);
         else
             return new Point(-1, -1);
@@ -122,8 +119,8 @@
         var paper = this.paper,
             canvasID = "#canvas_container",
 
-            viewBoxWidth = paper.width,
-            viewBoxHeight = paper.height,
+           // viewBoxWidth = paper.width,
+           // viewBoxHeight = paper.height,
             
             startX,
             startY,
@@ -132,17 +129,17 @@
             dY,
             oX = 0,
             oY = 0,
-            oWidth = viewBoxWidth,
-            oHeight = viewBoxHeight,
+           // oWidth = viewBoxWidth,
+           // oHeight = viewBoxHeight,
 
             // View box
-            viewBox = paper.setViewBox(oX, oY, viewBoxWidth, viewBoxHeight);
+            viewBox = paper.setViewBox(oX, oY, paper.width, paper.height);
 
 
         /** 
          * This is high-level function.
          * It must react to delta being more/less than zero.
-         */
+         *
         function handle(delta) {
             
             var vB = paper._viewBox,
@@ -165,11 +162,12 @@
 
             paper.setViewBox(vX, vY, viewBoxWidth, viewBoxHeight);
         }
+        */
 
         /** 
          * Event handler for mouse wheel event.
          */
-        function wheel(event){
+        function wheel(event) {
             var delta = 0;
 
             /* For IE. */
@@ -192,7 +190,7 @@
             * and negative, if wheel was scrolled down.
             */
             if (delta) {
-                handle(delta);
+                grid.handle(delta);
             }
                 
 
@@ -218,38 +216,75 @@
         window.onmousewheel = document.onmousewheel = wheel;
 
 
-        // Pane functionality binded on arrow keys.
+        // Pan functionality bound to arrow keys.
         document.onkeydown = function(e) {
 
-            var keyCode = e.keyCode,
-                ticks = 50,
-                vB = paper._viewBox;
-
-            switch (keyCode) {
-
-                // Left
-                case 37:
-                    paper.setViewBox(vB[0] - ticks, vB[1], vB[2], vB[3]);
-                    break;
-
-                // Up
-                case 38:
-                    paper.setViewBox(vB[0], vB[1] - ticks, vB[2], vB[3]);
-                    break;
-
-                // Right
-                case 39:
-                    paper.setViewBox(vB[0] + ticks, vB[1], vB[2], vB[3]);
-                    break;
-
-                // Down
-                case 40:
-                    paper.setViewBox(vB[0], vB[1] + ticks, vB[2], vB[3]);
-                    break;
-
-            }
+            grid.pan(e.keyCode);
         };
     }
+
+
+    /** 
+         * This is the function that actually handles the zooming
+         * It must react to delta being more/less than zero.
+         */
+    Grid.prototype.handle = function(delta) {
+            
+        var paper = this.paper,
+            vB = paper._viewBox,
+            viewBoxWidth = this.viewBoxWidth,
+            viewBoxHeight = this.viewBoxHeight,
+            vX,
+            vY;
+
+        if (delta > 0) {
+            this.viewBoxWidth *= 0.95;
+            this.viewBoxHeight*= 0.95;
+
+        } else {
+            this.viewBoxWidth *= 1.05;
+            this.viewBoxHeight *= 1.05;
+        }
+
+        // This will zoom into middle of the screen.
+        vX = (vB[0] - ((viewBoxWidth - vB[2]) / 2));
+        vY = (vB[1] - ((viewBoxHeight - vB[3]) / 2));
+
+
+        paper.setViewBox(vX, vY, viewBoxWidth, viewBoxHeight);
+    }
+
+
+    //Function pans grid (left, right, up, down) on the screen
+
+    Grid.prototype.pan = function(keyCode) {
+        var ticks = 50,
+            paper = this.paper,
+            vB = paper._viewBox;
+
+        switch (keyCode) {
+            // Left
+            case 37:
+                if (vB[0] > 0)
+                    paper.setViewBox(vB[0] - ticks, vB[1], vB[2], vB[3]);
+                break;
+            // Up
+            case 38:
+                if (vB[1] > 0)
+                paper.setViewBox(vB[0], vB[1] - ticks, vB[2], vB[3]);
+                break;
+            // Right
+            case 39:
+                paper.setViewBox(vB[0] + ticks, vB[1], vB[2], vB[3]);
+                break;
+
+            // Down
+            case 40:
+                paper.setViewBox(vB[0], vB[1] + ticks, vB[2], vB[3]);
+                break;
+        }
+    }
+
 
     Grid.prototype.getZoomedXY = function(x, y) {
         var paper = grid.paper,
