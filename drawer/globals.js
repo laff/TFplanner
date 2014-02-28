@@ -19,6 +19,8 @@ $(document).ready(function() {
 
     headmenu = new HeadMenu();
     tabs = new Tabs();
+    options = new Options();
+
 
 
 

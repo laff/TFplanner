@@ -73,9 +73,8 @@ Tabs.prototype.initTabs = function () {
 
         }).mouseup(function(e) {
 
-        	if (options == null) {
-        	 	options = new Options();
-    		 	options.initOpt();
+        	if (options != null) {
+        		options.showOptions(1);
     		}
         	// We gonna need some action, we gonna need some action soon!
     });
@@ -91,6 +90,7 @@ Tabs.prototype.initTabs = function () {
             obstacles.attr('opacity', 1);
 
         }).mouseup(function(e) {
+        	options.showOptions(2);
         	// We gonna need some action, we gonna need some action soon!
     });
 
@@ -104,6 +104,7 @@ Tabs.prototype.initTabs = function () {
             specs.attr('opacity', 1);
 
         }).mouseup(function(e) {
+        	options.showOptions(3);
         	// We gonna need some action, we gonna need some action soon!
     });
 }

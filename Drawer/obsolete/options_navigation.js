@@ -1,3 +1,8 @@
+
+/*
+
+STORED ONLY FOR FUTURE REFERANCE? OR? OR?
+
 $(document).ready(function() {  
 
 	var nav = new Navigation();
@@ -108,3 +113,4 @@ Navigation.prototype.changeClass = function(ele, clas) {
 	}
 
 }
+*/

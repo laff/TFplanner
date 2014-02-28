@@ -23,6 +23,16 @@
 	width: 80%;
 	height: 5%;
 }
+
+#footmenu {	
+	float: bottom;
+	box-sizing:border-box;
+	-moz-box-sizing:border-box;
+	-webkit-box-sizing:border-box;
+	width: 80%;
+	height: 5%;
+}
+
 /*
 #menucorner {
 	float: right;
@@ -73,7 +83,7 @@
 	-moz-box-sizing:border-box;
 	-webkit-box-sizing:border-box;
 	width: 80%;
-	height: 95%;
+	height: 90%;
 	background: #FCFBE3;
 }
 
@@ -102,21 +112,6 @@
 
 	margin-left: 88%;
 	margin-top: 0.5%;
-}
-
-#options table {
-	border: 1;
-	border-color: #aaa;
-}
-
-#options tr {
-	border: 1;
-}	
-
-#options td {
-
-	text-align: left;
-	width: 100%;
 }
 
 button {
