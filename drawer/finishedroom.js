@@ -192,7 +192,7 @@ function FinishedRoom (radius) {
 
    FinishedRoom.prototype.checkMatch = function(e) {
         var point = ourRoom.crossBrowserXY(e),
-            match = ourRoom.findCorner(point);
+            match = (point != null) ? ourRoom.findCorner(point) : null;
 
         if (match != null) {
             return match;

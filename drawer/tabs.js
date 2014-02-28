@@ -1,7 +1,13 @@
 // Create the tabs displayed on the page
 function Tabs() {
 	this.tabPaper = Raphael(document.getElementById('menu'));
+	
+	this.room = this.tabPaper.set();
+	this.obst = this.tabPaper.set();
+	this.spec = this.tabPaper.set();
+
 	this.initTabs();
+
 }
 
 /**
@@ -17,11 +23,12 @@ Tabs.prototype.initTabs = function () {
 		roomTxt,
 		obstTxt,
 		specTxt,
-		room = paper.set(),			// Sets for the different tabs
-		obst = paper.set(),
-		spec = paper.set(),
+		room = this.room,		// Sets for the different tabs
+		obst = this.obst,
+		spec = this.spec,
 		height = paper.height/3,	//Make the tabs fit the size of the paper.
-		width = paper.width;
+		width = paper.width,
+		tabs = this;
 
 
 	rooms = paper.path('M 0 0 L '+width+' 0 L '+width+' '+height+' L 0 '+(height-35)+' ').attr({
@@ -58,10 +65,15 @@ Tabs.prototype.initTabs = function () {
 	});
 	specTxt.rotate(90);
 
-	room.push(rooms, roomTxt);
-	obst.push(obstacles, obstTxt);
-	spec.push(specs, specTxt);
+	this.room.push(rooms, roomTxt);
+	this.obst.push(obstacles, obstTxt);
+	this.spec.push(specs, specTxt);
 
+
+	/**
+	 *	Room action!
+	 *
+	**/
 	room.attr({
         cursor: 'pointer',
 
@@ -73,13 +85,18 @@ Tabs.prototype.initTabs = function () {
 
         }).mouseup(function(e) {
 
+        	tabs.select(1);
+
         	if (options != null) {
         		options.showOptions(1);
     		}
         	// We gonna need some action, we gonna need some action soon!
     });
 
-
+	/**
+	 *	Obstacle action!
+	 *
+	**/
 	obst.attr({
         cursor: 'pointer',
 
@@ -94,6 +111,10 @@ Tabs.prototype.initTabs = function () {
         	// We gonna need some action, we gonna need some action soon!
     });
 
+	/**
+	 *	Specifications action!
+	 *
+	**/
 	spec.attr({
         cursor: 'pointer',
 
@@ -109,3 +130,51 @@ Tabs.prototype.initTabs = function () {
     });
 }
 
+/**
+ * Functionality that does visual changes on tab select.
+ *
+**/
+Tabs.prototype.select = function (index) {
+
+	// Different actions for each of the tabs.
+	switch (index) {
+
+		case 1 : 
+
+			// Change the bottom line of the first tab.
+			this.roomTabConvert();
+			break;
+
+		case 2 : 
+
+			break;
+
+		case 3 :
+
+			break;
+	}
+
+
+ /*
+		This logic works on the first tab.
+
+         	var pathArr = this.attr("path"),
+        		tmp = pathArr[3][2];
+
+        	pathArr[3][2] = pathArr[2][2];
+        	pathArr[2][2] = tmp;
+
+        	this.attr({path: pathArr});
+        	room.toFront();
+*/
+}
+
+Tabs.prototype.roomTabConvert = function () {
+ 	var pathArr = this.room.attr("path"),
+		tmp = pathArr[3][2];
+
+	pathArr[3][2] = pathArr[2][2];
+	pathArr[2][2] = tmp;
+
+	room.attr({path: pathArr});
+}

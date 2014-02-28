@@ -146,7 +146,7 @@ function Options(tab) {
      *
     **/
     Options.prototype.refresh = function() {
-
+        /*
         var measurementValues = measurement.measurementValues,
             paper = this.optPaper,
             padding = 30,
@@ -165,7 +165,7 @@ function Options(tab) {
 
             measurement.measurements.push(textNodes[i]);
         }
-
+*/
         // Creating the column names
        // var myForm = "<form id='options'>";
 
