@@ -4,14 +4,18 @@ var grid,
     measurement,
     ourRoom,
     options,
+    finishedRoom = null,
+    scrollBox,
     headmenu,
-    tabs,
-    finishedRoom = null;
+    tabs;
 
 $(document).ready(function() {  
 
     //Creates the grid on our page!
     grid = new Grid();
+
+    //Initializes navigation_container
+    scrollBox = new ScrollBox();
 
     // Starts the room creation progress!
     measurement = new Measurement();
@@ -19,16 +23,10 @@ $(document).ready(function() {
 
     headmenu = new HeadMenu();
     tabs = new Tabs();
-    options = new Options();
-
-
-
-
-    
+  
     // initiates the options_container
-    //options = new Options();
-    //options.initOpt();
-
+    options = new Options();
+    //options.initDraw();
 });
 
 

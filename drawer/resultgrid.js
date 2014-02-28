@@ -70,7 +70,7 @@
         this.scale = (xscale < yscale)?xscale:yscale;
         this.scale = this.scale.toFixed();
 
-        this.paper.setViewBox(0, 0, this.width*this.scale, this.height*this.scale, true);
+        this.paper.setViewBox(0, 0, (this.width*this.scale), (this.height*this.scale), true);
     }
 
 
