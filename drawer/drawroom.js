@@ -32,10 +32,13 @@
 
             var point = room.crossBrowserXY(e);
 
-            if (point == null) {
+            // return if point is null or the target nodename is "tspan".
+            // this fixes coordinate bugs.
+            if (point == null || e.target.nodeName == "tspan") {
                 return;
+            }
 
-            } else if (room.lastPoint == null) {
+            if (room.lastPoint == null) {
                 room.lastPoint = point;
 
             } else {
@@ -47,6 +50,12 @@
         $('#canvas_container').mousemove(room, function(e) {
 
             var point = room.crossBrowserXY(e);
+            
+            // return if point is null or the target nodename is "tspan".
+            // this fixes coordinate bugs.
+            if (point == null || e.target.nodeName == "tspan") {
+                return;
+            } 
 
             if (room.lastPoint != null && point != null) {
 
@@ -569,7 +578,7 @@
         point = grid.getRestriction(grid.getZoomedXY(x, y));
 
         // Preventing a bug that makes you draw outside the viewbox.
-        if (point.x < vB[0] || point.y < vB[1]) {
+        if ((point.x < vB[0] || point.y < vB[1]) || (point.x < 0 || point.y < 0)) {
             return null;
         } else {
             return point;
