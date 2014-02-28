@@ -1,16 +1,70 @@
-function Options() {
-      //  this.tableEle = tableEle;
+
+
+/**
+ * Structonator
+**/
+function Options(tab) {
         this.refresh();
-        // Create a new Raphael-paper for the options-container.
-        this.optPaper = Raphael(document.getElementById('options_container'));
+        this.optPaper;
+        
     }
 
+
+    Options.prototype.showOptions = function(tab) {
+
+        var paper = (this.optPaper != null) ? this.optPaper : null;
+
+        if (paper != null) {
+            paper.remove();
+        }
+
+        this.optPaper = Raphael(document.getElementById('content_container'));
+
+        switch (tab) {
+            
+            case 1:
+                this.initDraw();
+                break;
+
+            case 2:
+                this.initObstacles();
+                break;
+
+            case 3: 
+                this.initSpecs();
+                break;
+
+            default:
+                return;
+        }
+    }
     
+    /**
+     *  Set up specifications
+     *
+    **/
+    Options.prototype.initSpecs = function() {
+        var paper = this.optPaper;
+
+        paper.canvas.style.backgroundColor = '#9ACD32';
+
+}
+
+    /**
+     *  
+     *
+    **/
+    Options.prototype.initObstacles = function() {
+        var paper = this.optPaper;
+
+        paper.canvas.style.backgroundColor = '#b2cecf';
+
+    }
 
     /*
      * Sets up the 'options-container', and create buttons and handlers.
     **/
-    Options.prototype.initOpt = function () {
+    Options.prototype.initDraw = function () {
         var paper = this.optPaper,
             rectColl = paper.set(),
             tColl = paper.set(),
@@ -20,8 +74,7 @@ function Options() {
 
 
         // Set backgroundcolor of the options-container canvas.
-        paper.canvas.style.backgroundColor = 'white';
-        paper.canvas.style.border = "1px solid";
+        paper.canvas.style.backgroundColor = '#FF7D40';
 
         // Create the button used when creating a predefined rectangular room.
         buttonRect = paper.rect(12, 15, 65, 35, 0).attr({

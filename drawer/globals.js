@@ -6,6 +6,8 @@ var grid,
     options,
     finishedRoom = null,
     scrollBox;
+    headmenu,
+    tabs;
 
 $(document).ready(function() {  
 
@@ -18,6 +20,13 @@ $(document).ready(function() {
     // Starts the room creation progress!
     measurement = new Measurement();
     ourRoom = new DrawRoom(20);
+
+    headmenu = new HeadMenu();
+    tabs = new Tabs();
+    options = new Options();
+
+
+
 
     
     // initiates the options_container
