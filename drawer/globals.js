@@ -5,6 +5,7 @@ var grid,
     ourRoom,
     options,
     headmenu,
+    footmenu,
     tabs,
     finishedRoom = null;
 
@@ -19,6 +20,7 @@ $(document).ready(function() {
 
     headmenu = new HeadMenu();
     tabs = new Tabs();
+    footmenu = new FootMenu();
     options = new Options();
 
 

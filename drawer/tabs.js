@@ -24,19 +24,19 @@ Tabs.prototype.initTabs = function () {
 		width = paper.width;
 
 
-	rooms = paper.path('M 0 0 L '+width+' 0 L '+width+' '+height+' L 0 '+(height-35)+' L 0 0').attr({
-        fill: '#FF7D40',
-        stroke: '#FF7D40',
-        'stroke-width': 0
+	rooms = paper.path('M 0 0 L '+width+' 0 L '+width+' '+height+' L 0 '+(height-35)+' ').attr({
+        fill: '#70b8dc',
+        stroke: '#70b8dc',
+        'stroke-width': 0,
 	});
 
-	obstacles = paper.path('M 0 '+(height-35)+' L '+width+' '+height+' L '+width+' '+height*2+' L 0 '+((height*2)+35)+' L 0 '+height).attr({
+	obstacles = paper.path('M 0 '+(height-35)+' L '+width+' '+height+' L '+width+' '+height*2+' L 0 '+((height*2)+35)+' ').attr({
         fill: '#b2cecf',
         stroke: '#b2cecf',
         'stroke-width': 0
 	});
 
-	specs = paper.path('M 0 '+((height*2)+35)+' L '+width+' '+height*2+' L '+width+' '+height*3+' L 0 '+height*3+' L 0 '+height*2).attr({
+	specs = paper.path('M 0 '+((height*2)+35)+' L '+width+' '+height*2+' L '+width+' '+height*3+' L 0 '+height*3+' ').attr({
         fill: '#9ACD32',
         stroke: '#9ACD32',
         'stroke-width': 0
