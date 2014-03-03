@@ -9,6 +9,8 @@
         this.paper = Raphael(document.getElementById('canvas_container'));
         this.squares = [];
         this.area = 0;
+        this.squarewidth = 0;
+        this.squareheight= 0;
 
         this.findDimension();
 
@@ -17,7 +19,9 @@
 
         this.populateSquares();
 
-        this.draw(this.height, this.width, this.path);
+        //this.draw(this.height, this.width, this.path);
+
+        this.findStart();
     }
 
 
@@ -70,7 +74,7 @@
         this.scale = (xscale < yscale)?xscale:yscale;
         this.scale = this.scale.toFixed();
 
-        this.paper.setViewBox(0, 0, (this.width*this.scale), (this.height*this.scale), true);
+      //  this.paper.setViewBox(0, 0, (this.width*this.scale), (this.height*this.scale), true);
     }
 
 
@@ -138,17 +142,20 @@
             ydim = 50,
             width = this.width,
             height = this.height,
+            length = 0,
             square;
 
         //The grid is slightly larger than the figure, 
         // and grid is padded so that we don't get partial squares 
         height = height +100 + (50-height%50);
         width = width + 100 +(50-width%50);
+        this.squareheight = height/50;
+        this.squarewidth = width/50;
 
         for (var i = 0; i < height; i += ydim) {
             for (var j = 0; j < width; j += xdim) {
                 square = new Square(j, i, path, paper);
-                squares.push(square);
+                squares[length++] = square;
                 this.area += square.area;
             }
         }
@@ -176,21 +183,23 @@
             ysubdim = 10, 
             subsquare,
             subsquares = this.subsquares,
-            self = paper.rect(x, y, xdim, ydim),
-            
             ul = Raphael.isPointInsidePath( path, x,y ),
             ur = Raphael.isPointInsidePath( path, x + xdim, y ), 
             ll = Raphael.isPointInsidePath( path, x, y + ydim ),
-            lr = Raphael.isPointInsidePath( path, x+xdim, y+ydim );
+            lr = Raphael.isPointInsidePath( path, x+xdim, y+ydim ),
+            length = 0;
+
+        this.rect = paper.rect(x, y, xdim, ydim);
 
         //If whole square is inside
         if (  ul && ur && ll && lr ) {
 
-            self.attr({
+            this.rect.attr({
                 'fill': "cyan",
                 'fill-opacity': 0.2
             });
-            insideRoom = true;
+            this.insideRoom = true;
+            this.hasWall = false;
             this.area = xdim*ydim;
         }
         //If at least one corner is inside   
@@ -200,11 +209,11 @@
                 for (var j = 0; j < xdim; j += xsubdim) {
                     subsquare = new Subsquare(x+j, y+i, path, paper, id++);
                     this.hasWall = true;
-                    self.attr({
+                    this.rect.attr({
                         'stroke': "blue"
                     });
-                    insideRoom = true;
-                    this.subsquares.push(subsquare);
+                    this.insideRoom = true;
+                    this.subsquares[length++] = subsquare;
                     if (subsquare.insideRoom)
                         this.area += xsubdim*ysubdim;
                 }
@@ -212,9 +221,9 @@
         }
         //Whole square outside
         else {
-            self.attr({
+            this.rect.attr({
                 'fill': "red",
-                'fill-opacity': 0.2
+                'fill-opacity': 0.6
             });
         }
     }
@@ -224,29 +233,31 @@
     function Subsquare (x, y, path, paper, squarenumber) {
         this.id = squarenumber;
         this.insideRoom = false;
-        this.hasObstacles = false;
+        this.hasObstacle = false;
         this.hasWall = false;
         this.populated = false;
+        this.rect;
 
         var xdim = 10,
             ydim = 10,
             ul = Raphael.isPointInsidePath( path, x,y ),
             ur = Raphael.isPointInsidePath( path, x + xdim, y ), 
             ll = Raphael.isPointInsidePath( path, x, y + ydim ),
-            lr = Raphael.isPointInsidePath( path, x+xdim, y+ydim ),
-            self = paper.rect(x, y, xdim, ydim);
+            lr = Raphael.isPointInsidePath( path, x+xdim, y+ydim );
+        this.rect = paper.rect(x, y, xdim, ydim);
 
         //Subsquares are either in or out
         if ( ul && ur && ll && lr) {
-            self.attr({
+            this.rect.attr({
                 'fill': "green",
                 'fill-opacity': 0.2,
                 'stroke-width': 0.1
             });
             this.insideRoom = true;
+            this.hasWall = false;
         } 
         else if (ul || ur || ll || lr) {
-            self.attr({
+            this.rect.attr({
                 'fill': "blue",
                 'fill-opacity': 0.2,
                 'stroke-width': 0.1
@@ -254,7 +265,7 @@
             this.hasWall = true;
         }
         else {
-            self.attr ({
+            this.rect.attr ({
                 'fill': "yellow",
                 'fill-opacity': 0.2,
                 'stroke-width': 0.1
@@ -281,4 +292,128 @@
 
         //Removes the drawing
         this.paper.remove();
+    }
+
+
+    //Function finds the next valid starpoint for a mat
+    ResultGrid.prototype.findStart = function() {
+        var squares = this.squares, 
+            len = squares.length,
+            width = this.squarewidth,
+            height = this.squareheight;
+
+        for (var i = 0; i < len; ++i) {
+            var square = squares[i];
+            
+            if (square.insideRoom) {
+                
+                if (!square.hasWall) {
+
+                    //Neighbouring squares 
+                    var up = squares[i-width], 
+                        left =  squares[i-1], 
+                        right = squares[i+1], 
+                        down = squares[i+width],
+                        arr;
+
+                    if (up.hasWall && ( up.subsquares[20].hasWall ||
+                                        up.subsquares[21].hasWall ||
+                                        up.subsquares[22].hasWall ||
+                                        up.subsquares[23].hasWall ||
+                                        up.subsquares[24].hasWall ) ) {
+                        this.squares[i].rect.attr({'fill': "magenta", 'fill-opacity': .5});
+                    } 
+                    else if (left.hasWall && ( left.subsquares[4].hasWall ||
+                                               left.subsquares[9].hasWall ||
+                                               left.subsquares[14].hasWall ||
+                                               left.subsquares[19].hasWall ||
+                                               left.subsquares[24].hasWall ) ) {
+                        this.squares[i].rect.attr({'fill': "magenta", 'fill-opacity': .5});
+                    } 
+                    else if (right.hasWall && ( right.subsquares[0].hasWall ||
+                                                right.subsquares[5].hasWall ||
+                                                right.subsquares[10].hasWall ||
+                                                right.subsquares[15].hasWall ||
+                                                right.subsquares[20].hasWall ) ) {
+                        this.squares[i].rect.attr({'fill': "magenta", 'fill-opacity': .5});
+                    } 
+                    else if (down.hasWall && ( down.subsquares[0].hasWall ||
+                                               down.subsquares[1].hasWall ||
+                                               down.subsquares[2].hasWall ||
+                                               down.subsquares[3].hasWall ||
+                                               down.subsquares[4].hasWall ) ) {
+                       this.squares[i].rect.attr({'fill': "magenta", 'fill-opacity': .5});
+                    }
+
+                } else {
+                    var arr = square.subsquares,
+                        subsquare,
+                        up, 
+                        down, 
+                        left, 
+                        right;
+                    for (var j=0; j < 25; ++j) {
+
+                        subsquare = arr[j];
+                        if ( subsquare.insideRoom  && !subsquare.populated && 
+                             !subsquare.hasWall && !subsquare.hasObstacle ) {
+
+                            //Finds neighboring subsquares inside own square
+                            (j>4)?up=arr[j-5]:up=null;
+                            (j<20)?down=arr[j+5]:down=null;
+                            ((j%5)!=0)?left=arr[j-1]:left=null;
+                            ((j%5)!=4)?right=arr[j+1]:right=null;
+
+                            //If any neighboring squares have walls
+                            if ( (up && up.hasWall) || 
+                                 (down && down.hasWall) || 
+                                 (right && right.hasWall) || 
+                                 (left && left.hasWall) ) {
+
+                                subsquare.rect.attr({
+                                    'fill': "cyan",
+                                    'fill-opacity': .5
+                                });
+                            } 
+                            //or if subsquare directly to the top has wall
+                            else if ( !up && squares[i-width].hasWall && 
+                                        squares[i-width].subsquares[j+20].hasWall) {
+                                subsquare.rect.attr({
+                                    'fill': "magenta",
+                                    'fill-opacity': .5
+                                });
+                            }
+                            //or if subsquare directly to the top has wall
+                            else if ( !left && squares[i-1].hasWall && 
+                                        squares[i-1].subsquares[j+4].hasWall) {
+                                subsquare.rect.attr({
+                                    'fill': "magenta",
+                                    'fill-opacity': .5
+                                });
+                            }
+                            //or if subsquare directly to the top has wall
+                            else if ( !right && squares[i+1].hasWall && 
+                                        squares[i+1].subsquares[j-4].hasWall) {
+                                subsquare.rect.attr({
+                                    'fill': "magenta",
+                                    'fill-opacity': .5
+                                });
+                            }   
+                            //or if subsquare directly to the top has wall
+                            else if ( !down && squares[i+width].hasWall && 
+                                        squares[i+width].subsquares[j-20].hasWall) {
+                                subsquare.rect.attr({
+                                    'fill': "magenta",
+                                    'fill-opacity': .5
+                                });
+                            }
+                            
+                        }
+                    }
+                }
+                
+            }
+        
+        }
+
     }

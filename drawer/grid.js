@@ -76,7 +76,7 @@
                     resultGrid.clear();
                     grid.draw();
                     grid.menuBox(0,0);
-                }, 5000);
+                }, 50000);
                 
             }
             //"Unclicks" button
@@ -110,7 +110,7 @@
 
 
     /**
-     *  Zoom functionality
+     *  Zoom functionality, 
      *
      * Sauce: http://jsfiddle.net/9zu4U/147/
     **/
