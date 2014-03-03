@@ -180,7 +180,6 @@
 
         // Check that the points are not the same, if it is quit function.
         if (newStart.x == newEnd.x && newStart.y == newEnd.y) {
-            console.log("points are the same");
             return;
         }
 
@@ -189,11 +188,9 @@
             var setPoint = false;
 
             if (this.proximity && !invalid) {
-                console.log("within proximity, not valid");
                 setPoint = true;
 
             } else if (newEnd.x == initPoint[0] && newEnd.y == initPoint[1]) {
-                console.log("the points match, let him draw");
                 setPoint = true;
             }
 
@@ -210,7 +207,6 @@
         }
 
         if (invalid && !setPoint) {
-            console.log("paths invalid");
             return;
         }
 
@@ -608,6 +604,8 @@
             initPoint,
             p2tmp,
             tmpAng;
+
+            options.preDefArr = ang;
 
             this.clearRoom();
             

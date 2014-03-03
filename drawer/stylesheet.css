@@ -88,6 +88,11 @@
 	background: #FCFBE3;
 }
 
+.roomTab {
+
+	background: #70b8dc!important;
+}
+
 #canvas_container {  
 	float: right;
 	box-sizing:border-box;
@@ -115,18 +120,38 @@
 	margin-top: 0.5%;
 }
 
-button {
-	background-color:#4B819A;
-	border: 2px solid #4B819A;
-	color: #FFF;
+.error {
 	text-align: center;
-	-webkit-border-radius: 4px;
-	-moz-border-radius: 4px;
-	border-radius: 4px;
-	padding: 8px;
+	margin-top: 50%;
+}
+
+#define {
+	width: 100%;
+	margin-top: 50%;
+	margin-left: 10%;
+}
+
+#define form {
+
+	width: 80%;
+}
+
+#define input {
+	width: 50%;
+}
+
+#defSubmit {
+	width: 80%!important;
+}
+
+/* Overriding default p css due to the god damn spacing 
+fucking up everything. GO TO HELL CSS! GO TO HELL! */
+p {
+	margin: 0;
+	padding: 0;
 }
 
 span {
+	width: 100%;
 
-	margin-top: 20px;
 }

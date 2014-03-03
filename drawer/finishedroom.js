@@ -8,6 +8,7 @@ function FinishedRoom (radius) {
         this.handle = null;
         this.pathHandle = null;
         this.howerWall = null;
+        this.selectedWall = null;
     }
     
     FinishedRoom.prototype.addWalls = function () {
@@ -44,6 +45,30 @@ function FinishedRoom (radius) {
             if (room.pathHandle == null && room.handle == null) {
                 room.clickableWall(prevWall, thisWall, nextWall);
             }
+    }
+
+    /**
+     *  Function that selects the wall by changing its appearance.
+     *  If no parameter is sent, deselect all.
+    **/
+    FinishedRoom.prototype.selectWall = function (index) {
+
+        // remove old selelectedwall if any.
+        if (this.selectedWall != null) {
+            this.selectedWall.remove();
+        }
+
+        if (index != null) {
+            this.selectedWall = grid.paper.path(this.walls[index].attrs.path).attr({
+                stroke: "#3366FF",
+                'stroke-width': this.radius,
+                'stroke-opacity': 0.5, 
+                'stroke-linecap': "butt"
+            });
+        }
+
+
+
     }
 
     /**
