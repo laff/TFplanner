@@ -6,6 +6,10 @@
 function Options(tab) {
         this.refresh();
         this.optPaper;
+
+
+        // Default show.
+        this.showOptions(1);
         
     }
 

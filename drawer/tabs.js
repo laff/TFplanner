@@ -28,46 +28,60 @@ Tabs.prototype.initTabs = function () {
 		spec = this.spec,
 		height = paper.height/3,	//Make the tabs fit the size of the paper.
 		width = paper.width,
+		diffHeight = 35;
 		tabs = this;
 
 
-	rooms = paper.path('M 0 0 L '+width+' 0 L '+width+' '+height+' L 0 '+(height-35)+' L 0 0').attr({
+	rooms = paper.path('M 0 0 L '+width+' 0 L '+width+' '+(height)+' L 0 '+(height+diffHeight)+' L 0 0').attr({
         fill: '#FF7D40',
         stroke: '#FF7D40',
         'stroke-width': 0
 	});
 
-	obstacles = paper.path('M 0 '+(height-35)+' L '+width+' '+height+' L '+width+' '+height*2+' L 0 '+((height*2)+35)+' L 0 '+height).attr({
+	obstacles = paper.path('M 0 '+(height-diffHeight)+' L '+width+' '+height+' L '+width+' '+height*2+' L 0 '+((height*2)+diffHeight)+' L 0 '+height).attr({
         fill: '#b2cecf',
         stroke: '#b2cecf',
         'stroke-width': 0
 	});
 
-	specs = paper.path('M 0 '+((height*2)+35)+' L '+width+' '+height*2+' L '+width+' '+height*3+' L 0 '+height*3+' L 0 '+height*2).attr({
+	specs = paper.path('M 0 '+((height*2)-diffHeight)+' L '+width+' '+height*2+' L '+width+' '+height*3+' L 0 '+height*3+' L 0 '+height*2).attr({
         fill: '#9ACD32',
         stroke: '#9ACD32',
         'stroke-width': 0
 	});
 
 	roomTxt = paper.text(width/2, height/2, "Tegn rom").attr({
-		'font-size': 14,
+		'font-size': 20,
+		'fill': '#FF7D40',
+		'stroke-width': 1,
+		'stroke': 'black'
 	});
 	roomTxt.rotate(90);
 
 
 	obstTxt = paper.text(width/2, paper.height/2, "Hindringer").attr({
-		'font-size': 14,
+		'font-size': 20,
+		'fill': '#b2cecf',
+		'stroke-width': 1,
+		'stroke': 'black'
 	});
 	obstTxt.rotate(90);
 
 	specTxt = paper.text(width/2, (paper.height/2)+height, "Spesifikasjoner").attr({
-		'font-size': 14,
+		'font-size': 20,
+		'fill': '#9ACD32',
+		'stroke-width': 1,
+		'stroke': 'black'
 	});
 	specTxt.rotate(90);
 
 	this.room.push(rooms, roomTxt);
 	this.obst.push(obstacles, obstTxt);
 	this.spec.push(specs, specTxt);
+
+
+	// Default select.
+	this.select(1);
 
 
 	/**
@@ -78,18 +92,16 @@ Tabs.prototype.initTabs = function () {
         cursor: 'pointer',
 
         }).mouseover(function(e) {
-            rooms.attr('opacity', 0.6);	
+            roomTxt.attr('fill', 'white');
 
         }).mouseout(function(e) {
-            rooms.attr('opacity', 1); 
+            roomTxt.attr('fill', '#FF7D40');
 
         }).mouseup(function(e) {
 
         	tabs.select(1);
 
-        	if (options != null) {
-        		options.showOptions(1);
-    		}
+        	options.showOptions(1);
         	// We gonna need some action, we gonna need some action soon!
     });
 
@@ -101,12 +113,13 @@ Tabs.prototype.initTabs = function () {
         cursor: 'pointer',
 
         }).mouseover(function(e) {
-            obstacles.attr('opacity', 0.6);
+            obstTxt.attr('fill', 'white');
 
         }).mouseout(function(e) {
-            obstacles.attr('opacity', 1);
+            obstTxt.attr('fill', '#b2cecf');
 
         }).mouseup(function(e) {
+        	tabs.select(2);
         	options.showOptions(2);
         	// We gonna need some action, we gonna need some action soon!
     });
@@ -119,12 +132,13 @@ Tabs.prototype.initTabs = function () {
         cursor: 'pointer',
 
         }).mouseover(function(e) {
-            specs.attr('opacity', 0.6);
+            specTxt.attr('fill', 'white');
 
         }).mouseout(function(e) {
-            specs.attr('opacity', 1);
+            specTxt.attr('fill', '#9ACD32');
 
         }).mouseup(function(e) {
+        	tabs.select(3);
         	options.showOptions(3);
         	// We gonna need some action, we gonna need some action soon!
     });
@@ -136,45 +150,23 @@ Tabs.prototype.initTabs = function () {
 **/
 Tabs.prototype.select = function (index) {
 
+	// default to front
+	this.spec.toFront();
+	this.obst.toFront();
+
 	// Different actions for each of the tabs.
 	switch (index) {
 
-		case 1 : 
-
-			// Change the bottom line of the first tab.
-			this.roomTabConvert();
+		case 1 :
+			this.room.toFront();
 			break;
 
 		case 2 : 
-
+			this.obst.toFront();
 			break;
 
 		case 3 :
-
+			this.spec.toFront();
 			break;
 	}
-
-
- /*
-		This logic works on the first tab.
-
-         	var pathArr = this.attr("path"),
-        		tmp = pathArr[3][2];
-
-        	pathArr[3][2] = pathArr[2][2];
-        	pathArr[2][2] = tmp;
-
-        	this.attr({path: pathArr});
-        	room.toFront();
-*/
-}
-
-Tabs.prototype.roomTabConvert = function () {
- 	var pathArr = this.room.attr("path"),
-		tmp = pathArr[3][2];
-
-	pathArr[3][2] = pathArr[2][2];
-	pathArr[2][2] = tmp;
-
-	room.attr({path: pathArr});
 }
