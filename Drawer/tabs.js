@@ -31,10 +31,9 @@ Tabs.prototype.initTabs = function () {
 		diffHeight = 35;
 		tabs = this;
 
-
 	rooms = paper.path('M 0 0 L '+width+' 0 L '+width+' '+(height)+' L 0 '+(height+diffHeight)+' L 0 0').attr({
-        fill: '#FF7D40',
-        stroke: '#FF7D40',
+        fill: '#70b8dc',
+        stroke: '#70b8dc',
         'stroke-width': 0
 	});
 
@@ -52,7 +51,7 @@ Tabs.prototype.initTabs = function () {
 
 	roomTxt = paper.text(width/2, height/2, "Tegn rom").attr({
 		'font-size': 20,
-		'fill': '#FF7D40',
+		'fill': '#70b8dc',
 		'stroke-width': 1,
 		'stroke': 'black'
 	});
@@ -95,7 +94,7 @@ Tabs.prototype.initTabs = function () {
             roomTxt.attr('fill', 'white');
 
         }).mouseout(function(e) {
-            roomTxt.attr('fill', '#FF7D40');
+            roomTxt.attr('fill', '#70b8dc');
 
         }).mouseup(function(e) {
 
