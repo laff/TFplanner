@@ -221,11 +221,20 @@ Measurement.prototype.lengthMeasurement = function (wall) {
     var transform1 = "r"+angle1+","+startP1[1]+","+startP1[2],
         transformedPath = Raphael.transformPath(m1.attr('path'), transform1);
 
+
+
     this.startLine(transformedPath[1][3], transformedPath[1][4]);
 
 
     transform1 = "r"+angle2+","+startP2[1]+","+startP2[2];
     transformedPath = Raphael.transformPath(m2.attr('path'), transform1);
+
+    // failsafe when corners are too close to each other (m2 being too short).
+    if (typeof transformedPath[1] == 'undefined') {
+        m1.remove();
+        m2.remove();
+        return wall.getTotalLength();
+    }
 
     this.endLine(transformedPath[1][3], transformedPath[1][4]);
 
@@ -291,7 +300,7 @@ Measurement.prototype.sector = function (centerX, centerY, p1, p2, angle, r) {
         x2 = p2.x, 
         y1 = p1.y,
         y2 = p2.y,
-        strokeColor = (angle < ourRoom.minAngle || angle > ourRoom.maxAngle) ? "ff0000" : "2F4F4F";
+        strokeColor = ((angle < ourRoom.minAngle || angle > ourRoom.maxAngle) && !ourRoom.finished) ? "ff0000" : "2F4F4F";
 
     return grid.paper.path(["M", centerX, centerY, "L", x1, y1, "A", r, r, 0, big, 0, x2, y2, "z"]).attr(            
         {

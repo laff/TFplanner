@@ -4,8 +4,12 @@
  * Structonator
 **/
 function Options(tab) {
+    
         this.refresh();
         this.optPaper;
+
+        // Default show.
+        this.showOptions(1);
         
     }
 
@@ -74,7 +78,7 @@ function Options(tab) {
 
 
         // Set backgroundcolor of the options-container canvas.
-        paper.canvas.style.backgroundColor = '#FF7D40';
+        paper.canvas.style.backgroundColor = '#70b8dc';
 
         // Create the button used when creating a predefined rectangular room.
         buttonRect = paper.rect(12, 15, 65, 35, 0).attr({
@@ -145,7 +149,7 @@ function Options(tab) {
      *
     **/
     Options.prototype.refresh = function() {
-
+        /*
         var measurementValues = measurement.measurementValues,
             paper = this.optPaper,
             padding = 30,
@@ -164,7 +168,7 @@ function Options(tab) {
 
             measurement.measurements.push(textNodes[i]);
         }
-
+*/
         // Creating the column names
        // var myForm = "<form id='options'>";
 

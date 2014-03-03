@@ -32,10 +32,15 @@
 
             var point = room.crossBrowserXY(e);
 
-            // TEMPROARY SOLUTION: if click is inside the menu box => not registered
-            if (point.x == -1) {}
-            else if (room.lastPoint == null) {
+            // return if point is null or the target nodename is "tspan".
+            // this fixes coordinate bugs.
+            if (point == null || e.target.nodeName == "tspan") {
+                return;
+            }
+
+            if (room.lastPoint == null) {
                 room.lastPoint = point;
+
             } else {
                 room.wallEnd(point);
             }
@@ -45,8 +50,14 @@
         $('#canvas_container').mousemove(room, function(e) {
 
             var point = room.crossBrowserXY(e);
+            
+            // return if point is null or the target nodename is "tspan".
+            // this fixes coordinate bugs.
+            if (point == null || e.target.nodeName == "tspan") {
+                return;
+            } 
 
-            if (room.lastPoint != null && point.x != -1) {
+            if (room.lastPoint != null && point != null) {
 
                 if (room.lastPoint != point) {
                     var tmp = room.drawTempLine(point);
@@ -383,6 +394,8 @@
             xAligned,
             yAligned;
 
+
+
         if (length > 1) {
 
             // Store x and y for the starting point of first wall.
@@ -551,7 +564,8 @@
             room = this,
             e = e || window.event,
             x = e.offsetX, 
-            y = e.offsetY;
+            y = e.offsetY,
+            vB = grid.paper._viewBox;
 
          // FF FIX        
 
@@ -561,10 +575,14 @@
         }
 
         // I used to use offsetX and Y, I still do, but i used to too.
-
         point = grid.getRestriction(grid.getZoomedXY(x, y));
 
-        return point;
+        // Preventing a bug that makes you draw outside the viewbox.
+        if ((point.x < vB[0] || point.y < vB[1]) || (point.x < 0 || point.y < 0)) {
+            return null;
+        } else {
+            return point;
+        }
     }
 
     // Function that takes two points and calculates their vector length.

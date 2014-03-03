@@ -7,7 +7,9 @@ var grid,
     finishedRoom = null,
     scrollBox,
     headmenu,
-    tabs;
+    footmenu,
+    tabs,
+    finishedRoom = null;
 
 $(document).ready(function() {  
 
@@ -23,9 +25,16 @@ $(document).ready(function() {
 
     headmenu = new HeadMenu();
     tabs = new Tabs();
-  
-    // initiates the options_container
+
+    footmenu = new FootMenu();
     options = new Options();
+
+
+
+
+    
+
+    // initiates the options_container
     //options.initDraw();
 });
 
