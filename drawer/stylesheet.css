@@ -1,3 +1,29 @@
+.thermofloorLightGray {
+	background: #F6F6F6;
+}
+
+.thermofloorGray {
+	background: #D6D6D6;
+}
+
+.thermofloorGrayish {
+	background: #BDBDBD;
+}
+
+.thermofloorGrayer {
+	background: #999999;
+}
+
+.thermofloorDarkGray {
+	background: #666666;
+}
+
+.thermofloorRed {
+	background: #E73029;
+}
+
+
+
 #container {
 	width: 100%;
 	min-width: 1000px;
