@@ -67,37 +67,36 @@ FootMenu.prototype.initFooter = function () {
 
     coll1.attr({
         cursor: 'pointer',
-    }).mouseover(function(e) {
-        // Set attributes on mouseover.
+    }).hover(function () {
+        // Set attributes on hover.
         load.attr({
-        	fill: 'white',
-        	'fill-opacity': 0.6
-   		});
-        // Change back to default-attributes on mouse-out.
-    }).mouseout(function(e) {
+            fill: 'white',
+            'fill-opacity': 0.6
+        });
+    },
+    function() {
         load.attr({
-        	opacity: 1,
-        	fill: ""
+            opacity: 1,
+            fill: ""
         });
 
-    }).mouseup(function(e) {
-    	// Load a room from a file
+    }).mouseup(function() {
+        // Load a room from a file
     });
 
     coll2.attr({
         cursor: 'pointer',
-    }).mouseover(function(e) {
+    }).hover(function () {
         save.attr({
         	fill: 'white',
         	'fill-opacity': 0.6
    		});
-
-    }).mouseout(function(e) {
+    },
+    function () {
         save.attr({
         	opacity: 1,
         	fill: ""
         });
-
     }).mouseup(function(e) {
     	// Currently for testing
         if (ourRoom.finished == true) {
@@ -105,29 +104,26 @@ FootMenu.prototype.initFooter = function () {
             var resultGrid = new ResultGrid();
            ourRoom.clearRoom();
             
-            setTimeout(function(){
+            setTimeout(function() {
                 ourRoom = new DrawRoom(20);
                 resultGrid.clear();
                 grid.draw();
-            }, 50000);
-            
+            }, 50000);    
         }
     });
-	
+
    coll3.attr({
         cursor: 'pointer',
-    }).mouseover(function(e) {
+    }).hover(function () {
         clear.attr({
         	fill: 'white',
         	'fill-opacity': 0.6
    		});
-
-    }).mouseout(function(e) {
+    }, function () {
         clear.attr({
         	opacity: 1,
         	fill: ""
         });
-
     }).mouseup(function(e) {
     	// Clear Room and re-iniate so the user can draw.
     	ourRoom.clearRoom();		
