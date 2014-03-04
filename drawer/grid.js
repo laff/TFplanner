@@ -8,7 +8,7 @@
         this.offsetX = 0.5;
         this.offsetY = 0.5;
         this.draw();
-        this.menuBox(0, 0);
+        //this.menuBox(0, 0);
         this.zoom();
         this.viewBoxWidth = this.paper.width;
         this.viewBoxHeight = this.paper.height;
@@ -40,23 +40,31 @@
             line = paper.path("M"+0+", "+(i*size+cutPix)+", L"+(size*width)+", "+(i*size+cutPix)).attr({'stroke-opacity': 0.4});
         }
 
-        var box = paper.rect(0, 0, 100, 100),
-            line1 = paper.path("M"+50+", " +0+", L"+50+", "+25).attr({'stroke-opacity': 0}),
-            line2 = paper.path("M"+50+", " +75+", L"+50+", "+100).attr({'stroke-opacity': 0}),
-            line3 = paper.path("M"+0+", " +50+", L"+25+", "+50).attr({'stroke-opacity': 0}),
-            line4 = paper.path("M"+75+", " +50+", L"+100+", "+50).attr({'stroke-opacity': 0});
 
-        box.attr({'stroke-opacity': 1.0, 'stroke': "green", 'stroke-width': 3.0, 'fill': "white", 'fill-opacity': 0.7});
-        line1.attr({'stroke-opacity': 1.0, 'stroke': "green", 'stroke-width': 3.0, "arrow-start": "classic-midium-midium"});
-        line2.attr({'stroke-opacity': 1.0, 'stroke': "green", 'stroke-width': 3.0, "arrow-end": "classic-midium-midium"});
-        line3.attr({'stroke-opacity': 1.0, 'stroke': "green", 'stroke-width': 3.0, "arrow-start": "classic-midium-midium"});
-        line4.attr({'stroke-opacity': 1.0, 'stroke': "green", 'stroke-width': 3.0, "arrow-end": "classic-midium-midium"}),
+        /**
+         * TODO:
+         * - Become magic function.
+         * - box coordinates set to 1, 1, 99, 99 due to its width being 3 - makes it look a bit better.
+        **/
+        var box = paper.rect(1, 1, 99, 99).attr({'stroke-opacity': 1.0, 'stroke': "#E73029", 'stroke-width': 3, 'fill': "white", 'fill-opacity': 0.7}),
+            // Can do shit liek this yall. Instead of hardcoding variables.
+            strokeOpacity = {'stroke-opacity': 0},
+            line1 = paper.path("M"+50+", " +0+", L"+50+", "+25).attr(strokeOpacity),
+            line2 = paper.path("M"+50+", " +75+", L"+50+", "+100).attr(strokeOpacity),
+            line3 = paper.path("M"+0+", " +50+", L"+25+", "+50).attr(strokeOpacity),
+            line4 = paper.path("M"+75+", " +50+", L"+100+", "+50).attr(strokeOpacity);
+
+        line1.attr({'stroke-opacity': 1, 'stroke': "#E73029", 'stroke-width': 3, "arrow-start": "classic-midium-midium"});
+        line2.attr({'stroke-opacity': 1, 'stroke': "#E73029", 'stroke-width': 3, "arrow-end": "classic-midium-midium"});
+        line3.attr({'stroke-opacity': 1, 'stroke': "#E73029", 'stroke-width': 3, "arrow-start": "classic-midium-midium"});
+        line4.attr({'stroke-opacity': 1, 'stroke': "#E73029", 'stroke-width': 3, "arrow-end": "classic-midium-midium"}),
         t = paper.text(50, 50, "100 cm");
 
         //paper.setSize("100%" , "100%");
     }
 
     //X and Y values for upper left corner of box
+    /*
     Grid.prototype.menuBox = function (x, y) {
         var paper = this.paper,
             clearButton = paper.image("Graphics/clear_unpressed.png", x+115, y+10, 70, 30);
@@ -84,6 +92,7 @@
         });
 
     }
+    */
 
     /**
      * Makes sure that the user can`t draw in the left corner, where the 'scale' is.

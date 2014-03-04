@@ -49,7 +49,7 @@ Tabs.prototype.initTabs = function () {
         'stroke-width': 0
 	});
 
-	roomTxt = paper.text(width/2, height/2, "Tegn rom").attr({
+	roomTxt = paper.text(width/2, height/2, "Tegne rom").attr({
 		'font-size': 20,
 		'fill': '#D6D6D6',
 		'stroke-width': 1,

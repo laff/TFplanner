@@ -23,7 +23,7 @@ FootMenu.prototype.initFooter = function () {
 	clear,
 	clearTxt;
 
-    paper.canvas.style.backgroundColor = '#70b8dc';
+    paper.canvas.style.backgroundColor = '#999999';
 
 	// Draws one of the predefined Raphael-icons. (folder), then transforms it to fit in the 'loadButton'-rectangle.
 	load = paper.path('M28.625,26.75h-26.5V8.375h1.124c1.751,0,0.748-3.125,3-3.125c3.215,0,1.912,0,5.126,0c2.251,0,1.251,3.125,3.001,3.125h14.25V26.75z').attr({
@@ -99,7 +99,19 @@ FootMenu.prototype.initFooter = function () {
         });
 
     }).mouseup(function(e) {
-    	// Save a room to a file
+    	// Currently for testing
+        if (ourRoom.finished == true) {
+            grid.paper.clear();
+            var resultGrid = new ResultGrid();
+           ourRoom.clearRoom();
+            
+            setTimeout(function(){
+                ourRoom = new DrawRoom(20);
+                resultGrid.clear();
+                grid.draw();
+            }, 50000);
+            
+        }
     });
 	
    coll3.attr({
