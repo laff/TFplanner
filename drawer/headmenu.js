@@ -18,14 +18,12 @@ HeadMenu.prototype.initMenu = function () {
 
     // Coordinates of the buttons based on the size of the paper
 	button1 = paper.rect(0, 0, (width/2)+1, height).attr({
-        fill: '#70b8dc',
-        'stroke': '#525e65',
+        fill: '#D6D6D6',
         'stroke-width': 0
 	}),
 
 	button2 = paper.rect((width/2), 0, (width/2), height).attr({
-        fill: '#70b8dc',
-        'stroke': '#525e65',
+        fill: '#D6D6D6',
         'stroke-width': 0
 	});
 

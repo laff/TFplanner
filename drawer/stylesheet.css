@@ -1,3 +1,21 @@
+.thermofloorLightGray {
+	background: #D6D6D6;
+}
+
+.thermofloorGray {
+	background: #BDBDBD;
+}
+
+.thermofloorDarkGray {
+	background: #999999;
+}
+
+.thermofloorRed {
+	background: #E73029;
+}
+
+
+
 #container {
 	width: 100%;
 	min-width: 1000px;
@@ -10,7 +28,7 @@
 	box-sizing:border-box;
 	-moz-box-sizing:border-box;
 	-webkit-box-sizing:border-box;
-	width: 19.8%;
+	width: 20%;
 	min-width: 200px;
 	height: 100%;
 }
@@ -26,7 +44,7 @@
 
 #footmenu {	
 	float: left;
-	bottom: 0;
+	
 	box-sizing:border-box;
 	-moz-box-sizing:border-box;
 	-webkit-box-sizing:border-box;
@@ -86,11 +104,14 @@
 	width: 80%;
 	height: 90%;
 	background: #FCFBE3;
+	margin: 0;
+	padding: 0;
 }
 
 .roomTab {
 
-	background: #70b8dc!important;
+	background: #D6D6D6!important;
+
 }
 
 #canvas_container {  
@@ -116,7 +137,6 @@
 	position: fixed;
 
 	margin-left: 90%;
-
 	margin-top: 0.1%;
 }
 

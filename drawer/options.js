@@ -38,6 +38,7 @@ Options.prototype.showOptions = function(tab) {
         }
     }
 
+    $('#content_container').empty();
 
     this.optPaper = Raphael(document.getElementById('content_container'));
 
@@ -71,7 +72,7 @@ Options.prototype.showOptions = function(tab) {
 Options.prototype.initSpecs = function() {
     var paper = this.optPaper;
 
-    paper.canvas.style.backgroundColor = '#9ACD32';
+    paper.canvas.style.backgroundColor = '#999999';
 
 }
 
@@ -82,7 +83,7 @@ Options.prototype.initSpecs = function() {
 Options.prototype.initObstacles = function() {
     var paper = this.optPaper;
 
-    paper.canvas.style.backgroundColor = '#b2cecf';
+    paper.canvas.style.backgroundColor = '#BDBDBD';
 
 }
 
@@ -193,7 +194,7 @@ Options.prototype.initDraw = function () {
 
 
     // Set backgroundcolor of the options-container canvas.
-    paper.canvas.style.backgroundColor = '#70b8dc';
+    paper.canvas.style.backgroundColor = '#D6D6D6';
 /*
     // Create the button used when creating a predefined rectangular room.
     buttonRect = paper.rect(12, 15, 65, 35, 0).attr({
