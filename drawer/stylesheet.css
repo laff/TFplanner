@@ -19,7 +19,7 @@
 #container {
 	width: 100%;
 	min-width: 1000px;
-	margin: 0 auto;
+	margin: 0 0 0 0;
 	cursor: default;
 }
 
@@ -62,8 +62,8 @@
 	width: 80%;
 	height: 90%;
 	background: #FCFBE3;
-	margin: 0;
-	padding: 0;
+	margin: 0 0 0 0;
+	padding: 0 0 0 0;
 }
 
 .roomTab {

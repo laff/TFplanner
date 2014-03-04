@@ -37,6 +37,7 @@ Options.prototype.showOptions = function(tab) {
     $('#content_container').empty();
 
     this.optPaper = Raphael(document.getElementById('content_container'));
+    this.optPaper.setSize(null,"100%");
 
     switch (tab) {
         
