@@ -11,21 +11,19 @@ HeadMenu.prototype.initMenu = function () {
 	var paper = this.headPaper,
         height = paper.height,
         width = paper.width,
-		button1,
-		button2,
 		text1,
 		text2,
 		coll1 = paper.set(),
-		coll2 = paper.set();
+		coll2 = paper.set(),
 
-        // Coordinates of the buttons based on the size of the paper
-	button1 = paper.rect(0, 0, (width/2)+1, height-1).attr({
+    // Coordinates of the buttons based on the size of the paper
+	button1 = paper.rect(0, 0, (width/2)+1, height).attr({
         fill: '#70b8dc',
         'stroke': '#525e65',
         'stroke-width': 0
-	});
+	}),
 
-	button2 = paper.rect((width/2), 0, (width/2), height-1).attr({
+	button2 = paper.rect((width/2), 0, (width/2), height).attr({
         fill: '#70b8dc',
         'stroke': '#525e65',
         'stroke-width': 0
@@ -55,7 +53,6 @@ HeadMenu.prototype.initMenu = function () {
         }).mouseout(function(e) {
             text1.attr('opacity', 1);   //'fill', '#404040');
             text1.attr('fill', "");     //'fill', '#6d8383');
-
 
         }).mouseup(function(e) {
         	// Show the paper with pre-defined rooms and stuff

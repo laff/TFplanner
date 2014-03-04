@@ -12,7 +12,6 @@
         this.proximity = false;
         this.invalid = false;
         this.finished = false;
-        this.inverted = null;
         this.xAligned = false;
         this.yAligned = false;
         this.minAngle = 29.95;
@@ -159,7 +158,6 @@
         }
 
         finishedRoom.addWalls();
-
     }
 
     /**
@@ -339,6 +337,8 @@
      *
     **/
     DrawRoom.prototype.drawWall = function (point1, point2) {
+
+        var point2 = point2;
 
         // checking if x or y is set to aligned
         point2.x = (this.xAligned && !this.proximity) ? point1.x : point2.x;
@@ -608,8 +608,9 @@
             initPoint,
             p2tmp,
             tmpAng;
+        
+        this.clearRoom();
 
-            this.clearRoom();
             
             // Looping through the number of walls in the room.
         for (var i = 0; i < ang[0].length; i++) {
@@ -650,6 +651,7 @@
                     p2 = initPoint;
                 }
             }
+
             // Uses the same functionality as when the user is 'manually' drawing a room.
             this.wallEnd(p2);
         }
@@ -658,21 +660,20 @@
 
     //Function removes the currently drawn room
    DrawRoom.prototype.clearRoom = function() {
-        var walls = this.walls, 
-            len = walls.length;
+        var walls = this.walls;
 
-        //Empties arrays
-        for (var i = len-1; i >= 0; --i) {
-            walls[i].remove();
-        }
-
+        //Empties walls-arrays
+        walls.remove();
         walls.clear();
 
         this.lastPoint = null;
         this.proximity = false;
+        this.finished = false;
+        this.xAligned = false;
+        this.yAligned = false;
 
         measurement.refreshMeasurements();
         options.refresh();
 
-        this.finished = false;
+        this.initRoom();
     }

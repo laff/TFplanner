@@ -67,25 +67,33 @@ function Options(tab) {
     **/
     Options.prototype.initDraw = function () {
         var paper = this.optPaper,
+            tabTxt,
             rectColl = paper.set(),
             tColl = paper.set(),
+            lColl = paper.set(),
             buttonT, tImg,
             buttonRect, rectImg,
+            buttonL, lImg,
             angleArr = [];
 
 
         // Set backgroundcolor of the options-container canvas.
         paper.canvas.style.backgroundColor = '#70b8dc';
 
+        //Head-text on top of the buttons:
+        tabTxt = paper.text(paper.width/2, 10, "Ferdiglagde rom").attr({
+            'font-size': 14
+        })
+
         // Create the button used when creating a predefined rectangular room.
-        buttonRect = paper.rect(12, 15, 65, 35, 0).attr({
+        buttonRect = paper.rect(20, 25, 65, 35, 0).attr({
             fill: '#6d8383',
             stroke: '#3B4449',
             'stroke-width': 1,
             title: "Auto-create a rectangular room"
         });
         // Drawing a rectangle on the button.
-        rectImg = paper.rect(25, 23, 40, 20, 0).attr({
+        rectImg = paper.rect(33, 31, 40, 23, 0).attr({
             fill: '#fafdd5',
             stroke: 'black',
             'stroke-width': 1,
@@ -98,10 +106,10 @@ function Options(tab) {
         rectColl.attr({
             cursor: 'pointer',
         }).mouseover(function(e) {
-            buttonRect.attr('fill', '#d8d8d8');
+            buttonRect.attr('fill', '#D8D8D8');
 
         }).mouseout(function(e) {
-            buttonRect.attr('fill', '#6d8383');
+            buttonRect.attr('fill', '#6D8383');
 
         }).mouseup(function(e) {
             angleArr = new PreDefRoom(0);
@@ -109,15 +117,15 @@ function Options(tab) {
         });
 
 
-        buttonT = paper.rect(12, 55, 65, 35, 0).attr({
-            fill: '#6d8383',
+        buttonT = paper.rect(20, 65, 65, 35, 0).attr({
+            fill: '#6D8383',
             stroke: '#3B4449',
             'stroke-width': 1,
             title: "Auto-create a T-shaped room"
         });
         // Drawing a T on the button.
-        tImg = paper.path('M 25 60 L 65 60 L 65 70 L 50 70 L 50 85 L 40 85 L 40 70 L 25 70 L 25 60').attr({
-            fill: '#fafdd5',
+        tImg = paper.path('M 33 72 L 73 72 L 73 83 L 60 83 L 60 95 L 46 95 L 46 83 L 33 83 L 33 72').attr({
+            fill: '#FAFDD5',
             stroke: 'black',
             'stroke-width': 1,
             title: "Auto-create a T-shaped room"
@@ -129,15 +137,45 @@ function Options(tab) {
         tColl.attr({
             cursor: 'pointer',
         }).mouseover(function(e) {
-            buttonT.attr('fill', '#d8d8d8');
+            buttonT.attr('fill', '#D8D8D8');
 
         }).mouseout(function(e) {
-            buttonT.attr('fill', '#6d8383');
+            buttonT.attr('fill', '#6D8383');
 
         }).mouseup(function(e) {
             angleArr = new PreDefRoom(2);
             ourRoom.createRoom(angleArr);
         });
+
+        buttonL = paper.rect(115, 25, 65, 35, 0).attr({
+            fill: '#6D8383',
+            stroke: '#3B4449',
+            'stroke-width': 1,
+            title: "Auto-create a L-shaped room"
+        });
+
+        lImg = paper.path('M 130 31 L 147 31 L 147 44 L 165 44 L 165 56 L 130 56 L 130 31').attr({
+            fill: '#FAFDD5',
+            stroke: 'black',
+            'stroke-width': 1,
+            title: "Auto-create a L-shaped room"
+        });
+
+        lColl.push(buttonL, lImg);
+
+        lColl.attr({
+            cursor: 'pointer',
+        }).mouseover(function(e) {
+            buttonL.attr('fill', '#D8D8D8');
+
+        }).mouseout(function(e) {
+            buttonL.attr('fill', '#6D8383');
+
+        }).mouseup(function(e) {
+            angleArr = new PreDefRoom(1);
+            ourRoom.createRoom(angleArr);
+        });
+
     }
 
     /**
