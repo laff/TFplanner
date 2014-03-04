@@ -49,7 +49,7 @@
         $('#canvas_container').mousemove(room, function(e) {
 
             var point = room.crossBrowserXY(e);
-            
+
             // return if point is null or the target nodename is "tspan".
             // this fixes coordinate bugs.
             if (point == null || e.target.nodeName == "tspan") {

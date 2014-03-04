@@ -1,8 +1,8 @@
 function ScrollBox() {
 	this.paper = Raphael(document.getElementById('navigation_container'));
 	var paper = this.paper, 
-		frame = paper.rect(0, 0, 100, 100, 40),
-		innerFrame = paper.rect(26, 26, 48, 48, 20),
+		frame = paper.rect(0, 0, 100, 100, 0),
+		innerFrame = paper.rect(26, 26, 48, 48, 0),
 		canvas = $('navigation_container'),
 		up, 
 		down,
@@ -11,17 +11,17 @@ function ScrollBox() {
 		zoom,
 		out;
 	frame.attr({
-		'fill': "gray"
+		'fill': "#D6D6D6",
+		'stroke-width': 0
 	});
 	innerFrame.attr({
 		'stroke-opacity': 0,
-		'fill': "black",
-		'fill-opacity': 0.4
+		'fill': "#BDBDBD",
 	});
 
 
     //The strings and stroke settings for the arrow buttons
-	var stroke = {stroke: "red", "stroke-width": 3, "stroke-linejoin": "round", opacity: .5, 'fill': "yellow"},
+	var stroke = {stroke: "#6d8383", "stroke-width": 3, 'fill': "#fafdd5"},
 		uparrow = "M23.963,20.834L17.5,9.64c-0.825-1.429-2.175-1.429-3,0L8.037,20.834c"+
 			"-0.825,1.429-0.15,2.598,1.5,2.598h12.926C24.113,23.432,24.788,22.263,23.963,20.834z",
 		downarrow = "M8.037,11.166L14.5,22.359c0.825,1.43,2.175,1.43,3,0l6.463-11.194c"+
@@ -94,6 +94,19 @@ function ScrollBox() {
 // and makes it look ... funky
 ScrollBox.prototype.funkify = function(button) {
 
+	var p = Raphael._path2curve(button);
+
+	button.hover(
+		function () {
+	        button.attr({'stroke': ''});
+
+	    }, 
+	    function () {
+	        button.attr({'stroke': '#6d8383'});
+    	}
+    );
+
+/*
 	var p = Raphael._path2curve(button),
 		shape = this.paper.path(p).attr({
                 fill: "#333",
@@ -116,6 +129,6 @@ ScrollBox.prototype.funkify = function(button) {
 	            "stroke-width": 0,
 	            "fill-opacity": 1
 	        }, 500);
-    });
+*/
 
 }

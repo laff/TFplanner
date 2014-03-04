@@ -1,8 +1,8 @@
-/**
- * Holds handlers and functionality needed for a finished room
-**/
+    /**
+     * Holds handlers and functionality needed for a finished room
+    **/
 
-function FinishedRoom (radius) {
+    function FinishedRoom (radius) {
         this.radius = radius;
         this.walls;
         this.handle = null;
@@ -12,9 +12,7 @@ function FinishedRoom (radius) {
     }
     
     FinishedRoom.prototype.addWalls = function () {
-
         this.walls = ourRoom.walls;
-
         this.clickableCorners();
         this.setHandlers();
     }
@@ -66,9 +64,6 @@ function FinishedRoom (radius) {
                 'stroke-linecap': "butt"
             });
         }
-
-
-
     }
 
     /**
