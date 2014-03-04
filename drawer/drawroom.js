@@ -334,7 +334,8 @@
     **/
     DrawRoom.prototype.drawWall = function (point1, point2) {
 
-        var point2 = point2;
+        var point2 = point2,
+            wall;
 
         // checking if x or y is set to aligned
         point2.x = (this.xAligned && !this.proximity) ? point1.x : point2.x;
@@ -357,7 +358,7 @@
                 stroke: "#2F4F4F",
                 'stroke-width': 5,
                 'stroke-linecap': "round"
-            });
+        });
 
         this.walls.push(wall);
 
@@ -654,8 +655,10 @@
     }
 
 
-    //Function removes the currently drawn room
-   DrawRoom.prototype.clearRoom = function() {
+    /**
+     * Function removes the currently drawn room and resets handlers and variables.
+    **/
+    DrawRoom.prototype.clearRoom = function() {
         var walls = this.walls;
 
         //Empties walls-arrays
@@ -667,6 +670,8 @@
         this.finished = false;
         this.xAligned = false;
         this.yAligned = false;
+        $('#canvas_container').unbind('click');
+        $('#canvas_container').unbind('mousemove');
 
         measurement.refreshMeasurements();
         options.refresh();
