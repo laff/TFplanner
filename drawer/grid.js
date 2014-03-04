@@ -313,7 +313,6 @@
             // Calculated ratio.
             ratio;
 
-
         if (sH != oH && sW != oW) {
 
             ratio = (sH / oH).toFixed(5);

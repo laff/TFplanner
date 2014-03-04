@@ -669,7 +669,5 @@
         this.yAligned = false;
 
         measurement.refreshMeasurements();
-        options.refresh();
-
         this.initRoom();
     }
