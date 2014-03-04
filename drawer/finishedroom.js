@@ -124,7 +124,6 @@
                 this.attr({path: pathArray2});
 
                 measurement.refreshMeasurements();
-                options.refresh();
 
             },
 
@@ -284,38 +283,51 @@
         });
 
         var start = function () {
-          this.cx = this.attr("cx");
-          this.cy = this.attr("cy");
+         // this.cx = this.attr("cx");
+         // this.cy = this.attr("cy");
         },
 
         move = function (dx, dy) {
             var xy = grid.getZoomedXY(dx, dy), 
-            X = this.cx + xy[0],
-            Y = this.cy + xy[1];
 
-           this.attr({cx: X, cy: Y});
+                // Calculating the difference from last mouse position.
+                diffx = (this.lastx != null) ? (this.lastx - xy[0]) : 0,
+                diffy = (this.lasty != null) ? (this.lasty - xy[1]) : 0,
 
-           if (path1Order == 0) {
-               pathArray1[0][1] = X;
-               pathArray1[0][2] = Y;
-           } else {
-               pathArray1[1][1] = X;
-               pathArray1[1][2] = Y;
-           }
+                // Calculating the new handle coordinates.
+                X = this.attr("cx") - diffx,
+                Y = this.attr("cy") - diffy;
 
-           if (path2Order == 0) {
-               pathArray2[0][1] = X;
-               pathArray2[0][2] = Y;
-           } else {
-               pathArray2[1][1] = X;
-               pathArray2[1][2] = Y;
-           }
+            // Storiung the last mouse position.
+            this.lastx = xy[0];
+            this.lasty = xy[1];
 
+            // Updating the handle position
+            this.attr({cx: X, cy: Y});
 
+            // Updating the connecting path arrays.
+            if (path1Order == 0) {
+               pathArray1[0][1] -= diffx;
+               pathArray1[0][2] -= diffy;
+            } else {
+               pathArray1[1][1] -= diffx;
+               pathArray1[1][2] -= diffy;
+            }
+
+            if (path2Order == 0) {
+               pathArray2[0][1] -= diffx;
+               pathArray2[0][2] -= diffy;
+            } else {
+               pathArray2[1][1] -= diffx;
+               pathArray2[1][2] -= diffy;
+            }
+
+            // Setting the new path arrays.
             path1.attr({path: pathArray1});
             path2.attr({path: pathArray2});
+
+            // Updating measurements for each move.
             measurement.refreshMeasurements();
-            options.refresh();    
         },
 
         up = function () {

@@ -674,7 +674,5 @@
         $('#canvas_container').unbind('mousemove');
 
         measurement.refreshMeasurements();
-        options.refresh();
-
         this.initRoom();
     }
