@@ -178,7 +178,6 @@
 
         // Check that the points are not the same, if it is quit function.
         if (newStart.x == newEnd.x && newStart.y == newEnd.y) {
-            console.log("points are the same");
             return;
         }
 
@@ -187,11 +186,9 @@
             var setPoint = false;
 
             if (this.proximity && !invalid) {
-                console.log("within proximity, not valid");
                 setPoint = true;
 
             } else if (newEnd.x == initPoint[0] && newEnd.y == initPoint[1]) {
-                console.log("the points match, let him draw");
                 setPoint = true;
             }
 
@@ -208,7 +205,6 @@
         }
 
         if (invalid && !setPoint) {
-            console.log("paths invalid");
             return;
         }
 
@@ -609,8 +605,8 @@
             p2tmp,
             tmpAng;
         
-        this.clearRoom();
-
+            options.preDefArr = ang;
+            this.clearRoom();
             
             // Looping through the number of walls in the room.
         for (var i = 0; i < ang[0].length; i++) {

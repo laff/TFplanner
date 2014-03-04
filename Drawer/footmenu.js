@@ -29,14 +29,18 @@ FootMenu.prototype.initFooter = function () {
 
 	// Draws one of the predefined Raphael-icons. (folder), then transforms it to fit in the 'loadButton'-rectangle.
 	load = paper.path('M28.625,26.75h-26.5V8.375h1.124c1.751,0,0.748-3.125,3-3.125c3.215,0,1.912,0,5.126,0c2.251,0,1.251,3.125,3.001,3.125h14.25V26.75z').attr({
-		title: 'Last inn fra fil'
+        title: 'Last inn fra fil'
 	});
 
 	//Positions the icon ~center of the rectangle + scales it up a bit.
-	load.transform('t'+(width/12)+','+height/18+',s1.3');
-	loadTxt = paper.text((width/3-width/6), (height/2)+2, "Load").attr({ title: 'Last inn fra fil'});
+    load.transform('t'+((width/6)-17)+','+((height/2)-15)+',s1.3');
+    // The text on the "button", also with a tooltip!
+    loadTxt = paper.text(width/6-1, height/2+2, "Last").attr({
+        'text-anchor': "middle",
+         title: 'Last inn fra fil'
+    });
 
-	coll1.push(load,loadTxt);
+	coll1.push(load, loadTxt);
 
     coll1.attr({
         cursor: 'pointer',
@@ -67,8 +71,9 @@ FootMenu.prototype.initFooter = function () {
     	title: 'Lagre til fil'
     });
 
-    save.transform('t'+((width/3)+(width/12))+','+height/18+',s1.3');
-    saveTxt = paper.text(width/2-1, (height/2)+2, "Save");
+    save.transform('t'+((width/2)-17)+','+((height/2)-15)+',s1.3');
+
+    saveTxt = paper.text(width/2-1, height/2+2, "Lagre");
 
     coll2.push(save, saveTxt);
 
@@ -102,8 +107,8 @@ FootMenu.prototype.initFooter = function () {
 	});
 
 
-	clear.transform('t'+(width*(2/3)+(width/12))+','+height/18+',s1.1');
-	clearTxt = paper.text(width-width/6, (height/2)+2, "Ny");
+	clear.transform('t'+(((width/6)*5)-15)+','+(height/2-14.5)+',s1.1');
+	clearTxt = paper.text((width*(5/6)), height/2+2, "Ny");
 
     coll3.push(clear, clearTxt);
 

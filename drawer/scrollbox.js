@@ -57,6 +57,12 @@ function ScrollBox() {
 	//Button handlers
 	//The preventDefault bits prevents on-screen text from
 	// being highlighted due to mouse (double)clicks
+	frame.mousedown(function(e){
+		event.preventDefault();
+	});
+	innerFrame.mousedown(function(e) {
+		event.preventDefault();
+	});
 	up.mousedown(function(e) {
         event.preventDefault();
 		grid.pan(38);
