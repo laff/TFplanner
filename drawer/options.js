@@ -10,6 +10,9 @@ function Options(tab) {
 
         // Default show.
         this.showOptions(1);
+
+        // Set containing gui elements we want to clear/store?
+        this.guiElements = null;
     }
 
 
@@ -37,7 +40,13 @@ Options.prototype.showOptions = function(tab) {
     $('#content_container').empty();
 
     this.optPaper = Raphael(document.getElementById('content_container'));
-  //  this.optPaper.setSize(null,"100%");
+
+    // Setting up the guiElement set.
+    if (this.guiElements != null) {
+        this.guiElements.remove();
+        this.guiElements = null;
+    }
+    this.guiElements = this.optPaper.set();
 
     switch (tab) {
         
@@ -78,9 +87,65 @@ Options.prototype.initSpecs = function() {
  *
 **/
 Options.prototype.initObstacles = function() {
-    var paper = this.optPaper;
+    var paper = this.optPaper,
+        rectWidth = 45,
+        rectHeight = 20,
+        guiOffset = 20,
+        parentWidth,
+        parentHeight,
+        tabTxt,
+        drainRect,
+        drainImg,
+        drainColl = paper.set();
 
     paper.canvas.style.backgroundColor = '#BDBDBD';
+
+
+
+        //Head-text on top of the buttons:
+    drainTxt = paper.text(paper.width/2, 10, "Ferdiglagde rom").attr({
+        'font-size': 14
+    })
+
+
+        // Create the button used when creating a predefined rectangular room.
+    drainRect = paper.rect(guiOffset, guiOffset, (guiOffset + rectWidth), (guiOffset + rectHeight), 0).attr({
+        fill: '#6d8383',
+        stroke: '#3B4449',
+        'stroke-width': 1,
+        title: "Legg til et avl"+String.fromCharCode(248)+"p."
+    });
+
+    parentWidth = drainRect.attrs.width;
+    parentHeight = drainRect.attrs.height;
+
+    // Drawing a rectangle on the button.
+    drainImg = paper.circle((guiOffset + (parentWidth / 2)), (guiOffset + (parentHeight / 2)), 10).attr({
+        fill: '#fafdd5',
+        stroke: 'black',
+        'stroke-width': 1,
+        title: "Legg til et avl"+String.fromCharCode(248)+"p."
+    });
+
+    // Adds the rectangle-button to a set, and add mousehandlers to the button.
+    drainColl.push(drainRect, drainImg);
+
+    drainColl.attr({
+        cursor: 'pointer',
+    }).mouseover(function(e) {
+        drainRect.attr('fill', '#d8d8d8');
+
+    }).mouseout(function(e) {
+        drainRect.attr('fill', '#6d8383');
+
+    }).mouseup(function(e) {
+        
+        console.log("create drain");
+    });
+
+
+    // Putting the elements in the gui element set?
+    this.guiElements.push(drainColl);
 
 }
 
