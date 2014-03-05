@@ -12,16 +12,18 @@ function ScrollBox() {
 		out;
 	frame.attr({
 		'fill': "#D6D6D6",
-		'stroke-width': 0
+		'stroke-width': 0.5,
+		opacity: 0.8
 	});
 	innerFrame.attr({
 		'stroke-opacity': 0,
 		'fill': "#BDBDBD",
+		opacity: 0.8
 	});
 
 
     //The strings and stroke settings for the arrow buttons
-	var stroke = {stroke: "#6d8383", "stroke-width": 3, 'fill': "#fafdd5"},
+	var stroke = {stroke: "#6d8383", "stroke-width": 3, 'fill': "white"},
 		uparrow = "M23.963,20.834L17.5,9.64c-0.825-1.429-2.175-1.429-3,0L8.037,20.834c"+
 			"-0.825,1.429-0.15,2.598,1.5,2.598h12.926C24.113,23.432,24.788,22.263,23.963,20.834z",
 		downarrow = "M8.037,11.166L14.5,22.359c0.825,1.43,2.175,1.43,3,0l6.463-11.194c"+
@@ -47,9 +49,11 @@ function ScrollBox() {
 	left.translate(-3, 34);
 	this.funkify(left);
 	zoom = paper.path(plus).attr(stroke);
+	zoom.attr({title: "Zoom inn"});
 	zoom.translate(34, 24);
 	this.funkify(zoom);
 	out = paper.path(minus).attr(stroke);
+	out.attr({title: "Zoom ut"});
 	out.translate(34, 46);
 	this.funkify(out);
 
@@ -98,11 +102,19 @@ ScrollBox.prototype.funkify = function(button) {
 
 	button.hover(
 		function () {
-	        button.attr({'stroke': ''});
+	        button.attr({
+	        	cursor: 'pointer',
+				'stroke-opacity': 0.5,
+	        	fill: "white",
+	        	'fill-opacity': 0.8
+	    });
 
 	    }, 
 	    function () {
-	        button.attr({'stroke': '#6d8383'});
+	        button.attr({
+	        	'stroke': '#6d8383',
+	        	'stroke-opacity': 1
+	        });
     	}
     );
 
