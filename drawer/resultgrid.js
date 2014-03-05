@@ -9,6 +9,7 @@ function ResultGrid() {
     this.paper = Raphael(document.getElementById('canvas_container'));
     this.squares = [];
     this.area = 0;
+    this.unusedArea = 0;
     this.squarewidth = 0;
     this.squareheight= 0;
 
@@ -19,10 +20,13 @@ function ResultGrid() {
 
     this.populateSquares();
 
+    //test value == three mats of 4 meters length
+    this.unusedArea = 60000;
+
     //this.draw(this.height, this.width, this.path);
 
     this.findStart();
-    this.draw();
+   // this.draw();
 }
 
 
@@ -173,117 +177,10 @@ ResultGrid.prototype.populateSquares = function() {
     }
     console.log("Availabe area: " + this.area + " square cm");
     this.area = this.area/(100*100);
-    this.area = Math.floor(this.area);
-    console.log("Usable area: " + this.area + " square meters");
+    this.area = Math.floor(this.area)*100*100;
+    this.unusedArea = this.area;
+    console.log("Usable area: " + this.area + " square cm");
 
-}
-
-//Constructor for a 0.5m X 0.5m square
-function Square (x, y, path, paper) {
-    this.xpos = x/50;
-    this.ypos = y/50;
-    this.insideRoom = false;
-    this.hasObstacles = false;
-    this.hasWall = false;
-    this.populated = false;
-    this.subsquares = [];
-    this.area = 0;
-
-    var xdim = 50, 
-        ydim = 50,
-        xsubdim = 10, 
-        ysubdim = 10, 
-        subsquare,
-        subsquares = this.subsquares,
-        ul = Raphael.isPointInsidePath( path, x,y ),
-        ur = Raphael.isPointInsidePath( path, x + xdim, y ), 
-        ll = Raphael.isPointInsidePath( path, x, y + ydim ),
-        lr = Raphael.isPointInsidePath( path, x+xdim, y+ydim ),
-        length = 0;
-
-    this.rect = paper.rect(x, y, xdim, ydim);
-
-    //If whole square is inside
-    if (  ul && ur && ll && lr ) {
-
-        this.rect.attr({
-            'fill': "cyan",
-            'fill-opacity': 0.2
-        });
-        this.insideRoom = true;
-        this.hasWall = false;
-        this.area = xdim*ydim;
-    }
-    //If at least one corner is inside   
-    else if ( ul || ur || ll || lr) {
-        var id = 0;
-        for ( var i = 0; i < ydim; i += ysubdim) {
-            for (var j = 0; j < xdim; j += xsubdim) {
-                subsquare = new Subsquare(x+j, y+i, path, paper, id++);
-                this.hasWall = true;
-                this.rect.attr({
-                    'stroke': "blue"
-                });
-                this.insideRoom = true;
-                this.subsquares[length++] = subsquare;
-                if (subsquare.insideRoom)
-                    this.area += xsubdim*ysubdim;
-            }
-        }
-    }
-    //Whole square outside
-    else {
-        this.rect.attr({
-            'fill': "red",
-            'fill-opacity': 0.6
-        });
-    }
-    //End of populateSquare()
-}
-
-
-//Constructor for 0.1m X 0.1m square
-function Subsquare (x, y, path, paper, squarenumber) {
-    this.id = squarenumber;
-    this.insideRoom = false;
-    this.hasObstacle = false;
-    this.hasWall = false;
-    this.populated = false;
-    this.rect;
-
-    var xdim = 10,
-        ydim = 10,
-        ul = Raphael.isPointInsidePath( path, x,y ),
-        ur = Raphael.isPointInsidePath( path, x + xdim, y ), 
-        ll = Raphael.isPointInsidePath( path, x, y + ydim ),
-        lr = Raphael.isPointInsidePath( path, x+xdim, y+ydim );
-    this.rect = paper.rect(x, y, xdim, ydim);
-
-    //Subsquares are either in or out
-    if ( ul && ur && ll && lr) {
-        this.rect.attr({
-            'fill': "green",
-            'fill-opacity': 0.2,
-            'stroke-width': 0.1
-        });
-        this.insideRoom = true;
-        this.hasWall = false;
-    } 
-    else if (ul || ur || ll || lr) {
-        this.rect.attr({
-            'fill': "blue",
-            'fill-opacity': 0.2,
-            'stroke-width': 0.1
-        });
-        this.hasWall = true;
-    }
-    else {
-        this.rect.attr ({
-            'fill': "yellow",
-            'fill-opacity': 0.2,
-            'stroke-width': 0.1
-        });
-    }
 }
 
 
@@ -334,7 +231,8 @@ ResultGrid.prototype.findStart = function() {
                                     up.subsquares[22].hasWall ||
                                     up.subsquares[23].hasWall ||
                                     up.subsquares[24].hasWall ) ) {
-                    squares[i].rect.attr({'fill': "magenta", 'fill-opacity': .5});
+                    if( this.placeMat(i, 0) )
+                        return true;
                 } 
                 else if (left.hasWall && ( left.subsquares[4].hasWall ||
                                            left.subsquares[9].hasWall ||
@@ -343,21 +241,22 @@ ResultGrid.prototype.findStart = function() {
                                            left.subsquares[24].hasWall ) ) {
                     if (this.placeMat(i, 0) )
                         return true;
-                    squares[i].rect.attr({'fill': "magenta", 'fill-opacity': .5});
                 } 
                 else if (right.hasWall && ( right.subsquares[0].hasWall ||
                                             right.subsquares[5].hasWall ||
                                             right.subsquares[10].hasWall ||
                                             right.subsquares[15].hasWall ||
                                             right.subsquares[20].hasWall ) ) {
-                    squares[i].rect.attr({'fill': "magenta", 'fill-opacity': .5});
+                    if( this.placeMat(i, 0) )
+                        return true;
                 } 
                 else if (down.hasWall && ( down.subsquares[0].hasWall ||
                                            down.subsquares[1].hasWall ||
                                            down.subsquares[2].hasWall ||
                                            down.subsquares[3].hasWall ||
                                            down.subsquares[4].hasWall ) ) {
-                    squares[i].rect.attr({'fill': "magenta", 'fill-opacity': .5});
+                    if( this.placeMat(i, 0) )
+                        return true;
                 }
 
             } else {
@@ -424,8 +323,7 @@ ResultGrid.prototype.findStart = function() {
                         }
                     }
                 }
-            }
-            
+            }        
         }
     }
     //End of findStart()
@@ -433,8 +331,11 @@ ResultGrid.prototype.findStart = function() {
 
     ResultGrid.prototype.placeMat = function (squareNo, subsquareNo) {
         var mat = new HeatingMat(400);
-        if ( this.placeSquare(squareNo, subsquareNo, mat) )
-            console.log("SUCCESS!");
+        if ( this.placeSquare(squareNo, subsquareNo, mat) ) {
+            console.log("Success");
+            return true;
+        }
+        return false;
     }
 
     ResultGrid.prototype.placeSquare = function (squareNo, subsquareNo, mat) {
@@ -444,14 +345,18 @@ ResultGrid.prototype.findStart = function() {
             height = this.squareheight;
 
         //The whole mat has been successfully placed, return true
-        if (mat.unusedArea == 0)
-            return true;
+        if (mat.unusedArea == 0){
+            if (this.unusedArea == 0 )
+                return true;
+            else if ( this.findStart() )
+                return true;
+        }
 
         if (square.hasWall || square.hasObstacles || mat.unusedArea < 50*50)
             this.placeSubsquare(squareNo, subsquareNo, mat)
         else {
 
-            //Neighboring squares and their numbers in array
+            //Neighboring squares and their numbers in squares array
             var u = squareNo-width,
                 l = squareNo-1,
                 r = squareNo+1,
@@ -463,13 +368,17 @@ ResultGrid.prototype.findStart = function() {
 
             this.squares[squareNo].populated = true;
             mat.addSquare();
+            this.unusedArea -= 50*50;
+            square.setArrow(4);
 
             //Tries to populate next square, in order up-right-left-down
             //RECURSIVE!
             if (up.insideRoom && !up.populated) {
-                if ( !(up.hasObstacles || up.hasWall) ) {
-                    if ( this.placeSquare(u, 0, mat) )
-                        return true;                  
+                if ( !up.hasObstacles && !up.hasWall) {
+                    if ( this.placeSquare(u, 0, mat) ) {
+                        this.squares[squareNo].setArrow(0);
+                        return true;
+                    }                 
                 } else {
                     for (var i = 20; i < 25; ++i) {
                         if ( this.placeSquare(u, i, mat) )
@@ -478,9 +387,11 @@ ResultGrid.prototype.findStart = function() {
                 }
             }
             if (right.insideRoom && !right.populated) {
-                if ( !(right.hasObstacles || right.hasWall) ) {
-                    if ( this.placeSquare(r, 0, mat) )
-                        return true;                  
+                if ( !right.hasObstacles && !right.hasWall ) {
+                    if ( this.placeSquare(r, 0, mat) ) {
+                        this.squares[squareNo].setArrow(1);
+                        return true;
+                    }                  
                 } else {
                     for (var i = 4; i < 25; i += 5) {
                         if ( this.placeSquare(r, i, mat) )
@@ -488,10 +399,12 @@ ResultGrid.prototype.findStart = function() {
                     }
                 }
             }
-            if (left.insideRoom && !right.populated) {
-                if ( !(right.hasObstacles || right.hasWall) ) {
-                    if ( this.placeSquare(l, 0, mat) )
-                        return true;                  
+            if (left.insideRoom && !left.populated) {
+                if ( !left.hasObstacles && !left.hasWall ) {
+                    if ( this.placeSquare(l, 0, mat) ) {
+                        this.squares[squareNo].setArrow(2);
+                        return true;
+                    }                  
                 } else {
                     for (var i = 0; i < 21; i += 5) {
                         if ( this.placeSquare(l, i, mat) )
@@ -500,9 +413,11 @@ ResultGrid.prototype.findStart = function() {
                 }
             }
             if (down.insideRoom && !down.populated) {
-                if ( !(down.hasObstacles || down.hasWall) ) {
-                    if ( this.placeSquare(d, 0, mat) )
-                        return true;                  
+                if ( !down.hasObstacles && !down.hasWall ) {
+                    if ( this.placeSquare(d, 0, mat) ) {
+                        this.squares[squareNo].setArrow(3);
+                        return true;
+                    }                
                 } else {
                     for (var i = 0; i < 5; ++i) {
                         if ( this.placeSquare(d, i, mat) )
@@ -511,11 +426,11 @@ ResultGrid.prototype.findStart = function() {
                 }
             }
 
-
-
-
-            
-
+            //If function comes to this point, attempt has failed.
+            //Reset and revert to previous square
+            this.unusedArea += 50*50;
+            console.log(square);
+            square.arrow.remove();
             this.squares[squareNo].populated = false;
             mat.removeSquare();
             return false;

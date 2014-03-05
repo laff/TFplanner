@@ -108,7 +108,7 @@ FootMenu.prototype.initFooter = function () {
                 ourRoom = new DrawRoom(20);
                 resultGrid.clear();
                 grid.draw();
-            }, 50000);    
+            }, 5000000);    
         }
     });
 
