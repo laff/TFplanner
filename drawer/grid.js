@@ -8,7 +8,7 @@
         this.offsetX = 0.5;
         this.offsetY = 0.5;
         this.draw();
-        this.menuBox(0, 0);
+        this.scale();
         this.zoom();
         this.viewBoxWidth = this.paper.width;
         this.viewBoxHeight = this.paper.height;
@@ -39,24 +39,29 @@
 
             line = paper.path("M"+0+", "+(i*size+cutPix)+", L"+(size*width)+", "+(i*size+cutPix)).attr({'stroke-opacity': 0.4});
         }
+    }
 
-        var box = paper.rect(0, 0, 100, 100),
-            line1 = paper.path("M"+50+", " +0+", L"+50+", "+25).attr({'stroke-opacity': 0}),
-            line2 = paper.path("M"+50+", " +75+", L"+50+", "+100).attr({'stroke-opacity': 0}),
-            line3 = paper.path("M"+0+", " +50+", L"+25+", "+50).attr({'stroke-opacity': 0}),
-            line4 = paper.path("M"+75+", " +50+", L"+100+", "+50).attr({'stroke-opacity': 0});
-
-        box.attr({'stroke-opacity': 1.0, 'stroke': "green", 'stroke-width': 3.0, 'fill': "white", 'fill-opacity': 0.7});
-        line1.attr({'stroke-opacity': 1.0, 'stroke': "green", 'stroke-width': 3.0, "arrow-start": "classic-midium-midium"});
-        line2.attr({'stroke-opacity': 1.0, 'stroke': "green", 'stroke-width': 3.0, "arrow-end": "classic-midium-midium"});
-        line3.attr({'stroke-opacity': 1.0, 'stroke': "green", 'stroke-width': 3.0, "arrow-start": "classic-midium-midium"});
-        line4.attr({'stroke-opacity': 1.0, 'stroke': "green", 'stroke-width': 3.0, "arrow-end": "classic-midium-midium"}),
-        t = paper.text(50, 50, "100 cm");
-
-        //paper.setSize("100%" , "100%");
+    /**
+     *  Function that visualizes the scale of our grid. 
+     *
+    **/
+    Grid.prototype.scale = function() {
+        var paper = this.paper,
+            box = paper.rect(1, 1, 99, 99).attr({'stroke-opacity': 1, 'stroke': "#E73029", 'stroke-width': 3, 'fill': "white", 'fill-opacity': 0.7}),
+            strokeAttr = {
+                'stroke-opacity': 1, 
+                'stroke': "#E73029", 
+                'stroke-width': 3, 
+                "arrow-start": "classic-midium-midium",
+                "arrow-end": "classic-midium-midium"
+            },
+            arrowNW = paper.path("M"+0+", " +50+", L"+25+", "+50+"M"+50+", " +25+", L"+50+", "+0).attr(strokeAttr),
+            arrowSE = paper.path("M"+50+", " +100+", L"+50+", "+75+"M"+75+", " +50+", L"+100+", "+50).attr(strokeAttr),
+            t = paper.text(50, 50, "100 cm");
     }
 
     //X and Y values for upper left corner of box
+    /*
     Grid.prototype.menuBox = function (x, y) {
         var paper = this.paper,
             clearButton = paper.image("Graphics/clear_unpressed.png", x+115, y+10, 70, 30);
@@ -84,6 +89,7 @@
         });
 
     }
+    */
 
     /**
      * Makes sure that the user can`t draw in the left corner, where the 'scale' is.
@@ -93,19 +99,7 @@
         var x = xy[0],
             y = xy[1];
 
-        if (!(x < 200 && y < 10))
-            return new Point(x, y);
-        else
-            return new Point(-1, -1);
-    }
-
-    Grid.prototype.range = function(val, min, max) {
-
-        if (val < min) 
-            return min;
-        if (val > max) 
-            return max;
-      return val;
+        return (!(x < 100 && y < 100)) ? new Point(x, y) : new Point(-1, -1);
     }
 
 
@@ -303,7 +297,6 @@
 
             // Calculated ratio.
             ratio;
-
 
         if (sH != oH && sW != oW) {
 

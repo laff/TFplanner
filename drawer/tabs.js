@@ -32,45 +32,48 @@ Tabs.prototype.initTabs = function () {
 		tabs = this;
 
 	rooms = paper.path('M 0 0 L '+width+' 0 L '+width+' '+(height)+' L 0 '+(height+diffHeight)+' L 0 0').attr({
-        fill: '#70b8dc',
-        stroke: '#70b8dc',
+        fill: '#D6D6D6',
+        stroke: '#D6D6D6',
         'stroke-width': 0
 	});
 
 	obstacles = paper.path('M 0 '+(height-diffHeight)+' L '+width+' '+height+' L '+width+' '+height*2+' L 0 '+((height*2)+diffHeight)+' L 0 '+height).attr({
-        fill: '#b2cecf',
-        stroke: '#b2cecf',
+        fill: '#BDBDBD',
+        stroke: '#BDBDBD',
         'stroke-width': 0
 	});
 
 	specs = paper.path('M 0 '+((height*2)-diffHeight)+' L '+width+' '+height*2+' L '+width+' '+height*3+' L 0 '+height*3+' L 0 '+height*2).attr({
-        fill: '#9ACD32',
-        stroke: '#9ACD32',
+        fill: '#999999',
+        stroke: '#999999',
         'stroke-width': 0
 	});
 
-	roomTxt = paper.text(width/2, height/2, "Tegn rom").attr({
+	roomTxt = paper.text(width/2, height/2, "Tegne rom").attr({
 		'font-size': 20,
-		'fill': '#70b8dc',
+		'fill': '#D6D6D6',
 		'stroke-width': 1,
-		'stroke': 'black'
+		'stroke': 'black',
+		'letter-spacing': 2
 	});
 	roomTxt.rotate(90);
 
 
 	obstTxt = paper.text(width/2, paper.height/2, "Hindringer").attr({
 		'font-size': 20,
-		'fill': '#b2cecf',
+		'fill': '#BDBDBD',
 		'stroke-width': 1,
-		'stroke': 'black'
+		'stroke': 'black',
+		'letter-spacing': 2
 	});
 	obstTxt.rotate(90);
 
 	specTxt = paper.text(width/2, (paper.height/2)+height, "Spesifikasjoner").attr({
 		'font-size': 20,
-		'fill': '#9ACD32',
+		'fill': '#999999',
 		'stroke-width': 1,
-		'stroke': 'black'
+		'stroke': 'black',
+		'letter-spacing': 2
 	});
 	specTxt.rotate(90);
 
@@ -94,7 +97,7 @@ Tabs.prototype.initTabs = function () {
             roomTxt.attr('fill', 'white');
 
         }).mouseout(function(e) {
-            roomTxt.attr('fill', '#70b8dc');
+            roomTxt.attr('fill', '#D6D6D6');
 
         }).mouseup(function(e) {
 
@@ -115,7 +118,7 @@ Tabs.prototype.initTabs = function () {
             obstTxt.attr('fill', 'white');
 
         }).mouseout(function(e) {
-            obstTxt.attr('fill', '#b2cecf');
+            obstTxt.attr('fill', '#BDBDBD');
 
         }).mouseup(function(e) {
         	tabs.select(2);
@@ -134,7 +137,7 @@ Tabs.prototype.initTabs = function () {
             specTxt.attr('fill', 'white');
 
         }).mouseout(function(e) {
-            specTxt.attr('fill', '#9ACD32');
+            specTxt.attr('fill', '#999999');
 
         }).mouseup(function(e) {
         	tabs.select(3);

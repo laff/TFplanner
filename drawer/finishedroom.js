@@ -1,19 +1,18 @@
-/**
- * Holds handlers and functionality needed for a finished room
-**/
+    /**
+     * Holds handlers and functionality needed for a finished room
+    **/
 
-function FinishedRoom (radius) {
+    function FinishedRoom (radius) {
         this.radius = radius;
         this.walls;
         this.handle = null;
         this.pathHandle = null;
         this.howerWall = null;
+        this.selectedWall = null;
     }
     
     FinishedRoom.prototype.addWalls = function () {
-
         this.walls = ourRoom.walls;
-
         this.clickableCorners();
         this.setHandlers();
     }
@@ -44,6 +43,27 @@ function FinishedRoom (radius) {
             if (room.pathHandle == null && room.handle == null) {
                 room.clickableWall(prevWall, thisWall, nextWall);
             }
+    }
+
+    /**
+     *  Function that selects the wall by changing its appearance.
+     *  If no parameter is sent, deselect all.
+    **/
+    FinishedRoom.prototype.selectWall = function (index) {
+
+        // remove old selelectedwall if any.
+        if (this.selectedWall != null) {
+            this.selectedWall.remove();
+        }
+
+        if (index != null) {
+            this.selectedWall = grid.paper.path(this.walls[index].attrs.path).attr({
+                stroke: "#3366FF",
+                'stroke-width': this.radius,
+                'stroke-opacity': 0.5, 
+                'stroke-linecap': "butt"
+            });
+        }
     }
 
     /**
@@ -104,7 +124,6 @@ function FinishedRoom (radius) {
                 this.attr({path: pathArray2});
 
                 measurement.refreshMeasurements();
-                options.refresh();
 
             },
 
@@ -264,38 +283,51 @@ function FinishedRoom (radius) {
         });
 
         var start = function () {
-          this.cx = this.attr("cx");
-          this.cy = this.attr("cy");
+         // this.cx = this.attr("cx");
+         // this.cy = this.attr("cy");
         },
 
         move = function (dx, dy) {
             var xy = grid.getZoomedXY(dx, dy), 
-            X = this.cx + xy[0],
-            Y = this.cy + xy[1];
 
-           this.attr({cx: X, cy: Y});
+                // Calculating the difference from last mouse position.
+                diffx = (this.lastx != null) ? (this.lastx - xy[0]) : 0,
+                diffy = (this.lasty != null) ? (this.lasty - xy[1]) : 0,
 
-           if (path1Order == 0) {
-               pathArray1[0][1] = X;
-               pathArray1[0][2] = Y;
-           } else {
-               pathArray1[1][1] = X;
-               pathArray1[1][2] = Y;
-           }
+                // Calculating the new handle coordinates.
+                X = this.attr("cx") - diffx,
+                Y = this.attr("cy") - diffy;
 
-           if (path2Order == 0) {
-               pathArray2[0][1] = X;
-               pathArray2[0][2] = Y;
-           } else {
-               pathArray2[1][1] = X;
-               pathArray2[1][2] = Y;
-           }
+            // Storiung the last mouse position.
+            this.lastx = xy[0];
+            this.lasty = xy[1];
 
+            // Updating the handle position
+            this.attr({cx: X, cy: Y});
 
+            // Updating the connecting path arrays.
+            if (path1Order == 0) {
+               pathArray1[0][1] -= diffx;
+               pathArray1[0][2] -= diffy;
+            } else {
+               pathArray1[1][1] -= diffx;
+               pathArray1[1][2] -= diffy;
+            }
+
+            if (path2Order == 0) {
+               pathArray2[0][1] -= diffx;
+               pathArray2[0][2] -= diffy;
+            } else {
+               pathArray2[1][1] -= diffx;
+               pathArray2[1][2] -= diffy;
+            }
+
+            // Setting the new path arrays.
             path1.attr({path: pathArray1});
             path2.attr({path: pathArray2});
+
+            // Updating measurements for each move.
             measurement.refreshMeasurements();
-            options.refresh();    
         },
 
         up = function () {

@@ -1,7 +1,25 @@
+.thermofloorLightGray {
+	background: #D6D6D6;
+}
+
+.thermofloorGray {
+	background: #BDBDBD;
+}
+
+.thermofloorDarkGray {
+	background: #999999;
+}
+
+.thermofloorRed {
+	background: #E73029;
+}
+
+
+
 #container {
 	width: 100%;
 	min-width: 1000px;
-	margin: 0 auto;
+	margin: 0 0 0 0;
 	cursor: default;
 }
 
@@ -10,7 +28,7 @@
 	box-sizing:border-box;
 	-moz-box-sizing:border-box;
 	-webkit-box-sizing:border-box;
-	width: 19.8%;
+	width: 20%;
 	min-width: 200px;
 	height: 100%;
 }
@@ -26,7 +44,6 @@
 
 #footmenu {	
 	float: left;
-	bottom: 0;
 	box-sizing:border-box;
 	-moz-box-sizing:border-box;
 	-webkit-box-sizing:border-box;
@@ -34,65 +51,30 @@
 	height: 5%;
 }
 
-/*
-#menucorner {
-	float: right;
-	box-sizing:border-box;
-	-moz-box-sizing:border-box;
-	-webkit-box-sizing:border-box;
-	width: 20%;
-	height: 10%;
-	background: #008000;
-	opacity: 0.5;
-
-}
-*/
 #menu {
 	float: right;
-	box-sizing:border-box;
-	-moz-box-sizing:border-box;
-	-webkit-box-sizing:border-box;
 	width: 20%;
 	height: 100%;
 }
 
-
-/*.menutab {
-	width: 100%;
-	height: 33.33%;
-	background: #008000;
-	opacity: 0.5;
-	text-align: center;
-	vertical-align: middle;
-
-}
-
-.hovered {
-	background: #ff0000;
-	opacity: 0.5;
-}
-
-.selected {
-	background: #3366FF;
-	opacity: 0.5;
-}
-*/
-
 #content_container {
 	float: left;
-	box-sizing:border-box;
-	-moz-box-sizing:border-box;
-	-webkit-box-sizing:border-box;
 	width: 80%;
 	height: 90%;
 	background: #FCFBE3;
+	margin: 0 0 0 0;
+	padding: 0 0 0 0;
+}
+
+.roomTab {
+
+	background: #D6D6D6!important;
+
 }
 
 #canvas_container {  
 	float: right;
-	box-sizing:border-box;
-	-moz-box-sizing:border-box;
-	-webkit-box-sizing:border-box;
+
 	width: 80%;
 	min-width: 800px;
 	height: 100%;
@@ -100,10 +82,6 @@
 
 
 #navigation_container {
-
-	box-sizing:border-box;
-	-moz-box-sizing:border-box;
-	-webkit-box-sizing:border-box;
 	
 	width: 100px;
 	height: 100px;
@@ -111,22 +89,48 @@
 	position: fixed;
 
 	margin-left: 90%;
-
-	margin-top: 0.1%;
+	margin-top: 1%;
 }
 
-button {
-	background-color:#4B819A;
-	border: 2px solid #4B819A;
-	color: #FFF;
+.error {
 	text-align: center;
-	-webkit-border-radius: 4px;
-	-moz-border-radius: 4px;
-	border-radius: 4px;
-	padding: 8px;
+	margin-top: 50%;
+}
+
+#define {
+	width: 100%;
+	margin-top: 50%;
+	margin-left: 10%;
+}
+
+#define form {
+
+	width: 80%;
+}
+
+#define input {
+	width: 50%;
+}
+
+#defSubmit {
+	width: 80%!important;
+}
+
+/* Overriding default p css due to the god damn spacing 
+fucking up everything. GO TO HELL CSS! GO TO HELL! */
+p {
+	margin: 0;
+	padding: 0;
 }
 
 span {
+	width: 100%;
 
-	margin-top: 20px;
+}
+
+body {
+	box-sizing:border-box;
+	-moz-box-sizing:border-box;
+	-webkit-box-sizing:border-box;
+	margin: 0 0 0 0;
 }

@@ -25,10 +25,8 @@ Measurement.prototype.refreshMeasurements = function () {
     measurementValues.length = 0;
     this.measurements.remove();
 
-    if (finished) {
-        this.inverted = null;
-    }
-
+    this.inverted = null;
+    
     for (var i = 0; i < len; i++) {
 
         measurementValues.push([]);
@@ -37,8 +35,8 @@ Measurement.prototype.refreshMeasurements = function () {
             measurementValues[i].push(this.angleMeasurement(i));
         }
 
-    measurementValues[i].push(this.lengthMeasurement(walls[i]));   
-    }
+        measurementValues[i].push(this.lengthMeasurement(walls[i]));   
+    }      
 }
 
 

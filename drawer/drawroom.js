@@ -12,7 +12,6 @@
         this.proximity = false;
         this.invalid = false;
         this.finished = false;
-        this.inverted = null;
         this.xAligned = false;
         this.yAligned = false;
         this.minAngle = 29.95;
@@ -50,7 +49,7 @@
         $('#canvas_container').mousemove(room, function(e) {
 
             var point = room.crossBrowserXY(e);
-            
+
             // return if point is null or the target nodename is "tspan".
             // this fixes coordinate bugs.
             if (point == null || e.target.nodeName == "tspan") {
@@ -159,7 +158,6 @@
         }
 
         finishedRoom.addWalls();
-
     }
 
     /**
@@ -180,7 +178,6 @@
 
         // Check that the points are not the same, if it is quit function.
         if (newStart.x == newEnd.x && newStart.y == newEnd.y) {
-            console.log("points are the same");
             return;
         }
 
@@ -189,11 +186,9 @@
             var setPoint = false;
 
             if (this.proximity && !invalid) {
-                console.log("within proximity, not valid");
                 setPoint = true;
 
             } else if (newEnd.x == initPoint[0] && newEnd.y == initPoint[1]) {
-                console.log("the points match, let him draw");
                 setPoint = true;
             }
 
@@ -210,7 +205,6 @@
         }
 
         if (invalid && !setPoint) {
-            console.log("paths invalid");
             return;
         }
 
@@ -340,6 +334,9 @@
     **/
     DrawRoom.prototype.drawWall = function (point1, point2) {
 
+        var point2 = point2,
+            wall;
+
         // checking if x or y is set to aligned
         point2.x = (this.xAligned && !this.proximity) ? point1.x : point2.x;
         point2.y = (this.yAligned && !this.proximity) ? point1.y : point2.y;
@@ -361,7 +358,7 @@
                 stroke: "#2F4F4F",
                 'stroke-width': 5,
                 'stroke-linecap': "round"
-            });
+        });
 
         this.walls.push(wall);
 
@@ -608,7 +605,8 @@
             initPoint,
             p2tmp,
             tmpAng;
-
+        
+            options.preDefArr = ang;
             this.clearRoom();
             
             // Looping through the number of walls in the room.
@@ -650,29 +648,31 @@
                     p2 = initPoint;
                 }
             }
+
             // Uses the same functionality as when the user is 'manually' drawing a room.
             this.wallEnd(p2);
         }
     }
 
 
-    //Function removes the currently drawn room
-   DrawRoom.prototype.clearRoom = function() {
-        var walls = this.walls, 
-            len = walls.length;
+    /**
+     * Function removes the currently drawn room and resets handlers and variables.
+    **/
+    DrawRoom.prototype.clearRoom = function() {
+        var walls = this.walls;
 
-        //Empties arrays
-        for (var i = len-1; i >= 0; --i) {
-            walls[i].remove();
-        }
-
+        //Empties walls-arrays
+        walls.remove();
         walls.clear();
 
         this.lastPoint = null;
         this.proximity = false;
+        this.finished = false;
+        this.xAligned = false;
+        this.yAligned = false;
+        $('#canvas_container').unbind('click');
+        $('#canvas_container').unbind('mousemove');
 
         measurement.refreshMeasurements();
-        options.refresh();
-
-        this.finished = false;
+        this.initRoom();
     }
