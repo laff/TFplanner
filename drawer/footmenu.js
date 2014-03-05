@@ -130,6 +130,8 @@ FootMenu.prototype.initFooter = function () {
 
     }).mouseup(function(e) {
     	// Clear Room and re-iniate so the user can draw.
-    	ourRoom.clearRoom();		
+    	ourRoom.clearRoom();
+        options.showOptions(1);
+        options.preDefArr = null;
     });
 }
