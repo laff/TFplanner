@@ -103,7 +103,7 @@ ScrollBox.prototype.funkify = function(button) {
 	button.hover(
 		function () {
 	        button.attr({
-	        	cursor: 'pointer',
+        		cursor: 'pointer',
 				'stroke-opacity': 0.5,
 	        	fill: "white",
 	        	'fill-opacity': 0.8
