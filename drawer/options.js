@@ -241,6 +241,7 @@ Options.prototype.initDefine = function () {
 
 /*
  * Sets up the 'options-container', and create buttons and handlers.
+ * Basically the same is done for each button, but the coordinates is different for each one.
  * TODO: Set title for the rooms
 **/
 Options.prototype.initDraw = function () {
@@ -292,12 +293,9 @@ Options.prototype.initDraw = function () {
     // Drawing a rectangle on the button.
     rectImg = paper.rect((width*(3/16)), ((height/20)+temp/4), temp/2, temp/2, 0).attr(imgAttr);
 
-
     this.createHandlers(rectColl.push(buttonRect, rectImg), 0);
 
-
     buttonT = paper.rect(width/8, (height*(3/20)), width/4, width/4, 0).attr(rectAttr);
-
     // Drawing a T on the button.
     tImg = paper.path('M'+(width*(3/16))+' '+((height*(3/20))+temp/4)+'L'+((width*(3/16))+(temp/2))+' '+((height*(3/20))+temp/4)+
             ' L'+((width*(3/16))+(temp/2))+' '+((height*(3/20))+temp/2)+' L'+((width*(3/16))+(temp/3))+' '+((height*(3/20))+temp/2)+
@@ -309,7 +307,6 @@ Options.prototype.initDraw = function () {
     //title: "Ferdiglaget T-formet rom",
     this.createHandlers(tColl.push(buttonT, tImg), 2);
 
-
     buttonL = paper.rect((width*(5/8)), height/20, width/4, width/4, 0).attr(rectAttr);
     lImg = paper.path('M'+(width*(11/16))+' '+((height/20)+temp/4)+' L'+((width*(11/16))+temp/4)+' '+((height/20)+temp/4)+
             ' L'+((width*(11/16))+temp/4)+' '+((height/20)+temp/2)+' L'+((width*(11/16))+temp/2)+' '+((height/20)+temp/2)+
@@ -320,8 +317,6 @@ Options.prototype.initDraw = function () {
     // title: "Ferdiglaget L-formet rom",
     this.createHandlers(lColl.push(buttonL, lImg), 1);
 
-
-    
     lInv = paper.rect((width*(5/8)), (height*(3/20)), width/4, width/4, 0).attr(rectAttr);
     lInvImg = paper.path('M'+((width*(11/16))+temp/4)+' '+((height*(3/20))+temp/4)+' L'+((width*(11/16))+temp/2)+' '+((height*(3/20))+temp/4)+
                 ' L'+((width*(11/16))+temp/2)+' '+((height*(3/20))+(temp*(3/4)))+' L'+(width*(11/16))+' '+((height*(3/20))+(temp*(3/4)))+
@@ -331,8 +326,6 @@ Options.prototype.initDraw = function () {
     
     // title: "Ferdiglaget invertert L-rom",
     this.createHandlers(lInvColl.push(lInv, lInvImg), 5);
-
-        
 
     lRot180 = paper.rect((width*(5/8)), (height*(5/20)), width/4, width/4, 0).attr(rectAttr);
     lRot180Img = paper.path('M'+(width*(11/16))+' '+((height*(5/20))+temp/4)+' L'+((width*(11/16))+(temp/2))+' '+((height*(5/20))+temp/4)+
@@ -354,9 +347,6 @@ Options.prototype.initDraw = function () {
     // title: "Ferdiglaget L-rom"
     this.createHandlers(lRot270Coll.push(lRot270, lRot270Img), 3);
 
-        
-
-
     tRot90 = paper.rect(width/8, (height*(5/20)), width/4, width/4, 0).attr(rectAttr);
     tRot90Img = paper.path('M'+((width*(3/16))+temp/4)+' '+((height*(5/20))+temp/4)+' L'+((width*(3/16))+temp/2)+' '+((height*(5/20))+temp/4)+
                 ' L'+((width*(3/16))+temp/2)+' '+((height*(5/20))+(temp*(3/4)))+' L'+((width*(3/16))+temp/4)+' '+((height*(5/20))+(temp*(3/4)))+
@@ -377,13 +367,18 @@ Options.prototype.initDraw = function () {
 */
 }
 
+/**
+ * This function add the mouse-handlers for all the 'premade-room'-buttons.
+ * @param Coll - A set, containing the rectangular button and the image upon it.
+ * @param val - An int, that says what roomtype to be sent to the 'createRoom' function.
+**/
+
 Options.prototype.createHandlers = function(Coll, val) {
     var defColor = '#6D8383',       // Default color.
         inColor = '#d8d8d8';        // Color for mouseover 
 
     Coll.attr({
         cursor: 'pointer',
-        //title: "Ferdiglaget rektangulært rom",
     }).hover(function () {
         // Set attributes on hover.
         Coll[0].attr('fill', inColor);
