@@ -5,8 +5,6 @@
         this.size = 5;               // How many pixels between each horizontal/vertical line.
         this.cutPix = 0.5;           // Used so that the drawing of a line not overlaps on the previous pixel.
         this.paper = Raphael(document.getElementById('canvas_container'));
-        this.offsetX = 0.5;
-        this.offsetY = 0.5;
         this.draw();
         this.scale();
         this.zoom();
