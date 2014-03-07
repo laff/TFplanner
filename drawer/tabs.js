@@ -10,14 +10,12 @@ function Tabs() {
 	this.specColor = '#999999';
 
 	this.initTabs();
-
 }
 
 /**
  * Creating SVG-paths for the three vertical tabs, and adding text to them.
  * 
 **/
-
 Tabs.prototype.initTabs = function () {
 	var paper = this.tabPaper,					
 		room = this.room,			// Sets for the different tabs
