@@ -7,6 +7,8 @@ function Options(tab) {
         this.optPaper;
         this.preDefArr = null;
         this.optionTab = 1;
+        this.defColor = '#6D8383';       // Default color.
+        this.inColor = '#d8d8d8';        // Color for mouseover 
 
         // Default show.
         this.showOptions(1);
@@ -242,13 +244,12 @@ Options.prototype.initDefine = function () {
 /*
  * Sets up the 'options-container', and create buttons and handlers.
  * Basically the same is done for each button, but the coordinates is different for each one.
- * TODO: Set title for the rooms
+ * OBS: The order of pushing elements to collections is important! (The button must be pushed as first element)
 **/
 Options.prototype.initDraw = function () {
         var paper = this.optPaper,
             width = paper.width,
             height = paper.height,        
-            tabTxt,
             rectColl = paper.set(),
             tColl = paper.set(),
             lColl = paper.set(),
@@ -257,18 +258,10 @@ Options.prototype.initDraw = function () {
             lRot270Coll = paper.set(),
             tRot90Coll = paper.set(),
             tRot180Coll = paper.set(),
-            buttonT, tImg,
-            buttonRect, rectImg,
-            buttonL, lImg,
-            lInv, lInvImg,
-            lRot180, lRot180Img,
-            lRot270, lRot270Img,
-            tRot90, tRot90Img,
-            tRot180, tRot180Img, 
-            defColor = '#6D8383',       // Default color.
-            inColor = '#d8d8d8',        // Color for mouseover 
+            tRot270Coll = paper.set(),
+            uColl = paper.set(),
             rectAttr = {                // Attributes for the "background-square" of buttons.
-                fill: defColor, 
+                fill: this.defColor, 
                 stroke: '#3B4449', 
                 'stroke-width': 1, 
             },
@@ -277,113 +270,120 @@ Options.prototype.initDraw = function () {
                 stroke: 'black',
                 'stroke-width': 1,
             },
-            temp;                       // Used for shorter writing of width-variables
-
-    // Set backgroundcolor of the options-container canvas.
-    paper.canvas.style.backgroundColor = '#D6D6D6';
+                     
 
     // Head-text on top of the buttons:
     tabTxt = paper.text(width/2, 10, "Ferdiglagde rom").attr({
         'font-size': 14
-    })
+    }),
 
-    // Create the button used when creating a predefined rectangular room.
-    buttonRect = paper.rect(width/8, height/20, width/4, width/4, 0).attr(rectAttr);
-    temp = buttonRect.attrs.width;
-    // Drawing a rectangle on the button.
-    rectImg = paper.rect((width*(3/16)), ((height/20)+temp/4), temp/2, temp/2, 0).attr(imgAttr);
+    // All buttons is created the same way, with a square behind a illustration of the room-shape.
+    buttonRect = paper.rect(width/8, height/20, width/4, width/4, 0).attr(rectAttr),
+    temp = buttonRect.attrs.width,          // Used for shorter writing of width-variable
+    rectImg = paper.rect((width*(3/16)), ((height/20)+temp/4), temp/2, temp/2, 0).attr(imgAttr),
 
-    this.createHandlers(rectColl.push(buttonRect, rectImg), 0);
 
-    buttonT = paper.rect(width/8, (height*(3/20)), width/4, width/4, 0).attr(rectAttr);
-    // Drawing a T on the button.
+    buttonT = paper.rect(width/8, (height*(3/20)), width/4, width/4, 0).attr(rectAttr),
     tImg = paper.path('M'+(width*(3/16))+' '+((height*(3/20))+temp/4)+'L'+((width*(3/16))+(temp/2))+' '+((height*(3/20))+temp/4)+
             ' L'+((width*(3/16))+(temp/2))+' '+((height*(3/20))+temp/2)+' L'+((width*(3/16))+(temp/3))+' '+((height*(3/20))+temp/2)+
             ' L'+((width*(3/16))+(temp/3))+' '+((height*(3/20))+(temp*(3/4)))+' L'+((width*(3/16))+(temp/6))+' '+((height*(3/20))+(temp*(3/4)))+
             ' L'+((width*(3/16))+(temp/6))+' '+((height*(3/20))+temp/2)+' L'+(width*(3/16))+' '+((height*(3/20))+temp/2)+
-            ' L'+(width*(3/16))+' '+((height*(3/20))+temp/4)).attr(imgAttr);
+            ' L'+(width*(3/16))+' '+((height*(3/20))+temp/4)).attr(imgAttr),
 
 
-    //title: "Ferdiglaget T-formet rom",
-    this.createHandlers(tColl.push(buttonT, tImg), 2);
-
-    buttonL = paper.rect((width*(5/8)), height/20, width/4, width/4, 0).attr(rectAttr);
+    buttonL = paper.rect((width*(5/8)), height/20, width/4, width/4, 0).attr(rectAttr),
     lImg = paper.path('M'+(width*(11/16))+' '+((height/20)+temp/4)+' L'+((width*(11/16))+temp/4)+' '+((height/20)+temp/4)+
             ' L'+((width*(11/16))+temp/4)+' '+((height/20)+temp/2)+' L'+((width*(11/16))+temp/2)+' '+((height/20)+temp/2)+
             ' L'+((width*(11/16))+temp/2)+' '+((height/20)+(temp*3/4))+' L'+(width*(11/16))+' '+((height/20)+(temp*3/4))+
-            ' L'+(width*(11/16))+' '+((height/20)+temp/4)).attr(imgAttr);
+            ' L'+(width*(11/16))+' '+((height/20)+temp/4)).attr(imgAttr),
 
-    
-    // title: "Ferdiglaget L-formet rom",
-    this.createHandlers(lColl.push(buttonL, lImg), 1);
 
-    lInv = paper.rect((width*(5/8)), (height*(3/20)), width/4, width/4, 0).attr(rectAttr);
+    lInv = paper.rect((width*(5/8)), (height*(3/20)), width/4, width/4, 0).attr(rectAttr),
     lInvImg = paper.path('M'+((width*(11/16))+temp/4)+' '+((height*(3/20))+temp/4)+' L'+((width*(11/16))+temp/2)+' '+((height*(3/20))+temp/4)+
                 ' L'+((width*(11/16))+temp/2)+' '+((height*(3/20))+(temp*(3/4)))+' L'+(width*(11/16))+' '+((height*(3/20))+(temp*(3/4)))+
                 ' L'+(width*(11/16))+' '+((height*(3/20))+temp/2)+' L'+((width*(11/16))+temp/4)+' '+((height*(3/20))+temp/2)+
-                ' L'+((width*(11/16))+temp/4)+' '+((height*(3/20))+temp/4)).attr(imgAttr);
+                ' L'+((width*(11/16))+temp/4)+' '+((height*(3/20))+temp/4)).attr(imgAttr),
 
     
-    // title: "Ferdiglaget invertert L-rom",
-    this.createHandlers(lInvColl.push(lInv, lInvImg), 5);
-
-    lRot180 = paper.rect((width*(5/8)), (height*(5/20)), width/4, width/4, 0).attr(rectAttr);
+    lRot180 = paper.rect((width*(5/8)), (height*(5/20)), width/4, width/4, 0).attr(rectAttr),
     lRot180Img = paper.path('M'+(width*(11/16))+' '+((height*(5/20))+temp/4)+' L'+((width*(11/16))+(temp/2))+' '+((height*(5/20))+temp/4)+
                 ' L'+((width*(11/16))+(temp/2))+' '+((height*(5/20))+(temp*(3/4)))+' L'+((width*(11/16))+temp/4)+' '+((height*(5/20))+(temp*(3/4)))+
                 ' L'+((width*(11/16))+temp/4)+' '+((height*(5/20))+temp/2)+' L'+(width*(11/16))+' '+((height*(5/20))+temp/2)+
-                ' L'+(width*(11/16))+' '+((height*(5/20))+temp/4)).attr(imgAttr);
+                ' L'+(width*(11/16))+' '+((height*(5/20))+temp/4)).attr(imgAttr),
 
-
-    // title: "Ferdiglaget L-rom"
-    this.createHandlers(lRot180Coll.push(lRot180, lRot180Img), 4);
-
-    lRot270 = paper.rect((width*(5/8)), (height*(7/20)), width/4, width/4, 0).attr(rectAttr);
+    
+    lRot270 = paper.rect((width*(5/8)), (height*(7/20)), width/4, width/4, 0).attr(rectAttr),
     lRot270Img = paper.path('M'+(width*(11/16))+' '+((height*(7/20))+temp/4)+' L'+((width*(11/16))+(temp/2))+' '+((height*(7/20))+temp/4)+
                 ' L'+((width*(11/16))+(temp/2))+' '+((height*(7/20))+temp/2)+' L'+((width*(11/16))+temp/4)+' '+((height*(7/20))+temp/2)+
                 ' L'+((width*(11/16))+temp/4)+' '+((height*(7/20))+(temp*(3/4)))+' L'+(width*(11/16))+' '+((height*(7/20))+(temp*(3/4)))+
-                ' L'+(width*(11/16))+' '+((height*(7/20))+temp/4)).attr(imgAttr);
+                ' L'+(width*(11/16))+' '+((height*(7/20))+temp/4)).attr(imgAttr),
 
     
-    // title: "Ferdiglaget L-rom"
-    this.createHandlers(lRot270Coll.push(lRot270, lRot270Img), 3);
-
-    tRot90 = paper.rect(width/8, (height*(5/20)), width/4, width/4, 0).attr(rectAttr);
+    tRot90 = paper.rect(width/8, (height*(5/20)), width/4, width/4, 0).attr(rectAttr),
     tRot90Img = paper.path('M'+((width*(3/16))+temp/4)+' '+((height*(5/20))+temp/4)+' L'+((width*(3/16))+temp/2)+' '+((height*(5/20))+temp/4)+
                 ' L'+((width*(3/16))+temp/2)+' '+((height*(5/20))+(temp*(3/4)))+' L'+((width*(3/16))+temp/4)+' '+((height*(5/20))+(temp*(3/4)))+
                 ' L'+((width*(3/16))+temp/4)+' '+((height*(5/20))+(temp*(7/12)))+' L'+(width*(3/16))+' '+((height*(5/20))+(temp*(7/12)))+
                 ' L'+(width*(3/16))+' '+((height*(5/20))+temp*(5/12))+' L'+(width*(3/16)+temp/4)+' '+((height*(5/20))+temp*(5/12))+
-                ' L'+((width*(3/16))+temp/4)+' '+((height*(5/20))+temp/4)).attr(imgAttr);
+                ' L'+((width*(3/16))+temp/4)+' '+((height*(5/20))+temp/4)).attr(imgAttr),
 
-    this.createHandlers(tRot90Coll.push(tRot90, tRot90Img), 6);
-
-
-/* TODO: WOrking on this upside-down T:
-    tRot180 = paper.rect(width/8, (height*(7/20)), width/4, width/4, 0).attr(rectAttr);
-
-    tRot180Img = paper.path('M'+((width*(3/16))+(temp/6))+' '+((height*(7/20))+temp/4)+' L'+((width*(3/16))+(temp/3))+' '+((height*(7/20))+temp/4)+
-                ' L'+((width*(3/16))+(temp/3))+' '+((height*(7/20))+temp/2)+' L'+((width*(3/16))+temp/2)+' '+((height*(7/20))+(temp*(1/2)))+
+    
+    tRot180 =  paper.rect(width/8, (height*(7/20)), width/4, width/4, 0).attr(rectAttr),
+    tRot180Img = paper.path('M'+((width*(3/16))+temp/6)+' '+((height*(7/20))+temp/4)+' L'+((width*(3/16))+temp/3)+' '+((height*(7/20))+temp/4)+
+                ' L'+((width*(3/16))+temp/3)+' '+((height*(7/20))+temp/2)+' L'+((width*(3/16))+temp/2)+' '+((height*(7/20))+(temp*(1/2)))+
                 ' L'+((width*(3/16))+temp/2)+' '+((height*(7/20))+(temp*(3/4)))+' L'+(width*(3/16))+' '+((height*(7/20))+(temp*(3/4)))+
-                ' L'+).attr(imgAttr);
-*/
+                ' L'+(width*(3/16))+' '+((height*(7/20))+(temp*(1/2)))+' L'+((width*(3/16))+temp/6)+' '+((height*(7/20))+(temp*(1/2)))+
+                ' L'+((width*(3/16))+temp/6)+' '+((height*(7/20))+temp/4)).attr(imgAttr),
+
+    
+    tRot270 = paper.rect(width/8, (height*(9/20)), width/4, width/4, 0).attr(rectAttr),
+    tRot270Img = paper.path('M'+(width*(3/16))+' '+((height*(9/20))+temp/4)+' L'+((width*(3/16))+temp/4)+' '+((height*(9/20))+temp/4)+
+                ' L'+((width*(3/16))+temp/4)+' '+((height*(9/20))+(temp*(5/12)))+' L'+((width*(3/16))+temp/2)+' '+((height*(9/20))+(temp*(5/12)))+
+                ' L'+((width*(3/16))+temp/2)+' '+((height*(9/20))+(temp*(7/12)))+' L'+((width*(3/16))+temp/4)+' '+((height*(9/20))+(temp*(7/12)))+
+                ' L'+((width*(3/16))+temp/4)+' '+((height*(9/20))+(temp*(3/4)))+' L'+(width*(3/16))+' '+((height*(9/20))+(temp*(3/4)))+
+                ' L'+(width*(3/16))+' '+((height*(9/20))+temp/4)).attr(imgAttr),
+
+    
+    buttonU = paper.rect((width*(5/8)), (height*(9/20)), width/4, width/4, 0).attr(rectAttr),
+    uImg = paper.path('M'+(width*(11/16))+' '+((height*(9/20))+temp/4)+' L'+((width*(11/16))+(temp/6))+' '+((height*(9/20))+temp/4)+
+                ' L'+((width*(11/16))+(temp/6))+' '+((height*(9/20))+temp/2)+' L'+((width*(11/16))+temp/3)+' '+((height*(9/20))+temp/2)+
+                ' L'+((width*(11/16))+temp/3)+' '+((height*(9/20))+temp/4)+' L'+((width*(11/16))+temp/2)+' '+((height*(9/20))+temp/4)+
+                ' L'+((width*(11/16))+temp/2)+' '+((height*(9/20))+(temp*(3/4)))+' L'+(width*(11/16))+' '+((height*(9/20))+(temp*(3/4)))+
+                ' L'+(width*(11/16))+' '+((height*(9/20))+temp/4)).attr(imgAttr);
+
+    // Set backgroundcolor of the options-container canvas.
+    paper.canvas.style.backgroundColor = '#D6D6D6';
+
+    // Create handlers and stuff for all the 'buttons'.
+    this.createHandlers(rectColl.push(buttonRect, rectImg), 0, "Ferdiglaget kvadratisk rom");
+    this.createHandlers(tColl.push(buttonT, tImg), 2, "Ferdiglaget T-formet rom");
+    this.createHandlers(lColl.push(buttonL, lImg), 1,"Ferdiglaget L-formet rom");
+    this.createHandlers(lInvColl.push(lInv, lInvImg), 5, "Ferdiglaget invertert L-rom");
+    this.createHandlers(lRot180Coll.push(lRot180, lRot180Img), 4, "Ferdiglaget L-rom");
+    this.createHandlers(lRot270Coll.push(lRot270, lRot270Img), 3, "Ferdiglaget L-rom");
+    this.createHandlers(tRot90Coll.push(tRot90, tRot90Img), 6, "Ferdiglaget T-rom");
+    this.createHandlers(tRot180Coll.push(tRot180, tRot180Img), 7, "Ferdiglaget T-rom");
+    this.createHandlers(tRot270Coll.push(tRot270, tRot270Img), 8, "Ferdiglaget T-rom");
+    this.createHandlers(uColl.push(buttonU, uImg), 9, "Ferdiglaget U-rom");
 }
 
 /**
  * This function add the mouse-handlers for all the 'premade-room'-buttons.
  * @param Coll - A set, containing the rectangular button and the image upon it.
  * @param val - An int, that says what roomtype to be sent to the 'createRoom' function.
+ * @param toolTip - A string, that is used to set the tooltip(title) of each button.
 **/
+Options.prototype.createHandlers = function(coll, val, toolTip) {
+    var defColor = this.defColor,
+        inColor = this.inColor;
 
-Options.prototype.createHandlers = function(Coll, val) {
-    var defColor = '#6D8383',       // Default color.
-        inColor = '#d8d8d8';        // Color for mouseover 
-
-    Coll.attr({
+    coll.attr({
         cursor: 'pointer',
+        title: toolTip
     }).hover(function () {
         // Set attributes on hover.
-        Coll[0].attr('fill', inColor);
+        coll[0].attr('fill', inColor);
     }, function () {
-        Coll[0].attr('fill', defColor);
+        coll[0].attr('fill', defColor);
 
     }).mouseup(function () {
         ourRoom.createRoom(new PreDefRoom(val));
@@ -393,6 +393,10 @@ Options.prototype.createHandlers = function(Coll, val) {
 
 /**
  * Function that holds the shapes and wall-lengths of 'predefined' rooms.
+ * All drawing will be done clockwise and will follow the angle-axis predefined. 
+ * (180 is straight to the right, 270 is downwards etc.).
+ * The first array contain the angles, and the second array contain the length of the wall.
+ *
 **/
 function PreDefRoom (value) {
 
@@ -415,6 +419,8 @@ function PreDefRoom (value) {
             return tRot180 = [[180, 270, 180, 270, 360, 90, 180, 90], [150, 250, 150, 150, 450, 150, 150, 250]];    //T-shape rotated 180 degrees.
         case 8:
             return tRot270 = [[180, 270, 180, 270, 360, 270, 360, 90], [150, 150, 250, 150, 250, 150, 150, 450]];   //T-shape rotated 270 degrees.
+        case 9:
+            return u = [[180, 270, 180, 90, 180, 270, 360, 90],[150, 200, 200, 200, 150, 350, 500, 350]];           //U-shaped room
     }
 }
 
