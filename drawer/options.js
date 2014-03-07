@@ -127,6 +127,8 @@ Options.prototype.initSpecs = function() {
 
     paper.canvas.style.backgroundColor = '#999999';
 
+    this.guiElements.push(this.createHeader('Legg til hindring'));
+
 }
 
 /**
@@ -140,23 +142,30 @@ Options.prototype.initObstacles = function() {
         hoverColor = "#d8d8d8";
 
     // adds gui elements to its set.
-    guiSet.push(this.createHeader('Til ettertanke'));
+    guiSet.push(this.createHeader('Velg valg'));
+
+    
 
     // mouse action
     // TODO: Add enter action?
+  
+/*
     guiSet.attr({
         cursor: 'pointer',
     }).mouseover(function(e) {
-        rect.attr('fill', hoverColor);
+        console.log(this.prev[0]);
+        this.prev[0].attr('fill', hoverColor);
 
     }).mouseout(function(e) {
-        rect.attr('fill', hoverColor);
+        this.prev[0].attr('fill', hoverColor);
 
     }).mouseup(function(e) {
         
-        obstacles.typeHandler(1);
-    });
+        console.log(guiSet);
 
+        //obstacles.typeHandler(1);
+    });
+*/
 
     // Putting the elements in the gui element set?
     this.guiElements.push(guiSet);
@@ -285,6 +294,8 @@ Options.prototype.initDraw = function () {
                      
 
     // Head-text on top of the buttons:
+  
+
     tabTxt = paper.text(width/2, 10, "Ferdiglagde rom").attr({
         'font-size': 14
     }),
