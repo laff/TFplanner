@@ -73,6 +73,51 @@ Options.prototype.showOptions = function(tab) {
     }
 }
 
+
+/**
+ *  Function that creates a header.
+ *  It is supposed to position a header perfectly within the options_container.
+ *  
+ *  @params:
+ *      - yPos : The distance from the top. Makes it easy to position header.
+ *      - text : The header text.
+**/
+Options.prototype.createHeader = function(text, yPos) {
+
+    var paper = this.optPaper,
+        paperW = paper.width,
+        paperH = paper.height,
+        offsetX = (paperW * 0.1),
+        offsetY = (paperH * 0.05) + (yPos != null ? yPos : 0),
+        rectWidth = (paperW * 0.8),
+        rectHeight = (paperH * 0.05),
+        text,
+        rect;
+    
+    // Create the button used when creating a predefined rectangular room.
+    rect = paper.rect(offsetX, offsetY, rectWidth, rectHeight).attr({
+        fill: 'gray',
+        'stroke-width': 0
+    });
+
+    // Getting the rectangle variables
+    var attrs = rect.attrs,
+        rectX = attrs.x,
+        rectY = attrs.y,
+        rectW = attrs.width,
+        rectH = attrs.height,
+        fontSize = Math.pow((rectH * rectW), 0.3);
+
+    //Head-text on top of the buttons:
+    text = paper.text((rectX + (rectW / 2)), (rectY + (rectH / 2)), text).attr({
+        'font-size': fontSize
+    })
+
+
+    return (rect, text);
+
+}
+
 /**
  *  Set up specifications
  *
@@ -82,72 +127,48 @@ Options.prototype.initSpecs = function() {
 
     paper.canvas.style.backgroundColor = '#999999';
 
+    this.guiElements.push(this.createHeader('Legg til hindring'));
+
 }
 
 /**
- *  
+ *  Set up Obstacles
  *
 **/
 Options.prototype.initObstacles = function() {
     var paper = this.optPaper,
-        rectWidth = 45,
-        rectHeight = 20,
-        guiOffset = 20,
-        parentWidth,
-        parentHeight,
-        tabTxt,
-        drainRect,
-        drainImg,
-        drainColl = paper.set();
+        guiSet = paper.set(),
+        background = paper.canvas.style.backgroundColor = '#BDBDBD',
+        hoverColor = "#d8d8d8";
 
-    paper.canvas.style.backgroundColor = '#BDBDBD';
+    // adds gui elements to its set.
+    guiSet.push(this.createHeader('Velg valg'));
 
+    
 
-
-        //Head-text on top of the buttons:
-    drainTxt = paper.text(paper.width/2, 10, "Ferdiglagde rom").attr({
-        'font-size': 14
-    })
-
-
-        // Create the button used when creating a predefined rectangular room.
-    drainRect = paper.rect(guiOffset, guiOffset, (guiOffset + rectWidth), (guiOffset + rectHeight), 0).attr({
-        fill: '#6d8383',
-        stroke: '#3B4449',
-        'stroke-width': 1,
-        title: "Legg til et avl"+String.fromCharCode(248)+"p."
-    });
-
-    parentWidth = drainRect.attrs.width;
-    parentHeight = drainRect.attrs.height;
-
-    // Drawing a rectangle on the button.
-    drainImg = paper.circle((guiOffset + (parentWidth / 2)), (guiOffset + (parentHeight / 2)), 10).attr({
-        fill: '#fafdd5',
-        stroke: 'black',
-        'stroke-width': 1,
-        title: "Legg til et avl"+String.fromCharCode(248)+"p."
-    });
-
-    // Adds the rectangle-button to a set, and add mousehandlers to the button.
-    drainColl.push(drainRect, drainImg);
-
-    drainColl.attr({
+    // mouse action
+    // TODO: Add enter action?
+  
+/*
+    guiSet.attr({
         cursor: 'pointer',
     }).mouseover(function(e) {
-        drainRect.attr('fill', '#d8d8d8');
+        console.log(this.prev[0]);
+        this.prev[0].attr('fill', hoverColor);
 
     }).mouseout(function(e) {
-        drainRect.attr('fill', '#6d8383');
+        this.prev[0].attr('fill', hoverColor);
 
     }).mouseup(function(e) {
         
-        console.log("create drain");
-    });
+        console.log(guiSet);
 
+        //obstacles.typeHandler(1);
+    });
+*/
 
     // Putting the elements in the gui element set?
-    this.guiElements.push(drainColl);
+    this.guiElements.push(guiSet);
 
 }
 
@@ -273,6 +294,8 @@ Options.prototype.initDraw = function () {
                      
 
     // Head-text on top of the buttons:
+  
+
     tabTxt = paper.text(width/2, 10, "Ferdiglagde rom").attr({
         'font-size': 14
     }),
