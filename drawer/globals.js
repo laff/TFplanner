@@ -4,6 +4,7 @@ var grid,
     measurement,
     ourRoom,
     options,
+    obstacles,
     finishedRoom = null,
     scrollBox,
     headmenu,
@@ -29,6 +30,7 @@ $(document).ready(function() {
     footmenu = new FootMenu();
     options = new Options();
 
+    obstacles = new Obstacles();
 
 
 
