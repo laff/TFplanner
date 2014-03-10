@@ -403,7 +403,7 @@ function PreDefRoom (value) {
 
     switch(value) {
         case 0:
-            return rectArr = [[180, 270, 360, 90],[300, 200, 300, 200]];                                            //Rectangle-shaped
+            return rectArr = [[180, 270, 360, 90],[500, 400, 500, 400]];                                            //Rectangle-shaped
         case 1:
             return lArr = [[180, 270, 180, 270, 360, 90],[200, 200, 200, 150, 400, 350]];                           //L-shaped
         case 2:
