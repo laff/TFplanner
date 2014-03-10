@@ -5,144 +5,87 @@ function Tabs() {
 	this.room = this.tabPaper.set();
 	this.obst = this.tabPaper.set();
 	this.spec = this.tabPaper.set();
+	this.roomColor = '#D6D6D6';
+	this.obstColor = '#BDBDBD';
+	this.specColor = '#999999';
 
 	this.initTabs();
-
 }
 
 /**
- * Creating SVG-paths for the three vertical tabs, and adding text to them + mousehandlers.
- * OBS: This function should maybe be splitted? Lot of duplication for setting the handlers etc.
+ * Creating SVG-paths for the three vertical tabs, and adding text to them.
+ * 
 **/
-
 Tabs.prototype.initTabs = function () {
-	var paper = this.tabPaper,
-		rooms,						
-		obstacles, 
-		specs,
-		roomTxt,
-		obstTxt,
-		specTxt,
-		room = this.room,		// Sets for the different tabs
+	var paper = this.tabPaper,					
+		room = this.room,			// Sets for the different tabs
 		obst = this.obst,
 		spec = this.spec,
 		height = paper.height/3,	//Make the tabs fit the size of the paper.
 		width = paper.width,
-		diffHeight = 35;
-		tabs = this;
+		diffHeight = 35,
 
 	rooms = paper.path('M 0 0 L '+width+' 0 L '+width+' '+(height)+' L 0 '+(height+diffHeight)+' L 0 0').attr({
-        fill: '#D6D6D6',
-        stroke: '#D6D6D6',
+        fill: this.roomColor,
+        stroke: this.roomColor,
         'stroke-width': 0
-	});
+	}),
 
 	obstacles = paper.path('M 0 '+(height-diffHeight)+' L '+width+' '+height+' L '+width+' '+height*2+' L 0 '+((height*2)+diffHeight)+' L 0 '+height).attr({
-        fill: '#BDBDBD',
-        stroke: '#BDBDBD',
+        fill: this.obstColor,
+        stroke: this.obstColor,
         'stroke-width': 0
-	});
+	}),
 
 	specs = paper.path('M 0 '+((height*2)-diffHeight)+' L '+width+' '+height*2+' L '+width+' '+height*3+' L 0 '+height*3+' L 0 '+height*2).attr({
-        fill: '#999999',
-        stroke: '#999999',
+        fill: this.specColor,
+        stroke: this.specColor,
         'stroke-width': 0
-	});
+	}),
 
-	roomTxt = paper.text(width/2, height/2, "Tegne rom").attr({
-		'font-size': 20,
-		'fill': '#D6D6D6',
-		'stroke-width': 1,
-		'stroke': 'black',
-		'letter-spacing': 2
-	});
+	roomTxt = paper.text(width/2, height/2, "Tegne rom"),
+	obstTxt = paper.text(width/2, paper.height/2, "Hindringer"),
+	specTxt = paper.text(width/2, (paper.height/2)+height, "Spesifikasjoner");
+
 	roomTxt.rotate(90);
-
-
-	obstTxt = paper.text(width/2, paper.height/2, "Hindringer").attr({
-		'font-size': 20,
-		'fill': '#BDBDBD',
-		'stroke-width': 1,
-		'stroke': 'black',
-		'letter-spacing': 2
-	});
 	obstTxt.rotate(90);
-
-	specTxt = paper.text(width/2, (paper.height/2)+height, "Spesifikasjoner").attr({
-		'font-size': 20,
-		'fill': '#999999',
-		'stroke-width': 1,
-		'stroke': 'black',
-		'letter-spacing': 2
-	});
 	specTxt.rotate(90);
 
-	this.room.push(rooms, roomTxt);
-	this.obst.push(obstacles, obstTxt);
-	this.spec.push(specs, specTxt);
-
+	this.createHandlers(this.room.push(rooms, roomTxt), 1, this.roomColor);
+	this.createHandlers(this.obst.push(obstacles, obstTxt), 2, this.obstColor);
+	this.createHandlers(this.spec.push(specs, specTxt), 3, this.specColor);
 
 	// Default select.
 	this.select(1);
+}
 
+/**
+ * Function that set handlers and color-stuff for the tabs.
+ * @param coll - A set of elements that we set the handlers for.
+ * @param val - The tab-number.
+ * @param color - The color for the incoming collection, defined in class.
+**/
+Tabs.prototype.createHandlers = function (coll, val, color) {
 
-	/**
-	 *	Room action!
-	 *
-	**/
-	room.attr({
-        cursor: 'pointer',
+	coll[1].attr({
+		'font-size': 20,
+		'fill': color,
+		'stroke-width': 1,
+		'stroke': 'black',
+		'letter-spacing': 2
+	});
 
-        }).mouseover(function(e) {
-            roomTxt.attr('fill', 'white');
+    coll.attr({
+        cursor: 'pointer'
+    }).hover(function () {
+        // Set attributes on hover.
+        coll[1].attr('fill', 'white');
+    }, function () {
+        coll[1].attr('fill', color);
 
-        }).mouseout(function(e) {
-            roomTxt.attr('fill', '#D6D6D6');
-
-        }).mouseup(function(e) {
-
-        	tabs.select(1);
-
-        	options.showOptions(1);
-        	// We gonna need some action, we gonna need some action soon!
-    });
-
-	/**
-	 *	Obstacle action!
-	 *
-	**/
-	obst.attr({
-        cursor: 'pointer',
-
-        }).mouseover(function(e) {
-            obstTxt.attr('fill', 'white');
-
-        }).mouseout(function(e) {
-            obstTxt.attr('fill', '#BDBDBD');
-
-        }).mouseup(function(e) {
-        	tabs.select(2);
-        	options.showOptions(2);
-        	// We gonna need some action, we gonna need some action soon!
-    });
-
-	/**
-	 *	Specifications action!
-	 *
-	**/
-	spec.attr({
-        cursor: 'pointer',
-
-        }).mouseover(function(e) {
-            specTxt.attr('fill', 'white');
-
-        }).mouseout(function(e) {
-            specTxt.attr('fill', '#999999');
-
-        }).mouseup(function(e) {
-        	tabs.select(3);
-        	options.showOptions(3);
-        	// We gonna need some action, we gonna need some action soon!
+    }).mouseup(function () {
+    	tabs.select(val);
+    	options.showOptions(val);
     });
 }
 

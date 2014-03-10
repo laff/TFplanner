@@ -67,9 +67,23 @@
 }
 
 .roomTab {
-
 	background: #D6D6D6!important;
+}
 
+.obstacleTab {
+	background: #BDBDBD!important;
+}
+
+.obst {
+
+	width: 80%;
+	margin-left: 10%;
+
+}
+
+#change {
+	width: 80%;
+	margin-left: 10%;
 }
 
 #canvas_container {  
@@ -79,7 +93,6 @@
 	min-width: 800px;
 	height: 100%;
 }
-
 
 #navigation_container {
 	
@@ -97,19 +110,23 @@
 	margin-top: 50%;
 }
 
-#define {
+.forms {
 	width: 100%;
-	margin-top: 50%;
+	margin-top: 20%;
 	margin-left: 10%;
 }
 
-#define form {
+.forms form {
 
 	width: 80%;
 }
 
-#define input {
+.forms input {
 	width: 50%;
+}
+
+.forms select {
+	text-align: center;
 }
 
 #defSubmit {
@@ -121,6 +138,10 @@ fucking up everything. GO TO HELL CSS! GO TO HELL! */
 p {
 	margin: 0;
 	padding: 0;
+}
+
+h3 {
+	text-align: center;
 }
 
 span {

@@ -70,7 +70,6 @@ ResultGrid.prototype.findDimension = function() {
     this.offsetY = minY - 49;
     this.width = (maxX - minX);
     this.height = (maxY - minY);
-
     //Finds a scale for final room, used to draw result
     //NOT CURRENTLY USED FOR ANYTHING
     xscale = canvas.width()/this.width,
