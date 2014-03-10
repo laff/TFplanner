@@ -309,3 +309,81 @@ Grid.prototype.getZoomedXY = function(x, y) {
 
     return [x, y];
 }
+
+Grid.prototype.moveRoom = function () {
+
+    var minX = 1000000, 
+        maxX = 0, 
+        minY = 1000000, 
+        maxY = 0, 
+        walls = ourRoom.walls,
+        offsetX,
+        offsetY,
+        xstart,
+        ystart,
+        paper = grid.paper,
+        numberOfWalls = walls.length,
+        path;
+
+    for (var i = 0; i < numberOfWalls; ++i) {
+        //Find largest and smallest X value
+        if ((walls[i].attrs.path[0][1]) > maxX)
+            maxX = walls[i].attrs.path[0][1];
+        if ((walls[i].attrs.path[1][1]) > maxX)
+            maxX = walls[i].attrs.path[1][1];
+        if ((walls[i].attrs.path[0][1]) < minX)
+            minX = walls[i].attrs.path[0][1];
+        if ((walls[i].attrs.path[1][1]) < minX)
+            minX = walls[i].attrs.path[1][1];
+
+        //Find smallest and largest Y value
+        if ((walls[i].attrs.path[0][2]) > maxY)
+            maxY = walls[i].attrs.path[0][2];
+        if ((walls[i].attrs.path[1][2]) > maxY)
+            maxY = walls[i].attrs.path[1][2];
+        if ((walls[i].attrs.path[0][2]) < minY)
+            minY = walls[i].attrs.path[0][2];
+        if ((walls[i].attrs.path[1][2]) < minY)
+            minY = walls[i].attrs.path[1][2];
+    } 
+
+    offsetX = minX - 99;
+    offsetY = minY - 99;
+    xstart = (walls[0].attrs.path[0][1] - offsetX);
+    ystart = (walls[0].attrs.path[0][2] - offsetY);
+    
+    // Move all the walls to new coordinates    
+    for (var i = 0; i < numberOfWalls; ++i) {
+        path = walls[i].attr("path");
+
+        path[0][1] = (walls[i].attrs.path[0][1] - offsetX); 
+        path[0][2] = (walls[i].attrs.path[0][2] - offsetY);
+
+        path[1][1] = (walls[i].attrs.path[1][1] - offsetX); 
+        path[1][2] = (walls[i].attrs.path[1][2] - offsetY); 
+
+        walls[i].attr({path: path});
+    }
+}
+
+/**
+ * Function to save our svg-drawing as a .png file.
+ * Using libraries published at 'https://code.google.com/p/canvg/' under MIT-license.
+**/
+Grid.prototype.save = function () {
+    var paper = this.paper,
+        svg = paper.toSVG();
+
+    //Use canvg-package to draw on a 'not-shown' canvas-element.
+    canvg(document.getElementById('myCanvas'), svg);
+
+    // Used so we are sure that the canvas is fully loaded before .png is generated.
+    setTimeout(function() {
+        // Fetch the dataURL from the 'myCanvas', then force a download of the picture, with a defined filename.
+        var dataURL = document.getElementById('myCanvas').toDataURL("image/png"),
+            a = document.createElement('a');
+            a.href = dataURL;
+            a.download = 'room.png';
+            a.click();
+    }, 100);
+}

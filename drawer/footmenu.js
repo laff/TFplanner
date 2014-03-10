@@ -63,14 +63,25 @@ FootMenu.prototype.initFooter = function () {
         title: 'Nytt rom'
     });
 
-    // Mouseclick-actions must be added separately to each collection, since they vary.
+    // Mouseclick-actions must be added separately to each collection since they vary.
     // Actions for the 'Load'-button.
-    ld.mouseup(function () {
+    ld.mouseup( function () {
         // Load a room from a file
+
+        // OBS: This is functionality we want to execute when the "Hindringer"-tab is pushed.
+        if (ourRoom.finished == true) {
+            grid.moveRoom();
+            measurement.refreshMeasurements();
+            measurement.angMeasurements.hide();
+            finishedRoom.removeHandlers();
+        }
     });
 
     // Actions for the 'Save'-button.
-    sv.mouseup(function(e) {
+    sv.mouseup( function () {
+        // OBS: This is the 'save as image' function-call.
+        // grid.save();
+
     	// Currently for testing
         if (ourRoom.finished == true) {
             grid.paper.clear();
@@ -86,7 +97,7 @@ FootMenu.prototype.initFooter = function () {
     });
 
     // Clear Room and re-iniate so the user can draw a new room.
-   clr.mouseup(function(e) {
+   clr.mouseup( function () {
     	ourRoom.clearRoom();
         options.showOptions(1);
         options.preDefArr = null;
@@ -101,7 +112,7 @@ FootMenu.prototype.setHandlers = function (coll) {
 
     coll.attr({
         cursor: 'pointer',
-    }).hover( function () {
+    }).hover(function () {
         // Set attributes on hover.
         coll[0].attr({
             fill: 'white',
