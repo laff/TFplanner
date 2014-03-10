@@ -15,6 +15,14 @@ function Options(tab) {
 
         // Set containing gui elements we want to clear/store?
         this.guiElements = null;
+
+        this.container = "#content_container";
+
+        this.obstHtml = null;
+
+
+        this.crossO = String.fromCharCode(248);
+        this.dotA = String.fromCharCode(229);
     }
 
 
@@ -24,7 +32,8 @@ function Options(tab) {
 **/
 Options.prototype.showOptions = function(tab) {
 
-    var paper = (this.optPaper != null) ? this.optPaper : null;
+    var paper = (this.optPaper != null) ? this.optPaper : null,
+        container = this.container;
 
     this.optionTab = tab;
 
@@ -39,7 +48,7 @@ Options.prototype.showOptions = function(tab) {
         }
     }
 
-    $('#content_container').empty();
+    $(container).empty();
 
     this.optPaper = Raphael(document.getElementById('content_container'));
 
@@ -127,7 +136,7 @@ Options.prototype.initSpecs = function() {
 
     paper.canvas.style.backgroundColor = '#999999';
 
-    this.guiElements.push(this.createHeader('Legg til hindring'));
+    this.guiElements.push(this.createHeader('Velg valg'));
 
 }
 
@@ -136,40 +145,102 @@ Options.prototype.initSpecs = function() {
  *
 **/
 Options.prototype.initObstacles = function() {
-    var paper = this.optPaper,
-        guiSet = paper.set(),
-        background = paper.canvas.style.backgroundColor = '#BDBDBD',
-        hoverColor = "#d8d8d8";
 
-    // adds gui elements to its set.
-    guiSet.push(this.createHeader('Velg valg'));
+    var container = this.container,
+        html = "",
+        crossO = this.crossO,
+        defSubmit = 'defSubmit',
+        that = this;
 
-    
 
-    // mouse action
-    // TODO: Add enter action?
-  
-/*
-    guiSet.attr({
-        cursor: 'pointer',
-    }).mouseover(function(e) {
-        console.log(this.prev[0]);
-        this.prev[0].attr('fill', hoverColor);
+    // clear current html
+    $(container).html(html);
 
-    }).mouseout(function(e) {
-        this.prev[0].attr('fill', hoverColor);
+    // adding class css.
+    $(container).addClass('obstacleTab');
 
-    }).mouseup(function(e) {
-        
-        console.log(guiSet);
+    // Header
+    html += '<h3> Legg til hindring </h3>';
 
-        //obstacles.typeHandler(1);
+    // Form start
+    html += '<form class=forms>';
+
+    // Select
+    html += "<select id ='obstacleType'><option value=1>Avl"+crossO+"p</option>";
+    html += "<option value=2>Toalett</option>";
+    html += "<option value=3>Dusj</option>";
+    html += "<option value=4>Badekar</option></select>";
+
+    // input button
+    html += "<input id="+defSubmit+" type='button' value='legg til'>";
+
+    // Form end
+    html += '</form>';
+
+
+    // insert html
+    $(container).html(html);
+
+    this.obstHtml = html;
+
+    this.obstacleList();
+
+    // Add click action for the "submit button".
+    $('#'+defSubmit).click(function() {
+
+        // Creating obstacle.
+        obstacles.createObstacle($('#obstacleType').val());
+
+        // Creating / refreshing list of obstacles.
+        that.initObstacles();
     });
-*/
 
-    // Putting the elements in the gui element set?
-    this.guiElements.push(guiSet);
+}
 
+/**
+ *  Function that either refreshes or creates a list of obstacles.
+ *  Gets the html set in initObstacles (passed through function).
+**/
+Options.prototype.obstacleList = function(obstacle) {
+
+    var obstacleArr = obstacles.obstacleSet,
+        obstacleLength = obstacleArr.length,
+        html = (html != null) ? html : this.obstHtml;
+        change = 'Endre',
+        save = 'Lagre',
+        container = this.container,
+        crossO = this.crossO;
+
+    for (var i = 0; i < obstacleLength; i++) {
+
+        html += "<div class=obst>Hindring "+(i + 1)+": <input id="+i+" class='change' type='button' value="+change+"></div>";
+
+        if (obstacle == i) {
+            var width = obstacleArr[i].attrs.width,
+                height = obstacleArr[i].attrs.height;
+
+            html += "<div id=change class='roomTab'>H"+crossO+"yde: <input  type='number' id='height' value="+height+"><br>";
+            html += "Bredde: <input  type='number' id='width' value="+width+">";
+            html += "<input id=changeObst name="+i+" type='button' value="+save+"></div>";
+        }
+    }
+
+    $(container).html("");
+    $(container).html(html);
+
+    // Add click action for the "submit button".
+    $('.change').click(function() {
+
+        options.obstacleList(this.id);
+
+    });
+
+    // Add click action for the "submit button".
+    $('#changeObst').click(function() {
+
+        obstacles.adjustSize(this.name, $('#width').val(), $('#height').val());
+
+    });
 }
 
 
@@ -180,21 +251,23 @@ Options.prototype.initObstacles = function() {
 Options.prototype.initDefine = function () {
     
     var preDefArr = this.preDefArr,
-        container = "#content_container",
+        container = this.container,
         defSubmit = 'defSubmit',
         wallsLength = (preDefArr != null) ? (preDefArr[1].length - 1) : null,
         // Starting with a clean slate @ the html variable.
-        html = "";
+        html = "",
+        dotA = this.dotA;
 
     // Removing the svg paper and adding room class for background color
     this.optPaper.remove();
     $(container).addClass('roomTab');
 
+    html += '<h3> Egendefiner m'+dotA+'l </h3>';
 
     // If preDef is assigned, list the walls and let the user input stuff, YO.
     if (preDefArr != null) {
 
-        html += '<form id=define>';
+        html += '<form class=forms>';
 
         for (var i = 0; i < wallsLength; i++) {
             
