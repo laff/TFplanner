@@ -116,7 +116,7 @@ FinishedRoom.prototype.clickableWall = function(prev, current, next) {
         // Changing values of the wall 'after' our target-wall.
         pathArray3[0][1] -= diffx;
         pathArray3[0][2] -= diffy;
-
+        
         // Updating the attributes of the three walls, so they are redrawn as they are dragged.
         prevWall.attr({path: pathArray1});
         thisWall.attr({path: pathArray2});
@@ -149,7 +149,11 @@ FinishedRoom.prototype.setHandlers = function() {
     // Looping through the set of walls, and adding handlers to all of them.
     walls.forEach(function(element) {
 
-         element.mouseover(function() {
+        element.mousedown(function() {
+            room.clickableWalls(this);
+        });
+
+        element.hover(function () {
             // Do not visualize the mouseovered wall, if an other wall or corner is targeted.
             if (room.handle == null && ourRoom.tmpCircle == null && room.pathHandle == null) {
                 room.hoverWall = true;
@@ -159,15 +163,9 @@ FinishedRoom.prototype.setHandlers = function() {
                     'stroke-opacity': 0.5,
                     'stroke-linecap': "butt",
                     cursor: "pointer"      
-                })
+                });
             }
-        })
-
-        element.mousedown(function() {
-            room.clickableWalls(this);
-        })
-    
-        element.mouseout(function() {
+        }, function () {
             room.hoverWall = null;
             this.attr({
                 stroke: "#2F4F4F",
@@ -175,9 +173,29 @@ FinishedRoom.prototype.setHandlers = function() {
                 'stroke-linecap': "square",
                 'stroke-opacity': 1,
                 cursor: "default"
-            })
-        })
+            });
+        });
     })
+}
+
+/**
+ * Function to disable/remove all handlers for a finished room. 
+ * Dragging and stuff will not be possible after this function is executed.
+**/
+FinishedRoom.prototype.removeHandlers = function () {
+    var walls = this.walls;
+
+    // Looping through the set of walls, and unbind all the handlers.
+    walls.forEach(function(element) {
+        element.unmousedown();
+        element.unhover();
+    })
+
+    // And removing handlers for the corner-dragging.
+    $('#canvas_container').unbind('mousedown');
+    $('#canvas_container').unbind('mousemove');
+
+    this.nullify();
 }
 
 /**

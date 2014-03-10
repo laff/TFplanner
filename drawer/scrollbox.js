@@ -62,33 +62,33 @@ function ScrollBox() {
 	//The preventDefault bits prevents on-screen text from
 	// being highlighted due to mouse (double)clicks
 	frame.mousedown(function(e){
-		event.preventDefault();
+		e.preventDefault();
 	});
 	innerFrame.mousedown(function(e) {
-		event.preventDefault();
+		e.preventDefault();
 	});
 	up.mousedown(function(e) {
-        event.preventDefault();
+        e.preventDefault();
 		grid.pan(38);
 	});
 	down.mousedown(function(e) {
-		event.preventDefault();
+		e.preventDefault();
 		grid.pan(40);
 	});
 	left.mousedown(function(e) {
-		event.preventDefault();
+		e.preventDefault();
 		grid.pan(37);
 	});
 	right.mousedown(function(e) {
-		event.preventDefault();
+		e.preventDefault();
 		grid.pan(39);
 	});
 	zoom.mousedown(function(e) {
-		event.preventDefault();
+		e.preventDefault();
 		grid.handle(1);
 	});
 	out.mousedown(function(e) {
-		event.preventDefault();
+		e.preventDefault();
 		grid.handle(-1);
 	});
 	

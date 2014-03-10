@@ -3,6 +3,8 @@ function Measurement () {
     this.measurements = grid.paper.set();
     this.measurementValues = [];
     this.tmpMeasurements = grid.paper.set();
+    this.angMeasurements = grid.paper.set();
+    
     this.inverted = null;
 }
 
@@ -24,6 +26,7 @@ Measurement.prototype.refreshMeasurements = function () {
 
     measurementValues.length = 0;
     this.measurements.remove();
+    this.angMeasurements.remove();
 
     this.inverted = null;
     
@@ -167,7 +170,7 @@ Measurement.prototype.angleMeasurement = function (index, overload) {
     if (overload != null) {
         this.tmpMeasurements.push(halfCircle, hc);
     } else {
-        this.measurements.push(halfCircle, hc);
+        this.angMeasurements.push(halfCircle, hc);
     }
 
     // return angle for our measurementValues array.
@@ -179,7 +182,6 @@ Measurement.prototype.angleMeasurement = function (index, overload) {
  * Function that creates a graphical representation of the walls length
  *
 **/
-
 Measurement.prototype.lengthMeasurement = function (wall) {
 
     var startP1 = wall.attrs.path[0],
@@ -214,15 +216,10 @@ Measurement.prototype.lengthMeasurement = function (wall) {
         angle2 = 270;
     }
 
-
-
     var transform1 = "r"+angle1+","+startP1[1]+","+startP1[2],
         transformedPath = Raphael.transformPath(m1.attr('path'), transform1);
 
-
-
     this.startLine(transformedPath[1][3], transformedPath[1][4]);
-
 
     transform1 = "r"+angle2+","+startP2[1]+","+startP2[2];
     transformedPath = Raphael.transformPath(m2.attr('path'), transform1);
