@@ -62,11 +62,12 @@ Obstacles.prototype.createObstacle = function (num) {
 	}
 
 
-	this.updateXY();
+	//this.updateXY();
 
 	// Variables related to positioning declared first.
-	var x = this.xPos,
-		y = this.yPos,
+	var x = 100,
+		y = 100,
+
 
 	// Paper shortcut
 		paper = this.paper,
@@ -75,9 +76,9 @@ Obstacles.prototype.createObstacle = function (num) {
 			fill: '#E73029',
 			'fill-opacity': 0.4,
 	        'stroke-opacity': 0.4
-		}),
+		});
 
-	start = function() {
+	var start = function() {
 		this.ox = this.attr("x");
 		this.oy = this.attr("y");
 
@@ -86,7 +87,7 @@ Obstacles.prototype.createObstacle = function (num) {
 
 	move = function(dx, dy) {
 
-		var xy = grid.getZoomedXY(dx, dy),
+		var xy = grid.getZoomedXY(dx, dy, true),
 			newx = this.ox + xy[0],
 			newy = this.oy + xy[1];
 

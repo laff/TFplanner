@@ -278,7 +278,8 @@ Grid.prototype.pan = function(keyCode) {
 }
 
 
-Grid.prototype.getZoomedXY = function(x, y) {
+Grid.prototype.getZoomedXY = function(x, y, not) {
+
     var paper = grid.paper,
 
         // Starting height and width
@@ -298,14 +299,19 @@ Grid.prototype.getZoomedXY = function(x, y) {
 
     if (sH != oH && sW != oW) {
 
-        ratio = (sH / oH).toFixed(5);
+        ratio = (sH / oH);
 
         x *= ratio;
         y *= ratio;
+
     }
 
-    x += vX;
-    y += vY;
+    if (!not) {
+        x += vX;
+        y += vY;
+    }
+
+
 
     return [x, y];
 }
