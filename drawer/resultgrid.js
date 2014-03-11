@@ -1,22 +1,25 @@
-//Constructor for the result display
-function ResultGrid() {
-    this.size = 5;
-    this.height = 0;
-    this.width = 0;
-    this.offsetX = 0;
-    this.offsetY = 0;
-    this.scale = 1;
-    this.paper = Raphael(document.getElementById('canvas_container'));
+/**
+ * Constructor for the result display
+ * @param pathString - The room presented as ONE path.
+**/ 
+function ResultGrid(pathString) {
+    //this.size = 5;
+    this.height = grid.resHeight;
+    this.width = grid.resWidth;
+    //this.offsetX = 0;
+    //this.offsetY = 0;
+    //this.scale = 1;
+    this.paper = grid.paper; //Raphael(document.getElementById('canvas_container'));
     this.squares = [];
     this.area = 0;
     this.unusedArea = 0;
     this.squarewidth = 0;
     this.squareheight= 0;
 
-    this.findDimension();
+    //this.findDimension();
 
     //No scaling of image
-    this.path = this.getWalls(this.offsetX, this.offsetY);
+    this.path = pathString;
 
     this.populateSquares();
     this.moveWalls();
@@ -27,6 +30,10 @@ function ResultGrid() {
     this.findStart();
 }
 
+/*
+OBS: Function(ality) moved to 'grid.js' and is cloned with the 'getWalls'-function, 
+and now appears as 'moveRoom()'. 
+The use of grid`s class-variables for width and height might be a bit dirty!
 
 //Function finds the height and width of the figure, as well as the height
 // and width of the screen. Also sets scale of image based on relation
@@ -47,20 +54,26 @@ ResultGrid.prototype.findDimension = function() {
         //Find largest and smallest X value
         if ( (walls[i].attrs.path[0][1]) > maxX )
             maxX = walls[i].attrs.path[0][1];
+
         if ( (walls[i].attrs.path[1][1]) > maxX)
             maxX = walls[i].attrs.path[1][1];
+
         if ( (walls[i].attrs.path[0][1]) < minX )
             minX = walls[i].attrs.path[0][1];
+
         if ( (walls[i].attrs.path[1][1]) < minX )
             minX = walls[i].attrs.path[1][1];
 
         //Find smallest and largest Y value
         if ( (walls[i].attrs.path[0][2]) > maxY )
             maxY = walls[i].attrs.path[0][2];
+
         if ( (walls[i].attrs.path[1][2]) > maxY )
             maxY = walls[i].attrs.path[1][2];
+
         if ( (walls[i].attrs.path[0][2]) < minY )
             minY = walls[i].attrs.path[0][2];
+
         if ( (walls[i].attrs.path[1][2]) < minY )
             minY = walls[i].attrs.path[1][2];
     } 
@@ -70,24 +83,25 @@ ResultGrid.prototype.findDimension = function() {
     this.offsetY = minY - 49;
     this.width = (maxX - minX);
     this.height = (maxY - minY);
+
     //Finds a scale for final room, used to draw result
     //NOT CURRENTLY USED FOR ANYTHING
     xscale = canvas.width()/this.width,
     yscale = canvas.height()/this.height;
     this.scale = (xscale < yscale)?xscale:yscale;
     this.scale = this.scale.toFixed();
-
   //  this.paper.setViewBox(0, 0, (this.width*this.scale), (this.height*this.scale), true);
 }
-
+*/
 
 
 //Draws a scaled version of the path. VERY UNFINISHED!
+// OBS: Parameters currently not being used!
 ResultGrid.prototype.draw = function(h, w, path) {
-    paper = this.paper;
-    var canvas = $('#canvas_container'), 
-        xscale = canvas.width()/w,
-        yscale = canvas.height()/h,
+    var paper = this.paper,
+        canvas = $('#canvas_container'), 
+        //xscale = canvas.width()/w,
+        //yscale = canvas.height()/h,
         squares = this.squares,
         len = squares.length,
         square,
@@ -109,12 +123,12 @@ ResultGrid.prototype.draw = function(h, w, path) {
             for(var j=0;j<25; ++j) {
                 subsquare = subsquares[j];
                 if (subsquare.hasWall) 
-                        this.squares[i].subsquares[j].rect.attr({
+                    this.squares[i].subsquares[j].rect.attr({
                         'fill': "magenta",
                         'fill-opacity': 0.5
                     });
                 else if (subsquare.insideRoom)
-                        this.squares[i].subsquares[j].rect.attr({
+                    this.squares[i].subsquares[j].rect.attr({
                         'fill': "cyan",
                         'fill-opacity': 0.3
                     });
@@ -125,7 +139,7 @@ ResultGrid.prototype.draw = function(h, w, path) {
                     });
             } 
         } else {
-                this.squares[i].rect.attr({
+            this.squares[i].rect.attr({
                 'fill': "green",
                 'fill-opacity': 0.8
             });
@@ -133,12 +147,12 @@ ResultGrid.prototype.draw = function(h, w, path) {
     }
 }
 
-
+/*
+THIS FUNCTION IS MOVED TO 'grid.js' (named 'moveRoom')
 //Gets wall elements from ourroom and translates to new grid 
 ResultGrid.prototype.getWalls = function (offsetX, offsetY, scale) {
     
-    var scalefactor;
-    (scale!=null)?scalefactor = scale:scalefactor = 1;
+    var scalefactor = (scale != null) ? scale : 1;
 
     var walls = ourRoom.walls,
         paper = this.paper,
@@ -148,20 +162,18 @@ ResultGrid.prototype.getWalls = function (offsetX, offsetY, scale) {
         numberOfWalls = walls.length,
         pathString, 
         tempString,
-        xstart = (walls[0].attrs.path[0][1]- offsetX)*scalefactor, 
-        ystart = (walls[0].attrs.path[0][2]- offsetY)*scalefactor,
-        xcurrent,
+        xstart = (walls[0].attrs.path[0][1]),
+        ystart = (walls[0].attrs.path[0][2]),
         ycurrent,
         path;
 
     pathString = new String("M "+xstart + ", "+ ystart);
 
-    for (var i = 1; i < numberOfWalls; ++i)
-    {
-        xcurrent = (walls[i].attrs.path[0][1]- offsetX)*scalefactor; 
-        ycurrent = (walls[i].attrs.path[0][2]- offsetY)*scalefactor;
+    for (var i = 1; i < numberOfWalls; ++i) {
+        xcurrent = (walls[i].attrs.path[0][1]);
+        ycurrent = (walls[i].attrs.path[0][2]);
 
-        tempString = " L"+xcurrent + ", "+ ycurrent;
+        tempString = " L" + xcurrent + ", " + ycurrent;
         pathString += tempString;
     }
 
@@ -177,6 +189,8 @@ ResultGrid.prototype.getWalls = function (offsetX, offsetY, scale) {
     return pathString;
     //End of getWalls()
 }
+
+*/
 
 //Divides the area into suqares, does wall and obstacle detection
 ResultGrid.prototype.populateSquares = function() {

@@ -3,7 +3,6 @@ function ScrollBox() {
 	var paper = this.paper, 
 		frame = paper.rect(0, 0, 100, 100, 0),
 		innerFrame = paper.rect(26, 26, 48, 48, 0),
-		canvas = $('navigation_container'),
 		up, 
 		down,
 		right,

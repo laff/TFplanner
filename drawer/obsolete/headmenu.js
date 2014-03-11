@@ -57,7 +57,7 @@ HeadMenu.prototype.createHandlers = function (coll, val) {
 
     coll.attr({
         cursor: 'pointer',
-    }).hover(function () {
+    }).hover( function () {
         coll[1].attr({
             'fill': 'white',
             'fill-opacity': 0.6
@@ -67,7 +67,7 @@ HeadMenu.prototype.createHandlers = function (coll, val) {
             'opacity': 1,
             'fill': ""
         });
-    }).mouseup(function(e) {
+    }).mouseup( function () {
         // Show the paper connected to the 'val'-parameter.
         options.showOptions(val);
     });
