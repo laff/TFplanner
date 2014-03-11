@@ -135,7 +135,7 @@ Options.prototype.initSpecs = function() {
 
     paper.canvas.style.backgroundColor = '#999999';
 
-    this.guiElements.push(this.createHeader('Velg valg'));<
+    this.guiElements.push(this.createHeader('Velg valg'));
 }
 
 /**
@@ -179,7 +179,7 @@ Options.prototype.initObstacles = function() {
         html += '</form>';
 
         this.obstHtml = html;
-        this.obstacleList();
+        
 
     } else {
         html = '<p class="error"> You need to draw<br> and finish, or create a<br> predefined room first! </p>';
@@ -187,6 +187,8 @@ Options.prototype.initObstacles = function() {
 
     // insert html
     $(container).html(html);
+
+    this.obstacleList();
 
     // Add click action for the "submit button".
     $('#'+defSubmit).click(function() {
@@ -211,9 +213,12 @@ Options.prototype.obstacleList = function(obstacle) {
         save = 'Lagre',
         container = this.container,
         crossO = this.crossO,
-        html = (html != null) ? html : this.obstHtml;
-
+        html = this.obstHtml;
     
+    if (obstacleLength <= 0) {
+        return;
+    }
+
     for (var i = 0; i < obstacleLength; i++) {
 
         html += "<div class=obst>Hindring "+(i + 1)+": <input id="+i+" class='change' type='button' value="+change+"></div>";
