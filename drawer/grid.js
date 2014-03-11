@@ -10,6 +10,8 @@ function Grid() {
     this.zoom();
     this.viewBoxWidth = this.paper.width;
     this.viewBoxHeight = this.paper.height;
+    this.resWidth = 0;
+    this.resHeight =0;
 }
 
 Grid.prototype.draw = function() {
@@ -316,6 +318,11 @@ Grid.prototype.getZoomedXY = function(x, y, not) {
     return [x, y];
 }
 
+/**
+ * Function used to move the room to coordinates (99,99). This happends when the 'obstacles'-tab is clicked.
+ * The paths of each wall is update, also a string is created, so that the room can be redrawn later as
+ * ONE path.
+**/
 Grid.prototype.moveRoom = function () {
 
     var minX = 1000000, 
@@ -323,42 +330,53 @@ Grid.prototype.moveRoom = function () {
         minY = 1000000, 
         maxY = 0, 
         walls = ourRoom.walls,
+        numberOfWalls = walls.length,
         offsetX,
         offsetY,
         xstart,
         ystart,
-        paper = grid.paper,
-        numberOfWalls = walls.length,
+        tempString,
+        pathString,
         path;
 
     for (var i = 0; i < numberOfWalls; ++i) {
         //Find largest and smallest X value
         if ((walls[i].attrs.path[0][1]) > maxX)
             maxX = walls[i].attrs.path[0][1];
+
         if ((walls[i].attrs.path[1][1]) > maxX)
             maxX = walls[i].attrs.path[1][1];
+
         if ((walls[i].attrs.path[0][1]) < minX)
             minX = walls[i].attrs.path[0][1];
+
         if ((walls[i].attrs.path[1][1]) < minX)
             minX = walls[i].attrs.path[1][1];
 
         //Find smallest and largest Y value
         if ((walls[i].attrs.path[0][2]) > maxY)
             maxY = walls[i].attrs.path[0][2];
+
         if ((walls[i].attrs.path[1][2]) > maxY)
             maxY = walls[i].attrs.path[1][2];
+
         if ((walls[i].attrs.path[0][2]) < minY)
             minY = walls[i].attrs.path[0][2];
+
         if ((walls[i].attrs.path[1][2]) < minY)
             minY = walls[i].attrs.path[1][2];
     } 
 
     offsetX = minX - 99;
     offsetY = minY - 99;
+    this.resWidth = (maxX - minX);
+    this.resHeight = (maxY - minY);
     xstart = (walls[0].attrs.path[0][1] - offsetX);
     ystart = (walls[0].attrs.path[0][2] - offsetY);
+
+    pathString = new String("M " + xstart + ", " + ystart);
     
-    // Move all the walls to new coordinates    
+    // Move all the walls to new coordinates (this updates the paths of the real walls)    
     for (var i = 0; i < numberOfWalls; ++i) {
         path = walls[i].attr("path");
 
@@ -369,7 +387,20 @@ Grid.prototype.moveRoom = function () {
         path[1][2] = (walls[i].attrs.path[1][2] - offsetY); 
 
         walls[i].attr({path: path});
+
+        tempString = " L" + path[0][1] + ", " + path[0][2];
+        pathString += tempString;
     }
+
+    //Refresh the measurement-stuff after moving the walls, then hide the angles and remove handlers.
+    measurement.refreshMeasurements();
+    measurement.angMeasurements.hide();
+    finishedRoom.removeHandlers();
+
+    tempString = " Z";
+    pathString += tempString;
+    // Returns the path of our room as ONE string.
+    return pathString;
 }
 
 /**
@@ -384,7 +415,7 @@ Grid.prototype.save = function () {
     canvg(document.getElementById('myCanvas'), svg);
 
     // Used so we are sure that the canvas is fully loaded before .png is generated.
-    setTimeout(function() {
+    setTimeout(function () {
         // Fetch the dataURL from the 'myCanvas', then force a download of the picture, with a defined filename.
         var dataURL = document.getElementById('myCanvas').toDataURL("image/png"),
             a = document.createElement('a');

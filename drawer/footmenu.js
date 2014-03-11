@@ -71,9 +71,7 @@ FootMenu.prototype.initFooter = function () {
         // OBS: This is functionality we want to execute when the "Hindringer"-tab is pushed.
         if (ourRoom.finished == true) {
             grid.moveRoom();
-            measurement.refreshMeasurements();
-            measurement.angMeasurements.hide();
-            finishedRoom.removeHandlers();
+            options.showOptions(2);
         }
     });
 
@@ -84,21 +82,28 @@ FootMenu.prototype.initFooter = function () {
 
     	// Currently for testing
         if (ourRoom.finished == true) {
-            grid.paper.clear();
-            var resultGrid = new ResultGrid();
-           ourRoom.clearRoom();
-            
-            setTimeout(function() {
-                ourRoom = new DrawRoom(20);
+            var path = grid.moveRoom();
+
+            scrollBox.paper.clear();
+            var resultGrid = new ResultGrid(path);
+
+            setTimeout( function () {
+                // I think this is a "safe" way to do this, first clear the resultGrid (in reality this is
+                // the same grid as 'grid')
+                // Then create our initial grid before we initalize the drawing.
                 resultGrid.clear();
-                grid.draw();
-            }, 5000000);    
+                ourRoom.clearRoom();
+                grid = new Grid();
+                scrollBox = new ScrollBox();
+                ourRoom = new DrawRoom(20);
+            }, 500000);    
         }
     });
 
     // Clear Room and re-iniate so the user can draw a new room.
    clr.mouseup( function () {
     	ourRoom.clearRoom();
+        ourRoom.initRoom();
         options.showOptions(1);
         options.preDefArr = null;
     });
@@ -112,7 +117,7 @@ FootMenu.prototype.setHandlers = function (coll) {
 
     coll.attr({
         cursor: 'pointer',
-    }).hover(function () {
+    }).hover( function () {
         // Set attributes on hover.
         coll[0].attr({
             fill: 'white',

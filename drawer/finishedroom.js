@@ -1,7 +1,6 @@
 /**
  * Holds handlers and functionality needed for a finished room
 **/
-
 function FinishedRoom (radius) {
     this.radius = radius;
     this.walls;
@@ -11,10 +10,19 @@ function FinishedRoom (radius) {
     this.selectedWall = null;
 }
 
+/**
+ * Function that calls the 'add-handlers'-functionality, and shows the correct tab when
+ * a room is drawn. (Obstacles-tab when the room is 'selfDrawn', Define-tab when a pre-made 
+ * room is created)
+**/
 FinishedRoom.prototype.addWalls = function () {
     this.walls = ourRoom.walls;
     this.clickableCorners();
     this.setHandlers();
+
+    if (ourRoom.selfDrawn == false) {
+        options.showOptions(4);
+    }
 }
 
 /**
@@ -186,7 +194,7 @@ FinishedRoom.prototype.removeHandlers = function () {
     var walls = this.walls;
 
     // Looping through the set of walls, and unbind all the handlers.
-    walls.forEach(function(element) {
+    walls.forEach(function (element) {
         element.unmousedown();
         element.unhover();
     })

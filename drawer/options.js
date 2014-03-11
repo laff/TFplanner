@@ -76,6 +76,7 @@ Options.prototype.showOptions = function(tab) {
         // case 4 and above is actually "sub options".
         case 4:
             this.initDefine();
+            break;
 
         default:
             return;
@@ -122,9 +123,7 @@ Options.prototype.createHeader = function(text, yPos) {
         'font-size': fontSize
     })
 
-
     return (rect, text);
-
 }
 
 /**
@@ -136,8 +135,7 @@ Options.prototype.initSpecs = function() {
 
     paper.canvas.style.backgroundColor = '#999999';
 
-    this.guiElements.push(this.createHeader('Velg valg'));
-
+    this.guiElements.push(this.createHeader('Velg valg'));<
 }
 
 /**
@@ -152,49 +150,53 @@ Options.prototype.initObstacles = function() {
         defSubmit = 'defSubmit',
         that = this;
 
-
     // clear current html
     $(container).html(html);
 
     // adding class css.
     $(container).addClass('obstacleTab');
 
-    // Header
-    html += '<h3> Legg til hindring </h3>';
 
-    // Form start
-    html += '<form class=forms>';
+    if (ourRoom.finished ==  true) {
+        // Move the room to coordinates (99, 99)
+        grid.moveRoom();
+        // Header
+        html += '<h3> Legg til hindring </h3>';
 
-    // Select
-    html += "<select id ='obstacleType'><option value=1>Avl"+crossO+"p</option>";
-    html += "<option value=2>Toalett</option>";
-    html += "<option value=3>Dusj</option>";
-    html += "<option value=4>Badekar</option></select>";
+        // Form start
+        html += '<form class=forms>';
 
-    // input button
-    html += "<input id="+defSubmit+" type='button' value='legg til'>";
+        // Select
+        html += "<select id ='obstacleType'><option value=1>Avl"+crossO+"p</option>";
+        html += "<option value=2>Toalett</option>";
+        html += "<option value=3>Dusj</option>";
+        html += "<option value=4>Badekar</option></select>";
 
-    // Form end
-    html += '</form>';
+        // input button
+        html += "<input id="+defSubmit+" type='button' value='legg til'>";
 
+        // Form end
+        html += '</form>';
+
+        this.obstHtml = html;
+        this.obstacleList();
+
+    } else {
+        html = '<p class="error"> You need to draw<br> and finish, or create a<br> predefined room first! </p>';
+    }
 
     // insert html
     $(container).html(html);
 
-    this.obstHtml = html;
-
-    this.obstacleList();
-
     // Add click action for the "submit button".
     $('#'+defSubmit).click(function() {
-
+        
         // Creating obstacle.
         obstacles.createObstacle($('#obstacleType').val());
 
         // Creating / refreshing list of obstacles.
         that.initObstacles();
     });
-
 }
 
 /**
@@ -205,12 +207,13 @@ Options.prototype.obstacleList = function(obstacle) {
 
     var obstacleArr = obstacles.obstacleSet,
         obstacleLength = obstacleArr.length,
-        html = (html != null) ? html : this.obstHtml;
         change = 'Endre',
         save = 'Lagre',
         container = this.container,
-        crossO = this.crossO;
+        crossO = this.crossO,
+        html = (html != null) ? html : this.obstHtml;
 
+    
     for (var i = 0; i < obstacleLength; i++) {
 
         html += "<div class=obst>Hindring "+(i + 1)+": <input id="+i+" class='change' type='button' value="+change+"></div>";
@@ -260,7 +263,9 @@ Options.prototype.initDefine = function () {
 
     // Removing the svg paper and adding room class for background color
     this.optPaper.remove();
+
     $(container).addClass('roomTab');
+    $(container).removeClass('obstacleTab');
 
     html += '<h3> Egendefiner m'+dotA+'l </h3>';
 
@@ -367,8 +372,6 @@ Options.prototype.initDraw = function () {
                      
 
     // Head-text on top of the buttons:
-  
-
     tabTxt = paper.text(width/2, 10, "Ferdiglagde rom").attr({
         'font-size': 14
     }),

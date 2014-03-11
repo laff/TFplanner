@@ -7,7 +7,6 @@ var grid,
     obstacles,
     finishedRoom = null,
     scrollBox,
-    headmenu,
     footmenu,
     tabs,
     finishedRoom = null;
@@ -24,18 +23,11 @@ $(document).ready(function() {
     measurement = new Measurement();
     ourRoom = new DrawRoom(20);
 
-    headmenu = new HeadMenu();
     tabs = new Tabs();
-
     footmenu = new FootMenu();
     options = new Options();
 
     obstacles = new Obstacles();
-
-
-
-    
-
     // initiates the options_container
     //options.initDraw();
 });

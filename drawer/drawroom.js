@@ -17,6 +17,7 @@ function DrawRoom(radius) {
     this.minAngle = 29.95;
     this.maxAngle = 330.05; 
     this.minLength = 50;
+    this.selfDrawn = true;
     this.initRoom();
     finishedRoom = null;
 }
@@ -153,7 +154,6 @@ DrawRoom.prototype.finishRoom = function () {
     $('#canvas_container').unbind('click');
     $('#canvas_container').unbind('mousemove');
 
-
     if (finishedRoom == null) {
         finishedRoom = new FinishedRoom(this.radius);
     }
@@ -220,7 +220,6 @@ DrawRoom.prototype.wallEnd = function (point) {
 **/
 DrawRoom.prototype.isProximity = function (point1, point2) {
 
-    
     var initPointX = (point2 == null) ? this.walls[0].attrs.path[0][1] : point2[0],
         initPointY = (point2 == null) ? this.walls[0].attrs.path[0][2] : point2[1];
 
@@ -330,8 +329,7 @@ DrawRoom.prototype.wallCross = function (x1, y1, x2, y2) {
 }
 
 /**
- * Function that draws the line.
- *
+ * Function that draws the wall.
 **/
 DrawRoom.prototype.drawWall = function (point1, point2) {
 
@@ -342,17 +340,9 @@ DrawRoom.prototype.drawWall = function (point1, point2) {
     point2.x = (this.xAligned && !this.proximity) ? point1.x : point2.x;
     point2.y = (this.yAligned && !this.proximity) ? point1.y : point2.y;
 
-    // If we have a temp-wall, we want to remove it, and at the same time remove the shown length of it.
+    // We might need to clean up some of the temporary-stuff.
     if (this.tmpWall != null) {
-
-        this.tmpWall.remove();
-        this.tmpWall = null;
-        this.tmpRect.remove();
-        this.tmpRect = null;
-        this.tmpLen.remove();
-        this.tmpLen = null;
-        measurement.tmpMeasurements.remove();
-        measurement.tmpMeasurements.clear();
+        this.clearTmp();
     }
 
     wall = grid.paper.path("M"+point1.x+","+point1.y+"L"+point2.x+","+point2.y).attr({ 
@@ -609,8 +599,12 @@ DrawRoom.prototype.createRoom = function(ang) {
     
         options.preDefArr = ang;
         this.clearRoom();
+        this.initRoom();
+
+        // The selfDrawn-flag is set as false, since we now have created a predefined room. 
+        ourRoom.selfDrawn = false;
         
-        // Looping through the number of walls in the room.
+    // Looping through the number of walls in the room.
     for (var i = 0; i < ang[0].length; i++) {
 
 
@@ -665,12 +659,17 @@ DrawRoom.prototype.clearRoom = function() {
     walls.remove();
     walls.clear();
 
+    if (this.tmpWall != null) {
+        this.clearTmp();
+    }
 
     this.lastPoint = null;
     this.proximity = false;
     this.finished = false;
     this.xAligned = false;
     this.yAligned = false;
+    this.selfDrawn = true;
+
     $('#canvas_container').unbind('click');
     $('#canvas_container').unbind('mousemove');
 
@@ -679,5 +678,19 @@ DrawRoom.prototype.clearRoom = function() {
     }
 
     measurement.refreshMeasurements();
-    this.initRoom();
+}
+
+/**
+ * Function that deletes and nullifies all of the temp-stuff.
+**/
+DrawRoom.prototype.clearTmp = function () {
+
+    this.tmpWall.remove();
+    this.tmpWall = null;
+    this.tmpRect.remove();
+    this.tmpRect = null;
+    this.tmpLen.remove();
+    this.tmpLen = null;
+    measurement.tmpMeasurements.remove();
+    measurement.tmpMeasurements.clear();
 }
