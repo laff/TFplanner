@@ -232,6 +232,7 @@ Options.prototype.obstacleList = function(obstacle) {
     $('.change').click(function() {
 
         options.obstacleList(this.id);
+        obstacles.selectObstacle(this.id);
 
     });
 
