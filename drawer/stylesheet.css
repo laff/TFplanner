@@ -63,6 +63,10 @@
 	background: #BDBDBD!important;
 }
 
+.specTab {
+	background: #999999!important;
+}
+
 .obst {
 
 	width: 80%;
@@ -115,7 +119,7 @@
 }
 
 .forms select {
-	text-align: center;
+	width: 40%;
 }
 
 #defSubmit {

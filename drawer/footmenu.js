@@ -82,17 +82,20 @@ FootMenu.prototype.initFooter = function () {
 
     	// Currently for testing
         if (ourRoom.finished == true) {
-            var path = grid.moveRoom();
+            var path = grid.moveRoom(),
+                resultGrid = new ResultGrid(path);
 
             scrollBox.paper.clear();
-            var resultGrid = new ResultGrid(path);
+            
 
             setTimeout( function () {
                 // I think this is a "safe" way to do this, first clear the resultGrid (in reality this is
                 // the same grid as 'grid')
                 // Then create our initial grid before we initalize the drawing.
                 resultGrid.clear();
+                resultGrid = null;
                 ourRoom.clearRoom();
+                options.showOptions(1);
                 grid = new Grid();
                 scrollBox = new ScrollBox();
                 ourRoom = new DrawRoom(20);

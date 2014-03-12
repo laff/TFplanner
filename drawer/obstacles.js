@@ -326,3 +326,15 @@ Obstacles.prototype.lengthLine = function(obstacle, cx, cy, w, h) {
 		measurementO(P1, P2);
 	}
 }
+
+/**
+ * Used for clearing the sets that show the obstacles and length-stuff.
+ * Called when we are pushing the 'new' button.
+**/
+Obstacles.prototype.clearSets = function () {
+
+	obstacles.obstacleSet.remove();
+	obstacles.obstacleSet.clear();
+	obstacles.lineSet.remove();
+	obstacles.lineSet.clear();
+}
