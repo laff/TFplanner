@@ -213,7 +213,8 @@ Options.prototype.obstacleList = function(obstacle) {
         save = 'Lagre',
         container = this.container,
         crossO = this.crossO,
-        html = this.obstHtml;
+        html = this.obstHtml,
+        that = this;
     
     if (obstacleLength <= 0) {
         return;
@@ -225,11 +226,24 @@ Options.prototype.obstacleList = function(obstacle) {
 
         if (obstacle == i) {
             var width = obstacleArr[i].attrs.width,
-                height = obstacleArr[i].attrs.height;
+                height = obstacleArr[i].attrs.height,
+                x = obstacleArr[i].attrs.x,
+                y = obstacleArr[i].attrs.y;
 
-            html += "<div id=change class='roomTab'>H"+crossO+"yde: <input  type='number' id='height' value="+height+"><br>";
-            html += "Bredde: <input  type='number' id='width' value="+width+">";
-            html += "<input id=changeObst name="+i+" type='button' value="+save+"></div>";
+            // Div start
+            html += "<div id=change class='roomTab'>";
+            // Height
+            html += "<div class='inputfield'><div class='inputtext'>H"+crossO+"yde: </div><input  type='number' id='height' value="+height+"><br></div>";
+            // Width
+            html += "<div class='inputfield'><div class='inputtext'>Bredde: </div><input  type='number' id='width' value="+width+"><br></div>";
+            // position x
+            html += "<div class='inputfield'><div class='inputtext'>Horisontal avstand: </div><input type='number' id='posx' value="+(x - 100)+"><br></div>";
+            // position y
+            html += "<div class='inputfield'><div class='inputtext'>Vertikal avstand: </div><input type='number' id='posy' value="+(y - 100)+"></div>";
+            // Button element.
+            html += "<input id=changeObst name="+i+" type='button' value="+save+">";
+            // Div end.
+            html += "</div>";
         }
     }
 
@@ -239,7 +253,7 @@ Options.prototype.obstacleList = function(obstacle) {
     // Add click action for the "submit button".
     $('.change').click(function() {
 
-        options.obstacleList(this.id);
+        that.obstacleList(this.id);
         obstacles.selectObstacle(this.id);
 
     });
@@ -247,7 +261,22 @@ Options.prototype.obstacleList = function(obstacle) {
     // Add click action for the "submit button".
     $('#changeObst').click(function() {
 
-        obstacles.adjustSize(this.name, $('#width').val(), $('#height').val());
+        var roundX = (Math.round((($('#posx').val())/ 10)) * 10) + 100,
+            roundY = (Math.round((($('#posy').val())/ 10)) * 10) + 100;
+
+        $('#posx').val((roundX - 100));
+        $('#posy').val((roundY - 100));
+
+
+        obstacles.adjustSize(
+            this.name, 
+            $('#width').val(), 
+            $('#height').val(), 
+            roundX, 
+            roundY
+        );
+
+        that.obstacleList();
 
     });
 }
