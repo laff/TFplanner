@@ -77,6 +77,21 @@
 #change {
 	width: 80%;
 	margin-left: 10%;
+	height: 23%;
+}
+
+#change input {
+	width: 30%;
+	float: left;
+}
+
+.inputfield {
+	width: 100%;
+}
+
+.inputtext {
+	width: 50%;
+	float: left;
 }
 
 #canvas_container {  
@@ -125,6 +140,7 @@
 #defSubmit {
 	width: 80%!important;
 }
+
 
 /* Overriding default p css due to the god damn spacing 
 fucking up everything. GO TO HELL CSS! GO TO HELL! */

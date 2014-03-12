@@ -84,7 +84,8 @@ Obstacles.prototype.createObstacle = function (num) {
 		this.ox = this.attr("x");
 		this.oy = this.attr("y");
 
-		this.attr({'fill-opacity': 0.6});
+		this.attr({fill: '#3366FF'});
+		obst.nearestWalls(null, this);
 	},
 
 	move = function(dx, dy) {
@@ -106,7 +107,9 @@ Obstacles.prototype.createObstacle = function (num) {
 	},
 	up = function () {
 
-		this.attr({'fill-opacity': 0.4});
+		this.attr({fill: '#E73029'});
+
+		obst.lineSet.remove();
 
 	};
 
@@ -115,17 +118,19 @@ Obstacles.prototype.createObstacle = function (num) {
 	this.obstacleSet.push(obstacle);
 }
 
-Obstacles.prototype.adjustSize = function (i, w, h) {
+Obstacles.prototype.adjustSize = function (i, w, h, x, y) {
 
 	var obstacle = this.obstacleSet[i];
 
 	obstacle.attr({
 		'width': w, 
-		'height': h
+		'height': h,
+		x : parseInt(x),
+		y : parseInt(y)
 	});
 
 	// update lenght line
-	this.nearestWalls(i);
+	this.nearestWalls(null, obstacle);
 }
 
 
@@ -159,115 +164,57 @@ Obstacles.prototype.selectObstacle = function (id) {
 **/
 Obstacles.prototype.nearestWalls = function (id, obst) {
 
+
 	// Declaring obstacle center coordinates
 	var obstacle = (id != null) ? this.obstacleSet[id] : obst,
 		cx = (obstacle.attr("x") + (obstacle.attr("width") / 2)),
 		cy = (obstacle.attr("y") + (obstacle.attr("height") / 2)),
-
-	// Declaring wall variables.
 		walls = ourRoom.walls,
-		hWalls = [],
-		wWalls = [],
-		hWall,
-		wWall,
+		maxX = 0,
+		maxY = 0,
+		// variable with three options, 1, 2 or 3.
+		// This variable tells the lengthline function to draw either or both lines.
+		tri;
 
-	// Function that finds nearest wall.
-		nearest = function(xWalls, xy) {
-			var tmplen1 = null,
-				tmplen2 = null,
-				tmplen3 = null,
-				len = null,
-				align = (xy == 1) ? cx : cy;
-
-			for (var i = 0; i < xWalls.length; i++) {
-
-				if (len == null) {
-					len = (xWalls[i][0][xy] - align);
-				} else {
-
-					// Store length
-					tmplen1 = (xWalls[i][0][xy] - align);
-
-					// convert if negative
-					tmplen2 = (tmplen1 < 0) ? (tmplen1 * -1) : tmplen1;
-					tmplen3 = (len < 0) ? (len * -1) : len;
+	// removing past lines.
+	this.lineSet.remove();
 
 
-					if (tmplen2 < tmplen3) {
-						len = tmplen1;
-					}
-				}
-			}
-			return len;
-		};
-
-
-	// Find the horizontal and vertical walls.
-	for (var i = 0; i < walls.length; i++) {
-
-		// Declaring temporary variables for this wall.
-		var wall = walls[i].attrs.path,
-			p1x = wall[0][1],
-			p1y = wall[0][2],
-			p2x = wall[1][1],
-			p2y = wall[1][2],
-
-			// helpers
-			order = false,
-			store = false;
-
-		// Finding and storing horizontal walls
-		// Only store wall if it is within the span of the horizontal wall.
-		if (p1x == p2x) {
-			order = (p1y < p2y) ? true : false;
-
-			if (order) {
-				store = (cy < p2y && cy > p1y) ? true : false;
-			} else {
-				store = (cy > p2y && cy < p1y) ? true : false;
-			}
-
-			if (store) {
-				hWalls.push(wall);
-			}
-			
-		
-		// Vertical walls.
-		// Only store wall if it is whithin the span of the vertical wall.
-		} else if (p1y == p2y) {
-			order = (p1x < p2x) ? true : false;
-			store = false;
-
-			if (order) {
-				store = (cx < p2x && cx > p1x) ? true : false;
-			} else {
-				store = (cx > p2x && cx < p1x) ? true : false;
-			}
-
-			if (store) {
-				wWalls.push(wall);
-			}
-		}
+	// returning if the obstacle is outside room (to the left or top).
+	if (cx < 100 || cy < 100) {
+		return;
 	}
 
-	hWall = nearest(hWalls, 1);
-	wWall = nearest(wWalls, 2);
+	// check if the cx or cy is out of bounds in regards to the room
+	for (var i = 0; i < walls.length; i++) {
 
-	this.lengthLine(obstacle, cx, cy, hWall, wWall);
+		var tmp1x = walls[i].attrs.path[0][1],
+			tmp1y = walls[i].attrs.path[0][2],
+			tmp2x = walls[i].attrs.path[1][1], 
+			tmp2y = walls[i].attrs.path[1][2];
 
+		// chained ternaries
+		maxX = (tmp1x > maxX) ? (tmp2x > tmp1x) ? tmp2x : tmp1x : maxX;
+		maxY = (tmp1y > maxY) ? (tmp2y > tmp1y) ? tmp2y : tmp1y : maxY;
+	}
+
+
+	// 1: draw the horizontal line
+	// 2: draw the vertical line
+	// 3: draw both
+	// chained ternaries.
+	tri = (cx < maxX) ? (cy < maxY) ? 3 : 2 : (cy < maxY) ? 1 : null;
+
+	this.lengthLine(obstacle, cx, cy, tri);
 }
 
 /**
  *	Function that draws lines that show length from obstacle to nearest walls.
  *
 **/
-Obstacles.prototype.lengthLine = function(obstacle, cx, cy, w, h) {
+Obstacles.prototype.lengthLine = function(obstacle, cx, cy, tri) {
 
-	// clear previous lines and text
-	this.lineSet.remove();
-
-
-	var Rad, 
+	var rad, 
 		P1, 
 		P2,
 		that = this,
@@ -280,7 +227,7 @@ Obstacles.prototype.lengthLine = function(obstacle, cx, cy, w, h) {
 				length;
 
 			line = that.paper.path("M"+P1[0]+","+P1[1]+"L"+P2[0]+","+P2[1]).attr( {
-				stroke: '#ff0000'
+				stroke: '#3366FF'
 			});
 
 			// calculating length of
@@ -305,26 +252,25 @@ Obstacles.prototype.lengthLine = function(obstacle, cx, cy, w, h) {
 		};
 
 	// Create the horizontal line
-	if (w != null) {
-
-		Rad = (obstacle.attr("width") / 2);
-		Rad = (w < 0) ? (Rad * (-1)) : Rad;
-		P1 = [(cx + w), cy];
-		P2 = [(cx + Rad), cy];
-
+	if (tri == 1 || tri == 3) {
+		rad = ((obstacle.attr("width") / 2) * (-1));
+		P1 = [100, cy];
+		P2 = [(cx + rad), cy];
 		measurementO(P1, P2);
+
+	// Creating vertical line
+	} 
+
+	if (tri == 2 || tri == 3) {
 		
-
-	}
-
-	if (h != null) {
-		Rad = (obstacle.attr("height") / 2);
-		Rad = (h < 0) ? (Rad * (-1)) : Rad;
-		P1 = [cx, (cy + Rad)];
-		P2 = [cx, (cy + h)];
-	
+		rad = ((obstacle.attr("height") / 2) * (-1));
+		P1 = [cx, 100];
+		P2 = [cx, (cy + rad)];
 		measurementO(P1, P2);
 	}
+
+
+
 }
 
 /**
