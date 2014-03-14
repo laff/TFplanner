@@ -268,9 +268,6 @@ Obstacles.prototype.lengthLine = function(obstacle, cx, cy, tri) {
 		P2 = [cx, (cy + rad)];
 		measurementO(P1, P2);
 	}
-
-
-
 }
 
 /**
@@ -278,7 +275,6 @@ Obstacles.prototype.lengthLine = function(obstacle, cx, cy, tri) {
  * Called when we are pushing the 'new' button.
 **/
 Obstacles.prototype.clearSets = function () {
-
 	obstacles.obstacleSet.remove();
 	obstacles.obstacleSet.clear();
 	obstacles.lineSet.remove();

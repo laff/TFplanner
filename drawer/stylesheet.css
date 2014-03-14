@@ -125,16 +125,20 @@
 }
 
 .forms form {
-
 	width: 80%;
 }
 
 .forms input {
-	width: 50%;
+	width: 80%;
 }
 
 .forms select {
-	width: 40%;
+	width: 80%;
+	cursor: pointer;
+}
+
+.forms [type=button] {
+	cursor: pointer;
 }
 
 #defSubmit {

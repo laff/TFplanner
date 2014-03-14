@@ -28,19 +28,22 @@ Tabs.prototype.initTabs = function () {
 	rooms = paper.path('M 0 0 L '+width+' 0 L '+width+' '+(height)+' L 0 '+(height+diffHeight)+' L 0 0').attr({
         fill: this.roomColor,
         stroke: this.roomColor,
-        'stroke-width': 0
+        'stroke-width': 0,
+        title: "Klikk for rom-tegning"
 	}),
 
 	obstacles = paper.path('M 0 '+(height-diffHeight)+' L '+width+' '+height+' L '+width+' '+height*2+' L 0 '+((height*2)+diffHeight)+' L 0 '+height).attr({
         fill: this.obstColor,
         stroke: this.obstColor,
-        'stroke-width': 0
+        'stroke-width': 0,
+        title: "Klikk for innsetting av hindringer"
 	}),
 
 	specs = paper.path('M 0 '+((height*2)-diffHeight)+' L '+width+' '+height*2+' L '+width+' '+height*3+' L 0 '+height*3+' L 0 '+height*2).attr({
         fill: this.specColor,
         stroke: this.specColor,
-        'stroke-width': 0
+        'stroke-width': 0,
+        title: "Klikk for valg av spesifikasjoner"
 	}),
 
 	roomTxt = paper.text(width/2, height/2, "Tegne rom"),

@@ -3,7 +3,7 @@
 /**
  * Structonator
 **/
-function Options(tab) {
+function Options (tab) {
         this.optPaper;
         this.preDefArr = null;
         this.optionTab = 1;
@@ -17,20 +17,17 @@ function Options(tab) {
         this.guiElements = null;
 
         this.container = "#content_container";
-
         this.obstHtml = null;
-
-
         this.crossO = String.fromCharCode(248);
         this.dotA = String.fromCharCode(229);
-    }
+}
 
 
 /**
  *  Function that controlls what options to show based on selected tab.
  *
 **/
-Options.prototype.showOptions = function(tab) {
+Options.prototype.showOptions = function (tab) {
 
     var paper = (this.optPaper != null) ? this.optPaper : null,
         container = this.container;
@@ -92,7 +89,7 @@ Options.prototype.showOptions = function(tab) {
  *      - yPos : The distance from the top. Makes it easy to position header.
  *      - text : The header text.
 **/
-Options.prototype.createHeader = function(text, yPos) {
+Options.prototype.createHeader = function (text, yPos) {
 
     var paper = this.optPaper,
         paperW = paper.width,
@@ -127,43 +124,41 @@ Options.prototype.createHeader = function(text, yPos) {
 }
 
 /**
- *  Set up specifications
- *
+ *  Set up the specifications-tab.
 **/
-Options.prototype.initSpecs = function() {
+Options.prototype.initSpecs = function () {
+
     var paper = this.optPaper,
         container = this.container,
         specSubmit = 'specSubmit',
-        that = this,
-        option1,
-        option2,
-        form;
+        crossO = this.crossO,
+        that = this;
 
-    // clear current html
+    // Clear current html
     $(container).html("");
 
-    // adding class css.
+    // Adding class css, and remove the old ones.
     $(container).addClass('specTab');
     $(container).removeClass('obstacleTab');
     $(container).removeClass('roomTab');
 
 
     if (ourRoom.finished ==  true) {
-
-        // Form start
+        // Variables used for setting up elements.
         var header = document.createElement("h3"),
-            inOut;
-            header.innerHTML = "Velg spesifikasjoner";
+            inOut = document.createElement("select"),
+            form = document.createElement("form"),
+            option1 = document.createElement("option"),
+            option2 = document.createElement("option"),
+            span = document.createElement("span");
+        
+        header.innerHTML = "Velg spesifikasjoner";
+        span.innerHTML = "Velg utend"+crossO+"rs/innend"+crossO+"rs: ";
 
-        form = document.createElement("form");
+        span.setAttribute("id", "inOrOut");
         form.setAttribute("class", "forms");
         form.setAttribute("id", "form1");
-
-        inOut = document.createElement("select");
         inOut.setAttribute("id", "inOutType");
-
-        option1 = document.createElement("option");
-        option2 = document.createElement("option");
 
         option1.value = "1";
         option1.text = "Inne";
@@ -172,17 +167,15 @@ Options.prototype.initSpecs = function() {
 
         inOut.add(option1, null);
         inOut.add(option2, null);
-
+        form.appendChild(span);
         form.appendChild(inOut);
 
         $(container).append(header);
         $(container).append(form);
         $(form).append("<br>");
 
-
         // Default selected is 'none', so a value MUST be chosen by the user.        
         document.getElementById("inOutType").selectedIndex = -1;
-
     } else {
         html = '<p class="error"> You need to draw<br> and finish, or create a<br> predefined room first! </p>';
         $(container).html(html);
@@ -191,100 +184,62 @@ Options.prototype.initSpecs = function() {
     $('#inOutType').change( function () {
         that.inOrOut(form);
     });
-
-
-/*
-     
-        // To force a 'change'-event to occur.
-        document.getElementById("climateType").selectedIndex = -1;
-
-            $('#climateType').change( function () {
-
-                $(form).append("<br>");
-
-                var selected = $('#climateType').val(),
-                    option3 = document.createElement("option"),
-                    option4 = document.createElement("option"),
-                    deck = document.createElement("select");
-
-                    deck.setAttribute("id", "climateType");
-                    option1 = document.createElement("option");
-                    option2 = document.createElement("option");
-
-                if (selected == 1) {
-                    option1.value = "1";
-                    option1.text = "Parkett";
-                    option2.value = "2";
-                    option2.text = "Laminat";
-                    option3.value = "3";
-                    option3.text = "Teppe";
-                    option4.value = "4";
-                    option4.text = "PVC/Vinyl";
-
-                    deck.add(option1, null);
-                    deck.add(option2, null);
-                    deck.add(option3, null);
-                    deck.add(option4, null);
-
-                } else if (selected == 2) {
-                    option1.value = "1";
-                    option1.text = "Fliser";
-                    option2.value = "2";
-                    option2.text = "Laminat";
-                    option3.value = "3";    
-                    option3.text = "PVC/Vinyl";     // Can this occur?
-
-                    deck.add(option1, null);
-                    deck.add(option2, null);
-                    deck.add(option3, null);
-                }
-
-                form.appendChild(deck);
-                $(container).append(form);
-            }); 
-    
-*/
-
-   // this.guiElements.push(this.createHeader('Velg valg'));
 }
 
 /**
- * Functionality for showing dropdown-menu for chosing 'dry- or wetarea'.
+ * Functionality for showing dropdown-menu for chosing 'dry- or wet-area'.
  * Will only show this option if 'inside' is chosen on the first dropdown.
 **/
 Options.prototype.inOrOut = function (form) {
 
     var container = this.container,     
         selected = $('#inOutType').val(),
-        that = this;
+        that = this,
+        crossO = this.crossO,
+        dotA = this.dotA;
 
-        // OBS: Should do a check here, in case a element with id 'climateType' 
-        // already exists.
+    // If the 'climateType'-id already exists, we want to delete the
+    // <br> tag after it, and then remove the id itself.
+    if ($('#climateType').length) {
+        $('#climateType').next().remove();
+        $('#climateType').remove();
+        $('#dryOrWet').remove();
+    }
+
+    $('#decks').remove();
+    $('#genButton').remove();
 
      //Inside is selected
     if (selected == 1) {
 
+        $('#deckType').remove();
+
         var dryWet = document.createElement("select"),
             option1 = document.createElement("option"),
-            option2 = document.createElement("option");
+            option2 = document.createElement("option"),
+            span = document.createElement("span");
 
+        span.innerHTML = "Velg v"+dotA+"trom/t"+crossO+"rrom: ";
         dryWet.setAttribute("id", "climateType");
+        span.setAttribute("id", "dryOrWet");
 
         option1.value = "1";
-        option1.text = "Torr";
+        option1.text = "T"+crossO+"rrom";
         option2.value = "2";
-        option2.text = "Wetttt";
+        option2.text = "V"+dotA+"trom";
 
         dryWet.add(option1, null);
         dryWet.add(option2, null);
 
+        form.appendChild(span);
         form.appendChild(dryWet);
         // Append the form to the container.
         $(container).append(form); 
         $(form).append("<br>");
         document.getElementById("climateType").selectedIndex = -1;
 
-    } else { 
+    } else {
+        // 'Outside' is chosen, so we jump directly to the options associated with this option.
         that.chooseDeck(form);
     }
 
@@ -294,81 +249,127 @@ Options.prototype.inOrOut = function (form) {
     });
 }
 
-
+/**
+ * The third dropdown-menu, where the user must choose type of deck for the area.
+**/
 Options.prototype.chooseDeck = function (form) {
 
     var container = this.container,
+        that = this,
         selected = $('#inOutType').val(),
         selectedClim = $('#climateType').val(),
+        span = document.createElement("span"),
         deck = document.createElement("select"),
         option1 = document.createElement("option"),
         option2 = document.createElement("option"),
         option3 = document.createElement("option"),
         option4 = document.createElement("option"),
-        option5 = document.createElement("option");
-        deck.setAttribute("id", "deckType");
+        option5 = document.createElement("option"),
+        option6 = document.createElement("option"),
+        option7 = document.createElement("option");
 
-        // Do stuff for an indoor-room.
-        if (selected == 1) {
-            option1.value = "1";
-            option1.text = "Flis";
-            // 'Dry-room'
-            if (selectedClim == 1) {
-                // List options for 'dry'-rooms.
-                option2.value = "2";
-                option2.text = "Teppe";
-                option3.value = "3";
-                option3.text = "Parkett";
-                option4.value = "4";
-                option4.text = "Belegg";
-                option5.value = "5";
-                option5.text = "St"+this.crossO+"p";
+    // Make sure that a <select> with this id not exists, no need to use 'if' cause
+    // nothing will happen if it doesn`t exist. Also remove the 'decks-<span>' that display text.
+    $('#deckType').remove();
+    $('#decks').remove();
+    $('#genButton').remove();
 
-                deck.add(option1, null);
-                deck.add(option2, null);
-                deck.add(option3, null);
-                deck.add(option4, null);
-                deck.add(option5, null);
+    deck.setAttribute("id", "deckType");
+    span.setAttribute("id", "decks");
 
-            // This should obviously be a 'wet'-room.
-            } else if (selectedClim == 2) {
-                
-                deck.add(option1, null);
-            }
-        // The area is chosen as 'outside' 
-        // OBS: May not have to check if selected is 2? (can work as a failsafe tho)
-        } else if (selected == 2) {
-            option1.value = "1";
-            option1.text = "Asfalt"
+    span.innerHTML = "Velg dekke i rommet: ";
+
+    // Do stuff for an indoor-room.
+    if (selected == 1) {
+        // Tiles can occur both in dry-rooms and wet-rooms.
+        option1.value = "1";
+        option1.text = "Flis";
+        // 'Dry-room'
+        if (selectedClim == 1) {
+            // List options for 'dry'-rooms.
             option2.value = "2";
-            option2.text = "Belegningsstein";
+            option2.text = "Teppe";
             option3.value = "3";
-            option3.text = "Whatever";
+            option3.text = "Parkett";
+            option4.value = "4";
+            option4.text = "Laminat";
+            option5.value = "5";
+            option5.text = "Belegg";
+            option6.value = "6";
+            option6.text = "St"+this.crossO+"p";
+            option7.value = "6";
+            option7.text = "Kork";
 
             deck.add(option1, null);
             deck.add(option2, null);
             deck.add(option3, null);
-        }
+            deck.add(option4, null);
+            deck.add(option5, null);
+            deck.add(option6, null);
+            deck.add(option7, null);
 
+        // This should obviously be a 'wet'-room.
+        } else if (selectedClim == 2) {
+            deck.add(option1, null);
+        }
+    // The area is chosen as 'outside' 
+    } else if (selected == 2) {
+        option1.value = "1";
+        option1.text = "Asfalt"
+        option2.value = "2";
+        option2.text = "Belegningsstein";
+        option3.value = "3";
+        option3.text = "Betong";
+
+        deck.add(option1, null);
+        deck.add(option2, null);
+        deck.add(option3, null);
+    }
+
+    // Append the element to our form, then add the form to the container.
+    form.appendChild(span);
     form.appendChild(deck);
-    // Append the form to the container.
     $(container).append(form);
+    // Set as blanc on initialization, to force the user to select an !default item.
     document.getElementById("deckType").selectedIndex = -1;
 
-    // In any cases we want to add the new stuff to our form!
-
-    // OBS: Call new function to do something cool (Don`t know what, really)
+    // When the user have selected an item in this list, the 'generate'-button is created.
     $('#deckType').change( function () {
-
+        that.generateButton(form);
     });
+}
 
+/**
+ * Creation of a button to generate our solution for putting out a heatingmat.
+ * Will be created when an item is chosen in all the dropdowns.
+**/
+Options.prototype.generateButton = function (form) {
+
+    var container = this.container,
+        input = document.createElement("input");
+
+    $('#genButton').remove();
+
+    input.setAttribute("id", "genButton");
+    input.setAttribute("type", "button");
+    input.setAttribute("title", "Klikk for "+this.dotA+" generere leggeanvisning");
+
+    input.value = "Generer leggeanvisning";
+
+    form.appendChild(input);
+    $(container).append(form);
+
+    $('#genButton').click( function () {
+        // OBS: Call the algorithm and generate a drawing!
+        // We also must find the product(s) that matches the chosen values!
+    });
 }
 
 /**
  *  Set up Obstacles
  *
 **/
-Options.prototype.initObstacles = function() {
+Options.prototype.initObstacles = function () {
 
     var container = this.container,
         html = "",
@@ -432,7 +433,7 @@ Options.prototype.initObstacles = function() {
  *  Function that either refreshes or creates a list of obstacles.
  *  Gets the html set in initObstacles (passed through function).
 **/
-Options.prototype.obstacleList = function(obstacle) {
+Options.prototype.obstacleList = function (obstacle) {
 
     var obstacleArr = obstacles.obstacleSet,
         obstacleLength = obstacleArr.length,
