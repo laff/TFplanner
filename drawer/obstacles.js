@@ -26,10 +26,13 @@ Obstacles.prototype.updateXY = function() {
  *	Function that draws a circular drain on the grid paper.
  *
 **/
-Obstacles.prototype.createObstacle = function (num) {
+Obstacles.prototype.createObstacle = function (num, txt) {
 
 	var w, 
 		h,
+		x = 100,
+		y = 100,
+		paper = this.paper;
 		obst = this;
 
 	// Setting w and h values based on input
@@ -63,55 +66,88 @@ Obstacles.prototype.createObstacle = function (num) {
 			return;
 	}
 
-
-	//this.updateXY();
-
-	// Variables related to positioning declared first.
-	var x = 100,
-		y = 100,
-
-
-	// Paper shortcut
-		paper = this.paper,
-
-		obstacle = paper.rect(x, y, w, h).attr({
+	// obstacle declared
+	var obstacle = paper.rect(x, y, w, h).attr({
 			fill: '#E73029',
 			'fill-opacity': 0.4,
 	        'stroke-opacity': 0.4
 		});
+	// Storing custom data.
+	obstacle.data('obstacleType', txt);
+
+	// obstacle text related variables.
+	var txtPoint = new Point((x + (w / 2)), (y + (h / 2))),
+		txtField = paper.text(txtPoint.x, txtPoint.y, txt).attr({
+			opacity: 1,
+			'font-size': 12,
+			'font-family': 'verdena',
+			'font-style': 'oblique'
+		});
+
+	
+	txtField.toBack();
+
+
 
 	var start = function() {
-		this.ox = this.attr("x");
-		this.oy = this.attr("y");
+			this.ox = this.attr("x");
+			this.oy = this.attr("y");
 
-		this.attr({fill: '#3366FF'});
-		obst.nearestWalls(null, this);
-	},
+			obst.selectObstacle();
 
-	move = function(dx, dy) {
+			this.attr({fill: '#3366FF'});
 
-		var xy = grid.getZoomedXY(dx, dy, true),
-			newx = this.ox + xy[0],
-			newy = this.oy + xy[1];
+			obst.nearestWalls(null, this);
 
-		newx = (Math.round((newx / 10)) * 10);
-		newy = (Math.round((newy / 10)) * 10);
+			for (var i = 0; i < obst.obstacleSet.length; i++) {
+				if (this == obst.obstacleSet[i]) {
+					this.rectID = i;
+					break;
+				}
+			}
 
-        this.attr({
-        	x: newx,
-        	y: newy
-        });
+		},
+
+		move = function(dx, dy) {
+
+			var xy = grid.getZoomedXY(dx, dy, true),
+				newx = this.ox + xy[0],
+				newy = this.oy + xy[1];
 
 
-        obst.nearestWalls(null, this);
-	},
-	up = function () {
+			// Updates obstacle list :)
+			if (this.rectID != null) {
+				options.obstacleList(this.rectID);
+			}
+			
 
-		this.attr({fill: '#E73029'});
+			newx = (Math.round((newx / 10)) * 10);
+			newy = (Math.round((newy / 10)) * 10);
 
-		obst.lineSet.remove();
+	        this.attr({
+	        	x: newx,
+	        	y: newy
+	        });
 
-	};
+	        // obstacle text related action
+	        var obstX = (newx + (w / 2)),
+	        	obstY = (newy + (h / 2));
+
+	        txtField.attr({
+	        	x: obstX,
+	        	y: obstY
+	        });
+
+
+	        obst.nearestWalls(null, this);
+		},
+		up = function () {
+
+			this.attr({fill: '#E73029'});
+
+			obst.lineSet.remove();
+
+		};
 
 	obstacle.drag(move, start, up);
 

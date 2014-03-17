@@ -390,7 +390,7 @@ Options.prototype.obstacleList = function (obstacle) {
 
     for (var i = 0; i < obstacleLength; i++) {
 
-        html += "<div class=obst>Hindring "+(i + 1)+": <input id="+i+" class='change' type='button' value="+change+"></div>";
+        html += "<div class=obst><div class=obsttxt>"+obstacleArr[i].data('obstacleType')+": </div><input id="+i+" class='change' type='button' value="+change+"></div>";
 
         if (obstacle == i) {
             var width = obstacleArr[i].attrs.width,
@@ -445,7 +445,10 @@ Options.prototype.actionListeners = function () {
     $('#defSubmit').click(function() {
         
         // Creating obstacle.
-        obstacles.createObstacle($('#obstacleType').val());
+        var value = $('#obstacleType').val(),
+            text = $('#obstacleType option[value='+value+']').text();
+
+        obstacles.createObstacle(value, text);
 
         // Creating / refreshing list of obstacles.
         that.initObstacles();
