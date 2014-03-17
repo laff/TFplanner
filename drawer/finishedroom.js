@@ -8,6 +8,8 @@ function FinishedRoom (radius) {
     this.pathHandle = null;
     this.howerWall = null;
     this.selectedWall = null;
+    this.dotA = String.fromCharCode(229);
+    this.crossO = String.fromCharCode(248);
 }
 
 /**
@@ -84,6 +86,7 @@ FinishedRoom.prototype.clickableWall = function(prev, current, next) {
         prevWall = prev,
         thisWall = current,
         nextWall = next,
+        dotA = this.dotA,
         pathArray1 = prevWall.attr("path"),
         pathArray2 = thisWall.attr("path"),
         pathArray3 = nextWall.attr("path");
@@ -95,7 +98,8 @@ FinishedRoom.prototype.clickableWall = function(prev, current, next) {
         'stroke-width': room.radius,
         'stroke-opacity': 0.5, 
         'stroke-linecap': "butt",
-        cursor: "move"
+        cursor: "move",
+        title: "Hold museknapp inne og dra for "+dotA+" flytte vegg"
     });
    
     var start = function () {
@@ -152,10 +156,11 @@ FinishedRoom.prototype.clickableWall = function(prev, current, next) {
 **/
 FinishedRoom.prototype.setHandlers = function() {
     var walls = this.walls,
-        room = this;
+        room = this,
+        dotA = this.dotA;
 
     // Looping through the set of walls, and adding handlers to all of them.
-    walls.forEach(function(element) {
+    walls.forEach(function (element) {
 
         element.mousedown(function() {
             room.clickableWalls(this);
@@ -170,7 +175,8 @@ FinishedRoom.prototype.setHandlers = function() {
                     'stroke-width': room.radius,
                     'stroke-opacity': 0.5,
                     'stroke-linecap': "butt",
-                    cursor: "pointer"      
+                    cursor: "pointer",
+                    title: "Klikk for "+dotA+" velge vegg"      
                 });
             }
         }, function () {
@@ -296,13 +302,16 @@ FinishedRoom.prototype.drag = function(indexArr, match) {
         pathArray2 = path2.attr("path"),
         mx = match[0],
         my = match[1],
+        dotA = this.dotA,
+        crossO = this.crossO,
         room = this;
 
     room.handle = grid.paper.circle(mx, my, this.radius).attr({
         fill: "#3366FF",
         'fill-opacity': 0.5,
         'stroke-opacity': 0.5,
-        cursor: "move"
+        cursor: "move",
+        title: "Hold inne museknapp og dra for "+dotA+" flytte hj"+crossO+"rnet"
     });
 
     var start = function () {

@@ -663,6 +663,8 @@ DrawRoom.prototype.clearRoom = function() {
         this.clearTmp();
     }
 
+    obstacles.clearSets();
+    
     this.lastPoint = null;
     this.proximity = false;
     this.finished = false;
@@ -691,6 +693,8 @@ DrawRoom.prototype.clearTmp = function () {
     this.tmpRect = null;
     this.tmpLen.remove();
     this.tmpLen = null;
+
+    // Clean up the temp-stuff in case some lengths or lines are hanging around.
     measurement.tmpMeasurements.remove();
     measurement.tmpMeasurements.clear();
 }

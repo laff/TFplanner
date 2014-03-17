@@ -63,6 +63,10 @@
 	background: #BDBDBD!important;
 }
 
+.specTab {
+	background: #999999!important;
+}
+
 .obst {
 
 	width: 80%;
@@ -121,7 +125,6 @@
 }
 
 .forms form {
-
 	width: 80%;
 }
 
@@ -130,7 +133,12 @@
 }
 
 .forms select {
-	text-align: center;
+	width: 80%;
+	cursor: pointer;
+}
+
+.forms [type=button] {
+	cursor: pointer;
 }
 
 #defSubmit {
