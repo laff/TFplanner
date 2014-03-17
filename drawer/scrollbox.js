@@ -1,4 +1,4 @@
-function ScrollBox() {
+function ScrollBox () {
 	this.paper = Raphael(document.getElementById('navigation_container'));
 	var paper = this.paper, 
 		frame = paper.rect(0, 0, 100, 100, 0),
@@ -10,19 +10,19 @@ function ScrollBox() {
 		zoom,
 		out;
 	frame.attr({
-		'fill': "#D6D6D6",
+		'fill': "#cbc4bc",
 		'stroke-width': 0.5,
-		opacity: 0.8
+		opacity: 0.6
 	});
 	innerFrame.attr({
 		'stroke-opacity': 0,
-		'fill': "#BDBDBD",
+		'fill': "#B6ADA5",
 		opacity: 0.8
 	});
 
 
     //The strings and stroke settings for the arrow buttons
-	var stroke = {stroke: "#6d8383", "stroke-width": 3, 'fill': "white"},
+	var stroke = {stroke: "#a59c94", "stroke-width": 3, 'fill': "white"},
 		uparrow = "M23.963,20.834L17.5,9.64c-0.825-1.429-2.175-1.429-3,0L8.037,20.834c"+
 			"-0.825,1.429-0.15,2.598,1.5,2.598h12.926C24.113,23.432,24.788,22.263,23.963,20.834z",
 		downarrow = "M8.037,11.166L14.5,22.359c0.825,1.43,2.175,1.43,3,0l6.463-11.194c"+
@@ -60,44 +60,41 @@ function ScrollBox() {
 	//Button handlers
 	//The preventDefault bits prevents on-screen text from
 	// being highlighted due to mouse (double)clicks
-	frame.mousedown(function(e){
+	frame.mousedown(function (e) {
 		e.preventDefault();
 	});
-	innerFrame.mousedown(function(e) {
+	innerFrame.mousedown(function (e) {
 		e.preventDefault();
 	});
-	up.mousedown(function(e) {
+	up.mousedown(function (e) {
         e.preventDefault();
 		grid.pan(38);
 	});
-	down.mousedown(function(e) {
+	down.mousedown(function (e) {
 		e.preventDefault();
 		grid.pan(40);
 	});
-	left.mousedown(function(e) {
+	left.mousedown(function (e) {
 		e.preventDefault();
 		grid.pan(37);
 	});
-	right.mousedown(function(e) {
+	right.mousedown(function (e) {
 		e.preventDefault();
 		grid.pan(39);
 	});
-	zoom.mousedown(function(e) {
+	zoom.mousedown(function (e) {
 		e.preventDefault();
 		grid.handle(1);
 	});
-	out.mousedown(function(e) {
+	out.mousedown(function (e) {
 		e.preventDefault();
 		grid.handle(-1);
 	});
-	
 }
 
 //Function gives a highlights button on mouseover
 // and makes it look ... funky
 ScrollBox.prototype.funkify = function(button) {
-
-	var p = Raphael._path2curve(button);
 
 	button.hover(
 		function () {
@@ -106,40 +103,13 @@ ScrollBox.prototype.funkify = function(button) {
 				'stroke-opacity': 0.5,
 	        	fill: "white",
 	        	'fill-opacity': 0.8
-	    });
-
+	    	});
 	    }, 
 	    function () {
 	        button.attr({
-	        	'stroke': '#6d8383',
+	        	'stroke': '#a59c94',
 	        	'stroke-opacity': 1
 	        });
     	}
     );
-
-/*
-	var p = Raphael._path2curve(button),
-		shape = this.paper.path(p).attr({
-                fill: "#333",
-    	        stroke: "#333",
-	    	    "stroke-width": 0,
-                transform: "t10,10s10,10,0,0"
-        	});
-
-	button.hover(function () {
-        button.stop().animate({ r: .15 }, 500);
-        button.stop().animate({ opacity: 1 }, 500);
-        shape.stop().animate({
-	            "stroke-width": 1,
-	            "fill-opacity": 0
-	        }, 500);
-	        }, function () {
-	        button.stop().animate({ r: 0 }, 500);
-	        button.stop().animate({ opacity: .5 }, 500);
-	        shape.stop().animate({
-	            "stroke-width": 0,
-	            "fill-opacity": 1
-	        }, 500);
-*/
-
 }

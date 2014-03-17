@@ -1,5 +1,3 @@
-
-
 /**
  * Structonator
 **/
@@ -7,8 +5,9 @@ function Options (tab) {
         this.optPaper;
         this.preDefArr = null;
         this.optionTab = 1;
-        this.defColor = '#6D8383';       // Default color.
-        this.inColor = '#d8d8d8';        // Color for mouseover 
+        this.defColor = '#707061';       // Default color.
+        this.inColor = '#d8d8d8';        // Color for mouseover
+        this.imgColor = 'white';         // Color for the button-icons. 
 
         // Default show.
         this.showOptions(1);
@@ -80,49 +79,6 @@ Options.prototype.showOptions = function (tab) {
     }
 }
 
-
-/**
- *  Function that creates a header.
- *  It is supposed to position a header perfectly within the options_container.
- *  
- *  @params:
- *      - yPos : The distance from the top. Makes it easy to position header.
- *      - text : The header text.
-**/
-Options.prototype.createHeader = function (text, yPos) {
-
-    var paper = this.optPaper,
-        paperW = paper.width,
-        paperH = paper.height,
-        offsetX = (paperW * 0.1),
-        offsetY = (paperH * 0.05) + (yPos != null ? yPos : 0),
-        rectWidth = (paperW * 0.8),
-        rectHeight = (paperH * 0.05),
-        text,
-        rect;
-    
-    // Create the button used when creating a predefined rectangular room.
-    rect = paper.rect(offsetX, offsetY, rectWidth, rectHeight).attr({
-        fill: 'gray',
-        'stroke-width': 0
-    });
-
-    // Getting the rectangle variables
-    var attrs = rect.attrs,
-        rectX = attrs.x,
-        rectY = attrs.y,
-        rectW = attrs.width,
-        rectH = attrs.height,
-        fontSize = Math.pow((rectH * rectW), 0.3);
-
-    //Head-text on top of the buttons:
-    text = paper.text((rectX + (rectW / 2)), (rectY + (rectH / 2)), text).attr({
-        'font-size': fontSize
-    })
-
-    return (rect, text);
-}
-
 /**
  *  Set up the specifications-tab.
 **/
@@ -132,6 +88,7 @@ Options.prototype.initSpecs = function () {
         container = this.container,
         specSubmit = 'specSubmit',
         crossO = this.crossO,
+        html,
         that = this;
 
     // Clear current html
@@ -410,6 +367,7 @@ Options.prototype.initObstacles = function () {
 
     } else {
         html = '<p class="error"> You need to draw<br> and finish, or create a<br> predefined room first! </p>';
+        this.obstHtml = html;
     }
 
     this.obstacleList();
@@ -633,11 +591,11 @@ Options.prototype.initDraw = function () {
             uColl = paper.set(),
             rectAttr = {                // Attributes for the "background-square" of buttons.
                 fill: this.defColor, 
-                stroke: '#3B4449', 
+                stroke: this.defColor, 
                 'stroke-width': 1, 
             },
             imgAttr = {                 // Attributes for the "image" on each button.
-                fill: '#fafdd5',
+                fill: this.imgColor,
                 stroke: 'black',
                 'stroke-width': 1,
             },
@@ -722,7 +680,7 @@ Options.prototype.initDraw = function () {
                 ' L'+(width*(11/16))+' '+((height*(9/20))+temp/4)).attr(imgAttr);
 
     // Set backgroundcolor of the options-container canvas.
-    paper.canvas.style.backgroundColor = '#D6D6D6';
+    paper.canvas.style.backgroundColor = '#CBC4BC';
 
     // Create handlers and stuff for all the 'buttons'.
     this.createHandlers(rectColl.push(buttonRect, rectImg), 0, "Ferdiglaget kvadratisk rom");

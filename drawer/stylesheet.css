@@ -56,15 +56,15 @@
 }
 
 .roomTab {
-	background: #D6D6D6!important;
+	background: #CBC4BC!important;
 }
 
 .obstacleTab {
-	background: #BDBDBD!important;
+	background: #B6ADA5!important;
 }
 
 .specTab {
-	background: #999999!important;
+	background: #A59C94!important;
 }
 
 .obst {
@@ -139,6 +139,7 @@
 
 .forms [type=button] {
 	cursor: pointer;
+	width: 80%!important;
 }
 
 #defSubmit {
