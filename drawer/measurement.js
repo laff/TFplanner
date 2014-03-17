@@ -1,4 +1,6 @@
 
+// TODO:
+// Shortcut "grid.paper" to "this.paper". KONSEKVENT VS INKONSEKVENT MUCH?
 function Measurement () {
     this.measurements = grid.paper.set();
     this.measurementValues = [];

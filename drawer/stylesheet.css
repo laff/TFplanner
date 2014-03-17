@@ -71,7 +71,11 @@
 
 	width: 80%;
 	margin-left: 10%;
+}
 
+.obsttxt {
+	float: left;
+	width: 30%;
 }
 
 #change {
