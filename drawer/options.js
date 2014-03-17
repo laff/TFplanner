@@ -147,7 +147,6 @@ Options.prototype.initObstacles = function() {
     var container = this.container,
         html = "",
         crossO = this.crossO,
-        defSubmit = 'defSubmit',
         that = this;
 
     // clear current html
@@ -173,7 +172,7 @@ Options.prototype.initObstacles = function() {
         html += "<option value=4>Badekar</option></select>";
 
         // input button
-        html += "<input id="+defSubmit+" type='button' value='legg til'>";
+        html += "<input id='defSubmit' type='button' value='legg til'>";
 
         // Form end
         html += '</form>';
@@ -185,20 +184,7 @@ Options.prototype.initObstacles = function() {
         html = '<p class="error"> You need to draw<br> and finish, or create a<br> predefined room first! </p>';
     }
 
-    // insert html
-    $(container).html(html);
-
     this.obstacleList();
-
-    // Add click action for the "submit button".
-    $('#'+defSubmit).click(function() {
-        
-        // Creating obstacle.
-        obstacles.createObstacle($('#obstacleType').val());
-
-        // Creating / refreshing list of obstacles.
-        that.initObstacles();
-    });
 }
 
 /**
@@ -215,10 +201,6 @@ Options.prototype.obstacleList = function(obstacle) {
         crossO = this.crossO,
         html = this.obstHtml,
         that = this;
-    
-    if (obstacleLength <= 0) {
-        return;
-    }
 
     for (var i = 0; i < obstacleLength; i++) {
 
@@ -250,6 +232,19 @@ Options.prototype.obstacleList = function(obstacle) {
     $(container).html("");
     $(container).html(html);
 
+    this.actionListeners();
+
+}
+
+/**
+ *  Function that initiates action listeners!
+ *
+**/
+Options.prototype.actionListeners = function () {
+
+    var that = this;
+
+
     // Add click action for the "submit button".
     $('.change').click(function() {
 
@@ -257,6 +252,19 @@ Options.prototype.obstacleList = function(obstacle) {
         obstacles.selectObstacle(this.id);
 
     });
+
+
+
+    // Add click action for the "submit button".
+    $('#defSubmit').click(function() {
+        
+        // Creating obstacle.
+        obstacles.createObstacle($('#obstacleType').val());
+
+        // Creating / refreshing list of obstacles.
+        that.initObstacles();
+    });
+
 
     // Add click action for the "submit button".
     $('#changeObst').click(function() {
@@ -278,9 +286,10 @@ Options.prototype.obstacleList = function(obstacle) {
 
         that.obstacleList();
 
+        obstacles.selectObstacle(null);
     });
-}
 
+}
 
 /** 
  *  Function that creates a form that lets the user adjust lengths of his predifined room.

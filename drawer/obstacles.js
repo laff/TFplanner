@@ -153,7 +153,11 @@ Obstacles.prototype.selectObstacle = function (id) {
 
 	}
 
-	this.nearestWalls(id);
+	if (id != null) {
+		this.nearestWalls(id);
+	} else {
+		obstacles.lineSet.remove();
+	}
 }
 
 
