@@ -828,8 +828,10 @@ Options.prototype.createHandlers = function(coll, val, toolTip) {
         if (val != null) {
             ourRoom.createRoom(new PreDefRoom(val));
         } else {
-            console.log("let me draw yall!");
-            ourRoom.initRoom();
+            if (finishedRoom == null) {
+                ourRoom.initRoom();
+            }
+            
         }
 
         
