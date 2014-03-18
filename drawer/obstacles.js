@@ -200,6 +200,28 @@ Obstacles.prototype.selectObstacle = function (id) {
 	}
 }
 
+/**
+ * Remove the obstacle, based on which remove-button that was pushed.
+**/
+Obstacles.prototype.deleteObstacle = function (id) {
+
+	var obstacleArr = this.obstacleSet,
+		obstacleLength = obstacleArr.length,
+		txtSet = this.txtSet;
+
+	for (var i = 0; i < obstacleLength; i++) { 
+
+		if (i == id) {
+			var tmp = obstacleArr.splice(i, 1);
+			tmp.remove();
+			tmp = txtSet.splice(i, 1);
+			tmp.remove();
+			this.lineSet.remove();
+			this.lineSet.clear();
+			return;
+		}
+	}
+}
 
 /**
  *	Function that visualizes the the nearest horizontal and vertical wall of an object.
