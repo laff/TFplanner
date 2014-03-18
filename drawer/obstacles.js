@@ -8,6 +8,7 @@ function Obstacles() {
 	this.xPos = 0;
 	this.yPos = 0;
 	this.obstacleSet = this.paper.set();
+	this.txtSet = this.paper.set();
 	this.lineSet = this.paper.set();
 
 }
@@ -146,12 +147,14 @@ Obstacles.prototype.createObstacle = function (num, txt) {
 			this.attr({fill: '#E73029'});
 
 			obst.lineSet.remove();
+			obst.lineSet.clear();
 
 		};
 
 	obstacle.drag(move, start, up);
 
 	this.obstacleSet.push(obstacle);
+	this.txtSet.push(txtField);
 }
 
 Obstacles.prototype.adjustSize = function (i, w, h, x, y) {
@@ -192,7 +195,8 @@ Obstacles.prototype.selectObstacle = function (id) {
 	if (id != null) {
 		this.nearestWalls(id);
 	} else {
-		obstacles.lineSet.remove();
+		this.lineSet.remove();
+		this.lineSet.clear();
 	}
 }
 
@@ -218,6 +222,7 @@ Obstacles.prototype.nearestWalls = function (id, obst) {
 
 	// removing past lines.
 	this.lineSet.remove();
+	this.lineSet.clear();
 
 
 	// returning if the obstacle is outside room (to the left or top).
@@ -315,8 +320,10 @@ Obstacles.prototype.lengthLine = function(obstacle, cx, cy, tri) {
  * Called when we are pushing the 'new' button.
 **/
 Obstacles.prototype.clearSets = function () {
-	obstacles.obstacleSet.remove();
-	obstacles.obstacleSet.clear();
-	obstacles.lineSet.remove();
-	obstacles.lineSet.clear();
+	this.obstacleSet.remove();
+	this.obstacleSet.clear();
+	this.txtSet.remove();
+	this.txtSet.clear();
+	this.lineSet.remove();
+	this.lineSet.clear();
 }
