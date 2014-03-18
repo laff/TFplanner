@@ -383,14 +383,15 @@ Options.prototype.obstacleList = function (obstacle) {
         obstacleLength = obstacleArr.length,
         change = 'Endre',
         save = 'Lagre',
+        del = 'Slett',
         container = this.container,
         crossO = this.crossO,
         html = this.obstHtml,
         that = this;
 
     for (var i = 0; i < obstacleLength; i++) {
-
-        html += "<div class=obst><div class=obsttxt>"+obstacleArr[i].data('obstacleType')+": </div><input id="+i+" class='change' type='button' value="+change+"></div>";
+        html += "<div class=obst><div class=obsttxt>"+obstacleArr[i].data('obstacleType')+": </div><input id="+i+" class='change' type='button' value="+change+">"+ 
+        "<input class='delete' type='button' value="+del+"></div>";
 
         if (obstacle == i) {
             var width = obstacleArr[i].attrs.width,
@@ -433,13 +434,14 @@ Options.prototype.actionListeners = function () {
 
     // Add click action for the "submit button".
     $('.change').click(function() {
-
         that.obstacleList(this.id);
         obstacles.selectObstacle(this.id);
-
     });
 
-
+    $('.delete').click(function () {
+        obstacles.deleteObstacle(this.parentNode.firstChild.nextSibling.id);
+        that.obstacleList();
+    });
 
     // Add click action for the "submit button".
     $('#defSubmit').click(function() {
@@ -455,7 +457,7 @@ Options.prototype.actionListeners = function () {
     });
 
 
-    // Add click action for the "submit button".
+    // Add click action for the "changeObst-button".
     $('#changeObst').click(function() {
 
         var roundX = (Math.round((($('#posx').val())/ 10)) * 10) + 100,
