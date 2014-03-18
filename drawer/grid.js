@@ -47,10 +47,10 @@ Grid.prototype.draw = function() {
 **/
 Grid.prototype.scale = function() {
     var paper = this.paper,
-        box = paper.rect(1, 1, 99, 99).attr({'stroke-opacity': 1, 'stroke': "#E73029", 'stroke-width': 3, 'fill': "white", 'fill-opacity': 0.7}),
+        box = paper.rect(1, 1, 99, 99).attr({'stroke-opacity': 1, 'stroke': "#CF2930", 'stroke-width': 3, 'fill': "white", 'fill-opacity': 0.7}),
         strokeAttr = {
             'stroke-opacity': 1, 
-            'stroke': "#E73029", 
+            'stroke': "#CF2930", 
             'stroke-width': 3, 
             "arrow-start": "classic-midium-midium",
             "arrow-end": "classic-midium-midium"
@@ -59,37 +59,6 @@ Grid.prototype.scale = function() {
         arrowSE = paper.path("M"+50+", " +100+", L"+50+", "+75+"M"+75+", " +50+", L"+100+", "+50).attr(strokeAttr),
         t = paper.text(50, 50, "100 cm");
 }
-
-//X and Y values for upper left corner of box
-/*
-Grid.prototype.menuBox = function (x, y) {
-    var paper = this.paper,
-        clearButton = paper.image("Graphics/clear_unpressed.png", x+115, y+10, 70, 30);
-        
-
-    //Event handler for clear button
-    clearButton.mousedown(function(e) {
-        //Loads image of pressed button
-        var pressedButton = paper.image("Graphics/clear_pressed.png", x+115, y+10, 70, 30);
-        if (ourRoom.finished == true) {
-            paper.clear();
-            var resultGrid = new ResultGrid();
-           ourRoom.clearRoom();
-            
-            setTimeout(function(){
-                ourRoom = new DrawRoom(20);
-                resultGrid.clear();
-                grid.draw();
-                grid.menuBox(0,0);
-            }, 50000);
-            
-        }
-        //"Unclicks" button
-        setTimeout(function(){ pressedButton.remove() }, 300);
-    });
-
-}
-*/
 
 /**
  * Makes sure that the user can`t draw in the left corner, where the 'scale' is.

@@ -10,7 +10,7 @@ function ScrollBox () {
 		zoom,
 		out;
 	frame.attr({
-		'fill': "#cbc4bc",
+		'fill': "#CBC4BC",
 		'stroke-width': 0.5,
 		opacity: 0.6
 	});
@@ -22,7 +22,7 @@ function ScrollBox () {
 
 
     //The strings and stroke settings for the arrow buttons
-	var stroke = {stroke: "#a59c94", "stroke-width": 3, 'fill': "white"},
+	var stroke = {stroke: "#A59C94", "stroke-width": 3, 'fill': "white"},
 		uparrow = "M23.963,20.834L17.5,9.64c-0.825-1.429-2.175-1.429-3,0L8.037,20.834c"+
 			"-0.825,1.429-0.15,2.598,1.5,2.598h12.926C24.113,23.432,24.788,22.263,23.963,20.834z",
 		downarrow = "M8.037,11.166L14.5,22.359c0.825,1.43,2.175,1.43,3,0l6.463-11.194c"+

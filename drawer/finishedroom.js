@@ -8,6 +8,7 @@ function FinishedRoom (radius) {
     this.pathHandle = null;
     this.howerWall = null;
     this.selectedWall = null;
+    this.undoSet = grid.paper.set();
     this.dotA = String.fromCharCode(229);
     this.crossO = String.fromCharCode(248);
 }
@@ -89,7 +90,19 @@ FinishedRoom.prototype.clickableWall = function(prev, current, next) {
         dotA = this.dotA,
         pathArray1 = prevWall.attr("path"),
         pathArray2 = thisWall.attr("path"),
-        pathArray3 = nextWall.attr("path");
+        pathArray3 = nextWall.attr("path"),
+
+        // Copy the content of the wall-elements
+        w1 = $.extend(true, {}, prevWall),
+        w2 = $.extend(true, {}, thisWall),
+        w3 = $.extend(true, {}, nextWall);
+
+    // This will clear the 'undo-set' if it already contains anything.
+    if (this.undoSet.length > 0) {
+        this.undoSet.clear();
+    }
+    // Push copies of the targeted walls to the undo-set.
+    this.undoSet.push(w1, w2, w3);
 
 
     // Handler used so we easily can target and drag a wall.
@@ -136,7 +149,6 @@ FinishedRoom.prototype.clickableWall = function(prev, current, next) {
         this.attr({path: pathArray2});
 
         measurement.refreshMeasurements();
-
     },
 
     up = function () {
@@ -190,6 +202,67 @@ FinishedRoom.prototype.setHandlers = function() {
             });
         });
     })
+    
+    // Bind Undo-action (Ctrl+Z)
+    $(document).keydown(function (e) {
+        if (e.which == 90 && e.ctrlKey == true) {
+            room.undo();
+        }
+    });
+}
+
+/**
+ * Function to handle 'Undo'-functionality. Only possible to go ONE step back, by using 'ctrl+z'.
+ * Works if the user have dragged a corner, or a wall.
+**/
+FinishedRoom.prototype.undo = function () {
+    var undoSet = this.undoSet,
+        walls = this.walls;
+
+    // This is used specially when dragging of a wall has happend (3 items in the undo-set).
+    if (undoSet.length == 3) {
+        
+        for (var i = 0; i < walls.length; i++) {
+
+            if (undoSet[1].id == ourRoom.walls[i].id && i > 0 && i != walls.length-1) {
+               ourRoom.walls[i-1].attr({path: undoSet[0].attrs.path});
+               ourRoom.walls[i].attr({path: undoSet[1].attrs.path});
+               ourRoom.walls[i+1].attr({path: undoSet[2].attrs.path});
+               measurement.refreshMeasurements();
+               undoSet.clear();
+               return;
+            // Wall number 'zero' was dragged:
+            } else if (undoSet[1].id == ourRoom.walls[i].id && i == 0) {
+               ourRoom.walls[walls.length-1].attr({path: undoSet[0].attrs.path});
+               ourRoom.walls[i].attr({path: undoSet[1].attrs.path});
+               ourRoom.walls[i+1].attr({path: undoSet[2].attrs.path});
+               measurement.refreshMeasurements();
+               undoSet.clear();
+               return;
+            // The 'last wall' in the array was dragged.
+            } else if (undoSet[1].id == ourRoom.walls[i].id && i == walls.length-1) {
+               ourRoom.walls[walls.length-2].attr({path: undoSet[0].attrs.path});
+               ourRoom.walls[i].attr({path: undoSet[1].attrs.path});
+               ourRoom.walls[0].attr({path: undoSet[2].attrs.path});
+               measurement.refreshMeasurements();
+               undoSet.clear();
+               return;
+            }
+        }
+    } else if (undoSet.length == 2) {
+
+        for (var i = 0; i < walls.length; i++) {
+
+            if (undoSet[0].id == ourRoom.walls[i].id) {
+                ourRoom.walls[i].attr({path: undoSet[0].attrs.path});
+                
+            } else if (undoSet[1].id == ourRoom.walls[i].id) {
+                ourRoom.walls[i].attr({path: undoSet[1].attrs.path});
+            }
+        }
+        measurement.refreshMeasurements();
+        undoSet.clear();
+    }
 }
 
 /**
@@ -208,6 +281,7 @@ FinishedRoom.prototype.removeHandlers = function () {
     // And removing handlers for the corner-dragging.
     $('#canvas_container').unbind('mousedown');
     $('#canvas_container').unbind('mousemove');
+    $(document).unbind('keydown');
 
     this.nullify();
 }
@@ -264,12 +338,13 @@ FinishedRoom.prototype.dragCorner = function (point) {
         tmpSPy, 
         tmpEPx,
         tmpEPy,
+        tmpWall,
         x = match[0], 
         y = match[1];
 
     for (var i = 0; i < walls.length; i++) {
 
-        var tmpWall = walls[i];
+        tmpWall = walls[i];
 
         tmpSPx = tmpWall.attrs.path[0][1];
         tmpSPy = tmpWall.attrs.path[0][2];
@@ -304,7 +379,16 @@ FinishedRoom.prototype.drag = function(indexArr, match) {
         my = match[1],
         dotA = this.dotA,
         crossO = this.crossO,
-        room = this;
+        room = this,
+        w1 = $.extend(true, {}, path1),
+        w2 = $.extend(true, {}, path2);
+
+    // If something already is stored in the undo-set, we have to clear it.
+    if (this.undoSet.length > 0) {
+        this.undoSet.clear();
+    }
+
+    this.undoSet.push(w1, w2);
 
     room.handle = grid.paper.circle(mx, my, this.radius).attr({
         fill: "#3366FF",
