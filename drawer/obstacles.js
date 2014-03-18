@@ -131,12 +131,12 @@ Obstacles.prototype.createObstacle = function (num, txt) {
 	        });
 
 	        // obstacle text related action
-	        var obstX = (newx + (w / 2)),
-	        	obstY = (newy + (h / 2));
+	        var obstx = (newx + (w / 2)),
+	        	obsty = (newy + (h / 2));
 
 	        txtField.attr({
-	        	x: obstX,
-	        	y: obstY
+	        	x: obstx,
+	        	y: obsty
 	        });
 
 
@@ -159,13 +159,22 @@ Obstacles.prototype.createObstacle = function (num, txt) {
 
 Obstacles.prototype.adjustSize = function (i, w, h, x, y) {
 
-	var obstacle = this.obstacleSet[i];
+	var obstacle = this.obstacleSet[i],
+		text = this.txtSet[i],
+		// obstacle text related action
+		obstx = (x + (w / 2)),
+		obsty = (y + (h / 2));
 
 	obstacle.attr({
 		'width': w, 
 		'height': h,
 		x : parseInt(x),
 		y : parseInt(y)
+	});
+
+	text.attr({
+		x : obstx,
+		y : obsty
 	});
 
 	// update lenght line
