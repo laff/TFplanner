@@ -18,7 +18,6 @@ function DrawRoom(radius) {
     this.maxAngle = 330.05; 
     this.minLength = 50;
     this.selfDrawn = true;
-    this.initRoom();
     finishedRoom = null;
 }
 

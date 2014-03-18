@@ -581,7 +581,8 @@ Options.prototype.initDefine = function () {
 Options.prototype.initDraw = function () {
         var paper = this.optPaper,
             width = paper.width,
-            height = paper.height,        
+            height = paper.height,
+            drawColl = paper.set(),        
             rectColl = paper.set(),
             tColl = paper.set(),
             lColl = paper.set(),
@@ -602,26 +603,35 @@ Options.prototype.initDraw = function () {
                 stroke: 'black',
                 'stroke-width': 1,
             },
-                     
-
-    // Head-text on top of the buttons:
-    tabTxt = paper.text(width/2, 20.72, "Ferdiglagde rom").attr({
-        'font-size': 18,
-        'font-weight': 'bold'
-    }),
+            txtAttr = {
+                'font-size': 18,
+                'font-weight': 'bold'
+            },
 
 
-    // All buttons is created the same way, with a square behind a illustration of the room-shape.
-    // here are some common variables for positioning:
+    /**
+     *  All buttons is created the same way, with a square behind a illustration of the room-shape.
+     *  here are some common variables for positioning:
+    **/ 
+
+    // each "column" has its own x variable.
+    x0 = (width / 2.665),
     x1 = (width / 8),
     x2 = (width * (5 / 8)),
-    y1 = (height * (10 / 20)),
-    y2 = (height * (12 / 20)),
-    y3 = (height * (14 / 20)),
-    y4 = (height * (16 / 20)),
-    y5 = (height * (18 / 20)),
+    x3 = (width / 2),
+
+    // Each row has its own y variable.
+    y0 = (height * (4 / 20)),
+    y1 = (height * (5 / 20)),
+    y2 = (height * (9 / 20)),
+    y3 = (height * (10 / 20)),
+    y4 = (height * (12 / 20)),
+    y5 = (height * (14 / 20)),
+    y6 = (height * (16 / 20)),
+    y7 = (height * (18 / 20)),
+    
+    // Basically different offsets and points
     w = (width / 4),
-    topleft = (width * (3 / 16) ),
     offset1 = (w / 4),
     offset2 = (w / 2),
     offset3 = (3 / 4),
@@ -630,85 +640,155 @@ Options.prototype.initDraw = function () {
     offset6 = (w * (7 / 12)),
     offset7 = (w * (5 / 12)),
     offset8 = (w * (1 / 2)),
-    p1 = (width * (11 / 16)),
+    p0 = (width * (7 / 16)),
+    p1 = (width * (3 / 16)),
+    p2 = (width * (11 / 16)),
 
 
-    // FIRST ROW (y1)
-    buttonRect = paper.rect(x1, y1, w, w).attr(rectAttr),
-    rectImg = paper.rect((topleft), ((y1)+offset1), offset2, offset2).attr(imgAttr),
+    // CUSTOM DRAW
+    // Header
+    drawTxt = paper.text(x3, y0, "Tegn selv").attr(txtAttr),
 
-    buttonL = paper.rect((x2), y1, w, w).attr(rectAttr),
-    lImg = paper.path('M'+(p1)+' '+((y1)+offset1)+' L'+((p1)+offset1)+' '+((y1)+offset1)+
-            ' L'+((p1)+offset1)+' '+((y1)+offset2)+' L'+((p1)+offset2)+' '+((y1)+offset2)+
-            ' L'+((p1)+offset2)+' '+((y1)+(w*offset3))+' L'+(p1)+' '+((y1)+(w*offset3))+
-            ' L'+(p1)+' '+((y1)+offset1)).attr(imgAttr),
+    // Button
+    drawRect = paper.rect(x0, y1, w, w).attr(rectAttr),
+    drawImg = paper.path(
+                'M'+(p0)+' '+((y1)+offset1)+
+                ' L'+((p0)+offset2)+' '+((y1)+(w*offset3))+
+                ' L'+(p0)+' '+((y1)+(w*offset3))+
+                ' L'+(p0)+' '+((y1)+offset1)
+            ).attr(imgAttr),
+
+    // PREDEFINED DRAW
+    // Header
+    tabTxt = paper.text(x3, y2, "Ferdiglagde rom").attr(txtAttr),
+
+    // FIRST ROW of buttons
+    buttonRect = paper.rect(x1, y3, w, w).attr(rectAttr),
+    rectImg = paper.rect(p1, (y3+offset1), offset2, offset2).attr(imgAttr),
+
+    buttonL = paper.rect(x2, y3, w, w).attr(rectAttr),
+    lImg = paper.path(
+                'M'+p2+' '+(y3+offset1)+
+                ' L'+(p2+offset1)+' '+(y3+offset1)+
+                ' L'+(p2+offset1)+' '+(y3+offset2)+
+                ' L'+(p2+offset2)+' '+(y3+offset2)+
+                ' L'+(p2+offset2)+' '+(y3+(w*offset3))+
+                ' L'+p2+' '+(y3+(w*offset3))+
+                ' L'+p2+' '+(y3+offset1)
+            ).attr(imgAttr),
 
 
     // SECOND ROW
-    buttonT = paper.rect(x1, (y2), w, w).attr(rectAttr),
-    tImg = paper.path('M'+(topleft)+' '+((y2)+offset1)+'L'+((topleft)+(offset2))+' '+((y2)+offset1)+
-            ' L'+((topleft)+(offset2))+' '+((y2)+offset2)+' L'+((topleft)+(offset4))+' '+((y2)+offset2)+
-            ' L'+((topleft)+(offset4))+' '+((y2)+(w*(offset3)))+' L'+((topleft)+(offset5))+' '+((y2)+(w*(offset3)))+
-            ' L'+((topleft)+(offset5))+' '+((y2)+offset2)+' L'+(topleft)+' '+((y2)+offset2)+
-            ' L'+(topleft)+' '+((y2)+offset1)).attr(imgAttr),
+    buttonT = paper.rect(x1, y4, w, w).attr(rectAttr),
+    tImg = paper.path(
+                'M'+p1+' '+(y4+offset1)+
+                'L'+(p1+offset2)+' '+(y4+offset1)+
+                ' L'+(p1+offset2)+' '+(y4+offset2)+
+                ' L'+(p1+offset4)+' '+(y4+offset2)+
+                ' L'+(p1+offset4)+' '+(y4+(w*offset3))+
+                ' L'+(p1+offset5)+' '+(y4+(w*offset3))+
+                ' L'+(p1+offset5)+' '+(y4+offset2)+
+                ' L'+p1+' '+(y4+offset2)+
+                ' L'+p1+' '+(y4+offset1)
+            ).attr(imgAttr),
 
-    lInv = paper.rect((x2), (y2), w, w).attr(rectAttr),
-    lInvImg = paper.path('M'+((p1)+offset1)+' '+((y2)+offset1)+' L'+((p1)+offset2)+' '+((y2)+offset1)+
-                ' L'+((p1)+offset2)+' '+((y2)+(w*(offset3)))+' L'+(p1)+' '+((y2)+(w*(offset3)))+
-                ' L'+(p1)+' '+((y2)+offset2)+' L'+((p1)+offset1)+' '+((y2)+offset2)+
-                ' L'+((p1)+offset1)+' '+((y2)+offset1)).attr(imgAttr),
+    lInv = paper.rect(x2, y4, w, w).attr(rectAttr),
+    lInvImg = paper.path(
+                'M'+(p2+offset1)+' '+(y4+offset1)+
+                ' L'+(p2+offset2)+' '+(y4+offset1)+
+                ' L'+(p2+offset2)+' '+(y4+(w*offset3))+
+                ' L'+p2+' '+(y4+(w*offset3))+
+                ' L'+p2+' '+(y4+offset2)+
+                ' L'+(p2+offset1)+' '+(y4+offset2)+
+                ' L'+(p2+offset1)+' '+(y4+offset1)
+            ).attr(imgAttr),
 
     // THIRD ROW!
-    tRot90 = paper.rect(x1, (y3), w, w).attr(rectAttr),
-    tRot90Img = paper.path('M'+((topleft)+offset1)+' '+((y3)+offset1)+' L'+((topleft)+offset2)+' '+((y3)+offset1)+
-                ' L'+((topleft)+offset2)+' '+((y3)+(w*(offset3)))+' L'+((topleft)+offset1)+' '+((y3)+(w*(offset3)))+
-                ' L'+((topleft)+offset1)+' '+((y3)+(offset6))+' L'+(topleft)+' '+((y3)+(offset6))+
-                ' L'+(topleft)+' '+((y3)+offset7)+' L'+(topleft+offset1)+' '+((y3)+offset7)+
-                ' L'+((topleft)+offset1)+' '+((y3)+offset1)).attr(imgAttr),
+    tRot90 = paper.rect(x1, y5, w, w).attr(rectAttr),
+    tRot90Img = paper.path(
+                'M'+(p1+offset1)+' '+(y5+offset1)+
+                ' L'+(p1+offset2)+' '+(y5+offset1)+
+                ' L'+(p1+offset2)+' '+(y5+(w*offset3))+
+                ' L'+(p1+offset1)+' '+(y5+(w*offset3))+
+                ' L'+(p1+offset1)+' '+(y5+offset6)+
+                ' L'+p1+' '+(y5+offset6)+
+                ' L'+p1+' '+(y5+offset7)+
+                ' L'+(p1+offset1)+' '+(y5+offset7)+
+                ' L'+(p1+offset1)+' '+(y5+offset1)
+            ).attr(imgAttr),
 
-    lRot180 = paper.rect((x2), (y3), w, w).attr(rectAttr),
-    lRot180Img = paper.path('M'+(p1)+' '+((y3)+offset1)+' L'+((p1)+(offset2))+' '+((y3)+offset1)+
-                ' L'+((p1)+(offset2))+' '+((y3)+(w*(offset3)))+' L'+((p1)+offset1)+' '+((y3)+(w*(offset3)))+
-                ' L'+((p1)+offset1)+' '+((y3)+offset2)+' L'+(p1)+' '+((y3)+offset2)+
-                ' L'+(p1)+' '+((y3)+offset1)).attr(imgAttr),
+    lRot180 = paper.rect(x2, y5, w, w).attr(rectAttr),
+    lRot180Img = paper.path(
+                'M'+p2+' '+(y5+offset1)+
+                ' L'+(p2+offset2)+' '+(y5+offset1)+
+                ' L'+(p2+offset2)+' '+(y5+(w*offset3))+
+                ' L'+(p2+offset1)+' '+(y5+(w*offset3))+
+                ' L'+(p2+offset1)+' '+(y5+offset2)+
+                ' L'+p2+' '+(y5+offset2)+
+                ' L'+p2+' '+(y5+offset1)
+            ).attr(imgAttr),
 
 
     // FOURTH ROW!
-    lRot270 = paper.rect((x2), (y4), w, w).attr(rectAttr),
-    lRot270Img = paper.path('M'+(p1)+' '+((y4)+offset1)+' L'+((p1)+(offset2))+' '+((y4)+offset1)+
-                ' L'+((p1)+(offset2))+' '+((y4)+offset2)+' L'+((p1)+offset1)+' '+((y4)+offset2)+
-                ' L'+((p1)+offset1)+' '+((y4)+(w*(offset3)))+' L'+(p1)+' '+((y4)+(w*(offset3)))+
-                ' L'+(p1)+' '+((y4)+offset1)).attr(imgAttr),
+    lRot270 = paper.rect(x2, y6, w, w).attr(rectAttr),
+    lRot270Img = paper.path(
+                'M'+p2+' '+(y6+offset1)+
+                ' L'+(p2+offset2)+' '+(y6+offset1)+
+                ' L'+(p2+offset2)+' '+(y6+offset2)+
+                ' L'+(p2+offset1)+' '+(y6+offset2)+
+                ' L'+(p2+offset1)+' '+(y6+(w*offset3))+
+                ' L'+p2+' '+(y6+(w*offset3))+
+                ' L'+p2+' '+(y6+offset1)
+            ).attr(imgAttr),
 
     
-    tRot180 =  paper.rect(x1, (y4), w, w).attr(rectAttr),
-    tRot180Img = paper.path('M'+((topleft)+offset5)+' '+((y4)+offset1)+' L'+((topleft)+offset4)+' '+((y4)+offset1)+
-                ' L'+((topleft)+offset4)+' '+((y4)+offset2)+' L'+((topleft)+offset2)+' '+((y4)+(offset8))+
-                ' L'+((topleft)+offset2)+' '+((y4)+(w*(offset3)))+' L'+(topleft)+' '+((y4)+(w*(offset3)))+
-                ' L'+(topleft)+' '+((y4)+(offset8))+' L'+((topleft)+offset5)+' '+((y4)+(offset8))+
-                ' L'+((topleft)+offset5)+' '+((y4)+offset1)).attr(imgAttr),
+    tRot180 =  paper.rect(x1, y6, w, w).attr(rectAttr),
+    tRot180Img = paper.path(
+                'M'+(p1+offset5)+' '+(y6+offset1)+
+                ' L'+(p1+offset4)+' '+(y6+offset1)+
+                ' L'+(p1+offset4)+' '+(y6+offset2)+
+                ' L'+(p1+offset2)+' '+(y6+offset8)+
+                ' L'+(p1+offset2)+' '+(y6+(w*offset3))+
+                ' L'+p1+' '+(y6+(w*offset3))+
+                ' L'+p1+' '+(y6+offset8)+
+                ' L'+(p1+offset5)+' '+(y6+offset8)+
+                ' L'+(p1+offset5)+' '+(y6+offset1)
+            ).attr(imgAttr),
 
 
     // FIFTH ROW!
-    tRot270 = paper.rect(x1, (y5), w, w).attr(rectAttr),
-    tRot270Img = paper.path('M'+(topleft)+' '+((y5)+offset1)+' L'+((topleft)+offset1)+' '+((y5)+offset1)+
-                ' L'+((topleft)+offset1)+' '+((y5)+(offset7))+' L'+((topleft)+offset2)+' '+((y5)+(offset7))+
-                ' L'+((topleft)+offset2)+' '+((y5)+(offset6))+' L'+((topleft)+offset1)+' '+((y5)+(offset6))+
-                ' L'+((topleft)+offset1)+' '+((y5)+(w*(offset3)))+' L'+(topleft)+' '+((y5)+(w*(offset3)))+
-                ' L'+(topleft)+' '+((y5)+offset1)).attr(imgAttr),
+    tRot270 = paper.rect(x1, y7, w, w).attr(rectAttr),
+    tRot270Img = paper.path(
+                'M'+p1+' '+(y7+offset1)+
+                ' L'+(p1+offset1)+' '+(y7+offset1)+
+                ' L'+(p1+offset1)+' '+(y7+offset7)+
+                ' L'+(p1+offset2)+' '+(y7+offset7)+
+                ' L'+(p1+offset2)+' '+(y7+offset6)+
+                ' L'+(p1+offset1)+' '+(y7+offset6)+
+                ' L'+(p1+offset1)+' '+(y7+(w*offset3))+
+                ' L'+p1+' '+(y7+(w*offset3))+
+                ' L'+p1+' '+(y7+offset1)
+            ).attr(imgAttr),
 
     
-    buttonU = paper.rect((x2), (y5), w, w).attr(rectAttr),
-    uImg = paper.path('M'+(p1)+' '+((y5)+offset1)+' L'+((p1)+(offset5))+' '+((y5)+offset1)+
-                ' L'+((p1)+(offset5))+' '+((y5)+offset2)+' L'+((p1)+offset4)+' '+((y5)+offset2)+
-                ' L'+((p1)+offset4)+' '+((y5)+offset1)+' L'+((p1)+offset2)+' '+((y5)+offset1)+
-                ' L'+((p1)+offset2)+' '+((y5)+(w*(offset3)))+' L'+(p1)+' '+((y5)+(w*(offset3)))+
-                ' L'+(p1)+' '+((y5)+offset1)).attr(imgAttr);
+    buttonU = paper.rect(x2, y7, w, w).attr(rectAttr),
+    uImg = paper.path(
+                'M'+p2+' '+(y7+offset1)+
+                ' L'+(p2+offset5)+' '+(y7+offset1)+
+                ' L'+(p2+offset5)+' '+(y7+offset2)+
+                ' L'+(p2+offset4)+' '+(y7+offset2)+
+                ' L'+(p2+offset4)+' '+(y7+offset1)+
+                ' L'+(p2+offset2)+' '+(y7+offset1)+
+                ' L'+(p2+offset2)+' '+(y7+(w*offset3))+
+                ' L'+p2+' '+(y7+(w*offset3))+
+                ' L'+p2+' '+(y7+offset1)
+            ).attr(imgAttr);
 
     // Set backgroundcolor of the options-container canvas.
     paper.canvas.style.backgroundColor = '#CBC4BC';
 
     // Create handlers and stuff for all the 'buttons'.
+    this.createHandlers(drawColl.push(drawRect, drawImg), null, "Tegn selv!");
     this.createHandlers(rectColl.push(buttonRect, rectImg), 0, "Ferdiglaget kvadratisk rom");
     this.createHandlers(tColl.push(buttonT, tImg), 2, "Ferdiglaget T-formet rom");
     this.createHandlers(lColl.push(buttonL, lImg), 1,"Ferdiglaget L-formet rom");
@@ -720,8 +800,6 @@ Options.prototype.initDraw = function () {
     this.createHandlers(tRot270Coll.push(tRot270, tRot270Img), 8, "Ferdiglaget T-rom");
     this.createHandlers(uColl.push(buttonU, uImg), 9, "Ferdiglaget U-rom");
 
-
-    console.log(height, y1, y2, y3, y4, y5);
 }
 
 /**
@@ -744,7 +822,15 @@ Options.prototype.createHandlers = function(coll, val, toolTip) {
         coll[0].attr('fill', defColor);
 
     }).mouseup(function () {
-        ourRoom.createRoom(new PreDefRoom(val));
+
+        if (val != null) {
+            ourRoom.createRoom(new PreDefRoom(val));
+        } else {
+            console.log("let me draw yall!");
+            ourRoom.initRoom();
+        }
+
+        
     });
 }
 
