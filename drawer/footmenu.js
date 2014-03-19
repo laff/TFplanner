@@ -23,7 +23,7 @@ FootMenu.prototype.initFooter = function () {
 	clear,
 	clearTxt;
 
-    paper.canvas.style.backgroundColor = '#999999';
+    paper.canvas.style.backgroundColor = '#A59C94';
 
 	// Draws one of the predefined Raphael-icons. (folder), then transforms it to fit in the 'loadButton'-rectangle.
 	load = paper.path('M28.625,26.75h-26.5V8.375h1.124c1.751,0,0.748-3.125,3-3.125c3.215,0,1.912,0,5.126,0c2.251,0,1.251,3.125,3.001,3.125h14.25V26.75z');
@@ -82,17 +82,20 @@ FootMenu.prototype.initFooter = function () {
 
     	// Currently for testing
         if (ourRoom.finished == true) {
-            var path = grid.moveRoom();
+            var path = grid.moveRoom(),
+                resultGrid = new ResultGrid(path);
 
             scrollBox.paper.clear();
-            var resultGrid = new ResultGrid(path);
+            
 
             setTimeout( function () {
                 // I think this is a "safe" way to do this, first clear the resultGrid (in reality this is
                 // the same grid as 'grid')
                 // Then create our initial grid before we initalize the drawing.
                 resultGrid.clear();
+                resultGrid = null;
                 ourRoom.clearRoom();
+                options.showOptions(1);
                 grid = new Grid();
                 scrollBox = new ScrollBox();
                 ourRoom = new DrawRoom(20);
@@ -104,6 +107,7 @@ FootMenu.prototype.initFooter = function () {
    clr.mouseup( function () {
     	ourRoom.clearRoom();
         ourRoom.initRoom();
+        tabs.select(1);
         options.showOptions(1);
         options.preDefArr = null;
     });

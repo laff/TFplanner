@@ -1,14 +1,13 @@
-
-
 /**
  * Structonator
 **/
-function Options(tab) {
+function Options (tab) {
         this.optPaper;
         this.preDefArr = null;
         this.optionTab = 1;
-        this.defColor = '#6D8383';       // Default color.
-        this.inColor = '#d8d8d8';        // Color for mouseover 
+        this.defColor = '#707061';       // Default color.
+        this.inColor = '#d8d8d8';        // Color for mouseover
+        this.imgColor = 'white';         // Color for the button-icons. 
 
         // Default show.
         this.showOptions(1);
@@ -17,20 +16,17 @@ function Options(tab) {
         this.guiElements = null;
 
         this.container = "#content_container";
-
         this.obstHtml = null;
-
-
         this.crossO = String.fromCharCode(248);
         this.dotA = String.fromCharCode(229);
-    }
+}
 
 
 /**
  *  Function that controlls what options to show based on selected tab.
  *
 **/
-Options.prototype.showOptions = function(tab) {
+Options.prototype.showOptions = function (tab) {
 
     var paper = (this.optPaper != null) ? this.optPaper : null,
         container = this.container;
@@ -83,71 +79,258 @@ Options.prototype.showOptions = function(tab) {
     }
 }
 
-
 /**
- *  Function that creates a header.
- *  It is supposed to position a header perfectly within the options_container.
- *  
- *  @params:
- *      - yPos : The distance from the top. Makes it easy to position header.
- *      - text : The header text.
+ *  Set up the specifications-tab.
 **/
-Options.prototype.createHeader = function(text, yPos) {
+Options.prototype.initSpecs = function () {
 
     var paper = this.optPaper,
-        paperW = paper.width,
-        paperH = paper.height,
-        offsetX = (paperW * 0.1),
-        offsetY = (paperH * 0.05) + (yPos != null ? yPos : 0),
-        rectWidth = (paperW * 0.8),
-        rectHeight = (paperH * 0.05),
-        text,
-        rect;
-    
-    // Create the button used when creating a predefined rectangular room.
-    rect = paper.rect(offsetX, offsetY, rectWidth, rectHeight).attr({
-        fill: 'gray',
-        'stroke-width': 0
+        container = this.container,
+        specSubmit = 'specSubmit',
+        crossO = this.crossO,
+        html,
+        that = this;
+
+    // Clear current html
+    $(container).html("");
+
+    // Adding class css, and remove the old ones.
+    $(container).addClass('specTab');
+    $(container).removeClass('obstacleTab');
+    $(container).removeClass('roomTab');
+
+
+    if (ourRoom.finished ==  true) {
+        // Variables used for setting up elements.
+        var header = document.createElement("h3"),
+            inOut = document.createElement("select"),
+            form = document.createElement("form"),
+            option1 = document.createElement("option"),
+            option2 = document.createElement("option"),
+            span = document.createElement("span");
+        
+        header.innerHTML = "Velg spesifikasjoner";
+        span.innerHTML = "Velg utend"+crossO+"rs/innend"+crossO+"rs: ";
+
+        span.setAttribute("id", "inOrOut");
+        form.setAttribute("class", "forms");
+        form.setAttribute("id", "form1");
+        inOut.setAttribute("id", "inOutType");
+
+        option1.value = "1";
+        option1.text = "Inne";
+        option2.value = "2";
+        option2.text = "Ute";
+
+        inOut.add(option1, null);
+        inOut.add(option2, null);
+        form.appendChild(span);
+        form.appendChild(inOut);
+
+        $(container).append(header);
+        $(container).append(form);
+        $(form).append("<br>");
+
+        // Default selected is 'none', so a value MUST be chosen by the user.        
+        document.getElementById("inOutType").selectedIndex = -1;
+    } else {
+        html = '<p class="error"> You need to draw<br> and finish, or create a<br> predefined room first! </p>';
+        $(container).html(html);
+    }
+
+    $('#inOutType').change( function () {
+        that.inOrOut(form);
     });
-
-    // Getting the rectangle variables
-    var attrs = rect.attrs,
-        rectX = attrs.x,
-        rectY = attrs.y,
-        rectW = attrs.width,
-        rectH = attrs.height,
-        fontSize = Math.pow((rectH * rectW), 0.3);
-
-    //Head-text on top of the buttons:
-    text = paper.text((rectX + (rectW / 2)), (rectY + (rectH / 2)), text).attr({
-        'font-size': fontSize
-    })
-
-    return (rect, text);
 }
 
 /**
- *  Set up specifications
- *
+ * Functionality for showing dropdown-menu for chosing 'dry- or wet-area'.
+ * Will only show this option if 'inside' is chosen on the first dropdown.
 **/
-Options.prototype.initSpecs = function() {
-    var paper = this.optPaper;
+Options.prototype.inOrOut = function (form) {
 
-    paper.canvas.style.backgroundColor = '#999999';
+    var container = this.container,     
+        selected = $('#inOutType').val(),
+        that = this,
+        crossO = this.crossO,
+        dotA = this.dotA;
 
-    this.guiElements.push(this.createHeader('Velg valg'));
+    // If the 'climateType'-id already exists, we want to delete the
+    // <br> tag after it, and then remove the id itself.
+    if ($('#climateType').length) {
+        $('#climateType').next().remove();
+        $('#climateType').remove();
+        $('#dryOrWet').remove();
+    }
+
+    $('#decks').remove();
+    $('#genButton').remove();
+
+     //Inside is selected
+    if (selected == 1) {
+
+        $('#deckType').remove();
+
+        var dryWet = document.createElement("select"),
+            option1 = document.createElement("option"),
+            option2 = document.createElement("option"),
+            span = document.createElement("span");
+
+        span.innerHTML = "Velg v"+dotA+"trom/t"+crossO+"rrom: ";
+        dryWet.setAttribute("id", "climateType");
+        span.setAttribute("id", "dryOrWet");
+
+        option1.value = "1";
+        option1.text = "T"+crossO+"rrom";
+        option2.value = "2";
+        option2.text = "V"+dotA+"trom";
+
+        dryWet.add(option1, null);
+        dryWet.add(option2, null);
+
+        form.appendChild(span);
+        form.appendChild(dryWet);
+        // Append the form to the container.
+        $(container).append(form); 
+        $(form).append("<br>");
+        document.getElementById("climateType").selectedIndex = -1;
+
+    } else {
+        // 'Outside' is chosen, so we jump directly to the options associated with this option.
+        that.chooseDeck(form);
+    }
+
+    // Call new function to set up the 'deck'-dropdown on change.
+    $('#climateType').change( function () {
+        that.chooseDeck(form);
+    });
+}
+
+/**
+ * The third dropdown-menu, where the user must choose type of deck for the area.
+**/
+Options.prototype.chooseDeck = function (form) {
+
+    var container = this.container,
+        that = this,
+        selected = $('#inOutType').val(),
+        selectedClim = $('#climateType').val(),
+        span = document.createElement("span"),
+        deck = document.createElement("select"),
+        option1 = document.createElement("option"),
+        option2 = document.createElement("option"),
+        option3 = document.createElement("option"),
+        option4 = document.createElement("option"),
+        option5 = document.createElement("option"),
+        option6 = document.createElement("option"),
+        option7 = document.createElement("option");
+
+    // Make sure that a <select> with this id not exists, no need to use 'if' cause
+    // nothing will happen if it doesn`t exist. Also remove the 'decks-<span>' that display text.
+    $('#deckType').remove();
+    $('#decks').remove();
+    $('#genButton').remove();
+
+    deck.setAttribute("id", "deckType");
+    span.setAttribute("id", "decks");
+
+    span.innerHTML = "Velg dekke i rommet: ";
+
+    // Do stuff for an indoor-room.
+    if (selected == 1) {
+        // Tiles can occur both in dry-rooms and wet-rooms.
+        option1.value = "1";
+        option1.text = "Flis";
+        // 'Dry-room'
+        if (selectedClim == 1) {
+            // List options for 'dry'-rooms.
+            option2.value = "2";
+            option2.text = "Teppe";
+            option3.value = "3";
+            option3.text = "Parkett";
+            option4.value = "4";
+            option4.text = "Laminat";
+            option5.value = "5";
+            option5.text = "Belegg";
+            option6.value = "6";
+            option6.text = "St"+this.crossO+"p";
+            option7.value = "6";
+            option7.text = "Kork";
+
+            deck.add(option1, null);
+            deck.add(option2, null);
+            deck.add(option3, null);
+            deck.add(option4, null);
+            deck.add(option5, null);
+            deck.add(option6, null);
+            deck.add(option7, null);
+
+        // This should obviously be a 'wet'-room.
+        } else if (selectedClim == 2) {
+            deck.add(option1, null);
+        }
+    // The area is chosen as 'outside' 
+    } else if (selected == 2) {
+        option1.value = "1";
+        option1.text = "Asfalt"
+        option2.value = "2";
+        option2.text = "Belegningsstein";
+        option3.value = "3";
+        option3.text = "Betong";
+
+        deck.add(option1, null);
+        deck.add(option2, null);
+        deck.add(option3, null);
+    }
+
+    // Append the element to our form, then add the form to the container.
+    form.appendChild(span);
+    form.appendChild(deck);
+    $(container).append(form);
+    // Set as blanc on initialization, to force the user to select an !default item.
+    document.getElementById("deckType").selectedIndex = -1;
+
+    // When the user have selected an item in this list, the 'generate'-button is created.
+    $('#deckType').change( function () {
+        that.generateButton(form);
+    });
+}
+
+/**
+ * Creation of a button to generate our solution for putting out a heatingmat.
+ * Will be created when an item is chosen in all the dropdowns.
+**/
+Options.prototype.generateButton = function (form) {
+
+    var container = this.container,
+        input = document.createElement("input");
+
+    $('#genButton').remove();
+
+    input.setAttribute("id", "genButton");
+    input.setAttribute("type", "button");
+    input.setAttribute("title", "Klikk for "+this.dotA+" generere leggeanvisning");
+
+    input.value = "Generer leggeanvisning";
+
+    form.appendChild(input);
+    $(container).append(form);
+
+    $('#genButton').click( function () {
+        // OBS: Call the algorithm and generate a drawing!
+        // We also must find the product(s) that matches the chosen values!
+    });
 }
 
 /**
  *  Set up Obstacles
  *
 **/
-Options.prototype.initObstacles = function() {
+Options.prototype.initObstacles = function () {
 
     var container = this.container,
         html = "",
         crossO = this.crossO,
-        defSubmit = 'defSubmit',
         that = this;
 
     // clear current html
@@ -155,6 +338,7 @@ Options.prototype.initObstacles = function() {
 
     // adding class css.
     $(container).addClass('obstacleTab');
+    $(container).removeClass('specTab');
 
 
     if (ourRoom.finished ==  true) {
@@ -173,7 +357,7 @@ Options.prototype.initObstacles = function() {
         html += "<option value=4>Badekar</option></select>";
 
         // input button
-        html += "<input id="+defSubmit+" type='button' value='legg til'>";
+        html += "<input id='defSubmit' type='button' value='legg til'>";
 
         // Form end
         html += '</form>';
@@ -183,75 +367,120 @@ Options.prototype.initObstacles = function() {
 
     } else {
         html = '<p class="error"> You need to draw<br> and finish, or create a<br> predefined room first! </p>';
+        this.obstHtml = html;
     }
 
-    // insert html
-    $(container).html(html);
-
     this.obstacleList();
-
-    // Add click action for the "submit button".
-    $('#'+defSubmit).click(function() {
-        
-        // Creating obstacle.
-        obstacles.createObstacle($('#obstacleType').val());
-
-        // Creating / refreshing list of obstacles.
-        that.initObstacles();
-    });
 }
 
 /**
  *  Function that either refreshes or creates a list of obstacles.
  *  Gets the html set in initObstacles (passed through function).
 **/
-Options.prototype.obstacleList = function(obstacle) {
+Options.prototype.obstacleList = function (obstacle) {
 
     var obstacleArr = obstacles.obstacleSet,
         obstacleLength = obstacleArr.length,
         change = 'Endre',
         save = 'Lagre',
+        del = 'Slett',
         container = this.container,
         crossO = this.crossO,
-        html = this.obstHtml;
-    
-    if (obstacleLength <= 0) {
-        return;
-    }
+        html = this.obstHtml,
+        that = this;
 
     for (var i = 0; i < obstacleLength; i++) {
-
-        html += "<div class=obst>Hindring "+(i + 1)+": <input id="+i+" class='change' type='button' value="+change+"></div>";
+        html += "<div class=obst><div class=obsttxt>"+obstacleArr[i].data('obstacleType')+": </div><input id="+i+" class='change' type='button' value="+change+">"+ 
+        "<input class='delete' type='button' value="+del+"></div>";
 
         if (obstacle == i) {
             var width = obstacleArr[i].attrs.width,
-                height = obstacleArr[i].attrs.height;
+                height = obstacleArr[i].attrs.height,
+                x = obstacleArr[i].attrs.x,
+                y = obstacleArr[i].attrs.y;
 
-            html += "<div id=change class='roomTab'>H"+crossO+"yde: <input  type='number' id='height' value="+height+"><br>";
-            html += "Bredde: <input  type='number' id='width' value="+width+">";
-            html += "<input id=changeObst name="+i+" type='button' value="+save+"></div>";
+            // Div start
+            html += "<div id=change class='roomTab'>";
+            // Height
+            html += "<div class='inputfield'><div class='inputtext'>H"+crossO+"yde: </div><input  type='number' id='height' value="+height+"><br></div>";
+            // Width
+            html += "<div class='inputfield'><div class='inputtext'>Bredde: </div><input  type='number' id='width' value="+width+"><br></div>";
+            // position x
+            html += "<div class='inputfield'><div class='inputtext'>Horisontal avstand: </div><input type='number' id='posx' value="+(x - 100)+"><br></div>";
+            // position y
+            html += "<div class='inputfield'><div class='inputtext'>Vertikal avstand: </div><input type='number' id='posy' value="+(y - 100)+"></div>";
+            // Button element.
+            html += "<input id=changeObst name="+i+" type='button' value="+save+">";
+            // Div end.
+            html += "</div>";
         }
     }
 
     $(container).html("");
     $(container).html(html);
 
-    // Add click action for the "submit button".
-    $('.change').click(function() {
+    this.actionListeners();
 
-        options.obstacleList(this.id);
-        obstacles.selectObstacle(this.id);
-
-    });
-
-    // Add click action for the "submit button".
-    $('#changeObst').click(function() {
-
-        obstacles.adjustSize(this.name, $('#width').val(), $('#height').val());
-
-    });
 }
 
+/**
+ *  Function that initiates action listeners!
+ *
+**/
+Options.prototype.actionListeners = function () {
+
+    var that = this;
+
+
+    // Add click action for the "submit button".
+    $('.change').click(function() {
+        that.obstacleList(this.id);
+        obstacles.selectObstacle(this.id);
+    });
+
+    $('.delete').click(function () {
+        obstacles.deleteObstacle(this.parentNode.firstChild.nextSibling.id);
+        that.obstacleList();
+    });
+
+    // Add click action for the "submit button".
+    $('#defSubmit').click(function() {
+        
+        // Creating obstacle.
+        var value = $('#obstacleType').val(),
+            text = $('#obstacleType option[value='+value+']').text();
+
+        obstacles.createObstacle(value, text);
+
+        // Creating / refreshing list of obstacles.
+        that.initObstacles();
+    });
+
+
+    // Add click action for the "changeObst-button".
+    $('#changeObst').click(function() {
+
+        var roundX = (Math.round((($('#posx').val())/ 10)) * 10) + 100,
+            roundY = (Math.round((($('#posy').val())/ 10)) * 10) + 100;
+
+        $('#posx').val((roundX - 100));
+        $('#posy').val((roundY - 100));
+
+
+        obstacles.adjustSize(
+            this.name, 
+            $('#width').val(), 
+            $('#height').val(), 
+            roundX, 
+            roundY
+        );
+
+        that.obstacleList();
+
+        obstacles.selectObstacle(null);
+    });
+
+}
 
 /** 
  *  Function that creates a form that lets the user adjust lengths of his predifined room.
@@ -354,7 +583,8 @@ Options.prototype.initDefine = function () {
 Options.prototype.initDraw = function () {
         var paper = this.optPaper,
             width = paper.width,
-            height = paper.height,        
+            height = paper.height,
+            drawColl = paper.set(),        
             rectColl = paper.set(),
             tColl = paper.set(),
             lColl = paper.set(),
@@ -367,98 +597,200 @@ Options.prototype.initDraw = function () {
             uColl = paper.set(),
             rectAttr = {                // Attributes for the "background-square" of buttons.
                 fill: this.defColor, 
-                stroke: '#3B4449', 
+                stroke: this.defColor, 
                 'stroke-width': 1, 
             },
             imgAttr = {                 // Attributes for the "image" on each button.
-                fill: '#fafdd5',
+                fill: this.imgColor,
                 stroke: 'black',
                 'stroke-width': 1,
             },
-                     
-
-    // Head-text on top of the buttons:
-    tabTxt = paper.text(width/2, 10, "Ferdiglagde rom").attr({
-        'font-size': 14
-    }),
-
-    // All buttons is created the same way, with a square behind a illustration of the room-shape.
-    buttonRect = paper.rect(width/8, height/20, width/4, width/4, 0).attr(rectAttr),
-    temp = buttonRect.attrs.width,          // Used for shorter writing of width-variable
-    rectImg = paper.rect((width*(3/16)), ((height/20)+temp/4), temp/2, temp/2, 0).attr(imgAttr),
+            txtAttr = {
+                'font-size': 18,
+                'font-weight': 'bold'
+            },
 
 
-    buttonT = paper.rect(width/8, (height*(3/20)), width/4, width/4, 0).attr(rectAttr),
-    tImg = paper.path('M'+(width*(3/16))+' '+((height*(3/20))+temp/4)+'L'+((width*(3/16))+(temp/2))+' '+((height*(3/20))+temp/4)+
-            ' L'+((width*(3/16))+(temp/2))+' '+((height*(3/20))+temp/2)+' L'+((width*(3/16))+(temp/3))+' '+((height*(3/20))+temp/2)+
-            ' L'+((width*(3/16))+(temp/3))+' '+((height*(3/20))+(temp*(3/4)))+' L'+((width*(3/16))+(temp/6))+' '+((height*(3/20))+(temp*(3/4)))+
-            ' L'+((width*(3/16))+(temp/6))+' '+((height*(3/20))+temp/2)+' L'+(width*(3/16))+' '+((height*(3/20))+temp/2)+
-            ' L'+(width*(3/16))+' '+((height*(3/20))+temp/4)).attr(imgAttr),
+    /**
+     *  All buttons is created the same way, with a square behind a illustration of the room-shape.
+     *  here are some common variables for positioning:
+    **/ 
+
+    // each "column" has its own x variable.
+    x0 = (width / 2.665),
+    x1 = (width / 8),
+    x2 = (width * (5 / 8)),
+    x3 = (width / 2),
+
+    // Each row has its own y variable.
+    y0 = (height * (4 / 20)),
+    y1 = (height * (5 / 20)),
+    y2 = (height * (9 / 20)),
+    y3 = (height * (10 / 20)),
+    y4 = (height * (12 / 20)),
+    y5 = (height * (14 / 20)),
+    y6 = (height * (16 / 20)),
+    y7 = (height * (18 / 20)),
+    
+    // Basically different offsets and points
+    w = (width / 4),
+    offset1 = (w / 4),
+    offset2 = (w / 2),
+    offset3 = (3 / 4),
+    offset4 = (w / 3),
+    offset5 = (w / 6),
+    offset6 = (w * (7 / 12)),
+    offset7 = (w * (5 / 12)),
+    offset8 = (w * (1 / 2)),
+    p0 = (width * (7 / 16)),
+    p1 = (width * (3 / 16)),
+    p2 = (width * (11 / 16)),
 
 
-    buttonL = paper.rect((width*(5/8)), height/20, width/4, width/4, 0).attr(rectAttr),
-    lImg = paper.path('M'+(width*(11/16))+' '+((height/20)+temp/4)+' L'+((width*(11/16))+temp/4)+' '+((height/20)+temp/4)+
-            ' L'+((width*(11/16))+temp/4)+' '+((height/20)+temp/2)+' L'+((width*(11/16))+temp/2)+' '+((height/20)+temp/2)+
-            ' L'+((width*(11/16))+temp/2)+' '+((height/20)+(temp*3/4))+' L'+(width*(11/16))+' '+((height/20)+(temp*3/4))+
-            ' L'+(width*(11/16))+' '+((height/20)+temp/4)).attr(imgAttr),
+    // CUSTOM DRAW
+    // Header
+    drawTxt = paper.text(x3, y0, "Tegn selv").attr(txtAttr),
+
+    // Button
+    drawRect = paper.rect(x0, y1, w, w).attr(rectAttr),
+    drawImg = paper.path(
+                'M'+(p0)+' '+((y1)+offset1)+
+                ' L'+((p0)+offset2)+' '+((y1)+(w*offset3))+
+                ' L'+(p0)+' '+((y1)+(w*offset3))+
+                ' L'+(p0)+' '+((y1)+offset1)
+            ).attr(imgAttr),
+
+    // PREDEFINED DRAW
+    // Header
+    tabTxt = paper.text(x3, y2, "Ferdiglagde rom").attr(txtAttr),
+
+    // FIRST ROW of buttons
+    buttonRect = paper.rect(x1, y3, w, w).attr(rectAttr),
+    rectImg = paper.rect(p1, (y3+offset1), offset2, offset2).attr(imgAttr),
+
+    buttonL = paper.rect(x2, y3, w, w).attr(rectAttr),
+    lImg = paper.path(
+                'M'+p2+' '+(y3+offset1)+
+                ' L'+(p2+offset1)+' '+(y3+offset1)+
+                ' L'+(p2+offset1)+' '+(y3+offset2)+
+                ' L'+(p2+offset2)+' '+(y3+offset2)+
+                ' L'+(p2+offset2)+' '+(y3+(w*offset3))+
+                ' L'+p2+' '+(y3+(w*offset3))+
+                ' L'+p2+' '+(y3+offset1)
+            ).attr(imgAttr),
 
 
-    lInv = paper.rect((width*(5/8)), (height*(3/20)), width/4, width/4, 0).attr(rectAttr),
-    lInvImg = paper.path('M'+((width*(11/16))+temp/4)+' '+((height*(3/20))+temp/4)+' L'+((width*(11/16))+temp/2)+' '+((height*(3/20))+temp/4)+
-                ' L'+((width*(11/16))+temp/2)+' '+((height*(3/20))+(temp*(3/4)))+' L'+(width*(11/16))+' '+((height*(3/20))+(temp*(3/4)))+
-                ' L'+(width*(11/16))+' '+((height*(3/20))+temp/2)+' L'+((width*(11/16))+temp/4)+' '+((height*(3/20))+temp/2)+
-                ' L'+((width*(11/16))+temp/4)+' '+((height*(3/20))+temp/4)).attr(imgAttr),
+    // SECOND ROW
+    buttonT = paper.rect(x1, y4, w, w).attr(rectAttr),
+    tImg = paper.path(
+                'M'+p1+' '+(y4+offset1)+
+                'L'+(p1+offset2)+' '+(y4+offset1)+
+                ' L'+(p1+offset2)+' '+(y4+offset2)+
+                ' L'+(p1+offset4)+' '+(y4+offset2)+
+                ' L'+(p1+offset4)+' '+(y4+(w*offset3))+
+                ' L'+(p1+offset5)+' '+(y4+(w*offset3))+
+                ' L'+(p1+offset5)+' '+(y4+offset2)+
+                ' L'+p1+' '+(y4+offset2)+
+                ' L'+p1+' '+(y4+offset1)
+            ).attr(imgAttr),
+
+    lInv = paper.rect(x2, y4, w, w).attr(rectAttr),
+    lInvImg = paper.path(
+                'M'+(p2+offset1)+' '+(y4+offset1)+
+                ' L'+(p2+offset2)+' '+(y4+offset1)+
+                ' L'+(p2+offset2)+' '+(y4+(w*offset3))+
+                ' L'+p2+' '+(y4+(w*offset3))+
+                ' L'+p2+' '+(y4+offset2)+
+                ' L'+(p2+offset1)+' '+(y4+offset2)+
+                ' L'+(p2+offset1)+' '+(y4+offset1)
+            ).attr(imgAttr),
+
+    // THIRD ROW!
+    tRot90 = paper.rect(x1, y5, w, w).attr(rectAttr),
+    tRot90Img = paper.path(
+                'M'+(p1+offset1)+' '+(y5+offset1)+
+                ' L'+(p1+offset2)+' '+(y5+offset1)+
+                ' L'+(p1+offset2)+' '+(y5+(w*offset3))+
+                ' L'+(p1+offset1)+' '+(y5+(w*offset3))+
+                ' L'+(p1+offset1)+' '+(y5+offset6)+
+                ' L'+p1+' '+(y5+offset6)+
+                ' L'+p1+' '+(y5+offset7)+
+                ' L'+(p1+offset1)+' '+(y5+offset7)+
+                ' L'+(p1+offset1)+' '+(y5+offset1)
+            ).attr(imgAttr),
+
+    lRot180 = paper.rect(x2, y5, w, w).attr(rectAttr),
+    lRot180Img = paper.path(
+                'M'+p2+' '+(y5+offset1)+
+                ' L'+(p2+offset2)+' '+(y5+offset1)+
+                ' L'+(p2+offset2)+' '+(y5+(w*offset3))+
+                ' L'+(p2+offset1)+' '+(y5+(w*offset3))+
+                ' L'+(p2+offset1)+' '+(y5+offset2)+
+                ' L'+p2+' '+(y5+offset2)+
+                ' L'+p2+' '+(y5+offset1)
+            ).attr(imgAttr),
+
+
+    // FOURTH ROW!
+    lRot270 = paper.rect(x2, y6, w, w).attr(rectAttr),
+    lRot270Img = paper.path(
+                'M'+p2+' '+(y6+offset1)+
+                ' L'+(p2+offset2)+' '+(y6+offset1)+
+                ' L'+(p2+offset2)+' '+(y6+offset2)+
+                ' L'+(p2+offset1)+' '+(y6+offset2)+
+                ' L'+(p2+offset1)+' '+(y6+(w*offset3))+
+                ' L'+p2+' '+(y6+(w*offset3))+
+                ' L'+p2+' '+(y6+offset1)
+            ).attr(imgAttr),
 
     
-    lRot180 = paper.rect((width*(5/8)), (height*(5/20)), width/4, width/4, 0).attr(rectAttr),
-    lRot180Img = paper.path('M'+(width*(11/16))+' '+((height*(5/20))+temp/4)+' L'+((width*(11/16))+(temp/2))+' '+((height*(5/20))+temp/4)+
-                ' L'+((width*(11/16))+(temp/2))+' '+((height*(5/20))+(temp*(3/4)))+' L'+((width*(11/16))+temp/4)+' '+((height*(5/20))+(temp*(3/4)))+
-                ' L'+((width*(11/16))+temp/4)+' '+((height*(5/20))+temp/2)+' L'+(width*(11/16))+' '+((height*(5/20))+temp/2)+
-                ' L'+(width*(11/16))+' '+((height*(5/20))+temp/4)).attr(imgAttr),
+    tRot180 =  paper.rect(x1, y6, w, w).attr(rectAttr),
+    tRot180Img = paper.path(
+                'M'+(p1+offset5)+' '+(y6+offset1)+
+                ' L'+(p1+offset4)+' '+(y6+offset1)+
+                ' L'+(p1+offset4)+' '+(y6+offset2)+
+                ' L'+(p1+offset2)+' '+(y6+offset8)+
+                ' L'+(p1+offset2)+' '+(y6+(w*offset3))+
+                ' L'+p1+' '+(y6+(w*offset3))+
+                ' L'+p1+' '+(y6+offset8)+
+                ' L'+(p1+offset5)+' '+(y6+offset8)+
+                ' L'+(p1+offset5)+' '+(y6+offset1)
+            ).attr(imgAttr),
+
+
+    // FIFTH ROW!
+    tRot270 = paper.rect(x1, y7, w, w).attr(rectAttr),
+    tRot270Img = paper.path(
+                'M'+p1+' '+(y7+offset1)+
+                ' L'+(p1+offset1)+' '+(y7+offset1)+
+                ' L'+(p1+offset1)+' '+(y7+offset7)+
+                ' L'+(p1+offset2)+' '+(y7+offset7)+
+                ' L'+(p1+offset2)+' '+(y7+offset6)+
+                ' L'+(p1+offset1)+' '+(y7+offset6)+
+                ' L'+(p1+offset1)+' '+(y7+(w*offset3))+
+                ' L'+p1+' '+(y7+(w*offset3))+
+                ' L'+p1+' '+(y7+offset1)
+            ).attr(imgAttr),
 
     
-    lRot270 = paper.rect((width*(5/8)), (height*(7/20)), width/4, width/4, 0).attr(rectAttr),
-    lRot270Img = paper.path('M'+(width*(11/16))+' '+((height*(7/20))+temp/4)+' L'+((width*(11/16))+(temp/2))+' '+((height*(7/20))+temp/4)+
-                ' L'+((width*(11/16))+(temp/2))+' '+((height*(7/20))+temp/2)+' L'+((width*(11/16))+temp/4)+' '+((height*(7/20))+temp/2)+
-                ' L'+((width*(11/16))+temp/4)+' '+((height*(7/20))+(temp*(3/4)))+' L'+(width*(11/16))+' '+((height*(7/20))+(temp*(3/4)))+
-                ' L'+(width*(11/16))+' '+((height*(7/20))+temp/4)).attr(imgAttr),
-
-    
-    tRot90 = paper.rect(width/8, (height*(5/20)), width/4, width/4, 0).attr(rectAttr),
-    tRot90Img = paper.path('M'+((width*(3/16))+temp/4)+' '+((height*(5/20))+temp/4)+' L'+((width*(3/16))+temp/2)+' '+((height*(5/20))+temp/4)+
-                ' L'+((width*(3/16))+temp/2)+' '+((height*(5/20))+(temp*(3/4)))+' L'+((width*(3/16))+temp/4)+' '+((height*(5/20))+(temp*(3/4)))+
-                ' L'+((width*(3/16))+temp/4)+' '+((height*(5/20))+(temp*(7/12)))+' L'+(width*(3/16))+' '+((height*(5/20))+(temp*(7/12)))+
-                ' L'+(width*(3/16))+' '+((height*(5/20))+temp*(5/12))+' L'+(width*(3/16)+temp/4)+' '+((height*(5/20))+temp*(5/12))+
-                ' L'+((width*(3/16))+temp/4)+' '+((height*(5/20))+temp/4)).attr(imgAttr),
-
-    
-    tRot180 =  paper.rect(width/8, (height*(7/20)), width/4, width/4, 0).attr(rectAttr),
-    tRot180Img = paper.path('M'+((width*(3/16))+temp/6)+' '+((height*(7/20))+temp/4)+' L'+((width*(3/16))+temp/3)+' '+((height*(7/20))+temp/4)+
-                ' L'+((width*(3/16))+temp/3)+' '+((height*(7/20))+temp/2)+' L'+((width*(3/16))+temp/2)+' '+((height*(7/20))+(temp*(1/2)))+
-                ' L'+((width*(3/16))+temp/2)+' '+((height*(7/20))+(temp*(3/4)))+' L'+(width*(3/16))+' '+((height*(7/20))+(temp*(3/4)))+
-                ' L'+(width*(3/16))+' '+((height*(7/20))+(temp*(1/2)))+' L'+((width*(3/16))+temp/6)+' '+((height*(7/20))+(temp*(1/2)))+
-                ' L'+((width*(3/16))+temp/6)+' '+((height*(7/20))+temp/4)).attr(imgAttr),
-
-    
-    tRot270 = paper.rect(width/8, (height*(9/20)), width/4, width/4, 0).attr(rectAttr),
-    tRot270Img = paper.path('M'+(width*(3/16))+' '+((height*(9/20))+temp/4)+' L'+((width*(3/16))+temp/4)+' '+((height*(9/20))+temp/4)+
-                ' L'+((width*(3/16))+temp/4)+' '+((height*(9/20))+(temp*(5/12)))+' L'+((width*(3/16))+temp/2)+' '+((height*(9/20))+(temp*(5/12)))+
-                ' L'+((width*(3/16))+temp/2)+' '+((height*(9/20))+(temp*(7/12)))+' L'+((width*(3/16))+temp/4)+' '+((height*(9/20))+(temp*(7/12)))+
-                ' L'+((width*(3/16))+temp/4)+' '+((height*(9/20))+(temp*(3/4)))+' L'+(width*(3/16))+' '+((height*(9/20))+(temp*(3/4)))+
-                ' L'+(width*(3/16))+' '+((height*(9/20))+temp/4)).attr(imgAttr),
-
-    
-    buttonU = paper.rect((width*(5/8)), (height*(9/20)), width/4, width/4, 0).attr(rectAttr),
-    uImg = paper.path('M'+(width*(11/16))+' '+((height*(9/20))+temp/4)+' L'+((width*(11/16))+(temp/6))+' '+((height*(9/20))+temp/4)+
-                ' L'+((width*(11/16))+(temp/6))+' '+((height*(9/20))+temp/2)+' L'+((width*(11/16))+temp/3)+' '+((height*(9/20))+temp/2)+
-                ' L'+((width*(11/16))+temp/3)+' '+((height*(9/20))+temp/4)+' L'+((width*(11/16))+temp/2)+' '+((height*(9/20))+temp/4)+
-                ' L'+((width*(11/16))+temp/2)+' '+((height*(9/20))+(temp*(3/4)))+' L'+(width*(11/16))+' '+((height*(9/20))+(temp*(3/4)))+
-                ' L'+(width*(11/16))+' '+((height*(9/20))+temp/4)).attr(imgAttr);
+    buttonU = paper.rect(x2, y7, w, w).attr(rectAttr),
+    uImg = paper.path(
+                'M'+p2+' '+(y7+offset1)+
+                ' L'+(p2+offset5)+' '+(y7+offset1)+
+                ' L'+(p2+offset5)+' '+(y7+offset2)+
+                ' L'+(p2+offset4)+' '+(y7+offset2)+
+                ' L'+(p2+offset4)+' '+(y7+offset1)+
+                ' L'+(p2+offset2)+' '+(y7+offset1)+
+                ' L'+(p2+offset2)+' '+(y7+(w*offset3))+
+                ' L'+p2+' '+(y7+(w*offset3))+
+                ' L'+p2+' '+(y7+offset1)
+            ).attr(imgAttr);
 
     // Set backgroundcolor of the options-container canvas.
-    paper.canvas.style.backgroundColor = '#D6D6D6';
+    paper.canvas.style.backgroundColor = '#CBC4BC';
 
     // Create handlers and stuff for all the 'buttons'.
+    this.createHandlers(drawColl.push(drawRect, drawImg), null, "Tegn selv!");
     this.createHandlers(rectColl.push(buttonRect, rectImg), 0, "Ferdiglaget kvadratisk rom");
     this.createHandlers(tColl.push(buttonT, tImg), 2, "Ferdiglaget T-formet rom");
     this.createHandlers(lColl.push(buttonL, lImg), 1,"Ferdiglaget L-formet rom");
@@ -469,6 +801,7 @@ Options.prototype.initDraw = function () {
     this.createHandlers(tRot180Coll.push(tRot180, tRot180Img), 7, "Ferdiglaget T-rom");
     this.createHandlers(tRot270Coll.push(tRot270, tRot270Img), 8, "Ferdiglaget T-rom");
     this.createHandlers(uColl.push(buttonU, uImg), 9, "Ferdiglaget U-rom");
+
 }
 
 /**
@@ -491,7 +824,17 @@ Options.prototype.createHandlers = function(coll, val, toolTip) {
         coll[0].attr('fill', defColor);
 
     }).mouseup(function () {
-        ourRoom.createRoom(new PreDefRoom(val));
+
+        if (val != null) {
+            ourRoom.createRoom(new PreDefRoom(val));
+        } else {
+            if (finishedRoom == null) {
+                ourRoom.initRoom();
+            }
+            
+        }
+
+        
     });
 }
 

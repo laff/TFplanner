@@ -18,7 +18,6 @@ function DrawRoom(radius) {
     this.maxAngle = 330.05; 
     this.minLength = 50;
     this.selfDrawn = true;
-    this.initRoom();
     finishedRoom = null;
 }
 
@@ -422,7 +421,6 @@ DrawRoom.prototype.drawTempLine = function (point2, point1, callback) {
 
 
     // Forcing 90 degree angles!
-    // 
     // calculate temp length
     tmpLen = this.vectorLength(p1.x, p1.y, p2.x, p2.y);
 
@@ -459,8 +457,6 @@ DrawRoom.prototype.drawTempLine = function (point2, point1, callback) {
     // 2: deciding to color the tmpline red/black based on if it crosses another,
     // and if it is the same as the starting point of the first wall.
     // 3: assigning "this.crossed" to false/true based on the above. used in endWall().
-
-
     if (crossed && !(x1 == p2.x && y1 == p2.y)) {
 
         if (tmpWall == null) {
@@ -663,6 +659,8 @@ DrawRoom.prototype.clearRoom = function() {
         this.clearTmp();
     }
 
+    obstacles.clearSets();
+    
     this.lastPoint = null;
     this.proximity = false;
     this.finished = false;
@@ -672,6 +670,7 @@ DrawRoom.prototype.clearRoom = function() {
 
     $('#canvas_container').unbind('click');
     $('#canvas_container').unbind('mousemove');
+    $(document).unbind('keydown');
 
     if (finishedRoom != null) {
         finishedRoom.nullify();
@@ -691,6 +690,8 @@ DrawRoom.prototype.clearTmp = function () {
     this.tmpRect = null;
     this.tmpLen.remove();
     this.tmpLen = null;
+
+    // Clean up the temp-stuff in case some lengths or lines are hanging around.
     measurement.tmpMeasurements.remove();
     measurement.tmpMeasurements.clear();
 }

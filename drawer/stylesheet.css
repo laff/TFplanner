@@ -56,23 +56,46 @@
 }
 
 .roomTab {
-	background: #D6D6D6!important;
+	background: #CBC4BC!important;
 }
 
 .obstacleTab {
-	background: #BDBDBD!important;
+	background: #B6ADA5!important;
+}
+
+.specTab {
+	background: #A59C94!important;
 }
 
 .obst {
 
 	width: 80%;
 	margin-left: 10%;
+}
 
+.obsttxt {
+	float: left;
+	width: 30%;
 }
 
 #change {
 	width: 80%;
 	margin-left: 10%;
+	height: 23%;
+}
+
+#change input {
+	width: 30%;
+	float: left;
+}
+
+.inputfield {
+	width: 100%;
+}
+
+.inputtext {
+	width: 50%;
+	float: left;
 }
 
 #canvas_container {  
@@ -106,21 +129,27 @@
 }
 
 .forms form {
-
 	width: 80%;
 }
 
 .forms input {
-	width: 50%;
+	width: 40%;
 }
 
 .forms select {
-	text-align: center;
+	width: 80%;
+	cursor: pointer;
+}
+
+.forms [type=button] {
+	cursor: pointer;
+	width: 80%!important;
 }
 
 #defSubmit {
 	width: 80%!important;
 }
+
 
 /* Overriding default p css due to the god damn spacing 
 fucking up everything. GO TO HELL CSS! GO TO HELL! */
