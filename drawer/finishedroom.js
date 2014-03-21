@@ -32,7 +32,7 @@ FinishedRoom.prototype.addWalls = function () {
  * Called when we have targeted a wall. Used to find the 'neighbour-walls' of our target.
  *
 **/
-FinishedRoom.prototype.clickableWalls = function(wMatch) {
+FinishedRoom.prototype.clickableWalls = function (wMatch) {
 
     var walls = this.walls,
         length = walls.length,

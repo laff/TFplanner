@@ -19,6 +19,9 @@ function Options (tab) {
         this.obstHtml = null;
         this.crossO = String.fromCharCode(248);
         this.dotA = String.fromCharCode(229);
+
+        // mat object based on specificatins selected
+        this.validMat = null;
 }
 
 
@@ -117,9 +120,9 @@ Options.prototype.initSpecs = function () {
         form.setAttribute("id", "form1");
         inOut.setAttribute("id", "inOutType");
 
-        option1.value = "1";
+        option1.value = "inside";
         option1.text = "Inne";
-        option2.value = "2";
+        option2.value = "outside";
         option2.text = "Ute";
 
         inOut.add(option1, null);
@@ -167,7 +170,7 @@ Options.prototype.inOrOut = function (form) {
     $('#genButton').remove();
 
      //Inside is selected
-    if (selected == 1) {
+    if (selected == "inside") {
 
         $('#deckType').remove();
 
@@ -180,9 +183,9 @@ Options.prototype.inOrOut = function (form) {
         dryWet.setAttribute("id", "climateType");
         span.setAttribute("id", "dryOrWet");
 
-        option1.value = "1";
+        option1.value = "dry";
         option1.text = "T"+crossO+"rrom";
-        option2.value = "2";
+        option2.value = "wet";
         option2.text = "V"+dotA+"trom";
 
         dryWet.add(option1, null);
@@ -237,24 +240,24 @@ Options.prototype.chooseDeck = function (form) {
     span.innerHTML = "Velg dekke i rommet: ";
 
     // Do stuff for an indoor-room.
-    if (selected == 1) {
+    if (selected == "inside") {
         // Tiles can occur both in dry-rooms and wet-rooms.
-        option1.value = "1";
+        option1.value = "tile";
         option1.text = "Flis";
         // 'Dry-room'
-        if (selectedClim == 1) {
+        if (selectedClim == "dry") {
             // List options for 'dry'-rooms.
-            option2.value = "2";
+            option2.value = "carpet";
             option2.text = "Teppe";
-            option3.value = "3";
+            option3.value = "parquet";
             option3.text = "Parkett";
-            option4.value = "4";
+            option4.value = "laminat";
             option4.text = "Laminat";
-            option5.value = "5";
+            option5.value = "fur";
             option5.text = "Belegg";
-            option6.value = "6";
-            option6.text = "St"+this.crossO+"p";
-            option7.value = "6";
+            option6.value = "concrete";
+            option6.text = "Betong";
+            option7.value = "cork";
             option7.text = "Kork";
 
             deck.add(option1, null);
@@ -266,17 +269,17 @@ Options.prototype.chooseDeck = function (form) {
             deck.add(option7, null);
 
         // This should obviously be a 'wet'-room.
-        } else if (selectedClim == 2) {
+        } else if (selectedClim == "wet") {
             deck.add(option1, null);
         }
     // The area is chosen as 'outside' 
-    } else if (selected == 2) {
-        option1.value = "1";
+    } else if (selected == "outside") {
+        option1.value = "asphalt";
         option1.text = "Asfalt"
-        option2.value = "2";
+        option2.value = "pavblock";
         option2.text = "Belegningsstein";
-        option3.value = "3";
-        option3.text = "Betong";
+        option3.value = "concrete";
+        option3.text = "St"+this.crossO+"p";
 
         deck.add(option1, null);
         deck.add(option2, null);
@@ -317,6 +320,8 @@ Options.prototype.generateButton = function (form) {
     $(container).append(form);
 
     $('#genButton').click( function () {
+
+        options.tfProducts();
         // OBS: Call the algorithm and generate a drawing!
         // We also must find the product(s) that matches the chosen values!
     });
@@ -330,8 +335,7 @@ Options.prototype.initObstacles = function () {
 
     var container = this.container,
         html = "",
-        crossO = this.crossO,
-        that = this;
+        crossO = this.crossO;
 
     // clear current html
     $(container).html(html);
@@ -354,7 +358,10 @@ Options.prototype.initObstacles = function () {
         html += "<select id ='obstacleType'><option value=1>Avl"+crossO+"p</option>";
         html += "<option value=2>Toalett</option>";
         html += "<option value=3>Dusj</option>";
-        html += "<option value=4>Badekar</option></select>";
+        html += "<option value=4>Badekar</option>";
+        html += "<option value=5>Tilf"+crossO+"rsel</option>";
+        html += "<option value=6>Benk</option>";
+        html += "<option value=7>Pipe</option></select>";
 
         // input button
         html += "<input id='defSubmit' type='button' value='legg til'>";
@@ -386,8 +393,7 @@ Options.prototype.obstacleList = function (obstacle) {
         del = 'Slett',
         container = this.container,
         crossO = this.crossO,
-        html = this.obstHtml,
-        that = this;
+        html = this.obstHtml;
 
     for (var i = 0; i < obstacleLength; i++) {
         html += "<div class=obst><div class=obsttxt>"+obstacleArr[i].data('obstacleType')+": </div><input id="+i+" class='change' type='button' value="+change+">"+ 
@@ -595,6 +601,7 @@ Options.prototype.initDraw = function () {
             tRot180Coll = paper.set(),
             tRot270Coll = paper.set(),
             uColl = paper.set(),
+            helpColl = paper.set(),
             rectAttr = {                // Attributes for the "background-square" of buttons.
                 fill: this.defColor, 
                 stroke: this.defColor, 
@@ -645,7 +652,6 @@ Options.prototype.initDraw = function () {
     p0 = (width * (7 / 16)),
     p1 = (width * (3 / 16)),
     p2 = (width * (11 / 16)),
-
 
     // CUSTOM DRAW
     // Header
@@ -831,10 +837,7 @@ Options.prototype.createHandlers = function(coll, val, toolTip) {
             if (finishedRoom == null) {
                 ourRoom.initRoom();
             }
-            
         }
-
-        
     });
 }
 
@@ -869,6 +872,244 @@ function PreDefRoom (value) {
             return tRot270 = [[180, 270, 180, 270, 360, 270, 360, 90], [150, 150, 250, 150, 250, 150, 150, 450]];   //T-shape rotated 270 degrees.
         case 9:
             return u = [[180, 270, 180, 90, 180, 270, 360, 90],[150, 200, 200, 200, 150, 350, 500, 350]];           //U-shaped room
+    }
+}
+
+
+/**
+ * Just started looking at this stuff, not quiet sure how we want to use it yet!
+**/
+Options.prototype.tfProducts = function () {
+
+    // Array of heating-products, length of the mat is in first column, product-number in the second one.
+
+    // ?????: Should indoor/outdoor and Deck-type also be specified in the array?
+    // AND: Should we also include the name in the arrays (jeez)
+
+    // This way we can get the dropdowns, so we can work out from THIS:
+
+
+    var area = $('#inOutType').val(),
+        climate = $('#climateType').val(),
+        deck = $('#deckType').val();
+
+   // console.log(area);
+   // console.log(climate);
+    //console.log(deck);
+
+    var mats = [
+        {
+            name: 'TFP',
+            areas: {
+                inside: true
+            },
+
+            climates: {
+                dry: true
+            },
+
+            decks: {
+                parquet: true,
+                laminat: true
+            },
+
+            products: [
+                {
+                    length: 2,
+                    number: 1001131,
+                    name: "TFP60W/1,0m2 0,5x2m 60W"
+                }, {
+                    length: 4, 
+                    number: 1001132,
+                    name: "TFP60W/2,0m2 0,5x4m 120W"
+                }, {
+                    length: 6, 
+                    number: 1001133,
+                    name: "TFP60W/3,0m2 0,5x6m 180W"
+                }, {
+                    length: 8, 
+                    number: 1001134,
+                    name: "TFP60W/4,0m2 0,5x8m 240W"
+                }, {
+                    length: 10, 
+                    number: 1001135,
+                    name: "TFP60W/5,0m2 0,5x10m 300W"
+                }, {
+                    length: 12, 
+                    number: 1001136,
+                    name: 'TFP60W/6,0m2 0,5x12m 360W'
+                }, {
+                    length: 14, 
+                    number: 1001137,
+                    name: 'TFP60W/7,0m2 0,5x14m 420W'
+                }, {
+                    length: 16, 
+                    number: 1001138,
+                    name: 'TFP60W/8,0m2 0,5x16m 480W'
+                }, {
+                    length: 18, 
+                    number: 1001139,
+                    name: 'TFP60W/9,0m2 0,5x18m 540W'
+                }, {
+                    length: 20, 
+                    number: 1001140,
+                    name: 'TFP60W/10,0m2 0,5x20m 600W'
+                }, {
+                    length: 24, 
+                    number: 1001142,
+                    name: 'TFP60W/12,0m2 0,5x24m 720W'
+                }
+            ]
+        }, {
+            name: 'TFU',
+            areas: {
+                outside: true
+            },
+
+            decks: {
+                asphalt: true,
+                pavblock: true,
+                concrete: true
+            },
+
+            products: [
+                {
+                    length: 2,
+                    number: 1001151,
+                    name: 'TFU230V 300W/1m2 - 300W'
+                }, {
+                    length: 4, 
+                    number: 1001152,
+                    name: 'TFU230V 300W/2m2 - 600W'
+                }, {
+                    length: 6, 
+                    number: 1001153,
+                    name: 'TFU230V 300W/3m2 - 900W'
+                }, {
+                    length: 8, 
+                    number: 1001154,
+                    name: 'TFU230V 300W/4m2 - 1200W'
+                }, {
+                    length: 10, 
+                    number: 1001155,
+                    name: 'TFU230V 300W/5m2 - 1500W'
+                }, {
+                    length: 12, 
+                    number: 1001156,
+                    name: 'TFU230V 300W/6m2 - 1800W'
+                }, {
+                    length: 14, 
+                    number: 1001157,
+                    name: 'TFU230V 300W/7m2 - 2100W'
+                }, {
+                    length: 16, 
+                    number: 1001158,
+                    name: 'TFU230V 300W/8m2 - 2400W'
+                }, {
+                    length: 20, 
+                    number: 1001160,
+                    name: 'TFU230V 300W/10m2 - 3000W'
+                }, {
+                    length: 24, 
+                    number: 1001162,
+                    name: 'TFU230V 300W/12m2 - 3600W'
+                }, {
+                    length: 28, 
+                    number: 1001164,
+                    name: 'TFU230V 300W/14m2 - 4200W'
+                }
+            ]
+        }, {
+            name: 'TF STICKY MAT 60W',
+            areas: {
+                inside: true
+            },
+
+            climates: {
+                dry: true
+            },
+
+            decks: {
+                tile: true,
+                parquet: true,
+                laminat: true,
+                carpet: true
+            },
+
+            products: [
+               /* { 
+                    length: 2,
+                    number: 1001151,
+                    name: 'TFU230V 300W/1m2 - 300W'
+                }, {
+                    length: 4, 
+                    number: 1001152,
+                    name: 'TFU230V 300W/2m2 - 600W'
+                }, {
+                    length: 6, 
+                    number: 1001153,
+                    name: 'TFU230V 300W/3m2 - 900W'
+                }, {
+                    length: 8, 
+                    number: 1001154,
+                    name: 'TFU230V 300W/4m2 - 1200W'
+                }, {
+                    length: 10, 
+                    number: 1001155,
+                    name: 'TFU230V 300W/5m2 - 1500W'
+                }, {
+                    length: 12, 
+                    number: 1001156,
+                    name: 'TFU230V 300W/6m2 - 1800W'
+                }, {
+                    length: 14, 
+                    number: 1001157,
+                    name: 'TFU230V 300W/7m2 - 2100W'
+                }, {
+                    length: 16, 
+                    number: 1001158,
+                    name: 'TFU230V 300W/8m2 - 2400W'
+                }, {
+                    length: 20, 
+                    number: 1001160,
+                    name: 'TFU230V 300W/10m2 - 3000W'
+                }, {
+                    length: 24, 
+                    number: 1001162,
+                    name: 'TFU230V 300W/12m2 - 3600W'
+                }, {
+                    length: 28, 
+                    number: 1001164,
+                    name: 'TFU230V 300W/14m2 - 4200W'
+                }*/
+            ]
+        }
+    ];
+    ];
+
+    //TFP: Dry-rooms, inndoor, 'parkett+laminat'
+    var //tfp = [[2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 24], [1001131, 1001132, 1001133, 1001134, 1001135, 1001136, 1001137, 1001138, 1001139, 1001140, 1001142]],
+        // TFU: Outdoor, 'Asfalt, Betong, Belegningsstein' OBS: Also available for 400V, not all lengths, we have no option to choose 230V/400V
+       // tfu = [[2, 4, 6, 8, 10, 12, 14, 16, 20, 24, 28], [1001151, 1001152, 1001153, 1001154, 1001155, 1001156, 1001157, 1001158, 1001160, 1001162, 1001164]],
+        // Sticky Mat: Available in 4 different versions, the difference is the effect/m2.
+        // 'Fliser, Parkett, Laminat, PVC/Vinyl, Tepper'
+        // 60Watt/m2
+        sticky60 = [[1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 6], [1011503, 1011504, 1011505, 1011506, 1011507, 1011508, 1011509, 1011510, 1011512]],
+        // 100W/m2
+        sticky100 = [[1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 6], [1011513, 1011514, 1011515, 1011516, 1011517, 1011518, 1011519, 1011520, 1011522]],
+        // 130/m2
+        sticky130 = [[1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 6], [1011523, 1011524, 1011525, 1011526, 1011527, 1011528, 1011529, 1011550, 1011552]],
+        // 160/m2
+        sticky160 = [[0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 3, 3.5, 4, 4.5], [1011530, 1011531, 1011532, 1011533, 1011534, 1011535, 1011536, 1011537, 1011538, 1011540, 1011542, 1011544, 1011546]];
+        //AAAAAAND we also have the SVK-mat (not authorized for asphalt)
+
+
+    var i = mats.length;
+    while (i--) {
+        if (mats[i].areas[area] && mats[i].climates[climate] && mats[i].decks[deck]) {
+            this.validMat = mats[i];
+            console.log(mats[i].name);
+        }
     }
 }
 

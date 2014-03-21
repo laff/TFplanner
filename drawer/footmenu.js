@@ -64,15 +64,11 @@ FootMenu.prototype.initFooter = function () {
     });
 
     // Mouseclick-actions must be added separately to each collection since they vary.
-    // Actions for the 'Load'-button.
+    // Actions for the 'Help'-button.
     ld.mouseup( function () {
-        // Load a room from a file
+    
+        // This button will be reb0rn as a "HELP"-button
 
-        // OBS: This is functionality we want to execute when the "Hindringer"-tab is pushed.
-        if (ourRoom.finished == true) {
-            grid.moveRoom();
-            options.showOptions(2);
-        }
     });
 
     // Actions for the 'Save'-button.
