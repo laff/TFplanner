@@ -33,6 +33,7 @@ function Square (x, y, path, paper) {
     this.area = 0;
     this.arrow = null;
     this.paper = paper;
+    this.reallyInside = true;
 
     var xdim = 50, 
         ydim = 50,
@@ -71,6 +72,7 @@ function Square (x, y, path, paper) {
     }
     //Whole square outside
     else {
+        this.reallyInside = false;
     }
     //End of populateSquare()
 }
