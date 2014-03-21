@@ -893,10 +893,6 @@ Options.prototype.tfProducts = function () {
         climate = $('#climateType').val(),
         deck = $('#deckType').val();
 
-   // console.log(area);
-   // console.log(climate);
-    //console.log(deck);
-
     var mats = [
         {
             name: 'TFP',
@@ -917,23 +913,23 @@ Options.prototype.tfProducts = function () {
                 {
                     length: 2,
                     number: 1001131,
-                    name: "TFP60W/1,0m2 0,5x2m 60W"
+                    name: 'TFP60W/1,0m2 0,5x2m 60W'
                 }, {
                     length: 4, 
                     number: 1001132,
-                    name: "TFP60W/2,0m2 0,5x4m 120W"
+                    name: 'TFP60W/2,0m2 0,5x4m 120W'
                 }, {
                     length: 6, 
                     number: 1001133,
-                    name: "TFP60W/3,0m2 0,5x6m 180W"
+                    name: 'TFP60W/3,0m2 0,5x6m 180W'
                 }, {
                     length: 8, 
                     number: 1001134,
-                    name: "TFP60W/4,0m2 0,5x8m 240W"
+                    name: 'TFP60W/4,0m2 0,5x8m 240W'
                 }, {
                     length: 10, 
                     number: 1001135,
-                    name: "TFP60W/5,0m2 0,5x10m 300W"
+                    name: 'TFP60W/5,0m2 0,5x10m 300W'
                 }, {
                     length: 12, 
                     number: 1001136,
@@ -964,6 +960,11 @@ Options.prototype.tfProducts = function () {
             name: 'TFU',
             areas: {
                 outside: true
+            },
+            // Might be ugly to set undefined as 'true', but climate will not be defined if area is outside, so
+            // it works.
+            climates: {
+                undefined: true,
             },
 
             decks: {
@@ -1026,7 +1027,8 @@ Options.prototype.tfProducts = function () {
             },
 
             climates: {
-                dry: true
+                dry: true,
+                wet: true
             },
 
             decks: {
@@ -1037,70 +1039,236 @@ Options.prototype.tfProducts = function () {
             },
 
             products: [
-               /* { 
-                    length: 2,
-                    number: 1001151,
-                    name: 'TFU230V 300W/1m2 - 300W'
+                { 
+                    length: 1.5,
+                    number: 1011503,
+                    name: 'TF Sticky Mat 60W/3m2 - 180W'
+                }, {
+                    length: 2, 
+                    number: 1011504,
+                    name: 'TF Sticky Mat 60W/4m2 - 240W'
+                }, {
+                    length: 2.5, 
+                    number: 1011505,
+                    name: 'TF Sticky Mat 60W/5m2 - 300W'
+                }, {
+                    length: 3, 
+                    number: 1011506,
+                    name: 'TF Sticky Mat 60W/6m2 - 360W'
+                }, {
+                    length: 3.5, 
+                    number: 1011507,
+                    name: 'TF Sticky Mat 60W/7m2 - 420W'
                 }, {
                     length: 4, 
-                    number: 1001152,
-                    name: 'TFU230V 300W/2m2 - 600W'
+                    number: 1011508,
+                    name: 'TF Sticky Mat 60W/8m2 - 480W'
+                }, {
+                    length: 4.5, 
+                    number: 1011509,
+                    name: 'TF Sticky Mat 60W/9m2 - 540W'
+                }, {
+                    length: 5, 
+                    number: 1011510,
+                    name: 'TF Sticky Mat 60W/10m2 - 600W'
                 }, {
                     length: 6, 
-                    number: 1001153,
-                    name: 'TFU230V 300W/3m2 - 900W'
-                }, {
-                    length: 8, 
-                    number: 1001154,
-                    name: 'TFU230V 300W/4m2 - 1200W'
-                }, {
-                    length: 10, 
-                    number: 1001155,
-                    name: 'TFU230V 300W/5m2 - 1500W'
-                }, {
-                    length: 12, 
-                    number: 1001156,
-                    name: 'TFU230V 300W/6m2 - 1800W'
-                }, {
-                    length: 14, 
-                    number: 1001157,
-                    name: 'TFU230V 300W/7m2 - 2100W'
-                }, {
-                    length: 16, 
-                    number: 1001158,
-                    name: 'TFU230V 300W/8m2 - 2400W'
-                }, {
-                    length: 20, 
-                    number: 1001160,
-                    name: 'TFU230V 300W/10m2 - 3000W'
-                }, {
-                    length: 24, 
-                    number: 1001162,
-                    name: 'TFU230V 300W/12m2 - 3600W'
-                }, {
-                    length: 28, 
-                    number: 1001164,
-                    name: 'TFU230V 300W/14m2 - 4200W'
-                }*/
+                    number: 1011512,
+                    name: 'TF Sticky Mat 60W/12m2 - 720W'
+                }
             ]
-        }
-    ];
+        }, {
+            name: 'TF STICKY MAT 100W',
+            areas: {
+                inside: true
+            },
+
+            climates: {
+                dry: true,
+                wet: true
+            },
+
+            decks: {
+                tile: true,
+                parquet: true,
+                laminat: true,
+                carpet: true
+            },
+
+            products: [
+                { 
+                    length: 1.5,
+                    number: 1011513,
+                    name: 'TF Sticky Mat 100W/3m2 - 300W'
+                }, {
+                    length: 2, 
+                    number: 1011514,
+                    name: 'TF Sticky Mat 100W/4m2 - 400W'
+                }, {
+                    length: 2.5, 
+                    number: 1011515,
+                    name: 'TF Sticky Mat 100W/5m2 - 500W'
+                }, {
+                    length: 3, 
+                    number: 1011516,
+                    name: 'TF Sticky Mat 100W/6m2 - 600W'
+                }, {
+                    length: 3.5, 
+                    number: 1011517,
+                    name: 'TF Sticky Mat 100W/7m2 - 700W'
+                }, {
+                    length: 4, 
+                    number: 1011518,
+                    name: 'TF Sticky Mat 100W/8m2 - 800W'
+                }, {
+                    length: 4.5, 
+                    number: 1011519,
+                    name: 'TF Sticky Mat 100W/9m2 - 900W'
+                }, {
+                    length: 5, 
+                    number: 1011520,
+                    name: 'TF Sticky Mat 100W/10m2 - 1000W'
+                }, {
+                    length: 6, 
+                    number: 1011522,
+                    name: 'TF Sticky Mat 100W/12m2 - 1200W'
+                }
+            ]
+        }, {
+            name: 'TF STICKY MAT 130W',
+            areas: {
+                inside: true
+            },
+
+            climates: {
+                dry: true,
+                wet: true
+            },
+
+            decks: {
+                tile: true,
+                parquet: true,
+                laminat: true,
+                carpet: true
+            },
+
+            products: [
+                { 
+                    length: 1.5,
+                    number: 1011523,
+                    name: 'TF Sticky Mat 130W/3m2 - 390W'
+                }, {
+                    length: 2, 
+                    number: 1011524,
+                    name: 'TF Sticky Mat 130W/4m2 - 520W'
+                }, {
+                    length: 2.5, 
+                    number: 1011525,
+                    name: 'TF Sticky Mat 130W/5m2 - 650W'
+                }, {
+                    length: 3, 
+                    number: 1011526,
+                    name: 'TF Sticky Mat 130W/6m2 - 780W'
+                }, {
+                    length: 3.5, 
+                    number: 1011527,
+                    name: 'TF Sticky Mat 130W/7m2 - 910W'
+                }, {
+                    length: 4, 
+                    number: 1011528,
+                    name: 'TF Sticky Mat 130W/8m2 - 1040W'
+                }, {
+                    length: 4.5, 
+                    number: 1011529,
+                    name: 'TF Sticky Mat 130W/9m2 - 1170W'
+                }, {
+                    length: 5, 
+                    number: 1011550,
+                    name: 'TF Sticky Mat 130W/10m2 - 1300W'
+                }, {
+                    length: 6, 
+                    number: 1011552,
+                    name: 'TF Sticky Mat 130W/12m2 - 1560W'
+                }
+            ]
+        }, {
+            name: 'TF STICKY MAT 160W',
+            areas: {
+                inside: true
+            },
+
+            climates: {
+                dry: true,
+                wet: true
+            },
+
+            decks: {
+                tile: true,
+                parquet: true,
+                laminat: true,
+                carpet: true
+            },
+
+            products: [
+                { 
+                    length: 0.5,
+                    number: 1011530,
+                    name: 'TF Sticky Mat 160W/1m2 - 160W'
+                }, {
+                    length: 0.75, 
+                    number: 1011531,
+                    name: 'TF Sticky Mat 160W/1,5m2 - 240W'
+                }, {
+                    length: 1, 
+                    number: 1011532,
+                    name: 'TF Sticky Mat 160W/2m2 - 320W'
+                }, {
+                    length: 1.25, 
+                    number: 1011533,
+                    name: 'TF Sticky Mat 160W/2,5m2 - 400W'
+                }, {
+                    length: 1.5, 
+                    number: 1011534,
+                    name: 'TF Sticky Mat 160W/3m2 - 480W'
+                }, {
+                    length: 1.75, 
+                    number: 1011535,
+                    name: 'TF Sticky Mat 160W/3,5m2 - 560W'
+                }, {
+                    length: 2, 
+                    number: 1011536,
+                    name: 'TF Sticky Mat 160W/4m2 - 640W'
+                }, {
+                    length: 2.25, 
+                    number: 1011537,
+                    name: 'TF Sticky Mat 160W/4,5m2 - 720W'
+                }, {
+                    length: 2.5, 
+                    number: 1011538,
+                    name: 'TF Sticky Mat 160W/5m2 - 800W'
+                }, {
+                    length: 3, 
+                    number: 1011540,
+                    name: 'TF Sticky Mat 160W/6m2 - 960W'
+                }, {
+                    length: 3.5, 
+                    number: 1011542,
+                    name: 'TF Sticky Mat 160W/7m2 - 1120W'
+                }, {
+                    length: 4, 
+                    number: 1011544,
+                    name: 'TF Sticky Mat 160W/8m2 - 1280W'
+                }, {
+                    length: 4.5, 
+                    number: 1011546,
+                    name: 'TF Sticky Mat 160W/9m2 - 1440W'
+                }
+            ]
+        },
     ];
 
-    //TFP: Dry-rooms, inndoor, 'parkett+laminat'
-    var //tfp = [[2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 24], [1001131, 1001132, 1001133, 1001134, 1001135, 1001136, 1001137, 1001138, 1001139, 1001140, 1001142]],
-        // TFU: Outdoor, 'Asfalt, Betong, Belegningsstein' OBS: Also available for 400V, not all lengths, we have no option to choose 230V/400V
-       // tfu = [[2, 4, 6, 8, 10, 12, 14, 16, 20, 24, 28], [1001151, 1001152, 1001153, 1001154, 1001155, 1001156, 1001157, 1001158, 1001160, 1001162, 1001164]],
         // Sticky Mat: Available in 4 different versions, the difference is the effect/m2.
         // 'Fliser, Parkett, Laminat, PVC/Vinyl, Tepper'
-        // 60Watt/m2
-        sticky60 = [[1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 6], [1011503, 1011504, 1011505, 1011506, 1011507, 1011508, 1011509, 1011510, 1011512]],
-        // 100W/m2
-        sticky100 = [[1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 6], [1011513, 1011514, 1011515, 1011516, 1011517, 1011518, 1011519, 1011520, 1011522]],
-        // 130/m2
-        sticky130 = [[1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 6], [1011523, 1011524, 1011525, 1011526, 1011527, 1011528, 1011529, 1011550, 1011552]],
-        // 160/m2
-        sticky160 = [[0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 3, 3.5, 4, 4.5], [1011530, 1011531, 1011532, 1011533, 1011534, 1011535, 1011536, 1011537, 1011538, 1011540, 1011542, 1011544, 1011546]];
         //AAAAAAND we also have the SVK-mat (not authorized for asphalt)
 
 
@@ -1110,6 +1278,7 @@ Options.prototype.tfProducts = function () {
             this.validMat = mats[i];
             console.log(mats[i].name);
         }
+
     }
 }
 
