@@ -133,7 +133,6 @@ Options.prototype.initSpecs = function () {
         $(container).append(header);
         $(container).append(form);
         $(form).append("<br>");
-
         // Default selected is 'none', so a value MUST be chosen by the user.        
         document.getElementById("inOutType").selectedIndex = -1;
     } else {
@@ -166,12 +165,16 @@ Options.prototype.inOrOut = function (form) {
         $('#dryOrWet').remove();
     }
 
-    $('#decks').remove();
+    $('#wattage').next().remove();
+    $('#wattage').remove();
+    $('#watt').remove();
+
+    $('#decks').remove(); 
     $('#genButton').remove();
 
      //Inside is selected
     if (selected == "inside") {
-
+        $('#deckType').next().remove();
         $('#deckType').remove();
 
         var dryWet = document.createElement("select"),
@@ -230,9 +233,22 @@ Options.prototype.chooseDeck = function (form) {
 
     // Make sure that a <select> with this id not exists, no need to use 'if' cause
     // nothing will happen if it doesn`t exist. Also remove the 'decks-<span>' that display text.
-    $('#deckType').remove();
-    $('#decks').remove();
+    if ($('#deckType').length) {
+        $('#deckType').next().remove();
+        $('#deckType').remove();
+        $('#decks').remove();
+
+    }
+    $('#wattage').next().remove();
+    $('#wattage').remove();
+    $('#watt').remove();
+
+    $('#casting').next().remove();
+    $('#casting').remove();
+    $('#cast').remove();
+
     $('#genButton').remove();
+
 
     deck.setAttribute("id", "deckType");
     span.setAttribute("id", "decks");
@@ -244,6 +260,8 @@ Options.prototype.chooseDeck = function (form) {
         // Tiles can occur both in dry-rooms and wet-rooms.
         option1.value = "tile";
         option1.text = "Flis";
+        option5.value = "scale";
+        option5.text = "Belegg";
         // 'Dry-room'
         if (selectedClim == "dry") {
             // List options for 'dry'-rooms.
@@ -253,8 +271,6 @@ Options.prototype.chooseDeck = function (form) {
             option3.text = "Parkett";
             option4.value = "laminat";
             option4.text = "Laminat";
-            option5.value = "fur";
-            option5.text = "Belegg";
             option6.value = "concrete";
             option6.text = "Betong";
             option7.value = "cork";
@@ -271,6 +287,7 @@ Options.prototype.chooseDeck = function (form) {
         // This should obviously be a 'wet'-room.
         } else if (selectedClim == "wet") {
             deck.add(option1, null);
+            deck.add(option5, null);
         }
     // The area is chosen as 'outside' 
     } else if (selected == "outside") {
@@ -290,14 +307,158 @@ Options.prototype.chooseDeck = function (form) {
     form.appendChild(span);
     form.appendChild(deck);
     $(container).append(form);
+    $(form).append("<br>");
     // Set as blanc on initialization, to force the user to select an !default item.
     document.getElementById("deckType").selectedIndex = -1;
 
     // When the user have selected an item in this list, the 'generate'-button is created.
     $('#deckType').change( function () {
+
+        if (selected == 'inside') {
+            options.wattage(form);
+        } else {
+            // Remove dropdown for choosing wattage
+            $('#wattage').next().remove();
+            $('#wattage').remove();
+            $('#watt').remove();
+
+            $('#casting').next().remove();
+            $('#casting').remove();
+            $('#cast').remove();
+            that.generateButton(form);
+        }
+    });
+}
+
+/**
+ *  Function that adds a wattage dropdown select list button chooser.
+ *
+**/
+Options.prototype.wattage = function (form) {
+
+    var container = this.container,
+        that = this,
+        span = document.createElement("span"),
+        watt = document.createElement("select"),
+        option1 = document.createElement("option"),
+        option2 = document.createElement("option"),
+        option3 = document.createElement("option"),
+        option4 = document.createElement("option");
+
+    // Make sure that a <select> with this id not exists, no need to use 'if' cause
+    // nothing will happen if it doesn`t exist. Also remove the <span> that display text.
+
+    if ($('#wattage').length) {
+        $('#wattage').next().remove();
+        $('#wattage').remove();
+        $('#watt').remove();
+    }
+
+    $('#casting').next().remove();
+    $('#casting').remove();
+    $('#cast').remove();
+
+    $('#genButton').remove();
+
+    watt.setAttribute("id", "wattage");
+    span.setAttribute("id", "watt");
+
+    span.innerHTML = "Velg mattens effekt: ";
+
+
+    option1.value = 60;
+    option1.text = "60W";
+    option2.value = 100;
+    option2.text = "100W";
+    option3.value = 130;
+    option3.text = "130W";
+    option4.value = 160;
+    option4.text = "160W";
+
+
+    watt.add(option1, null);
+    watt.add(option2, null);
+    watt.add(option3, null);
+    watt.add(option4, null);
+
+
+    // Append the element to our form, then add the form to the container.
+    form.appendChild(span);
+    form.appendChild(watt);
+    $(container).append(form);
+    $(form).append("<br>");
+    // Set as blanc on initialization, to force the user to select an !default item.
+    document.getElementById("wattage").selectedIndex = -1;
+
+    // When the user have selected an item in this list, the 'generate'-button is created.
+    $('#wattage').change( function () {
+
+        var deck = $('#deckType').val(),
+            watt = $('#wattage').val();
+
+        if (( deck == 'parquet' || deck == 'laminat') && watt == '60') {
+            options.casting(form);
+        } else {
+            $('#casting').next().remove();
+            $('#casting').remove();
+            $('#cast').remove();
+            that.generateButton(form);
+        }
+    });
+}
+
+/**
+ *  Functionality that asks the user if ishi mushi jaba daba mother fucker
+ *
+**/
+Options.prototype.casting = function (form) {
+
+    var container = this.container,
+        that = this,
+        span = document.createElement("span"),
+        cast = document.createElement("select"),
+        option1 = document.createElement("option"),
+        option2 = document.createElement("option");
+
+    // Make sure that a <select> with this id not exists, no need to use 'if' cause
+    // nothing will happen if it doesn`t exist. Also remove the <span> that display text.
+    if ($('#casting').length) {
+        $('#casting').next().remove();
+        $('#casting').remove();
+        $('#cast').remove();
+    }
+
+    $('#genButton').remove();
+
+    cast.setAttribute("id", "casting");
+    span.setAttribute("id", "cast");
+
+    span.innerHTML = "Skal gulvet avrettes?";
+
+
+    option1.value = 'nocast';
+    option1.text = "Njet";
+    option2.value = 'cast';
+    option2.text = "Ja";
+
+
+    cast.add(option1, null);
+    cast.add(option2, null);
+
+    // Append the element to our form, then add the form to the container.
+    form.appendChild(span);
+    form.appendChild(cast);
+    $(container).append(form);
+    // Set as blanc on initialization, to force the user to select an !default item.
+    document.getElementById("casting").selectedIndex = -1;
+
+    // When the user have selected an item in this list, the 'generate'-button is created.
+    $('#casting').change( function () {
+
         that.generateButton(form);
     });
 }
+
 
 /**
  * Creation of a button to generate our solution for putting out a heatingmat.
@@ -320,7 +481,6 @@ Options.prototype.generateButton = function (form) {
     $(container).append(form);
 
     $('#genButton').click( function () {
-
         options.tfProducts();
         // OBS: Call the algorithm and generate a drawing!
         // We also must find the product(s) that matches the chosen values!
@@ -648,7 +808,7 @@ Options.prototype.initDraw = function () {
     offset5 = (w / 6),
     offset6 = (w * (7 / 12)),
     offset7 = (w * (5 / 12)),
-    offset8 = (w * (1 / 2)),
+    offset8 = (w / 2),
     p0 = (width * (7 / 16)),
     p1 = (width * (3 / 16)),
     p2 = (width * (11 / 16)),
@@ -891,7 +1051,9 @@ Options.prototype.tfProducts = function () {
 
     var area = $('#inOutType').val(),
         climate = $('#climateType').val(),
-        deck = $('#deckType').val();
+        deck = $('#deckType').val(),
+        watt = $('#wattage').val(),
+        cast = $('#casting').val();
 
     var mats = [
         {
@@ -908,6 +1070,14 @@ Options.prototype.tfProducts = function () {
                 parquet: true,
                 laminat: true
             },
+
+            wattage: {
+                '60': true
+            },
+
+           casting: {
+                nocast: true
+            },         
 
             products: [
                 {
@@ -964,14 +1134,20 @@ Options.prototype.tfProducts = function () {
             // Might be ugly to set undefined as 'true', but climate will not be defined if area is outside, so
             // it works.
             climates: {
-                undefined: true,
+                undefined: true
             },
 
             decks: {
-                asphalt: true,
-                pavblock: true,
-                concrete: true
+                asphalt: true
             },
+
+            wattage: {
+                undefined: true
+            },
+
+           casting: {
+                undefined: true
+            },  
 
             products: [
                 {
@@ -1021,6 +1197,73 @@ Options.prototype.tfProducts = function () {
                 }
             ]
         }, {
+            name: 'SVK/TFU',
+            areas: {
+                outside: true
+            },
+            // Might be ugly to set undefined as 'true', but climate will not be defined if area is outside, so
+            // it works.
+            climates: {
+                undefined: true
+            },
+
+            decks: {
+                pavblock: true,
+                concrete: true
+            },
+
+            wattage: {
+                undefined: true
+            },
+
+            casting: {
+                undefined: true
+            },
+
+            products: [
+                {
+                    length: 2,
+                    number: 1001151,
+                    name: 'TFU230V 300W/1m2 - 300W'
+                }, {
+                    length: 4, 
+                    number: 1001152,
+                    name: 'TFU230V 300W/2m2 - 600W'
+                }, {
+                    length: 6, 
+                    number: 1001153,
+                    name: 'TFU230V 300W/3m2 - 900W'
+                }, {
+                    length: 8, 
+                    number: 1001154,
+                    name: 'TFU230V 300W/4m2 - 1200W'
+                }, {
+                    length: 10, 
+                    number: 1001155,
+                    name: 'TFU230V 300W/5m2 - 1500W'
+                }, {
+                    length: 12, 
+                    number: 1001156,
+                    name: 'TFU230V 300W/6m2 - 1800W'
+                }, {
+                    length: 14, 
+                    number: 1001157,
+                    name: 'TFU230V 300W/7m2 - 2100W'
+                }, {
+                    length: 16, 
+                    number: 1011638,
+                    name: 'TFSVK MATTE 2400W'
+                }, {
+                    length: 20, 
+                    number: 1011640,
+                    name: 'TFSVK MATTE 3000W'
+                }, {
+                    length: 24, 
+                    number: 1011642,
+                    name: 'TFSVK MATTE 3600W'
+                }
+            ]
+        }, {
             name: 'TF STICKY MAT 60W',
             areas: {
                 inside: true
@@ -1035,44 +1278,57 @@ Options.prototype.tfProducts = function () {
                 tile: true,
                 parquet: true,
                 laminat: true,
-                carpet: true
+                carpet: true,
+                cork: true,
+                scale: true,
+                concrete: true
+            },
+
+            wattage: {
+                '60': true,
+                undefined: true
+            },
+
+            casting: {
+                cast: true,
+                undefined: true
             },
 
             products: [
                 { 
-                    length: 1.5,
+                    length: 6,
                     number: 1011503,
                     name: 'TF Sticky Mat 60W/3m2 - 180W'
                 }, {
-                    length: 2, 
+                    length: 8, 
                     number: 1011504,
                     name: 'TF Sticky Mat 60W/4m2 - 240W'
                 }, {
-                    length: 2.5, 
+                    length: 10, 
                     number: 1011505,
                     name: 'TF Sticky Mat 60W/5m2 - 300W'
                 }, {
-                    length: 3, 
+                    length: 12, 
                     number: 1011506,
                     name: 'TF Sticky Mat 60W/6m2 - 360W'
                 }, {
-                    length: 3.5, 
+                    length: 14, 
                     number: 1011507,
                     name: 'TF Sticky Mat 60W/7m2 - 420W'
                 }, {
-                    length: 4, 
+                    length: 16, 
                     number: 1011508,
                     name: 'TF Sticky Mat 60W/8m2 - 480W'
                 }, {
-                    length: 4.5, 
+                    length: 18, 
                     number: 1011509,
                     name: 'TF Sticky Mat 60W/9m2 - 540W'
                 }, {
-                    length: 5, 
+                    length: 20, 
                     number: 1011510,
                     name: 'TF Sticky Mat 60W/10m2 - 600W'
                 }, {
-                    length: 6, 
+                    length: 24, 
                     number: 1011512,
                     name: 'TF Sticky Mat 60W/12m2 - 720W'
                 }
@@ -1092,44 +1348,56 @@ Options.prototype.tfProducts = function () {
                 tile: true,
                 parquet: true,
                 laminat: true,
-                carpet: true
+                carpet: true,
+                cork: true,
+                scale: true,
+                concrete: true
+            },
+
+            wattage: {
+                '100': true,
+                undefined: true
+            },
+
+            casting: {
+                undefined: true
             },
 
             products: [
                 { 
-                    length: 1.5,
+                    length: 6,
                     number: 1011513,
                     name: 'TF Sticky Mat 100W/3m2 - 300W'
                 }, {
-                    length: 2, 
+                    length: 8, 
                     number: 1011514,
                     name: 'TF Sticky Mat 100W/4m2 - 400W'
                 }, {
-                    length: 2.5, 
+                    length: 10, 
                     number: 1011515,
                     name: 'TF Sticky Mat 100W/5m2 - 500W'
                 }, {
-                    length: 3, 
+                    length: 12, 
                     number: 1011516,
                     name: 'TF Sticky Mat 100W/6m2 - 600W'
                 }, {
-                    length: 3.5, 
+                    length: 14, 
                     number: 1011517,
                     name: 'TF Sticky Mat 100W/7m2 - 700W'
                 }, {
-                    length: 4, 
+                    length: 16, 
                     number: 1011518,
                     name: 'TF Sticky Mat 100W/8m2 - 800W'
                 }, {
-                    length: 4.5, 
+                    length: 18, 
                     number: 1011519,
                     name: 'TF Sticky Mat 100W/9m2 - 900W'
                 }, {
-                    length: 5, 
+                    length: 20, 
                     number: 1011520,
                     name: 'TF Sticky Mat 100W/10m2 - 1000W'
                 }, {
-                    length: 6, 
+                    length: 24, 
                     number: 1011522,
                     name: 'TF Sticky Mat 100W/12m2 - 1200W'
                 }
@@ -1149,44 +1417,56 @@ Options.prototype.tfProducts = function () {
                 tile: true,
                 parquet: true,
                 laminat: true,
-                carpet: true
+                carpet: true,
+                cork: true,
+                scale: true,
+                concrete: true
+            },
+
+            wattage: {
+                '130': true,
+                undefined: true
+            },
+
+            casting: {
+                undefined: true
             },
 
             products: [
                 { 
-                    length: 1.5,
+                    length: 6,
                     number: 1011523,
                     name: 'TF Sticky Mat 130W/3m2 - 390W'
                 }, {
-                    length: 2, 
+                    length: 8, 
                     number: 1011524,
                     name: 'TF Sticky Mat 130W/4m2 - 520W'
                 }, {
-                    length: 2.5, 
+                    length: 10, 
                     number: 1011525,
                     name: 'TF Sticky Mat 130W/5m2 - 650W'
                 }, {
-                    length: 3, 
+                    length: 12, 
                     number: 1011526,
                     name: 'TF Sticky Mat 130W/6m2 - 780W'
                 }, {
-                    length: 3.5, 
+                    length: 14, 
                     number: 1011527,
                     name: 'TF Sticky Mat 130W/7m2 - 910W'
                 }, {
-                    length: 4, 
+                    length: 16, 
                     number: 1011528,
                     name: 'TF Sticky Mat 130W/8m2 - 1040W'
                 }, {
-                    length: 4.5, 
+                    length: 18, 
                     number: 1011529,
                     name: 'TF Sticky Mat 130W/9m2 - 1170W'
                 }, {
-                    length: 5, 
+                    length: 20, 
                     number: 1011550,
                     name: 'TF Sticky Mat 130W/10m2 - 1300W'
                 }, {
-                    length: 6, 
+                    length: 24, 
                     number: 1011552,
                     name: 'TF Sticky Mat 130W/12m2 - 1560W'
                 }
@@ -1206,60 +1486,72 @@ Options.prototype.tfProducts = function () {
                 tile: true,
                 parquet: true,
                 laminat: true,
-                carpet: true
+                carpet: true,
+                cork: true,
+                scale: true,
+                concrete: true
+            },
+
+            wattage: {
+                '160': true,
+                undefined: true
+            },
+
+            casting: {
+                undefined: true
             },
 
             products: [
                 { 
-                    length: 0.5,
+                    length: 2,
                     number: 1011530,
                     name: 'TF Sticky Mat 160W/1m2 - 160W'
                 }, {
-                    length: 0.75, 
+                    length: 3, 
                     number: 1011531,
                     name: 'TF Sticky Mat 160W/1,5m2 - 240W'
                 }, {
-                    length: 1, 
+                    length: 4, 
                     number: 1011532,
                     name: 'TF Sticky Mat 160W/2m2 - 320W'
                 }, {
-                    length: 1.25, 
+                    length: 5, 
                     number: 1011533,
                     name: 'TF Sticky Mat 160W/2,5m2 - 400W'
                 }, {
-                    length: 1.5, 
+                    length: 6, 
                     number: 1011534,
                     name: 'TF Sticky Mat 160W/3m2 - 480W'
                 }, {
-                    length: 1.75, 
+                    length: 7, 
                     number: 1011535,
                     name: 'TF Sticky Mat 160W/3,5m2 - 560W'
                 }, {
-                    length: 2, 
+                    length: 8, 
                     number: 1011536,
                     name: 'TF Sticky Mat 160W/4m2 - 640W'
                 }, {
-                    length: 2.25, 
+                    length: 9, 
                     number: 1011537,
                     name: 'TF Sticky Mat 160W/4,5m2 - 720W'
                 }, {
-                    length: 2.5, 
+                    length: 10, 
                     number: 1011538,
                     name: 'TF Sticky Mat 160W/5m2 - 800W'
                 }, {
-                    length: 3, 
+                    length: 12, 
                     number: 1011540,
                     name: 'TF Sticky Mat 160W/6m2 - 960W'
                 }, {
-                    length: 3.5, 
+                    length: 14, 
                     number: 1011542,
                     name: 'TF Sticky Mat 160W/7m2 - 1120W'
                 }, {
-                    length: 4, 
+                    length: 16, 
                     number: 1011544,
                     name: 'TF Sticky Mat 160W/8m2 - 1280W'
                 }, {
-                    length: 4.5, 
+                    length: 18, 
                     number: 1011546,
                     name: 'TF Sticky Mat 160W/9m2 - 1440W'
                 }
@@ -1267,18 +1559,13 @@ Options.prototype.tfProducts = function () {
         },
     ];
 
-        // Sticky Mat: Available in 4 different versions, the difference is the effect/m2.
-        // 'Fliser, Parkett, Laminat, PVC/Vinyl, Tepper'
-        //AAAAAAND we also have the SVK-mat (not authorized for asphalt)
-
-
     var i = mats.length;
     while (i--) {
-        if (mats[i].areas[area] && mats[i].climates[climate] && mats[i].decks[deck]) {
+        if (mats[i].areas[area] && mats[i].climates[climate] && mats[i].decks[deck] && mats[i].wattage[watt] && mats[i].casting[cast]) {
+
             this.validMat = mats[i];
             console.log(mats[i].name);
         }
-
     }
 }
 
