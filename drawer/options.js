@@ -521,7 +521,8 @@ Options.prototype.initObstacles = function () {
         html += "<option value=4>Badekar</option>";
         html += "<option value=5>Tilf"+crossO+"rsel</option>";
         html += "<option value=6>Benk</option>";
-        html += "<option value=7>Pipe</option></select>";
+        html += "<option value=7>Pipe</option>";
+        html += "<option value=8>Egendefinert</option></select>";
 
         // input button
         html += "<input id='defSubmit' type='button' value='legg til'>";
@@ -558,6 +559,7 @@ Options.prototype.obstacleList = function (obstacle) {
     for (var i = 0; i < obstacleLength; i++) {
         html += "<div class=obst><div class=obsttxt>"+obstacleArr[i].data('obstacleType')+": </div><input id="+i+" class='change' type='button' value="+change+">"+ 
         "<input class='delete' type='button' value="+del+"></div>";
+        html += "<br>";
 
         if (obstacle == i) {
             var width = obstacleArr[i].attrs.width,
@@ -565,7 +567,8 @@ Options.prototype.obstacleList = function (obstacle) {
                 x = obstacleArr[i].attrs.x,
                 y = obstacleArr[i].attrs.y;
 
-            // Div start
+            // Div start by a line break
+            html += "<br>";
             html += "<div id=change class='roomTab'>";
             // Height
             html += "<div class='inputfield'><div class='inputtext'>H"+crossO+"yde: </div><input  type='number' id='height' value="+height+"><br></div>";
@@ -598,6 +601,35 @@ Options.prototype.actionListeners = function () {
     var that = this;
 
 
+    // If the eight option is selected. aka "Egendefinert"
+    // the 
+    $('#obstacleType').change(function() {
+
+        if (this.value == 8) {
+
+            // Creating elements.
+            var parentDiv = document.createElement('div'),
+                textDiv = document.createElement('div'),
+                input = document.createElement('input');
+            
+            // Setting properties.
+            parentDiv.setAttribute('class', 'inputfield');
+            textDiv.setAttribute('class', 'inputtext');
+            textDiv.innerHTML = 'Skriv inn navn: ';
+            input.type = 'text';
+            input.setAttribute('class', 'inputwidth');
+            input.setAttribute('id', 'customObstTxt');
+
+            // Adding the elements to its parentnode
+            parentDiv.appendChild(textDiv);
+            parentDiv.appendChild(input);
+
+            // Using Jquery to add the parentDiv after the dropdown list
+            $(this.parentNode.firstChild).after(parentDiv);
+        }
+    });
+
+
     // Add click action for the "submit button".
     $('.change').click(function() {
         that.obstacleList(this.id);
@@ -614,7 +646,8 @@ Options.prototype.actionListeners = function () {
         
         // Creating obstacle.
         var value = $('#obstacleType').val(),
-            text = $('#obstacleType option[value='+value+']').text();
+            customTxt = $('#customObstTxt').val(),
+            text = (customTxt != null) ? customTxt : $('#obstacleType option[value='+value+']').text();
 
         obstacles.createObstacle(value, text);
 
@@ -1565,10 +1598,8 @@ Options.prototype.tfProducts = function () {
 
             this.validMat = mats[i];
             console.log(mats[i].name);
+
+            // call some action
         }
     }
 }
-
-
-
-
