@@ -78,6 +78,11 @@ Obstacles.prototype.createObstacle = function (num, txt) {
 			h = 100;
 			break;
 
+		case '8':
+			w = 100;
+			h = 100;
+			break;
+
 		default:
 			return;
 	}
