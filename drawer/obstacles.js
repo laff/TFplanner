@@ -10,6 +10,7 @@ function Obstacles () {
 	this.obstacleSet = this.paper.set();
 	this.txtSet = this.paper.set();
 	this.lineSet = this.paper.set();
+	this.supplyPoint = null;
 }
 
 /**
@@ -32,7 +33,7 @@ Obstacles.prototype.createObstacle = function (num, txt) {
 		h,
 		x = 100,
 		y = 100,
-		paper = this.paper;
+		paper = this.paper,
 		obst = this;
 
 	// Setting w and h values based on input

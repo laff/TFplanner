@@ -17,7 +17,7 @@ function Options (tab) {
     // Set containing gui elements we want to clear/store?
     this.guiElements = null;
 
-    this.container = "#content_container";
+    this.container = '#content_container';
     this.obstHtml = null;
     this.crossO = String.fromCharCode(248);
     this.dotA = String.fromCharCode(229);
@@ -107,25 +107,25 @@ Options.prototype.initSpecs = function () {
 
     if (ourRoom.finished ==  true) {
         // Variables used for setting up elements.
-        var header = document.createElement("h3"),
-            inOut = document.createElement("select"),
-            form = document.createElement("form"),
-            option1 = document.createElement("option"),
-            option2 = document.createElement("option"),
-            span = document.createElement("span");
+        var header = document.createElement('h3'),
+            inOut = document.createElement('select'),
+            form = document.createElement('form'),
+            option1 = document.createElement('option'),
+            option2 = document.createElement('option'),
+            span = document.createElement('span');
         
-        header.innerHTML = "Velg spesifikasjoner";
-        span.innerHTML = "Velg utend"+crossO+"rs/innend"+crossO+"rs: ";
+        header.innerHTML = 'Velg spesifikasjoner';
+        span.innerHTML = 'Velg utend'+crossO+'rs/innend'+crossO+'rs: ';
 
-        span.setAttribute("id", "inOrOut");
-        form.setAttribute("class", "forms");
-        form.setAttribute("id", "form1");
-        inOut.setAttribute("id", "inOutType");
+        span.id = 'inOrOut';
+        form.setAttribute('class', 'forms');
+        form.id = 'form1';
+        inOut.id = 'inOutType';
 
-        option1.value = "inside";
-        option1.text = "Inne";
-        option2.value = "outside";
-        option2.text = "Ute";
+        option1.value = 'inside';
+        option1.text = 'Inne';
+        option2.value = 'outside';
+        option2.text = 'Ute';
 
         inOut.add(option1, null);
         inOut.add(option2, null);
@@ -134,9 +134,9 @@ Options.prototype.initSpecs = function () {
 
         $(container).append(header);
         $(container).append(form);
-        $(form).append("<br>");
+        $(form).append('<br>');
         // Default selected is 'none', so a value MUST be chosen by the user.        
-        document.getElementById("inOutType").selectedIndex = -1;
+        document.getElementById('inOutType').selectedIndex = -1;
     } else {
         html = '<p class="error"> You need to draw<br> and finish, or create a<br> predefined room first! </p>';
         $(container).html(html);
@@ -185,8 +185,8 @@ Options.prototype.inOrOut = function (form) {
             span = document.createElement("span");
 
         span.innerHTML = "Velg v"+dotA+"trom/t"+crossO+"rrom: ";
-        dryWet.setAttribute("id", "climateType");
-        span.setAttribute("id", "dryOrWet");
+        dryWet.id = 'climateType';
+        span.id = 'dryOrWet';
 
         option1.value = "dry";
         option1.text = "T"+crossO+"rrom";
@@ -252,14 +252,14 @@ Options.prototype.chooseDeck = function (form) {
     $('#genButton').remove();
 
 
-    deck.setAttribute("id", "deckType");
-    span.setAttribute("id", "decks");
+    deck.id = 'deckType';
+    span.id = 'decks';
 
     span.innerHTML = "Velg dekke i rommet: ";
 
     // Do stuff for an indoor-room.
     if (selected == "inside") {
-        // Tiles can occur both in dry-rooms and wet-rooms.
+        // Tiles and scale can occur both in dry-rooms and wet-rooms.
         option1.value = "tile";
         option1.text = "Flis";
         option5.value = "scale";
@@ -340,12 +340,12 @@ Options.prototype.wattage = function (form) {
 
     var container = this.container,
         that = this,
-        span = document.createElement("span"),
-        watt = document.createElement("select"),
-        option1 = document.createElement("option"),
-        option2 = document.createElement("option"),
-        option3 = document.createElement("option"),
-        option4 = document.createElement("option");
+        span = document.createElement('span'),
+        watt = document.createElement('select'),
+        option1 = document.createElement('option'),
+        option2 = document.createElement('option'),
+        option3 = document.createElement('option'),
+        option4 = document.createElement('option');
 
     // Make sure that a <select> with this id not exists, no need to use 'if' cause
     // nothing will happen if it doesn`t exist. Also remove the <span> that display text.
@@ -362,20 +362,20 @@ Options.prototype.wattage = function (form) {
 
     $('#genButton').remove();
 
-    watt.setAttribute("id", "wattage");
-    span.setAttribute("id", "watt");
+    watt.id = 'wattage';
+    span.id = 'watt';
 
-    span.innerHTML = "Velg mattens effekt: ";
+    span.innerHTML = 'Velg mattens effekt: ';
 
 
     option1.value = 60;
-    option1.text = "60W";
+    option1.text = '60W';
     option2.value = 100;
-    option2.text = "100W";
+    option2.text = '100W';
     option3.value = 130;
-    option3.text = "130W";
+    option3.text = '130W';
     option4.value = 160;
-    option4.text = "160W";
+    option4.text = '160W';
 
 
     watt.add(option1, null);
@@ -388,9 +388,9 @@ Options.prototype.wattage = function (form) {
     form.appendChild(span);
     form.appendChild(watt);
     $(container).append(form);
-    $(form).append("<br>");
+    $(form).append('<br>');
     // Set as blanc on initialization, to force the user to select an !default item.
-    document.getElementById("wattage").selectedIndex = -1;
+    document.getElementById('wattage').selectedIndex = -1;
 
     // When the user have selected an item in this list, the 'generate'-button is created.
     $('#wattage').change( function () {
@@ -410,17 +410,17 @@ Options.prototype.wattage = function (form) {
 }
 
 /**
- *  Functionality that asks the user if ishi mushi jaba daba mother fucker
+ *  Functionality that asks the user if casting is to be done for the floor
  *
 **/
 Options.prototype.casting = function (form) {
 
     var container = this.container,
         that = this,
-        span = document.createElement("span"),
-        cast = document.createElement("select"),
-        option1 = document.createElement("option"),
-        option2 = document.createElement("option");
+        span = document.createElement('span'),
+        cast = document.createElement('select'),
+        option1 = document.createElement('option'),
+        option2 = document.createElement('option');
 
     // Make sure that a <select> with this id not exists, no need to use 'if' cause
     // nothing will happen if it doesn`t exist. Also remove the <span> that display text.
@@ -432,16 +432,16 @@ Options.prototype.casting = function (form) {
 
     $('#genButton').remove();
 
-    cast.setAttribute("id", "casting");
-    span.setAttribute("id", "cast");
+    cast.id = 'casting';
+    span.id = 'cast';
 
-    span.innerHTML = "Skal gulvet avrettes?";
+    span.innerHTML = 'Skal gulvet avrettes?';
 
 
     option1.value = 'nocast';
-    option1.text = "Njet";
+    option1.text = 'Nei';
     option2.value = 'cast';
-    option2.text = "Ja";
+    option2.text = 'Ja';
 
 
     cast.add(option1, null);
@@ -452,7 +452,7 @@ Options.prototype.casting = function (form) {
     form.appendChild(cast);
     $(container).append(form);
     // Set as blanc on initialization, to force the user to select an !default item.
-    document.getElementById("casting").selectedIndex = -1;
+    document.getElementById('casting').selectedIndex = -1;
 
     // When the user have selected an item in this list, the 'generate'-button is created.
     $('#casting').change( function () {
@@ -469,15 +469,15 @@ Options.prototype.casting = function (form) {
 Options.prototype.generateButton = function (form) {
 
     var container = this.container,
-        input = document.createElement("input");
+        input = document.createElement('input');
 
     $('#genButton').remove();
 
-    input.setAttribute("id", "genButton");
-    input.setAttribute("type", "button");
-    input.setAttribute("title", "Klikk for "+this.dotA+" generere leggeanvisning");
+    input.id = 'genButton';
+    input.type = 'button';
+    input.title = 'Klikk for '+this.dotA+' generere leggeanvisning';
 
-    input.value = "Generer leggeanvisning";
+    input.value = 'Generer leggeanvisning';
 
     form.appendChild(input);
     $(container).append(form);
@@ -509,11 +509,12 @@ Options.prototype.initObstacles = function () {
     if (ourRoom.finished ==  true) {
         // Move the room to coordinates (99, 99)
         grid.moveRoom();
+
         // Add inputfield and button to add a 'projectname'.
-        html += '<h3> Legg til prosjektnavn </h3>';
+        html += '<h3> Sett prosjektnavn </h3>';
         html += '<form class=forms>';
-        html += "<div class='inputfield'><input type='text' id='roomTitle' value="+this.projectName+" autocomplete='off' title='Romnavn vil vises p"+this.dotA+" tegningen'><br></div>";
-        html += "<input id='titleSubmit' type='button' value='Legg til prosjektnavn'>";
+        html += "<div class='inputfield'><input type='text' id='roomTitle' value="+this.projectName+" autocomplete='off'><br></div>";
+        html += "<input id='titleSubmit' type='button' value='Endre prosjektnavn'>";
         html += '</form>';
         // Header
         html += '<h3> Legg til hindring </h3>';
@@ -522,14 +523,14 @@ Options.prototype.initObstacles = function () {
         html += '<form class=forms>';
 
         // Select
-        html += "<select id ='obstacleType'><option value=1>Avl"+crossO+"p</option>";
-        html += "<option value=2>Toalett</option>";
-        html += "<option value=3>Dusj</option>";
-        html += "<option value=4>Badekar</option>";
-        html += "<option value=5>Tilf"+crossO+"rsel</option>";
-        html += "<option value=6>Benk</option>";
-        html += "<option value=7>Pipe</option>";
-        html += "<option value=8>Egendefinert</option></select>";
+        html += "<select id ='obstacleType'><option value=1> Avl"+crossO+"p </option>";
+        html += "<option value=2> Toalett </option>";
+        html += "<option value=3> Dusj </option>";
+        html += "<option value=4> Badekar </option>";
+        html += "<option value=5> Tilf"+crossO+"rsel </option>";
+        html += "<option value=6> Benk </option>";
+        html += "<option value=7> Pipe </option>";
+        html += "<option value=8> Egendefinert </option></select>";
 
         // input button
         html += "<input id='defSubmit' type='button' value='legg til'>";
@@ -612,8 +613,7 @@ Options.prototype.actionListeners = function () {
 
     var that = this;
 
-    // If the eight option is selected. aka "Egendefinert"
-    // the 
+    // If the 8th option is selected. aka "Egendefinert"
     $('#obstacleType').change(function() {
 
         if (this.value == 8) {
@@ -630,6 +630,7 @@ Options.prototype.actionListeners = function () {
             input.type = 'text';
             input.setAttribute('class', 'inputwidth');
             input.setAttribute('id', 'customObstTxt');
+            input.setAttribute('autocomplete', 'off');
 
             // Adding the elements to its parentnode
             parentDiv.appendChild(textDiv);
@@ -637,9 +638,31 @@ Options.prototype.actionListeners = function () {
 
             // Using Jquery to add the parentDiv after the dropdown list
             $(this.parentNode.firstChild).after(parentDiv);
+            // Put focus on, and selects the inputfield for adding a obstacle-name
+            input.focus();
+            input.select();
+
+            $('#customObstTxt').keypress(function (e) {
+                // If 'enter' is pressed in the inputfield:
+                if (e.which == 13) {
+                    e.preventDefault();
+
+                    var value = document.getElementById('obstacleType').value,
+                        text = document.getElementById('customObstTxt').value;
+
+                    /*
+                     OBS: No fail-safe here, so the user CAN create an obstacle with a blank name, do we
+                     want this to be possible? (Same case in #defSubmit.click -function).
+                    */
+
+                    // Create the obstacle, and update the tab.
+                    obstacles.createObstacle(value, text);
+                    that.initObstacles();
+                    that.obstacleList();
+                }
+            });
         }
     });
-
 
     // Add click action for the "submit button".
     $('.change').click(function() {
@@ -670,18 +693,19 @@ Options.prototype.actionListeners = function () {
 
     // Add click action for the "changeObst-button".
     $('#changeObst').click(function() {
-
+        // Rounding the values to nearest 10.
         var roundX = (Math.round((($('#posx').val())/ 10)) * 10) + 100,
-            roundY = (Math.round((($('#posy').val())/ 10)) * 10) + 100;
+            roundY = (Math.round((($('#posy').val())/ 10)) * 10) + 100,
+            roundW = (Math.round((($('#width').val())/ 10)) * 10),
+            roundH = (Math.round((($('#height').val())/ 10)) * 10);
 
         $('#posx').val((roundX - 100));
         $('#posy').val((roundY - 100));
 
-
         obstacles.adjustSize(
             this.name, 
-            $('#width').val(), 
-            $('#height').val(), 
+            roundW,
+            roundH,
             roundX, 
             roundY
         );
