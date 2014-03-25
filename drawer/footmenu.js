@@ -67,7 +67,7 @@ FootMenu.prototype.initFooter = function () {
     // Actions for the 'Help'-button.
     ld.mouseup( function () {
     
-        // This button will be reb0rn as a "HELP"-button
+        // This button will be reb0rn as a "HELP"-button (?)
 
     });
 

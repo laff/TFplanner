@@ -2,26 +2,28 @@
  * Structonator
 **/
 function Options (tab) {
-        this.optPaper;
-        this.preDefArr = null;
-        this.optionTab = 1;
-        this.defColor = '#707061';       // Default color.
-        this.inColor = '#d8d8d8';        // Color for mouseover
-        this.imgColor = 'white';         // Color for the button-icons. 
+    this.optPaper;
+    this.preDefArr = null;
+    this.optionTab = 1;
+    this.defColor = '#707061';       // Default color.
+    this.inColor = '#d8d8d8';        // Color for mouseover
+    this.imgColor = 'white';         // Color for the button-icons.
+    this.roomTitle = null;           // Raphael-element
+    this.projectName ='Prosjektnavn/tittel'; // String in html input-field
 
-        // Default show.
-        this.showOptions(1);
+    // Default show.
+    this.showOptions(1);
 
-        // Set containing gui elements we want to clear/store?
-        this.guiElements = null;
+    // Set containing gui elements we want to clear/store?
+    this.guiElements = null;
 
-        this.container = "#content_container";
-        this.obstHtml = null;
-        this.crossO = String.fromCharCode(248);
-        this.dotA = String.fromCharCode(229);
+    this.container = "#content_container";
+    this.obstHtml = null;
+    this.crossO = String.fromCharCode(248);
+    this.dotA = String.fromCharCode(229);
 
-        // mat object based on specificatins selected
-        this.validMat = null;
+    // mat object based on specificatins selected
+    this.validMat = null;
 }
 
 
@@ -496,7 +498,6 @@ Options.prototype.initObstacles = function () {
     var container = this.container,
         html = "",
         crossO = this.crossO;
-
     // clear current html
     $(container).html(html);
 
@@ -508,6 +509,12 @@ Options.prototype.initObstacles = function () {
     if (ourRoom.finished ==  true) {
         // Move the room to coordinates (99, 99)
         grid.moveRoom();
+        // Add inputfield and button to add a 'projectname'.
+        html += '<h3> Legg til prosjektnavn </h3>';
+        html += '<form class=forms>';
+        html += "<div class='inputfield'><input type='text' id='roomTitle' value="+this.projectName+" autocomplete='off' title='Romnavn vil vises p"+this.dotA+" tegningen'><br></div>";
+        html += "<input id='titleSubmit' type='button' value='Legg til prosjektnavn'>";
+        html += '</form>';
         // Header
         html += '<h3> Legg til hindring </h3>';
 
@@ -530,8 +537,6 @@ Options.prototype.initObstacles = function () {
         html += '</form>';
 
         this.obstHtml = html;
-        
-
     } else {
         html = '<p class="error"> You need to draw<br> and finish, or create a<br> predefined room first! </p>';
         this.obstHtml = html;
@@ -585,8 +590,15 @@ Options.prototype.obstacleList = function (obstacle) {
     $(container).html("");
     $(container).html(html);
 
-    this.actionListeners();
+    // Sets the focus on the 'project-name'-field the first time 'obstacles'-tab is selected
+    if (ourRoom.finished ==  true && this.roomTitle == null) {
+        this.setTitle();
+        var input = document.getElementById('roomTitle');
+            input.focus();
+            input.select();
+    }
 
+    this.actionListeners();
 }
 
 /**
@@ -596,7 +608,6 @@ Options.prototype.obstacleList = function (obstacle) {
 Options.prototype.actionListeners = function () {
 
     var that = this;
-
 
     // Add click action for the "submit button".
     $('.change').click(function() {
@@ -620,6 +631,7 @@ Options.prototype.actionListeners = function () {
 
         // Creating / refreshing list of obstacles.
         that.initObstacles();
+        that.obstacleList();
     });
 
 
@@ -646,6 +658,40 @@ Options.prototype.actionListeners = function () {
         obstacles.selectObstacle(null);
     });
 
+    // Action for the button to create a title on the paper.
+    $('#titleSubmit').click(function () {
+
+        that.setTitle();
+    });
+
+    // Prevent the default 'submit form' when enter-button is pressed, (this refreshes the page)
+    // but apply the input-text to the title.
+    $('#roomTitle').keypress(function (e) {
+
+        if (e.which == 13) {
+            e.preventDefault();
+            this.blur();
+            that.setTitle();
+        }
+    });
+}
+
+/**
+ * Functionality that displays the 'projectname' that the user has entered on our paper.
+ * Since it`s added as an svg-element, this will also be visible when the image is saved.
+**/
+Options.prototype.setTitle = function () {
+    // Get the text from the html-element, and update it.
+    var title = document.getElementById('roomTitle').value;
+        this.projectName = title;
+    // Clear the title-element if it already exist.
+    this.roomTitle != null ? this.roomTitle.remove() : null;       
+
+    this.roomTitle = grid.paper.text(350, 35, title).attr({
+        'font-size': 20,
+        'font-family': 'verdana',
+        'font-style': 'oblique'
+    });
 }
 
 /** 
@@ -747,35 +793,35 @@ Options.prototype.initDefine = function () {
  * OBS: The order of pushing elements to collections is important! (The button must be pushed as first element)
 **/
 Options.prototype.initDraw = function () {
-        var paper = this.optPaper,
-            width = paper.width,
-            height = paper.height,
-            drawColl = paper.set(),        
-            rectColl = paper.set(),
-            tColl = paper.set(),
-            lColl = paper.set(),
-            lInvColl = paper.set(),
-            lRot180Coll = paper.set(),
-            lRot270Coll = paper.set(),
-            tRot90Coll = paper.set(),
-            tRot180Coll = paper.set(),
-            tRot270Coll = paper.set(),
-            uColl = paper.set(),
-            helpColl = paper.set(),
-            rectAttr = {                // Attributes for the "background-square" of buttons.
-                fill: this.defColor, 
-                stroke: this.defColor, 
-                'stroke-width': 1, 
-            },
-            imgAttr = {                 // Attributes for the "image" on each button.
-                fill: this.imgColor,
-                stroke: 'black',
-                'stroke-width': 1,
-            },
-            txtAttr = {
-                'font-size': 18,
-                'font-weight': 'bold'
-            },
+    var paper = this.optPaper,
+        width = paper.width,
+        height = paper.height,
+        drawColl = paper.set(),        
+        rectColl = paper.set(),
+        tColl = paper.set(),
+        lColl = paper.set(),
+        lInvColl = paper.set(),
+        lRot180Coll = paper.set(),
+        lRot270Coll = paper.set(),
+        tRot90Coll = paper.set(),
+        tRot180Coll = paper.set(),
+        tRot270Coll = paper.set(),
+        uColl = paper.set(),
+        helpColl = paper.set(),
+        rectAttr = {                // Attributes for the "background-square" of buttons.
+            fill: this.defColor, 
+            stroke: this.defColor, 
+            'stroke-width': 1, 
+        },
+        imgAttr = {                 // Attributes for the "image" on each button.
+            fill: this.imgColor,
+            stroke: 'black',
+            'stroke-width': 1,
+        },
+        txtAttr = {
+            'font-size': 18,
+            'font-weight': 'bold'
+        },
 
 
     /**

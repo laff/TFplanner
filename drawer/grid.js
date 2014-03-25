@@ -389,7 +389,7 @@ Grid.prototype.save = function () {
         var dataURL = document.getElementById('myCanvas').toDataURL("image/png"),
             a = document.createElement('a');
             a.href = dataURL;
-            a.download = 'room.png';
+            a.download = options.projectName+'.png';
             a.click();
     }, 100);
 }
