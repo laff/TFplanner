@@ -338,28 +338,31 @@ Obstacles.prototype.lengthLine = function (obstacle, cx, cy, tri) {
 
 			length = (new Number(length) / 100);
 
-			textRect = that.paper.rect(textPoint.x-25, textPoint.y-10, 50, 20, 5, 5).attr({
-	            opacity: 1,
-	            fill: "white"
-	        });
+			// Do not show the length-stuff unless it is > 10cm.
+			if (length > 0) {
+				textRect = that.paper.rect(textPoint.x-25, textPoint.y-10, 50, 20, 5, 5).attr({
+		            opacity: 1,
+		            fill: "white"
+		        });
 
-			text = that.paper.text(textPoint.x, textPoint.y, length + " m").attr({
-	            opacity: 1,
-	            'font-size': 12,
-	            'font-family': "verdana",
-	            'font-style': "oblique"
-	        });
+				text = that.paper.text(textPoint.x, textPoint.y, length + " m").attr({
+		            opacity: 1,
+		            'font-size': 12,
+		            'font-family': "verdana",
+		            'font-style': "oblique"
+		        });
+			}
 
 	        that.lineSet.push(line, textRect, text);
 		};
 
 	// Create the horizontal line
 	if (tri == 1 || tri == 3) {
+
 		rad = ((obstacle.attr("width") / 2) * (-1));
 		P1 = [100, cy];
 		P2 = [(cx + rad), cy];
 		measurementO(P1, P2);
-
 	// Creating vertical line
 	} 
 
