@@ -11,7 +11,8 @@ function Grid() {
     this.viewBoxWidth = this.paper.width;
     this.viewBoxHeight = this.paper.height;
     this.resWidth = 0;
-    this.resHeight =0;
+    this.resHeight = 0;
+    this.rat = 1.0;             // Used for scaling up the visualized wall-lengths.
 }
 
 Grid.prototype.draw = function() {
@@ -188,9 +189,9 @@ Grid.prototype.zoom = function() {
 
 
 /** 
-     * This is the function that actually handles the zooming
-     * It must react to delta being more/less than zero.
-     */
+ * This is the function that actually handles the zooming
+ * It must react to delta being more/less than zero.
+ */
 Grid.prototype.handle = function(delta) {
         
     var paper = this.paper,
@@ -203,10 +204,18 @@ Grid.prototype.handle = function(delta) {
     if (delta > 0) {
         this.viewBoxWidth *= 0.95;
         this.viewBoxHeight*= 0.95;
+        // Scaling of the visualized wall-lengths
+        this.rat -= 0.05;
+        measurement.updateOnZoom(this.rat);
+        measurement.refreshMeasurements();
 
     } else {
         this.viewBoxWidth *= 1.05;
         this.viewBoxHeight *= 1.05;
+        // Scaling of the visualized wall-lengths
+        this.rat += 0.05;
+        measurement.updateOnZoom(this.rat);
+        measurement.refreshMeasurements();
     }
 
     // This will zoom into middle of the screen.
