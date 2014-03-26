@@ -119,7 +119,9 @@ Obstacles.prototype.createObstacle = function (num, txt) {
 	var start = function () {
 			this.ox = this.attr("x");
 			this.oy = this.attr("y");
-
+			w = this.attr("width");
+			h = this.attr("height");
+			
 			obst.selectObstacle();
 
 			this.attr({fill: '#3366FF'});
