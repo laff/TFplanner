@@ -59,7 +59,7 @@ Obstacles.prototype.createObstacle = function (num, txt) {
 
 		// bathtub
 		case '4':
-			w = 165;
+			w = 170;
 			h = 80;
 			break;
 
@@ -73,12 +73,12 @@ Obstacles.prototype.createObstacle = function (num, txt) {
 			w = 200;
 			h = 70;
 			break;
-
+		// Chimney
 		case '7':
 			w = 100;
 			h = 100;
 			break;
-
+		// Obstacle with no name, so the user can define the name and values herself.
 		case '8':
 			w = 100;
 			h = 100;

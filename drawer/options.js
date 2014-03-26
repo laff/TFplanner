@@ -563,9 +563,19 @@ Options.prototype.obstacleList = function (obstacle) {
         html = this.obstHtml;
 
     for (var i = 0; i < obstacleLength; i++) {
-        html += "<div class=obst><div class=obsttxt>"+obstacleArr[i].data('obstacleType')+": </div><input id="+i+" class='change' type='button' value="+change+">"+ 
-        "<input class='delete' type='button' value="+del+"></div>";
-        html += "<br>";
+
+        // Displaying "hindring" as name of the obstacle if no name is set (only in the html)
+        if (obstacleArr[i].data('obstacleType') != "") {
+
+            html += "<div class=obst><div class=obsttxt>"+obstacleArr[i].data('obstacleType')+": </div><input id="+i+" class='change' type='button' value="+change+">"+ 
+            "<input class='delete' type='button' value="+del+"></div>";
+            html += "<br>";
+
+        } else {
+            html += "<div class=obst><div class=obsttxt>Hindring:</div><input id="+i+" class='change' type='button' value="+change+">"+ 
+            "<input class='delete' type='button' value="+del+"></div>";
+            html += "<br>";
+        }
 
         if (obstacle == i) {
             var width = obstacleArr[i].attrs.width,
@@ -615,7 +625,7 @@ Options.prototype.actionListeners = function () {
 
     // If the 8th option is selected. aka "Egendefinert"
     $('#obstacleType').change(function() {
-
+        
         if (this.value == 8) {
 
             // Creating elements.
@@ -625,6 +635,7 @@ Options.prototype.actionListeners = function () {
             
             // Setting properties.
             parentDiv.setAttribute('class', 'inputfield');
+            parentDiv.id = 'inputfieldSelf';
             textDiv.setAttribute('class', 'inputtext');
             textDiv.innerHTML = 'Skriv inn navn: ';
             input.type = 'text';
@@ -650,17 +661,17 @@ Options.prototype.actionListeners = function () {
                     var value = document.getElementById('obstacleType').value,
                         text = document.getElementById('customObstTxt').value;
 
-                    /*
-                     OBS: No fail-safe here, so the user CAN create an obstacle with a blank name, do we
-                     want this to be possible? (Same case in #defSubmit.click -function).
-                    */
-
                     // Create the obstacle, and update the tab.
                     obstacles.createObstacle(value, text);
                     that.initObstacles();
                     that.obstacleList();
                 }
             });
+        // We might get some issues if 'egendefinert' is chosen, followed by that the user choose an other
+        // obstacle without pushing 'add' between. This will delete the <div> if it exists.
+        } else if (document.getElementById('inputfieldSelf') != null) {
+
+            document.getElementById('inputfieldSelf').remove();
         }
     });
 

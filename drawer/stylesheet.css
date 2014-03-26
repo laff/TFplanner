@@ -68,14 +68,13 @@
 }
 
 .obst {
-
 	width: 80%;
 	margin-left: 10%;
 }
 
 .obsttxt {
 	float: left;
-	width: 30%;
+	width: 40%;
 }
 
 #change {
@@ -154,6 +153,14 @@
 
 #defSubmit {
 	width: 80%!important;
+}
+
+.delete {
+	width: 30%!important;
+}
+
+.change {
+	width: 30%!important;
 }
 
 

@@ -204,18 +204,23 @@ Grid.prototype.handle = function(delta) {
     if (delta > 0) {
         this.viewBoxWidth *= 0.95;
         this.viewBoxHeight*= 0.95;
+
         // Scaling of the visualized wall-lengths
         this.rat -= 0.05;
         measurement.updateOnZoom(this.rat);
         measurement.refreshMeasurements();
+        
+
 
     } else {
         this.viewBoxWidth *= 1.05;
         this.viewBoxHeight *= 1.05;
+
         // Scaling of the visualized wall-lengths
         this.rat += 0.05;
         measurement.updateOnZoom(this.rat);
         measurement.refreshMeasurements();
+        
     }
 
     // This will zoom into middle of the screen.
