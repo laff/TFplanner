@@ -1,10 +1,13 @@
 //Constructor for the floor heating mats,
 //takes length in cm as parameter
-function HeatingMat(matLength) {
+//Param timeoutLength is for choosing the timespan before
+// the mat times out and reverts. NOT CURRENTLY IMPLEMENTED
+function HeatingMat(matLength, timeoutLength) {
 
 	this.totalArea = matLength*50;
 	this.unusedArea = this.totalArea;
     this.timestamp = Date.now()/1000;
+    this.validPeriod = timeoutLength?timeoutLength:3;
 }
 
 HeatingMat.prototype.addSquare = function() {
@@ -23,11 +26,6 @@ HeatingMat.prototype.removeSubsquare = function() {
 	this.unusedArea += 10*10;
 }
 
-HeatingMat.prototype.abort = function() {
-    console.log("Aborting");
-
-   this.timeout = true;
-}
 
 //Constructor for a 0.5m X 0.5m square
 function Square (x, y, path, paper) {

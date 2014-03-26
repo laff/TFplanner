@@ -345,8 +345,8 @@ Grid.prototype.moveRoom = function () {
             minY = walls[i].attrs.path[1][2];
     } 
 
-    offsetX = minX - 100;
-    offsetY = minY - 100;
+    offsetX = minX - 99;
+    offsetY = minY - 99;
     this.resWidth = (maxX - minX);
     this.resHeight = (maxY - minY);
     xstart = (walls[0].attrs.path[0][1] - offsetX);

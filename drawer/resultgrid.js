@@ -266,7 +266,7 @@ ResultGrid.prototype.placeMat = function (squareNo, subsquareNo) {
             c = length * 50;
         if (c <= this.unusedArea) {
             mat = new HeatingMat(length);
-            console.log("Trying " + length/100 + "m at square " + squareNo);
+            //console.log("Trying " + length/100 + "m at square " + squareNo);
             if ( this.placeSquare(squareNo, subsquareNo, mat, 0, -1) )
                 return true;
         }
@@ -288,7 +288,7 @@ ResultGrid.prototype.placeSquare = function (squareNo, subsquareNo, mat, lastSqu
         timeout = Date.now()/1000;
 
     //The recursive placement is taking too long, abort mat
-    if (timeout - mat.timestamp > 3)
+    if ( (timeout - mat.timestamp) > mat.validPeriod)
         return false;
 
     //The whole mat has been successfully placed, return true
@@ -403,11 +403,14 @@ ResultGrid.prototype.placeSubsquare = function(squareNo, subsquareNo, mat, lastS
         square = squares[squareNo],
         subsquares = square.subsquares,
         added = false,
+        abort = false,
         timeout = Date.now()/1000;
 
     //The recursive placement is taking too long, abort mat
-    if (timeout - mat.timestamp > 3)
-        return false;
+    //Simply returning false does not work due to asynchronous nature
+    if ( (timeout - mat.timestamp) > mat.validPeriod) {
+        abort = true;
+    }
 
     //Could happen if function is called because mat unused area is less than a full square
     if (subsquares.length == 0) {
@@ -466,7 +469,7 @@ ResultGrid.prototype.placeSubsquare = function(squareNo, subsquareNo, mat, lastS
 
         //We first try to populate within the same square, then move to the adjacent squares
         //Up, inside same square
-        if (u >= 0) {
+        if (u >= 0 && abort == false) {
             up = subsquares[u];
             if ( !up.hasWall && !up.hasObstacle && !up.populated 
                  && this.placeSubsquare(squareNo, u, mat, squareNo, subsquareNo) ) {
@@ -474,7 +477,7 @@ ResultGrid.prototype.placeSubsquare = function(squareNo, subsquareNo, mat, lastS
             }
         }
         //Right within same square
-        if (r < 25 && r%5 != 0) {
+        if (r < 25 && r%5 != 0 && abort == false) {
             right = subsquares[r];
             if ( !right.hasWall && !right.hasObstacle && !right.populated 
                  && this.placeSubsquare(squareNo, r, mat, squareNo, subsquareNo) ) {
@@ -482,7 +485,7 @@ ResultGrid.prototype.placeSubsquare = function(squareNo, subsquareNo, mat, lastS
             }
         }
         //Left within same square
-        if (l >= 0 && l%5 != 4) {
+        if (l >= 0 && l%5 != 4 && abort == false) {
             left = subsquares[l];
             if ( !left.hasWall && !left.hasObstacle && !left.populated 
                  && this.placeSubsquare(squareNo, l, mat, squareNo, subsquareNo) ) {
@@ -490,7 +493,7 @@ ResultGrid.prototype.placeSubsquare = function(squareNo, subsquareNo, mat, lastS
             }
         }
         //Down inside same square
-        if (d < 25) {
+        if (d < 25 && abort == false) {
             down = subsquares[d];
             if ( !down.hasWall && !down.hasObstacle && !down.populated 
                  && this.placeSubsquare(squareNo, d, mat, squareNo, subsquareNo) ) {
@@ -499,7 +502,7 @@ ResultGrid.prototype.placeSubsquare = function(squareNo, subsquareNo, mat, lastS
         }
 
         //Up into the adjacent square
-        if (u < 0) {
+        if (u < 0 && abort == false) {
             up = squares[squareNo-width];
             if ( up.reallyInside && !up.populated && this.placeSquare(squareNo-width, u+25, mat, squareNo, subsquareNo) ) {
                 return true;
@@ -507,7 +510,7 @@ ResultGrid.prototype.placeSubsquare = function(squareNo, subsquareNo, mat, lastS
         }
 
         //Right to next square
-        if (r%5 == 0) {
+        if (r%5 == 0 && abort == false) {
             right = squares[squareNo+1];
             if ( right.reallyInside && !right.populated && this.placeSquare(squareNo+1, r-5, mat, squareNo, subsquareNo) ) {
                 return true;
@@ -515,7 +518,7 @@ ResultGrid.prototype.placeSubsquare = function(squareNo, subsquareNo, mat, lastS
         }
 
         //Left to previous square
-        if (l == -1 || l%5 == 4) {
+        if (l == -1 || l%5 == 4 && abort == false) {
             left = squares[squareNo-1];
             if ( left.reallyInside && !left.populated && this.placeSquare(squareNo-1, l+5, mat, squareNo, subsquareNo) ) {
                 return true;
@@ -523,7 +526,7 @@ ResultGrid.prototype.placeSubsquare = function(squareNo, subsquareNo, mat, lastS
         }
 
         //Down to square below
-        if (d > 24) {
+        if (d > 24 && abort == false) {
             down = squares[squareNo + width];
             if ( down.reallyInside && !down.populated && this.placeSquare(squareNo+width, d-25, mat, squareNo, subsquareNo) ) {
                 return true;
