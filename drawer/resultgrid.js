@@ -190,6 +190,8 @@ ResultGrid.prototype.populateSquares = function() {
             squares[length++] = square;
         }
     }
+
+    this.addObstacles();
 }
 
 
@@ -681,6 +683,8 @@ ResultGrid.prototype.moveWalls = function() {
     this.area -= this.area%10000;
     this.unusedArea = this.area;
     console.log("Usable area: " + this.area + " square cm");
+
+    //End of moveWalls
 }
 
 
@@ -780,4 +784,83 @@ ResultGrid.prototype.adjacentWall = function (squareList, subsquareNo) {
     }
 
     return false;
+
+    //End of adjacentWall
+}
+
+
+//Function adds obstacles to the datastructure. 
+//DOES NOT check whether obstacles are inside room, this responsibility
+// is left to the user
+ResultGrid.prototype.addObstacles = function() {
+
+    var list = obstacles.obstacleSet,
+        len = list.length,
+        width = this.squarewidth,
+        squares = this.squares,
+        obstacle,
+        startSquare,
+        currentSquare,
+        x,
+        y, 
+        xdim,
+        ydim,
+        xoffset,
+        yoffset,
+        subsquares,
+        sub, 
+        square;
+
+    for (var i = 0; i < len; ++i) {
+
+        obstacle = list[i];
+        x = obstacle.attr("x");
+        y = obstacle.attr("y");
+        xdim = obstacle.attr("width")/10;
+        ydim = obstacle.attr("height")/10;
+        startSquare = Math.floor(x/50) + (Math.floor(y/50) * width);
+        currentSquare = startSquare;
+        xoffset = x%50;
+        yoffset = y%50;
+
+        //Traverses obstacle as a two-dimensional array
+        for (var j = 0; j < ydim; ++j) {
+
+            for (var k = 0; k < xdim; ++k) {
+                square = squares[currentSquare];
+
+                //Creates subsquare structure if there is none
+                //(Squares with walls will already have a subsquare structure)
+                if (square.subsquares.length == 0) {
+                    for (var n = 0; n < 25; ++n) {
+                        var xtemp = square.xpos + (n%5)*10,
+                            ytemp = square.ypos + Math.floor(n/5)*10, 
+                            s = new Subsquare(xtemp, ytemp, this.paper, null);
+
+                        s.insideRoom = true;
+                        this.squares[currentSquare].subsquares.push(s);
+                    }
+                }
+                //Subsquare number
+                sub = yoffset/2+xoffset/10;
+                this.squares[currentSquare].subsquares[sub].hasObstacle = true;
+                this.squares[currentSquare].area -= 100;
+                this.squares[currentSquare].hasObstacles = true;
+
+                //Moves to next square on x-axis
+                xoffset = (xoffset + 10)%50;
+                //Changes to next square when necessary
+                if (xoffset == 0)
+                    currentSquare += 1;
+            }
+            //x-axis loop finished, return to start and repeat one line below
+            currentSquare = startSquare;
+            yoffset = (yoffset + 10)%50;
+            //Changes to next row of squares
+            if (yoffset == 0)
+                currentSquare += width;
+
+        }
+    }
+    //End of addObstacles
 }
