@@ -138,7 +138,7 @@ Options.prototype.initSpecs = function () {
         // Default selected is 'none', so a value MUST be chosen by the user.        
         document.getElementById('inOutType').selectedIndex = -1;
     } else {
-        html = '<p class="error"> You need to draw<br> and finish, or create a<br> predefined room first! </p>';
+        html = '<p class="error"> Du m'+this.dotA+' tegne et rom f'+crossO+'rst! <br></p>';
         $(container).html(html);
     }
 
@@ -239,8 +239,8 @@ Options.prototype.chooseDeck = function (form) {
         $('#deckType').next().remove();
         $('#deckType').remove();
         $('#decks').remove();
-
     }
+    
     $('#wattage').next().remove();
     $('#wattage').remove();
     $('#watt').remove();
@@ -313,13 +313,14 @@ Options.prototype.chooseDeck = function (form) {
     // Set as blanc on initialization, to force the user to select an !default item.
     document.getElementById("deckType").selectedIndex = -1;
 
-    // When the user have selected an item in this list, the 'generate'-button is created.
+    // When the user have selected an item in this list, the 'generate'-button is created,
+    // unless 'wattage' also has to be selected.
     $('#deckType').change( function () {
 
         if (selected == 'inside') {
             options.wattage(form);
         } else {
-            // Remove dropdown for choosing wattage
+            // Remove dropdown for choosing wattage and casting.
             $('#wattage').next().remove();
             $('#wattage').remove();
             $('#watt').remove();
@@ -349,7 +350,6 @@ Options.prototype.wattage = function (form) {
 
     // Make sure that a <select> with this id not exists, no need to use 'if' cause
     // nothing will happen if it doesn`t exist. Also remove the <span> that display text.
-
     if ($('#wattage').length) {
         $('#wattage').next().remove();
         $('#wattage').remove();
@@ -367,7 +367,6 @@ Options.prototype.wattage = function (form) {
 
     span.innerHTML = 'Velg mattens effekt: ';
 
-
     option1.value = 60;
     option1.text = '60W';
     option2.value = 100;
@@ -377,12 +376,10 @@ Options.prototype.wattage = function (form) {
     option4.value = 160;
     option4.text = '160W';
 
-
     watt.add(option1, null);
     watt.add(option2, null);
     watt.add(option3, null);
     watt.add(option4, null);
-
 
     // Append the element to our form, then add the form to the container.
     form.appendChild(span);
@@ -410,8 +407,9 @@ Options.prototype.wattage = function (form) {
 }
 
 /**
- *  Functionality that asks the user if casting is to be done for the floor
- *
+ * Functionality that asks the user if casting is to be done for the floor
+ * @param form - form of the tab, passed through all the connected functions, 
+ * holds the html-structure.
 **/
 Options.prototype.casting = function (form) {
 
@@ -465,6 +463,8 @@ Options.prototype.casting = function (form) {
 /**
  * Creation of a button to generate our solution for putting out a heatingmat.
  * Will be created when an item is chosen in all the dropdowns.
+ * @param form - The form is passed "all the way" through the 'specs'-functionality and
+ * stuff is appended to it.
 **/
 Options.prototype.generateButton = function (form) {
 
@@ -490,8 +490,7 @@ Options.prototype.generateButton = function (form) {
 }
 
 /**
- *  Set up Obstacles
- *
+ * Set up 'Obstacles'-tab. This includes possibility to define Projectname and adding obstacles.
 **/
 Options.prototype.initObstacles = function () {
 
@@ -540,7 +539,7 @@ Options.prototype.initObstacles = function () {
 
         this.obstHtml = html;
     } else {
-        html = '<p class="error"> You need to draw<br> and finish, or create a<br> predefined room first! </p>';
+        html = '<p class="error"> Du m'+this.dotA+' tegne et rom f'+crossO+'rst! <br></p>';
         this.obstHtml = html;
     }
 
@@ -728,13 +727,14 @@ Options.prototype.actionListeners = function () {
         obstacles.selectObstacle(null);
     });
 
-    // action for the plus and minus buttons
-    $('.plusminus').click(function(e) {
+    // Action for the plus and minus buttons
+    $('.plusminus').click(function () {
 
-        var inputEle = this.parentNode.firstChild.nextSibling.nextSibling
+        var inputEle = this.parentNode.firstChild.nextSibling.nextSibling,
             inputVal = parseInt(inputEle.value),
             intention = this.value,
-            changed = (inputVal > 0) ? matIt[intention](inputVal, 10) : 0;
+            changed = matIt[intention](inputVal, 10),
+            changed = (changed < 0) ? 0 : changed;
 
         inputEle.value = changed;
     });
@@ -1119,7 +1119,7 @@ Options.prototype.createHandlers = function(coll, val, toolTip) {
     }).mouseup(function () {
 
         if (val != null) {
-            ourRoom.createRoom(new PreDefRoom(val));
+            ourRoom.createRoom(options.preDefRoom(val));
         } else {
             if (finishedRoom == null) {
                 ourRoom.initRoom();
@@ -1134,9 +1134,9 @@ Options.prototype.createHandlers = function(coll, val, toolTip) {
  * All drawing will be done clockwise and will follow the angle-axis predefined. 
  * (180 is straight to the right, 270 is downwards etc.).
  * The first array contain the angles, and the second array contain the length of the wall.
- *
+ * @param value - A number from the function that calls this one, defines what room is to be returned.
 **/
-function PreDefRoom (value) {
+Options.prototype.preDefRoom = function (value) {
 
     switch(value) {
         case 0:
@@ -1164,25 +1164,18 @@ function PreDefRoom (value) {
 
 
 /**
- * Just started looking at this stuff, not quiet sure how we want to use it yet!
+ * Function that get the value from all dropdowns in the Specifications-tab
+ * and find the corresponding product that fit the chosen values.
 **/
 Options.prototype.tfProducts = function () {
-
-    // Array of heating-products, length of the mat is in first column, product-number in the second one.
-
-    // ?????: Should indoor/outdoor and Deck-type also be specified in the array?
-    // AND: Should we also include the name in the arrays (jeez)
-
-    // This way we can get the dropdowns, so we can work out from THIS:
-
 
     var area = $('#inOutType').val(),
         climate = $('#climateType').val(),
         deck = $('#deckType').val(),
         watt = $('#wattage').val(),
-        cast = $('#casting').val();
+        cast = $('#casting').val(),
 
-    var mats = [
+        mats = [
         {
             name: 'TFP',
             areas: {
@@ -1328,8 +1321,7 @@ Options.prototype.tfProducts = function () {
             areas: {
                 outside: true
             },
-            // Might be ugly to set undefined as 'true', but climate will not be defined if area is outside, so
-            // it works.
+
             climates: {
                 undefined: true
             },
