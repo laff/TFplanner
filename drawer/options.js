@@ -571,19 +571,21 @@ Options.prototype.obstacleList = function (obstacle) {
             var width = obstacleArr[i].attrs.width,
                 height = obstacleArr[i].attrs.height,
                 x = obstacleArr[i].attrs.x,
-                y = obstacleArr[i].attrs.y;
+                y = obstacleArr[i].attrs.y,
+                increase = "<input class='plusminus' type='button' name='increase' value='+' />";
+                decrease = "<input class='plusminus' type='button' name='decrease' value='-' />";
 
             // Div start by a line break
             html += "<br>";
             html += "<div id=change class='roomTab'>";
             // Height
-            html += "<div class='inputfield'><div class='inputtext'>H"+crossO+"yde: </div><input  type='number' id='height' value="+height+"><br></div>";
+            html += "<div class='inputfield'><div class='inputtext'>H"+crossO+"yde: </div>"+decrease+"<input  type='number' id='height' value="+height+">"+increase+"<br></div>";
             // Width
-            html += "<div class='inputfield'><div class='inputtext'>Bredde: </div><input  type='number' id='width' value="+width+"><br></div>";
+            html += "<div class='inputfield'><div class='inputtext'>Bredde: </div>"+decrease+"<input  type='number' id='width' value="+width+">"+increase+"<br></div>";
             // position x
-            html += "<div class='inputfield'><div class='inputtext'>Horisontal avstand: </div><input type='number' id='posx' value="+(x - 100)+"><br></div>";
+            html += "<div class='inputfield'><div class='inputtext'>X avstand: </div>"+decrease+"<input type='number' id='posx' value="+(x - 100)+">"+increase+"<br></div>";
             // position y
-            html += "<div class='inputfield'><div class='inputtext'>Vertikal avstand: </div><input type='number' id='posy' value="+(y - 100)+"></div>";
+            html += "<div class='inputfield'><div class='inputtext'>Y avstand: </div>"+decrease+"<input type='number' id='posy' value="+(y - 100)+">"+increase+"</div>";
             // Button element.
             html += "<input id=changeObst name="+i+" type='button' value="+save+">";
             // Div end.
@@ -713,6 +715,17 @@ Options.prototype.actionListeners = function () {
         that.obstacleList();
 
         obstacles.selectObstacle(null);
+    });
+
+    // action for the plus and minus buttons
+    $('.plusminus').click(function(e) {
+
+        var inputEle = this.parentNode.firstChild.nextSibling.nextSibling
+            inputVal = parseInt(inputEle.value),
+            intention = this.value,
+            changed = (inputVal > 0) ? matIt[intention](inputVal, 10) : 0;
+
+        inputEle.value = changed;
     });
 
     // Action for the button to create a title on the paper.
@@ -1673,3 +1686,12 @@ Options.prototype.tfProducts = function () {
         }
     }
 }
+
+/**
+ *  Magic math function
+ *  sauce: http://stackoverflow.com/questions/13077923/how-can-i-convert-a-string-into-a-math-operator-in-javascript
+**/
+var matIt = {
+    '+': function (x, y) { return x + y },
+    '-': function (x, y) { return x - y }
+};
