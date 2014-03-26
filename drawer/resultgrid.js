@@ -26,12 +26,23 @@ function ResultGrid(pathString) {
     this.moveWalls();
 
 
+    // Color choosar
+    this.colorIndex = 0;
+    this.matColors = [
+        '#d3d3d3',
+        '#a8a8a8', 
+        '#7e7e7e',
+        '#545454'
+    ];
+    this.currentColor;
+
+
     //this.draw(this.height, this.width, this.path);
 
     this.findStart();
 
 
-    this.draw(this.height, this.width, this.path);
+    //this.draw(this.height, this.width, this.path);
 }
 
 /*
@@ -260,20 +271,44 @@ ResultGrid.prototype.findStart = function() {
 ResultGrid.prototype.placeMat = function (squareNo, subsquareNo) {
     var l = [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1200],
         mat;
+    
+    console.log(options.validMat);
+
+    // Picks color, then increments.
+    this.currentColor = this.pickColor();
+    this.colorIndex++;
 
     while (l.length > 0) {
         var length = l.pop(),
             c = length * 50;
+
         if (c <= this.unusedArea) {
-            mat = new HeatingMat(length);
+            mat = new HeatingMat(length, null, this.currentColor);
+            mat.productNr = 1337;
             //console.log("Trying " + length/100 + "m at square " + squareNo);
             if ( this.placeSquare(squareNo, subsquareNo, mat, 0, -1) )
                 return true;
         }
     }
+
+    // decrements if returnring false.
+    this.colorIndex--;
     return false;
 
     //End of placeMat
+}
+
+/**
+ *  Function that returns a color based on indexes 1-4
+ *
+**/
+ResultGrid.prototype.pickColor = function () {
+
+    if (this.colorIndex > 3) {
+        this.colorIndex = 0;
+    }
+
+    return this.matColors[this.colorIndex];
 }
 
 
@@ -326,13 +361,13 @@ ResultGrid.prototype.placeSquare = function (squareNo, subsquareNo, mat, lastSqu
         this.squares[squareNo].populated = true;
         mat.addSquare();
         this.unusedArea -= area;
-        square.setArrow(4);
+        square.setArrow(4, mat);
 
         //Tries to populate next square, in order up-right-left-down
         if (up.reallyInside && !up.populated) {
             if ( !up.hasObstacles && !up.hasWall) {
                 if ( this.placeSquare(u, 0, mat, squareNo, -1) ) {
-                    this.squares[squareNo].setArrow(0);
+                    this.squares[squareNo].setArrow(0, mat);
                     return true;
                 }                 
             } else {
@@ -345,7 +380,7 @@ ResultGrid.prototype.placeSquare = function (squareNo, subsquareNo, mat, lastSqu
         if (right.reallyInside && !right.populated) {
             if ( !right.hasObstacles && !right.hasWall ) {
                 if ( this.placeSquare(r, 0, mat, squareNo, -1) ) {
-                    this.squares[squareNo].setArrow(1);
+                    this.squares[squareNo].setArrow(1, mat);
                     return true;
                 }                  
             } else {
@@ -358,7 +393,7 @@ ResultGrid.prototype.placeSquare = function (squareNo, subsquareNo, mat, lastSqu
         if (left.reallyInside && !left.populated) {
             if ( !left.hasObstacles && !left.hasWall ) {
                 if ( this.placeSquare(l, 0, mat, squareNo, -1) ) {
-                    this.squares[squareNo].setArrow(2);
+                    this.squares[squareNo].setArrow(2, mat);
                     return true;
                 }                  
             } else {
@@ -371,7 +406,7 @@ ResultGrid.prototype.placeSquare = function (squareNo, subsquareNo, mat, lastSqu
         if (down.reallyInside && !down.populated) {
             if ( !down.hasObstacles && !down.hasWall ) {
                 if ( this.placeSquare(d, 0, mat, squareNo, -1) ) {
-                    this.squares[squareNo].setArrow(3);
+                    this.squares[squareNo].setArrow(3, mat);
                     return true;
                 }                
             } else {
