@@ -2,12 +2,15 @@
 //takes length in cm as parameter
 //Param timeoutLength is for choosing the timespan before
 // the mat times out and reverts. NOT CURRENTLY IMPLEMENTED
-function HeatingMat(matLength, timeoutLength) {
+function HeatingMat(matLength, timeoutLength, color) {
 
-	this.totalArea = matLength*50;
+	this.totalArea = (matLength * 50);
 	this.unusedArea = this.totalArea;
-    this.timestamp = Date.now()/1000;
-    this.validPeriod = timeoutLength?timeoutLength:3;
+    this.timestamp = (Date.now() / 1000);
+    this.validPeriod = timeoutLength ? timeoutLength : 3;
+    this.matColor = color;
+    this.productNr;
+    this.textPlaced = 0;
 }
 
 HeatingMat.prototype.addSquare = function() {
@@ -82,8 +85,11 @@ function Square (x, y, path, paper) {
     }
     //End of populateSquare()
 }
-
-Square.prototype.setArrow = function(dir) {
+/**
+ *  This function adds arrows to the squares.
+ *  In addition it sets a color to the squares, even tho the function name doesnt give that away.
+**/
+Square.prototype.setArrow = function(dir, mat) {
     var paper = this.paper,
         y = this.ypos,
         x = this.xpos,
@@ -93,6 +99,16 @@ Square.prototype.setArrow = function(dir) {
                     'stroke-width': 3,
                     "arrow-end": "classic-midium-midium"
                 };
+
+    if (mat.textPlaced == 2) {
+        // put that text in there
+        console.log("place text"+ mat.productNr);
+    } else {
+        mat.textPlaced++;
+    }
+
+    this.rect.attr({'fill': mat.matColor});    
+
     if (dir != 4)
         this.arrow.remove();
 
