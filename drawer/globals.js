@@ -19,7 +19,7 @@ $(document).ready(function() {
     //Initializes navigation_container
     scrollBox = new ScrollBox();
 
-    // Starts the room creation progress!
+    // Starts the room creation process!
     measurement = new Measurement();
     ourRoom = new DrawRoom(20);
 

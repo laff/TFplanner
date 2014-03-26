@@ -91,11 +91,14 @@ FootMenu.prototype.initFooter = function () {
                 resultGrid.clear();
                 resultGrid = null;
                 ourRoom.clearRoom();
+                tabs.select(1);
                 options.showOptions(1);
                 grid = new Grid();
                 scrollBox = new ScrollBox();
+                measurement = new Measurement();
                 ourRoom = new DrawRoom(20);
-            }, 500000);    
+                obstacles = new Obstacles();
+            }, 50000);    
         }
     });
 
@@ -106,6 +109,7 @@ FootMenu.prototype.initFooter = function () {
         tabs.select(1);
         options.showOptions(1);
         options.preDefArr = null;
+        options.roomTitle.remove();
     });
 }
 

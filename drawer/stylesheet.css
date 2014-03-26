@@ -68,14 +68,13 @@
 }
 
 .obst {
-
 	width: 80%;
 	margin-left: 10%;
 }
 
 .obsttxt {
 	float: left;
-	width: 30%;
+	width: 40%;
 }
 
 #change {
@@ -87,6 +86,7 @@
 #change input {
 	width: 30%;
 	float: left;
+
 }
 
 .inputfield {
@@ -156,6 +156,15 @@
 	width: 80%!important;
 }
 
+.delete {
+	width: 30%!important;
+}
+
+.change {
+	width: 30%!important;
+}
+
+
 .plusminus {
 	width: 10%!important;
 }
@@ -181,4 +190,11 @@ body {
 	-moz-box-sizing:border-box;
 	-webkit-box-sizing:border-box;
 	margin: 0 0 0 0;
+}
+
+/* Removes spin-buttons on the inputfields */
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
 }
