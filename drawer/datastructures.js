@@ -102,7 +102,7 @@ Square.prototype.setArrow = function(dir, mat) {
 
     if (mat.textPlaced == 2) {
         // put that text in there
-        console.log("place text"+ mat.productNr);
+     //   console.log("place text"+ mat.productNr);
     } else {
         mat.textPlaced++;
     }
@@ -251,5 +251,19 @@ function Subsquare (x, y, paper, path) {
         this.rect.attr ({
             'stroke-width': 0.1
         });
+    }
+}
+
+Subsquare.prototype.setArrow = function(dir, mat) {
+    this.rect.attr({
+        'fill': mat.matColor,
+        'fill-opacity': 0.7
+    });
+
+    if (dir == 4) {
+        this.rect.attr({
+            'fill': "white",
+            'fill-opacity': 1
+        });        
     }
 }

@@ -41,6 +41,8 @@ function ResultGrid(pathString) {
 
     this.findStart();
 
+    console.log(this.squares[38]);
+
 
     //this.draw(this.height, this.width, this.path);
 }
@@ -274,7 +276,7 @@ ResultGrid.prototype.placeMat = function (squareNo, subsquareNo) {
     var l = [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1200],
         mat;
     
-    console.log(options.validMat);
+    //console.log(options.validMat);
 
     // Picks color, then increments.
     this.currentColor = this.pickColor();
@@ -480,7 +482,6 @@ ResultGrid.prototype.placeSubsquare = function(squareNo, subsquareNo, mat, lastS
         var squareList = [lastSquareNo, lastSquareNo-width, lastSquareNo +1, lastSquareNo-1, lastSquareNo+width];
         
         if ( this.adjacentWall(squareList, lastSubsquareNo) && ( this.unusedArea == 0 || this.findStart() ) ) {
-            console.log(square) + " " + lastSubsquareNo;
             return true;
         } else  {
             return false;
@@ -492,6 +493,7 @@ ResultGrid.prototype.placeSubsquare = function(squareNo, subsquareNo, mat, lastS
     //The subsquare must be free to populate
     if ( !(sub.hasWall || sub.hasObstacle || sub.populated) ) {
         this.squares[squareNo].subsquares[subsquareNo].populated = true;
+        sub.setArrow(0, mat);
         this.unusedArea -= area;
         mat.addSubsquare();
 
@@ -575,6 +577,7 @@ ResultGrid.prototype.placeSubsquare = function(squareNo, subsquareNo, mat, lastS
         mat.removeSubsquare();
         this.squares[squareNo].populated = false;
         this.squares[squareNo].subsquares[subsquareNo].populated = false;
+        this.squares[squareNo].subsquares[subsquareNo].setArrow(4, mat);
     }
 
     if (added == true) {
@@ -885,15 +888,19 @@ ResultGrid.prototype.addObstacles = function() {
                 //Moves to next square on x-axis
                 xoffset = (xoffset + 10)%50;
                 //Changes to next square when necessary
-                if (xoffset == 0)
+                if (xoffset == 0) {
                     currentSquare += 1;
+                }
             }
+            xoffset = x%50;
             //x-axis loop finished, return to start and repeat one line below
             currentSquare = startSquare;
             yoffset = (yoffset + 10)%50;
             //Changes to next row of squares
-            if (yoffset == 0)
+            if (yoffset == 0) {
                 currentSquare += width;
+                startSquare = currentSquare;
+            }
 
         }
     }
