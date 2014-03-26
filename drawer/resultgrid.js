@@ -25,9 +25,13 @@ function ResultGrid(pathString) {
     this.populateSquares();
     this.moveWalls();
 
-    this.draw(this.height, this.width, this.path);
 
-    //this.findStart();
+    //this.draw(this.height, this.width, this.path);
+
+    this.findStart();
+
+
+    this.draw(this.height, this.width, this.path);
 }
 
 /*
@@ -125,9 +129,8 @@ ResultGrid.prototype.draw = function(h, w, path) {
                 'fill-opacity': 0.5
             });
         }
-        else if (square.insideRoom && (square.hasWall || square.hasObstacles) ) {
-            if (i == 69)
-                console.log(square);
+        else if (square.insideRoom && square.subsquares.length != 0 ) {
+
             for(var j=0;j<25; ++j) {
                 subsquare = subsquares[j];
                 if (subsquare.hasWall) 
@@ -160,50 +163,6 @@ ResultGrid.prototype.draw = function(h, w, path) {
     }
 }
 
-/*
-THIS FUNCTION IS MOVED TO 'grid.js' (named 'moveRoom')
-//Gets wall elements from ourroom and translates to new grid 
-ResultGrid.prototype.getWalls = function (offsetX, offsetY, scale) {
-    
-    var scalefactor = (scale != null) ? scale : 1;
-
-    var walls = ourRoom.walls,
-        paper = this.paper,
-        size = this.size,
-        width = 0, 
-        height = 0,
-        numberOfWalls = walls.length,
-        pathString, 
-        tempString,
-        xstart = (walls[0].attrs.path[0][1]),
-        ystart = (walls[0].attrs.path[0][2]),
-        ycurrent,
-        path;
-
-    pathString = new String("M "+xstart + ", "+ ystart);
-
-    for (var i = 1; i < numberOfWalls; ++i) {
-        xcurrent = (walls[i].attrs.path[0][1]);
-        ycurrent = (walls[i].attrs.path[0][2]);
-
-        tempString = " L" + xcurrent + ", " + ycurrent;
-        pathString += tempString;
-    }
-
-    tempString = " Z";
-    pathString += tempString;
-    path = paper.path(pathString);
-    path.attr({
-        'stroke-width':     3.0,
-        'stroke':           "Black",
-        'stroke-opacity':   1.0 
-    });
-
-    return pathString;
-    //End of getWalls()
-}
-
-*/
 
 //Divides the area into suqares, does wall and obstacle detection
 ResultGrid.prototype.populateSquares = function() {
@@ -261,24 +220,24 @@ ResultGrid.prototype.findStart = function() {
     for (var i = 0; i < len; ++i) {
         var square = squares[i];
         
-        if (square.insideRoom && !square.populated) {
+        if (square.reallyInside && !square.populated) {
 
             //Neighbouring square numbers 
             var squareList = [i, i-width, i+1, i-1, i+width];
             
-            if (!square.hasWall) {
-                console.log("Placing mat in square " + i);
+            if (square.subsquares.length == 0) {
+           //     console.log("Placing mat in square " + i);
 
                 //Criteria: If adjacent to a wall and recursive mat placement works,
                 // return true
-                if ( this.adjacentWall(squareList) ) {
+                if ( this.adjacentWall(squareList, -1) ) {
                     if ( this.placeMat(i, 0) ) {
                         return true;
                     }
                 }
 
             } 
-            /*else {
+            else {
                 //Checks for each subsquare if it has adjacent wall and recursive mat
                 // placement 
                 for (var j=0; j < 25; ++j) {
@@ -288,16 +247,17 @@ ResultGrid.prototype.findStart = function() {
                         } 
                     }           
                 }        
-            }*/
+            }
         }
     }
     return false;
     //End of findStart()
 }
 
+
+//Function tries to place mats in decreasing length
 ResultGrid.prototype.placeMat = function (squareNo, subsquareNo) {
     var l = [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1200],
-        len = l.length,
         mat;
 
     while (l.length > 0) {
@@ -305,130 +265,13 @@ ResultGrid.prototype.placeMat = function (squareNo, subsquareNo) {
             c = length * 50;
         if (c <= this.unusedArea) {
             mat = new HeatingMat(length);
+            console.log("Trying " + length/100 + "m at square " + squareNo);
             if ( this.placeSquare(squareNo, subsquareNo, mat, 0, -1) )
                 return true;
         }
     }
     return false;
 
-
-        // try longest length
-
-        // if longest length is too long
-
-        // try next length
-
-        // else try to place mat
-
-        // if mat cant me placed
-
-        // try next length
-
-/*
-    var func = function(i) {
-        if (lengths[i]*50 <= result.unusedArea) {
-            var ok = result.placeSquare(squareNo, subsquareNo, mat, 0);
-
-            if (ok != undefined) {
-                if (ok)
-                    return true;
-                else if (i == len) {
-                    //console.log("Bailing ship");
-                    return false;
-                }
-                else {
-                    //console.log("recursing");
-                    mat = new HeatingMat(lengths[i+1]);
-                    if (func(i+1) )
-                        return true;            
-                }
-            }
-        } else {
-            //console.log("recursing");
-            mat = new HeatingMat(lengths[i+1]);
-            if (func(i+1) )
-                return true; 
-        }
-    };
-
-
-
-    // function that tries to put math on "next length"
-     nextLength = function(lengthus) {
-
-        var thisLength = (lengthus > 1200) ? 1200 : (lengthus == 1200) ? 1000 : (lengthus - 100);
-
-        if (thisLength < 100) {
-            return null;
-        }
-
-        if ((lengthus * 50) <= result.unusedArea) {
-            return thisLength;
-        } else {
-            console.log("could not place: " + thisLength);
-            return nextLength(thisLength);
-        }
-
-    },
-
-    placingmat = function(lengde) {
-
-        if (lengde == null) {
-            console.log("Could not place mat");
-            return false;
-
-        } else {
-            console.log(lengde);
-            mat = new HeatingMat(lengde);
-
-            if (result.placeSquare(squareNo, subsquareNo, mat, 0)) {
-                return true;
-            } else {
-                return placingmat(nextLength(lengde));
-            }      
-        }
-
-
-    };
-
-
-    return placingmat(nextLength(1300));
-
-    var l = [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1200];
-    while (l.length > 0) {
-        var length = l.pop(),
-            c = length * 50;
-        if (c <= result.unusedArea) {
-            mat = new HeatingMat(length);
-            if ( result.placeSquare(squareNo, subsquareNo, mat, 0) )
-                return true;
-        }
-    }
-    return false;
-
-    /*
-    for (var i; i < len; ++i) {
-
-        var answer = null,
-            answer = (lengths[i]*50) <= this.unusedArea && this.placeSquare(squareNo, subsquareNo, mat, 0);
-
-        if (answer == true) {
-                return true;
-
-         } else if (answer == false) {
-            console.log(lengths[i]);
-            mat = new HeatingMat(lengths[++i]);
-        }
-
-    }
-    
-    console.log("New mat!");
-    if (func(0))
-        return true;
-
-
-    return false;
-    */
     //End of placeMat
 }
 
@@ -440,31 +283,33 @@ ResultGrid.prototype.placeSquare = function (squareNo, subsquareNo, mat, lastSqu
         square = squares[squareNo],
         width = this.squarewidth,
         height = this.squareheight,
-        area = 50*50;
+        area = 50*50,
+        timeout = Date.now()/1000;
 
+    //The recursive placement is taking too long, abort mat
+    if (timeout - mat.timestamp > 3)
+        return false;
 
-        //The whole mat has been successfully placed, return true
-        if (mat.unusedArea == 0) {
-            var squareList = [lastSquareNo, lastSquareNo-width, lastSquareNo +1, lastSquareNo-1, lastSquareNo+width],
-                adjacentWall;
+    //The whole mat has been successfully placed, return true
+    if (mat.unusedArea == 0) {
+        var squareList = [lastSquareNo, lastSquareNo-width, lastSquareNo +1, lastSquareNo-1, lastSquareNo+width];
 
-
-            //Test procedure, only tries 15 times so we're not stuck with infinite loop
-            if (this.attempts++ == 15) { 
-                return true;
-            }
-
-            if ( this.adjacentWall(squareList, lastSubsquareNo) && ( this.unusedArea == 0 || this.findStart() ) ) {
-                //if ( this.unusedArea == 0 || this.findStart() ) {
-                    squares[lastSquareNo].rect.attr({'fill': "blue"});
-                    return true;
-                //}
-            }
-            else 
-                return false;
+/*
+        //Test procedure, only tries 15 times so we're not stuck with infinite loop
+        if (this.attempts++ == 25) { 
+            return true;
         }
+*/
+        if ( this.adjacentWall(squareList, lastSubsquareNo) && ( this.unusedArea == 0 || this.findStart() ) ) {
 
-    if ( !(square.hasWall || square.hasObstacles) ) {
+                return true;
+            //}
+        }
+        else 
+            return false;
+    }
+
+    if ( !( (square.subsquares.length > 0) || (mat.unusedArea < area) ) ) {
 
         //Neighboring squares and their numbers in squares array
         var u = squareNo-width,
@@ -483,7 +328,7 @@ ResultGrid.prototype.placeSquare = function (squareNo, subsquareNo, mat, lastSqu
         square.setArrow(4);
 
         //Tries to populate next square, in order up-right-left-down
-        if (up.insideRoom && !up.populated) {
+        if (up.reallyInside && !up.populated) {
             if ( !up.hasObstacles && !up.hasWall) {
                 if ( this.placeSquare(u, 0, mat, squareNo, -1) ) {
                     this.squares[squareNo].setArrow(0);
@@ -491,38 +336,38 @@ ResultGrid.prototype.placeSquare = function (squareNo, subsquareNo, mat, lastSqu
                 }                 
             } else {
                 for (var i = 20; i < 25; ++i) {
-                    if ( this.placeSquare(u, i, mat, squareNo, -1) )
+                    if ( this.placeSquare(u, i, mat, squareNo, lastSubsquareNo) )
                         return true;
                 }
             }
         }
-        if (right.insideRoom && !right.populated) {
+        if (right.reallyInside && !right.populated) {
             if ( !right.hasObstacles && !right.hasWall ) {
                 if ( this.placeSquare(r, 0, mat, squareNo, -1) ) {
                     this.squares[squareNo].setArrow(1);
                     return true;
                 }                  
             } else {
-                for (var i = 4; i < 25; i += 5) {
-                    if ( this.placeSquare(r, i, mat, squareNo, -1) )
+                for (var i = 0; i < 21; i += 5) {
+                    if ( this.placeSquare(r, i, mat, squareNo, lastSubsquareNo) )
                         return true;
                 }
             }
         }
-        if (left.insideRoom && !left.populated) {
+        if (left.reallyInside && !left.populated) {
             if ( !left.hasObstacles && !left.hasWall ) {
                 if ( this.placeSquare(l, 0, mat, squareNo, -1) ) {
                     this.squares[squareNo].setArrow(2);
                     return true;
                 }                  
             } else {
-                for (var i = 0; i < 21; i += 5) {
-                    if ( this.placeSquare(l, i, mat, squareNo, -1) )
+                for (var i = 4; i < 25; i += 5) {
+                    if ( this.placeSquare(l, i, mat, squareNo, lastSubsquareNo) )
                         return true;
                 }
             }
         }
-        if (down.insideRoom && !down.populated) {
+        if (down.reallyInside && !down.populated) {
             if ( !down.hasObstacles && !down.hasWall ) {
                 if ( this.placeSquare(d, 0, mat, squareNo, -1) ) {
                     this.squares[squareNo].setArrow(3);
@@ -530,7 +375,7 @@ ResultGrid.prototype.placeSquare = function (squareNo, subsquareNo, mat, lastSqu
                 }                
             } else {
                 for (var i = 0; i < 5; ++i) {
-                    if ( this.placeSquare(d, i, mat, squareNo, -1) )
+                    if ( this.placeSquare(d, i, mat, squareNo, lastSubsquareNo) )
                         return true;
                 }
             }
@@ -543,10 +388,10 @@ ResultGrid.prototype.placeSquare = function (squareNo, subsquareNo, mat, lastSqu
         square.arrow.remove();
         this.squares[squareNo].populated = false;
         mat.removeSquare();
-        return false;
     } else if ( this.placeSubsquare(squareNo, subsquareNo, mat, lastSquareNo, lastSubsquareNo) ) {
         return true;
     }
+    return false;
 
     //End of placeSquare
 }
@@ -555,8 +400,28 @@ ResultGrid.prototype.placeSubsquare = function(squareNo, subsquareNo, mat, lastS
 
     var squares = this.squares,
         square = squares[squareNo],
-        subsquares = square.subsquares
-        sub = subsquares[subsquareNo],
+        subsquares = square.subsquares,
+        added = false,
+        timeout = Date.now()/1000;
+
+    //The recursive placement is taking too long, abort mat
+    if (timeout - mat.timestamp > 3)
+        return false;
+
+    //Could happen if function is called because mat unused area is less than a full square
+    if (subsquares.length == 0) {
+        for (var i = 0; i < 25; ++i) {
+            var x = square.xpos + (i%5)*10,
+                y = square.ypos + Math.floor(i/5)*10, 
+                s = new Subsquare(x, y, this.paper, null);
+
+            s.insideRoom = true;
+            this.squares[squareNo].subsquares.push(s);
+        }
+        added = true;
+    }
+
+    var sub = subsquares[subsquareNo],
         width = this.squarewidth,
         height = this.squareheight,
         area = 10*10,
@@ -574,11 +439,14 @@ ResultGrid.prototype.placeSubsquare = function(squareNo, subsquareNo, mat, lastS
         var squareList = [lastSquareNo, lastSquareNo-width, lastSquareNo +1, lastSquareNo-1, lastSquareNo+width];
         
         if ( this.adjacentWall(squareList, lastSubsquareNo) && ( this.unusedArea == 0 || this.findStart() ) ) {
+            console.log(square) + " " + lastSubsquareNo;
             return true;
         } else  {
             return false;
         }
     }
+   // console.log(squareNo + " " + subsquareNo + " last: " + lastSquareNo + " " + lastSubsquareNo);
+
 
     //The subsquare must be free to populate
     if ( !(sub.hasWall || sub.hasObstacle || sub.populated) ) {
@@ -632,7 +500,7 @@ ResultGrid.prototype.placeSubsquare = function(squareNo, subsquareNo, mat, lastS
         //Up into the adjacent square
         if (u < 0) {
             up = squares[squareNo-width];
-            if ( up.insideRoom && !up.populated && this.placeSquare(squareNo-width, u+25, mat, squareNo, subsquareNo) ) {
+            if ( up.reallyInside && !up.populated && this.placeSquare(squareNo-width, u+25, mat, squareNo, subsquareNo) ) {
                 return true;
             }
         }
@@ -640,7 +508,7 @@ ResultGrid.prototype.placeSubsquare = function(squareNo, subsquareNo, mat, lastS
         //Right to next square
         if (r%5 == 0) {
             right = squares[squareNo+1];
-            if ( right.insideRoom && !right.populated && this.placeSquare(squareNo+1, r-5, mat, squareNo, subsquareNo) ) {
+            if ( right.reallyInside && !right.populated && this.placeSquare(squareNo+1, r-5, mat, squareNo, subsquareNo) ) {
                 return true;
             }
         }
@@ -648,7 +516,7 @@ ResultGrid.prototype.placeSubsquare = function(squareNo, subsquareNo, mat, lastS
         //Left to previous square
         if (l == -1 || l%5 == 4) {
             left = squares[squareNo-1];
-            if ( left.insideRoom && !left.populated && this.placeSquare(squareNo-1, l+5, mat, squareNo, subsquareNo) ) {
+            if ( left.reallyInside && !left.populated && this.placeSquare(squareNo-1, l+5, mat, squareNo, subsquareNo) ) {
                 return true;
             }
         }
@@ -656,7 +524,7 @@ ResultGrid.prototype.placeSubsquare = function(squareNo, subsquareNo, mat, lastS
         //Down to square below
         if (d > 24) {
             down = squares[squareNo + width];
-            if ( down.insideRoom && !down.populated && this.placeSquare(squareNo+width, d-20, mat, squareNo, subsquareNo) ) {
+            if ( down.reallyInside && !down.populated && this.placeSquare(squareNo+width, d-25, mat, squareNo, subsquareNo) ) {
                 return true;
             }
         }
@@ -666,7 +534,11 @@ ResultGrid.prototype.placeSubsquare = function(squareNo, subsquareNo, mat, lastS
         mat.removeSubsquare();
         this.squares[squareNo].populated = false;
         this.squares[squareNo].subsquares[subsquareNo].populated = false;
-    }   
+    }
+
+    if (added == true) {
+        this.squares[squareNo].clearSubsquares();
+    }
     return false;
     //End of placeSubsquare
 }
@@ -801,6 +673,7 @@ ResultGrid.prototype.moveWalls = function() {
     }
 
     console.log("Availabe area: " + this.area + " square cm");
+    this.area -= 3000;
     this.area -= this.area%10000;
     this.unusedArea = this.area;
     console.log("Usable area: " + this.area + " square cm");
@@ -817,7 +690,8 @@ ResultGrid.prototype.adjacentWall = function (squareList, subsquareNo) {
         targetSquare;
 
     //No walls in square that calls function
-    if(!subsquareNo != -1) {
+    if(subsquareNo == -1 || square.subsquares.length == 0) {
+
         for (var direction = 1; direction < 5; direction++) {
             //Checks for walls in adjacent square above-right-left-down
             if(direction == 1) {
@@ -834,8 +708,7 @@ ResultGrid.prototype.adjacentWall = function (squareList, subsquareNo) {
             }
             targetSquare = squares[squareList[direction]];
 
-
-            if (targetSquare && targetSquare.hasWall) {
+            if (targetSquare.hasWall) {
 
                 targetSubsquares = targetSquare.subsquares;
 
@@ -861,7 +734,8 @@ ResultGrid.prototype.adjacentWall = function (squareList, subsquareNo) {
 
         subsquare = arr[subsquareNo];
 
-        if ( subsquare.insideRoom  && !subsquare.populated && 
+        //The subsquare we're checking FROM must be free
+        if ( subsquare.insideRoom  && 
              !subsquare.hasWall && !subsquare.hasObstacle ) {
 
             //Finds neighboring subsquares inside own square 
@@ -879,23 +753,23 @@ ResultGrid.prototype.adjacentWall = function (squareList, subsquareNo) {
             } 
             //or if subsquare directly to the top has wall
             else if ( !up && upSquare.hasWall && 
-                        upSquare.subsquares[j+20].hasWall) {
+                        upSquare.subsquares[subsquareNo+20].hasWall) {
                 return true;
             }
             //or if subsquare directly to the right has wall
             else if ( !right && rightSquare.hasWall && 
-                        rightSquare.subsquares[j+4].hasWall) {
+                        rightSquare.subsquares[subsquareNo-4].hasWall) {
                 return true;
 
             }
             //or if subsquare directly to the left has wall
             else if ( !left && leftSquare.hasWall && 
-                        leftSquare.subsquares[j-4].hasWall) {
+                        leftSquare.subsquares[subsquareNo+4].hasWall) {
                 return true;
             }   
             //or if subsquare directly down has wall
             else if ( !down && downSquare.hasWall && 
-                        downSquare.subsquares[j-20].hasWall) {
+                        downSquare.subsquares[subsquareNo-20].hasWall) {
                 return true;
             }
         }
