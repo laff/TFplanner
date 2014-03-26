@@ -2,7 +2,7 @@
  *	Constructor for the obstacles class
  *
 **/
-function Obstacles() {
+function Obstacles () {
 
 	this.paper = grid.paper;
 	this.xPos = 0;
@@ -10,21 +10,21 @@ function Obstacles() {
 	this.obstacleSet = this.paper.set();
 	this.txtSet = this.paper.set();
 	this.lineSet = this.paper.set();
-
+	this.supplyPoint = null;
 }
 
 /**
  *	Function that updates the X and Y coordinates for the obstacle default position.
  *
 **/
-Obstacles.prototype.updateXY = function() {
+Obstacles.prototype.updateXY = function () {
 
 	this.xPos = this.paper._viewBox[0];
 	this.yPos = this.paper._viewBox[1];
 }
 
 /**
- *	Function that draws a circular drain on the grid paper.
+ *	Function that draws obstacles on the grid paper, based on the size defined here.
  *
 **/
 Obstacles.prototype.createObstacle = function (num, txt) {
@@ -33,7 +33,7 @@ Obstacles.prototype.createObstacle = function (num, txt) {
 		h,
 		x = 100,
 		y = 100,
-		paper = this.paper;
+		paper = this.paper,
 		obst = this;
 
 	// Setting w and h values based on input
@@ -63,6 +63,27 @@ Obstacles.prototype.createObstacle = function (num, txt) {
 			h = 80;
 			break;
 
+		// Connection-point
+		case '5':
+			w = 10;
+			h = 10;
+			break;
+		// Bench
+		case '6':
+			w = 200;
+			h = 70;
+			break;
+
+		case '7':
+			w = 100;
+			h = 100;
+			break;
+
+		case '8':
+			w = 100;
+			h = 100;
+			break;
+
 		default:
 			return;
 	}
@@ -73,6 +94,13 @@ Obstacles.prototype.createObstacle = function (num, txt) {
 			'fill-opacity': 0.4,
 	        'stroke-opacity': 0.4
 		});
+
+	// Define the id of the preferred supplypoint, added by the user.
+	// If multiple supplypoints, the first one will be used!
+	if (this.supplyPoint == null && num == 5) {
+		this.supplyPoint = obstacle.id;
+	}
+
 	// Storing custom data.
 	obstacle.data('obstacleType', txt);
 
@@ -85,12 +113,10 @@ Obstacles.prototype.createObstacle = function (num, txt) {
 			'font-style': 'oblique'
 		});
 
-	
 	txtField.toBack();
 
 
-
-	var start = function() {
+	var start = function () {
 			this.ox = this.attr("x");
 			this.oy = this.attr("y");
 
@@ -109,7 +135,7 @@ Obstacles.prototype.createObstacle = function (num, txt) {
 
 		},
 
-		move = function(dx, dy) {
+		move = function (dx, dy) {
 
 			var xy = grid.getZoomedXY(dx, dy, true),
 				newx = this.ox + xy[0],
@@ -142,6 +168,7 @@ Obstacles.prototype.createObstacle = function (num, txt) {
 
 	        obst.nearestWalls(null, this);
 		},
+
 		up = function () {
 
 			this.attr({fill: '#E73029'});
@@ -288,7 +315,7 @@ Obstacles.prototype.nearestWalls = function (id, obst) {
  *	Function that draws lines that show length from obstacle to nearest walls.
  *
 **/
-Obstacles.prototype.lengthLine = function(obstacle, cx, cy, tri) {
+Obstacles.prototype.lengthLine = function (obstacle, cx, cy, tri) {
 
 	var rad, 
 		P1, 
@@ -312,28 +339,31 @@ Obstacles.prototype.lengthLine = function(obstacle, cx, cy, tri) {
 
 			length = (new Number(length) / 100);
 
-			textRect = that.paper.rect(textPoint.x-25, textPoint.y-10, 50, 20, 5, 5).attr({
-	            opacity: 1,
-	            fill: "white"
-	        });
+			// Do not show the length-stuff unless it is > 10cm.
+			if (length > 0) {
+				textRect = that.paper.rect(textPoint.x-25, textPoint.y-10, 50, 20, 5, 5).attr({
+		            opacity: 1,
+		            fill: "white"
+		        });
 
-			text = that.paper.text(textPoint.x, textPoint.y, length + " m").attr({
-	            opacity: 1,
-	            'font-size': 12,
-	            'font-family': "verdana",
-	            'font-style': "oblique"
-	        });
+				text = that.paper.text(textPoint.x, textPoint.y, length + " m").attr({
+		            opacity: 1,
+		            'font-size': 12,
+		            'font-family': "verdana",
+		            'font-style': "oblique"
+		        });
+			}
 
 	        that.lineSet.push(line, textRect, text);
 		};
 
 	// Create the horizontal line
 	if (tri == 1 || tri == 3) {
+
 		rad = ((obstacle.attr("width") / 2) * (-1));
 		P1 = [100, cy];
 		P2 = [(cx + rad), cy];
 		measurementO(P1, P2);
-
 	// Creating vertical line
 	} 
 

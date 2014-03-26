@@ -11,7 +11,8 @@ function Grid() {
     this.viewBoxWidth = this.paper.width;
     this.viewBoxHeight = this.paper.height;
     this.resWidth = 0;
-    this.resHeight =0;
+    this.resHeight = 0;
+    this.rat = 1.0;             // Used for scaling up the visualized wall-lengths.
 }
 
 Grid.prototype.draw = function() {
@@ -188,9 +189,9 @@ Grid.prototype.zoom = function() {
 
 
 /** 
-     * This is the function that actually handles the zooming
-     * It must react to delta being more/less than zero.
-     */
+ * This is the function that actually handles the zooming
+ * It must react to delta being more/less than zero.
+ */
 Grid.prototype.handle = function(delta) {
         
     var paper = this.paper,
@@ -203,10 +204,18 @@ Grid.prototype.handle = function(delta) {
     if (delta > 0) {
         this.viewBoxWidth *= 0.95;
         this.viewBoxHeight*= 0.95;
+        // Scaling of the visualized wall-lengths
+        this.rat -= 0.05;
+        measurement.updateOnZoom(this.rat);
+        measurement.refreshMeasurements();
 
     } else {
         this.viewBoxWidth *= 1.05;
         this.viewBoxHeight *= 1.05;
+        // Scaling of the visualized wall-lengths
+        this.rat += 0.05;
+        measurement.updateOnZoom(this.rat);
+        measurement.refreshMeasurements();
     }
 
     // This will zoom into middle of the screen.
@@ -336,8 +345,8 @@ Grid.prototype.moveRoom = function () {
             minY = walls[i].attrs.path[1][2];
     } 
 
-    offsetX = minX - 99;
-    offsetY = minY - 99;
+    offsetX = minX - 100;
+    offsetY = minY - 100;
     this.resWidth = (maxX - minX);
     this.resHeight = (maxY - minY);
     xstart = (walls[0].attrs.path[0][1] - offsetX);
@@ -389,7 +398,7 @@ Grid.prototype.save = function () {
         var dataURL = document.getElementById('myCanvas').toDataURL("image/png"),
             a = document.createElement('a');
             a.href = dataURL;
-            a.download = 'room.png';
+            a.download = options.projectName+'.png';
             a.click();
     }, 100);
 }

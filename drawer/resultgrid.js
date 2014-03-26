@@ -176,6 +176,7 @@ ResultGrid.prototype.populateSquares = function() {
         length = 0,
         square;
 
+
     //The grid is slightly larger than the figure, 
     // and grid is padded so that we don't get partial squares 
     height = height +150 + (50-height%50);

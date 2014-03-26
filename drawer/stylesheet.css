@@ -128,10 +128,6 @@
 	margin-left: 10%;
 }
 
-.forms form {
-	width: 80%;
-}
-
 .forms input {
 	width: 40%;
 }
@@ -144,6 +140,16 @@
 .forms [type=button] {
 	cursor: pointer;
 	width: 80%!important;
+}
+
+#roomTitle {
+	cursor: text;
+	width: 80%!important;
+}
+
+.inputWidth {
+	float: left!important;
+	width: 30%!important;
 }
 
 #defSubmit {

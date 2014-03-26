@@ -2,23 +2,28 @@
  * Structonator
 **/
 function Options (tab) {
-        this.optPaper;
-        this.preDefArr = null;
-        this.optionTab = 1;
-        this.defColor = '#707061';       // Default color.
-        this.inColor = '#d8d8d8';        // Color for mouseover
-        this.imgColor = 'white';         // Color for the button-icons. 
+    this.optPaper;
+    this.preDefArr = null;
+    this.optionTab = 1;
+    this.defColor = '#707061';       // Default color.
+    this.inColor = '#d8d8d8';        // Color for mouseover
+    this.imgColor = 'white';         // Color for the button-icons.
+    this.roomTitle = null;           // Raphael-element
+    this.projectName ='Prosjektnavn/tittel'; // String in html input-field
 
-        // Default show.
-        this.showOptions(1);
+    // Default show.
+    this.showOptions(1);
 
-        // Set containing gui elements we want to clear/store?
-        this.guiElements = null;
+    // Set containing gui elements we want to clear/store?
+    this.guiElements = null;
 
-        this.container = "#content_container";
-        this.obstHtml = null;
-        this.crossO = String.fromCharCode(248);
-        this.dotA = String.fromCharCode(229);
+    this.container = '#content_container';
+    this.obstHtml = null;
+    this.crossO = String.fromCharCode(248);
+    this.dotA = String.fromCharCode(229);
+
+    // mat object based on specificatins selected
+    this.validMat = null;
 }
 
 
@@ -102,25 +107,25 @@ Options.prototype.initSpecs = function () {
 
     if (ourRoom.finished ==  true) {
         // Variables used for setting up elements.
-        var header = document.createElement("h3"),
-            inOut = document.createElement("select"),
-            form = document.createElement("form"),
-            option1 = document.createElement("option"),
-            option2 = document.createElement("option"),
-            span = document.createElement("span");
+        var header = document.createElement('h3'),
+            inOut = document.createElement('select'),
+            form = document.createElement('form'),
+            option1 = document.createElement('option'),
+            option2 = document.createElement('option'),
+            span = document.createElement('span');
         
-        header.innerHTML = "Velg spesifikasjoner";
-        span.innerHTML = "Velg utend"+crossO+"rs/innend"+crossO+"rs: ";
+        header.innerHTML = 'Velg spesifikasjoner';
+        span.innerHTML = 'Velg utend'+crossO+'rs/innend'+crossO+'rs: ';
 
-        span.setAttribute("id", "inOrOut");
-        form.setAttribute("class", "forms");
-        form.setAttribute("id", "form1");
-        inOut.setAttribute("id", "inOutType");
+        span.id = 'inOrOut';
+        form.setAttribute('class', 'forms');
+        form.id = 'form1';
+        inOut.id = 'inOutType';
 
-        option1.value = "1";
-        option1.text = "Inne";
-        option2.value = "2";
-        option2.text = "Ute";
+        option1.value = 'inside';
+        option1.text = 'Inne';
+        option2.value = 'outside';
+        option2.text = 'Ute';
 
         inOut.add(option1, null);
         inOut.add(option2, null);
@@ -129,10 +134,9 @@ Options.prototype.initSpecs = function () {
 
         $(container).append(header);
         $(container).append(form);
-        $(form).append("<br>");
-
+        $(form).append('<br>');
         // Default selected is 'none', so a value MUST be chosen by the user.        
-        document.getElementById("inOutType").selectedIndex = -1;
+        document.getElementById('inOutType').selectedIndex = -1;
     } else {
         html = '<p class="error"> You need to draw<br> and finish, or create a<br> predefined room first! </p>';
         $(container).html(html);
@@ -163,12 +167,16 @@ Options.prototype.inOrOut = function (form) {
         $('#dryOrWet').remove();
     }
 
-    $('#decks').remove();
+    $('#wattage').next().remove();
+    $('#wattage').remove();
+    $('#watt').remove();
+
+    $('#decks').remove(); 
     $('#genButton').remove();
 
      //Inside is selected
-    if (selected == 1) {
-
+    if (selected == "inside") {
+        $('#deckType').next().remove();
         $('#deckType').remove();
 
         var dryWet = document.createElement("select"),
@@ -177,12 +185,12 @@ Options.prototype.inOrOut = function (form) {
             span = document.createElement("span");
 
         span.innerHTML = "Velg v"+dotA+"trom/t"+crossO+"rrom: ";
-        dryWet.setAttribute("id", "climateType");
-        span.setAttribute("id", "dryOrWet");
+        dryWet.id = 'climateType';
+        span.id = 'dryOrWet';
 
-        option1.value = "1";
+        option1.value = "dry";
         option1.text = "T"+crossO+"rrom";
-        option2.value = "2";
+        option2.value = "wet";
         option2.text = "V"+dotA+"trom";
 
         dryWet.add(option1, null);
@@ -227,34 +235,47 @@ Options.prototype.chooseDeck = function (form) {
 
     // Make sure that a <select> with this id not exists, no need to use 'if' cause
     // nothing will happen if it doesn`t exist. Also remove the 'decks-<span>' that display text.
-    $('#deckType').remove();
-    $('#decks').remove();
+    if ($('#deckType').length) {
+        $('#deckType').next().remove();
+        $('#deckType').remove();
+        $('#decks').remove();
+
+    }
+    $('#wattage').next().remove();
+    $('#wattage').remove();
+    $('#watt').remove();
+
+    $('#casting').next().remove();
+    $('#casting').remove();
+    $('#cast').remove();
+
     $('#genButton').remove();
 
-    deck.setAttribute("id", "deckType");
-    span.setAttribute("id", "decks");
+
+    deck.id = 'deckType';
+    span.id = 'decks';
 
     span.innerHTML = "Velg dekke i rommet: ";
 
     // Do stuff for an indoor-room.
-    if (selected == 1) {
-        // Tiles can occur both in dry-rooms and wet-rooms.
-        option1.value = "1";
+    if (selected == "inside") {
+        // Tiles and scale can occur both in dry-rooms and wet-rooms.
+        option1.value = "tile";
         option1.text = "Flis";
+        option5.value = "scale";
+        option5.text = "Belegg";
         // 'Dry-room'
-        if (selectedClim == 1) {
+        if (selectedClim == "dry") {
             // List options for 'dry'-rooms.
-            option2.value = "2";
+            option2.value = "carpet";
             option2.text = "Teppe";
-            option3.value = "3";
+            option3.value = "parquet";
             option3.text = "Parkett";
-            option4.value = "4";
+            option4.value = "laminat";
             option4.text = "Laminat";
-            option5.value = "5";
-            option5.text = "Belegg";
-            option6.value = "6";
-            option6.text = "St"+this.crossO+"p";
-            option7.value = "6";
+            option6.value = "concrete";
+            option6.text = "Betong";
+            option7.value = "cork";
             option7.text = "Kork";
 
             deck.add(option1, null);
@@ -266,17 +287,18 @@ Options.prototype.chooseDeck = function (form) {
             deck.add(option7, null);
 
         // This should obviously be a 'wet'-room.
-        } else if (selectedClim == 2) {
+        } else if (selectedClim == "wet") {
             deck.add(option1, null);
+            deck.add(option5, null);
         }
     // The area is chosen as 'outside' 
-    } else if (selected == 2) {
-        option1.value = "1";
+    } else if (selected == "outside") {
+        option1.value = "asphalt";
         option1.text = "Asfalt"
-        option2.value = "2";
+        option2.value = "pavblock";
         option2.text = "Belegningsstein";
-        option3.value = "3";
-        option3.text = "Betong";
+        option3.value = "concrete";
+        option3.text = "St"+this.crossO+"p";
 
         deck.add(option1, null);
         deck.add(option2, null);
@@ -287,14 +309,158 @@ Options.prototype.chooseDeck = function (form) {
     form.appendChild(span);
     form.appendChild(deck);
     $(container).append(form);
+    $(form).append("<br>");
     // Set as blanc on initialization, to force the user to select an !default item.
     document.getElementById("deckType").selectedIndex = -1;
 
     // When the user have selected an item in this list, the 'generate'-button is created.
     $('#deckType').change( function () {
+
+        if (selected == 'inside') {
+            options.wattage(form);
+        } else {
+            // Remove dropdown for choosing wattage
+            $('#wattage').next().remove();
+            $('#wattage').remove();
+            $('#watt').remove();
+
+            $('#casting').next().remove();
+            $('#casting').remove();
+            $('#cast').remove();
+            that.generateButton(form);
+        }
+    });
+}
+
+/**
+ *  Function that adds a wattage dropdown select list button chooser.
+ *
+**/
+Options.prototype.wattage = function (form) {
+
+    var container = this.container,
+        that = this,
+        span = document.createElement('span'),
+        watt = document.createElement('select'),
+        option1 = document.createElement('option'),
+        option2 = document.createElement('option'),
+        option3 = document.createElement('option'),
+        option4 = document.createElement('option');
+
+    // Make sure that a <select> with this id not exists, no need to use 'if' cause
+    // nothing will happen if it doesn`t exist. Also remove the <span> that display text.
+
+    if ($('#wattage').length) {
+        $('#wattage').next().remove();
+        $('#wattage').remove();
+        $('#watt').remove();
+    }
+
+    $('#casting').next().remove();
+    $('#casting').remove();
+    $('#cast').remove();
+
+    $('#genButton').remove();
+
+    watt.id = 'wattage';
+    span.id = 'watt';
+
+    span.innerHTML = 'Velg mattens effekt: ';
+
+
+    option1.value = 60;
+    option1.text = '60W';
+    option2.value = 100;
+    option2.text = '100W';
+    option3.value = 130;
+    option3.text = '130W';
+    option4.value = 160;
+    option4.text = '160W';
+
+
+    watt.add(option1, null);
+    watt.add(option2, null);
+    watt.add(option3, null);
+    watt.add(option4, null);
+
+
+    // Append the element to our form, then add the form to the container.
+    form.appendChild(span);
+    form.appendChild(watt);
+    $(container).append(form);
+    $(form).append('<br>');
+    // Set as blanc on initialization, to force the user to select an !default item.
+    document.getElementById('wattage').selectedIndex = -1;
+
+    // When the user have selected an item in this list, the 'generate'-button is created.
+    $('#wattage').change( function () {
+
+        var deck = $('#deckType').val(),
+            watt = $('#wattage').val();
+
+        if (( deck == 'parquet' || deck == 'laminat') && watt == '60') {
+            options.casting(form);
+        } else {
+            $('#casting').next().remove();
+            $('#casting').remove();
+            $('#cast').remove();
+            that.generateButton(form);
+        }
+    });
+}
+
+/**
+ *  Functionality that asks the user if casting is to be done for the floor
+ *
+**/
+Options.prototype.casting = function (form) {
+
+    var container = this.container,
+        that = this,
+        span = document.createElement('span'),
+        cast = document.createElement('select'),
+        option1 = document.createElement('option'),
+        option2 = document.createElement('option');
+
+    // Make sure that a <select> with this id not exists, no need to use 'if' cause
+    // nothing will happen if it doesn`t exist. Also remove the <span> that display text.
+    if ($('#casting').length) {
+        $('#casting').next().remove();
+        $('#casting').remove();
+        $('#cast').remove();
+    }
+
+    $('#genButton').remove();
+
+    cast.id = 'casting';
+    span.id = 'cast';
+
+    span.innerHTML = 'Skal gulvet avrettes?';
+
+
+    option1.value = 'nocast';
+    option1.text = 'Nei';
+    option2.value = 'cast';
+    option2.text = 'Ja';
+
+
+    cast.add(option1, null);
+    cast.add(option2, null);
+
+    // Append the element to our form, then add the form to the container.
+    form.appendChild(span);
+    form.appendChild(cast);
+    $(container).append(form);
+    // Set as blanc on initialization, to force the user to select an !default item.
+    document.getElementById('casting').selectedIndex = -1;
+
+    // When the user have selected an item in this list, the 'generate'-button is created.
+    $('#casting').change( function () {
+
         that.generateButton(form);
     });
 }
+
 
 /**
  * Creation of a button to generate our solution for putting out a heatingmat.
@@ -303,20 +469,21 @@ Options.prototype.chooseDeck = function (form) {
 Options.prototype.generateButton = function (form) {
 
     var container = this.container,
-        input = document.createElement("input");
+        input = document.createElement('input');
 
     $('#genButton').remove();
 
-    input.setAttribute("id", "genButton");
-    input.setAttribute("type", "button");
-    input.setAttribute("title", "Klikk for "+this.dotA+" generere leggeanvisning");
+    input.id = 'genButton';
+    input.type = 'button';
+    input.title = 'Klikk for '+this.dotA+' generere leggeanvisning';
 
-    input.value = "Generer leggeanvisning";
+    input.value = 'Generer leggeanvisning';
 
     form.appendChild(input);
     $(container).append(form);
 
     $('#genButton').click( function () {
+        options.tfProducts();
         // OBS: Call the algorithm and generate a drawing!
         // We also must find the product(s) that matches the chosen values!
     });
@@ -330,9 +497,7 @@ Options.prototype.initObstacles = function () {
 
     var container = this.container,
         html = "",
-        crossO = this.crossO,
-        that = this;
-
+        crossO = this.crossO;
     // clear current html
     $(container).html(html);
 
@@ -344,6 +509,13 @@ Options.prototype.initObstacles = function () {
     if (ourRoom.finished ==  true) {
         // Move the room to coordinates (99, 99)
         grid.moveRoom();
+
+        // Add inputfield and button to add a 'projectname'.
+        html += '<h3> Sett prosjektnavn </h3>';
+        html += '<form class=forms>';
+        html += "<div class='inputfield'><input type='text' id='roomTitle' value="+this.projectName+" autocomplete='off'><br></div>";
+        html += "<input id='titleSubmit' type='button' value='Endre prosjektnavn'>";
+        html += '</form>';
         // Header
         html += '<h3> Legg til hindring </h3>';
 
@@ -351,10 +523,14 @@ Options.prototype.initObstacles = function () {
         html += '<form class=forms>';
 
         // Select
-        html += "<select id ='obstacleType'><option value=1>Avl"+crossO+"p</option>";
-        html += "<option value=2>Toalett</option>";
-        html += "<option value=3>Dusj</option>";
-        html += "<option value=4>Badekar</option></select>";
+        html += "<select id ='obstacleType'><option value=1> Avl"+crossO+"p </option>";
+        html += "<option value=2> Toalett </option>";
+        html += "<option value=3> Dusj </option>";
+        html += "<option value=4> Badekar </option>";
+        html += "<option value=5> Tilf"+crossO+"rsel </option>";
+        html += "<option value=6> Benk </option>";
+        html += "<option value=7> Pipe </option>";
+        html += "<option value=8> Egendefinert </option></select>";
 
         // input button
         html += "<input id='defSubmit' type='button' value='legg til'>";
@@ -363,8 +539,6 @@ Options.prototype.initObstacles = function () {
         html += '</form>';
 
         this.obstHtml = html;
-        
-
     } else {
         html = '<p class="error"> You need to draw<br> and finish, or create a<br> predefined room first! </p>';
         this.obstHtml = html;
@@ -386,12 +560,12 @@ Options.prototype.obstacleList = function (obstacle) {
         del = 'Slett',
         container = this.container,
         crossO = this.crossO,
-        html = this.obstHtml,
-        that = this;
+        html = this.obstHtml;
 
     for (var i = 0; i < obstacleLength; i++) {
         html += "<div class=obst><div class=obsttxt>"+obstacleArr[i].data('obstacleType')+": </div><input id="+i+" class='change' type='button' value="+change+">"+ 
         "<input class='delete' type='button' value="+del+"></div>";
+        html += "<br>";
 
         if (obstacle == i) {
             var width = obstacleArr[i].attrs.width,
@@ -399,7 +573,8 @@ Options.prototype.obstacleList = function (obstacle) {
                 x = obstacleArr[i].attrs.x,
                 y = obstacleArr[i].attrs.y;
 
-            // Div start
+            // Div start by a line break
+            html += "<br>";
             html += "<div id=change class='roomTab'>";
             // Height
             html += "<div class='inputfield'><div class='inputtext'>H"+crossO+"yde: </div><input  type='number' id='height' value="+height+"><br></div>";
@@ -419,8 +594,15 @@ Options.prototype.obstacleList = function (obstacle) {
     $(container).html("");
     $(container).html(html);
 
-    this.actionListeners();
+    // Sets the focus on the 'project-name'-field the first time 'obstacles'-tab is selected
+    if (ourRoom.finished ==  true && this.roomTitle == null) {
+        this.setTitle();
+        var input = document.getElementById('roomTitle');
+            input.focus();
+            input.select();
+    }
 
+    this.actionListeners();
 }
 
 /**
@@ -431,6 +613,56 @@ Options.prototype.actionListeners = function () {
 
     var that = this;
 
+    // If the 8th option is selected. aka "Egendefinert"
+    $('#obstacleType').change(function() {
+
+        if (this.value == 8) {
+
+            // Creating elements.
+            var parentDiv = document.createElement('div'),
+                textDiv = document.createElement('div'),
+                input = document.createElement('input');
+            
+            // Setting properties.
+            parentDiv.setAttribute('class', 'inputfield');
+            textDiv.setAttribute('class', 'inputtext');
+            textDiv.innerHTML = 'Skriv inn navn: ';
+            input.type = 'text';
+            input.setAttribute('class', 'inputwidth');
+            input.setAttribute('id', 'customObstTxt');
+            input.setAttribute('autocomplete', 'off');
+
+            // Adding the elements to its parentnode
+            parentDiv.appendChild(textDiv);
+            parentDiv.appendChild(input);
+
+            // Using Jquery to add the parentDiv after the dropdown list
+            $(this.parentNode.firstChild).after(parentDiv);
+            // Put focus on, and selects the inputfield for adding a obstacle-name
+            input.focus();
+            input.select();
+
+            $('#customObstTxt').keypress(function (e) {
+                // If 'enter' is pressed in the inputfield:
+                if (e.which == 13) {
+                    e.preventDefault();
+
+                    var value = document.getElementById('obstacleType').value,
+                        text = document.getElementById('customObstTxt').value;
+
+                    /*
+                     OBS: No fail-safe here, so the user CAN create an obstacle with a blank name, do we
+                     want this to be possible? (Same case in #defSubmit.click -function).
+                    */
+
+                    // Create the obstacle, and update the tab.
+                    obstacles.createObstacle(value, text);
+                    that.initObstacles();
+                    that.obstacleList();
+                }
+            });
+        }
+    });
 
     // Add click action for the "submit button".
     $('.change').click(function() {
@@ -448,29 +680,32 @@ Options.prototype.actionListeners = function () {
         
         // Creating obstacle.
         var value = $('#obstacleType').val(),
-            text = $('#obstacleType option[value='+value+']').text();
+            customTxt = $('#customObstTxt').val(),
+            text = (customTxt != null) ? customTxt : $('#obstacleType option[value='+value+']').text();
 
         obstacles.createObstacle(value, text);
 
         // Creating / refreshing list of obstacles.
         that.initObstacles();
+        that.obstacleList();
     });
 
 
     // Add click action for the "changeObst-button".
     $('#changeObst').click(function() {
-
+        // Rounding the values to nearest 10.
         var roundX = (Math.round((($('#posx').val())/ 10)) * 10) + 100,
-            roundY = (Math.round((($('#posy').val())/ 10)) * 10) + 100;
+            roundY = (Math.round((($('#posy').val())/ 10)) * 10) + 100,
+            roundW = (Math.round((($('#width').val())/ 10)) * 10),
+            roundH = (Math.round((($('#height').val())/ 10)) * 10);
 
         $('#posx').val((roundX - 100));
         $('#posy').val((roundY - 100));
 
-
         obstacles.adjustSize(
             this.name, 
-            $('#width').val(), 
-            $('#height').val(), 
+            roundW,
+            roundH,
             roundX, 
             roundY
         );
@@ -480,6 +715,40 @@ Options.prototype.actionListeners = function () {
         obstacles.selectObstacle(null);
     });
 
+    // Action for the button to create a title on the paper.
+    $('#titleSubmit').click(function () {
+
+        that.setTitle();
+    });
+
+    // Prevent the default 'submit form' when enter-button is pressed, (this refreshes the page)
+    // but apply the input-text to the title.
+    $('#roomTitle').keypress(function (e) {
+
+        if (e.which == 13) {
+            e.preventDefault();
+            this.blur();
+            that.setTitle();
+        }
+    });
+}
+
+/**
+ * Functionality that displays the 'projectname' that the user has entered on our paper.
+ * Since it`s added as an svg-element, this will also be visible when the image is saved.
+**/
+Options.prototype.setTitle = function () {
+    // Get the text from the html-element, and update it.
+    var title = document.getElementById('roomTitle').value;
+        this.projectName = title;
+    // Clear the title-element if it already exist.
+    this.roomTitle != null ? this.roomTitle.remove() : null;       
+
+    this.roomTitle = grid.paper.text(350, 35, title).attr({
+        'font-size': 20,
+        'font-family': 'verdana',
+        'font-style': 'oblique'
+    });
 }
 
 /** 
@@ -581,34 +850,35 @@ Options.prototype.initDefine = function () {
  * OBS: The order of pushing elements to collections is important! (The button must be pushed as first element)
 **/
 Options.prototype.initDraw = function () {
-        var paper = this.optPaper,
-            width = paper.width,
-            height = paper.height,
-            drawColl = paper.set(),        
-            rectColl = paper.set(),
-            tColl = paper.set(),
-            lColl = paper.set(),
-            lInvColl = paper.set(),
-            lRot180Coll = paper.set(),
-            lRot270Coll = paper.set(),
-            tRot90Coll = paper.set(),
-            tRot180Coll = paper.set(),
-            tRot270Coll = paper.set(),
-            uColl = paper.set(),
-            rectAttr = {                // Attributes for the "background-square" of buttons.
-                fill: this.defColor, 
-                stroke: this.defColor, 
-                'stroke-width': 1, 
-            },
-            imgAttr = {                 // Attributes for the "image" on each button.
-                fill: this.imgColor,
-                stroke: 'black',
-                'stroke-width': 1,
-            },
-            txtAttr = {
-                'font-size': 18,
-                'font-weight': 'bold'
-            },
+    var paper = this.optPaper,
+        width = paper.width,
+        height = paper.height,
+        drawColl = paper.set(),        
+        rectColl = paper.set(),
+        tColl = paper.set(),
+        lColl = paper.set(),
+        lInvColl = paper.set(),
+        lRot180Coll = paper.set(),
+        lRot270Coll = paper.set(),
+        tRot90Coll = paper.set(),
+        tRot180Coll = paper.set(),
+        tRot270Coll = paper.set(),
+        uColl = paper.set(),
+        helpColl = paper.set(),
+        rectAttr = {                // Attributes for the "background-square" of buttons.
+            fill: this.defColor, 
+            stroke: this.defColor, 
+            'stroke-width': 1, 
+        },
+        imgAttr = {                 // Attributes for the "image" on each button.
+            fill: this.imgColor,
+            stroke: 'black',
+            'stroke-width': 1,
+        },
+        txtAttr = {
+            'font-size': 18,
+            'font-weight': 'bold'
+        },
 
 
     /**
@@ -641,11 +911,10 @@ Options.prototype.initDraw = function () {
     offset5 = (w / 6),
     offset6 = (w * (7 / 12)),
     offset7 = (w * (5 / 12)),
-    offset8 = (w * (1 / 2)),
+    offset8 = (w / 2),
     p0 = (width * (7 / 16)),
     p1 = (width * (3 / 16)),
     p2 = (width * (11 / 16)),
-
 
     // CUSTOM DRAW
     // Header
@@ -831,10 +1100,7 @@ Options.prototype.createHandlers = function(coll, val, toolTip) {
             if (finishedRoom == null) {
                 ourRoom.initRoom();
             }
-            
         }
-
-        
     });
 }
 
@@ -873,5 +1139,537 @@ function PreDefRoom (value) {
 }
 
 
+/**
+ * Just started looking at this stuff, not quiet sure how we want to use it yet!
+**/
+Options.prototype.tfProducts = function () {
+
+    // Array of heating-products, length of the mat is in first column, product-number in the second one.
+
+    // ?????: Should indoor/outdoor and Deck-type also be specified in the array?
+    // AND: Should we also include the name in the arrays (jeez)
+
+    // This way we can get the dropdowns, so we can work out from THIS:
 
 
+    var area = $('#inOutType').val(),
+        climate = $('#climateType').val(),
+        deck = $('#deckType').val(),
+        watt = $('#wattage').val(),
+        cast = $('#casting').val();
+
+    var mats = [
+        {
+            name: 'TFP',
+            areas: {
+                inside: true
+            },
+
+            climates: {
+                dry: true
+            },
+
+            decks: {
+                parquet: true,
+                laminat: true
+            },
+
+            wattage: {
+                '60': true
+            },
+
+           casting: {
+                nocast: true
+            },         
+
+            products: [
+                {
+                    length: 2,
+                    number: 1001131,
+                    name: 'TFP60W/1,0m2 0,5x2m 60W'
+                }, {
+                    length: 4, 
+                    number: 1001132,
+                    name: 'TFP60W/2,0m2 0,5x4m 120W'
+                }, {
+                    length: 6, 
+                    number: 1001133,
+                    name: 'TFP60W/3,0m2 0,5x6m 180W'
+                }, {
+                    length: 8, 
+                    number: 1001134,
+                    name: 'TFP60W/4,0m2 0,5x8m 240W'
+                }, {
+                    length: 10, 
+                    number: 1001135,
+                    name: 'TFP60W/5,0m2 0,5x10m 300W'
+                }, {
+                    length: 12, 
+                    number: 1001136,
+                    name: 'TFP60W/6,0m2 0,5x12m 360W'
+                }, {
+                    length: 14, 
+                    number: 1001137,
+                    name: 'TFP60W/7,0m2 0,5x14m 420W'
+                }, {
+                    length: 16, 
+                    number: 1001138,
+                    name: 'TFP60W/8,0m2 0,5x16m 480W'
+                }, {
+                    length: 18, 
+                    number: 1001139,
+                    name: 'TFP60W/9,0m2 0,5x18m 540W'
+                }, {
+                    length: 20, 
+                    number: 1001140,
+                    name: 'TFP60W/10,0m2 0,5x20m 600W'
+                }, {
+                    length: 24, 
+                    number: 1001142,
+                    name: 'TFP60W/12,0m2 0,5x24m 720W'
+                }
+            ]
+        }, {
+            name: 'TFU',
+            areas: {
+                outside: true
+            },
+            // Might be ugly to set undefined as 'true', but climate will not be defined if area is outside, so
+            // it works.
+            climates: {
+                undefined: true
+            },
+
+            decks: {
+                asphalt: true
+            },
+
+            wattage: {
+                undefined: true
+            },
+
+           casting: {
+                undefined: true
+            },  
+
+            products: [
+                {
+                    length: 2,
+                    number: 1001151,
+                    name: 'TFU230V 300W/1m2 - 300W'
+                }, {
+                    length: 4, 
+                    number: 1001152,
+                    name: 'TFU230V 300W/2m2 - 600W'
+                }, {
+                    length: 6, 
+                    number: 1001153,
+                    name: 'TFU230V 300W/3m2 - 900W'
+                }, {
+                    length: 8, 
+                    number: 1001154,
+                    name: 'TFU230V 300W/4m2 - 1200W'
+                }, {
+                    length: 10, 
+                    number: 1001155,
+                    name: 'TFU230V 300W/5m2 - 1500W'
+                }, {
+                    length: 12, 
+                    number: 1001156,
+                    name: 'TFU230V 300W/6m2 - 1800W'
+                }, {
+                    length: 14, 
+                    number: 1001157,
+                    name: 'TFU230V 300W/7m2 - 2100W'
+                }, {
+                    length: 16, 
+                    number: 1001158,
+                    name: 'TFU230V 300W/8m2 - 2400W'
+                }, {
+                    length: 20, 
+                    number: 1001160,
+                    name: 'TFU230V 300W/10m2 - 3000W'
+                }, {
+                    length: 24, 
+                    number: 1001162,
+                    name: 'TFU230V 300W/12m2 - 3600W'
+                }, {
+                    length: 28, 
+                    number: 1001164,
+                    name: 'TFU230V 300W/14m2 - 4200W'
+                }
+            ]
+        }, {
+            name: 'SVK/TFU',
+            areas: {
+                outside: true
+            },
+            // Might be ugly to set undefined as 'true', but climate will not be defined if area is outside, so
+            // it works.
+            climates: {
+                undefined: true
+            },
+
+            decks: {
+                pavblock: true,
+                concrete: true
+            },
+
+            wattage: {
+                undefined: true
+            },
+
+            casting: {
+                undefined: true
+            },
+
+            products: [
+                {
+                    length: 2,
+                    number: 1001151,
+                    name: 'TFU230V 300W/1m2 - 300W'
+                }, {
+                    length: 4, 
+                    number: 1001152,
+                    name: 'TFU230V 300W/2m2 - 600W'
+                }, {
+                    length: 6, 
+                    number: 1001153,
+                    name: 'TFU230V 300W/3m2 - 900W'
+                }, {
+                    length: 8, 
+                    number: 1001154,
+                    name: 'TFU230V 300W/4m2 - 1200W'
+                }, {
+                    length: 10, 
+                    number: 1001155,
+                    name: 'TFU230V 300W/5m2 - 1500W'
+                }, {
+                    length: 12, 
+                    number: 1001156,
+                    name: 'TFU230V 300W/6m2 - 1800W'
+                }, {
+                    length: 14, 
+                    number: 1001157,
+                    name: 'TFU230V 300W/7m2 - 2100W'
+                }, {
+                    length: 16, 
+                    number: 1011638,
+                    name: 'TFSVK MATTE 2400W'
+                }, {
+                    length: 20, 
+                    number: 1011640,
+                    name: 'TFSVK MATTE 3000W'
+                }, {
+                    length: 24, 
+                    number: 1011642,
+                    name: 'TFSVK MATTE 3600W'
+                }
+            ]
+        }, {
+            name: 'TF STICKY MAT 60W',
+            areas: {
+                inside: true
+            },
+
+            climates: {
+                dry: true,
+                wet: true
+            },
+
+            decks: {
+                tile: true,
+                parquet: true,
+                laminat: true,
+                carpet: true,
+                cork: true,
+                scale: true,
+                concrete: true
+            },
+
+            wattage: {
+                '60': true,
+                undefined: true
+            },
+
+            casting: {
+                cast: true,
+                undefined: true
+            },
+
+            products: [
+                { 
+                    length: 6,
+                    number: 1011503,
+                    name: 'TF Sticky Mat 60W/3m2 - 180W'
+                }, {
+                    length: 8, 
+                    number: 1011504,
+                    name: 'TF Sticky Mat 60W/4m2 - 240W'
+                }, {
+                    length: 10, 
+                    number: 1011505,
+                    name: 'TF Sticky Mat 60W/5m2 - 300W'
+                }, {
+                    length: 12, 
+                    number: 1011506,
+                    name: 'TF Sticky Mat 60W/6m2 - 360W'
+                }, {
+                    length: 14, 
+                    number: 1011507,
+                    name: 'TF Sticky Mat 60W/7m2 - 420W'
+                }, {
+                    length: 16, 
+                    number: 1011508,
+                    name: 'TF Sticky Mat 60W/8m2 - 480W'
+                }, {
+                    length: 18, 
+                    number: 1011509,
+                    name: 'TF Sticky Mat 60W/9m2 - 540W'
+                }, {
+                    length: 20, 
+                    number: 1011510,
+                    name: 'TF Sticky Mat 60W/10m2 - 600W'
+                }, {
+                    length: 24, 
+                    number: 1011512,
+                    name: 'TF Sticky Mat 60W/12m2 - 720W'
+                }
+            ]
+        }, {
+            name: 'TF STICKY MAT 100W',
+            areas: {
+                inside: true
+            },
+
+            climates: {
+                dry: true,
+                wet: true
+            },
+
+            decks: {
+                tile: true,
+                parquet: true,
+                laminat: true,
+                carpet: true,
+                cork: true,
+                scale: true,
+                concrete: true
+            },
+
+            wattage: {
+                '100': true,
+                undefined: true
+            },
+
+            casting: {
+                undefined: true
+            },
+
+            products: [
+                { 
+                    length: 6,
+                    number: 1011513,
+                    name: 'TF Sticky Mat 100W/3m2 - 300W'
+                }, {
+                    length: 8, 
+                    number: 1011514,
+                    name: 'TF Sticky Mat 100W/4m2 - 400W'
+                }, {
+                    length: 10, 
+                    number: 1011515,
+                    name: 'TF Sticky Mat 100W/5m2 - 500W'
+                }, {
+                    length: 12, 
+                    number: 1011516,
+                    name: 'TF Sticky Mat 100W/6m2 - 600W'
+                }, {
+                    length: 14, 
+                    number: 1011517,
+                    name: 'TF Sticky Mat 100W/7m2 - 700W'
+                }, {
+                    length: 16, 
+                    number: 1011518,
+                    name: 'TF Sticky Mat 100W/8m2 - 800W'
+                }, {
+                    length: 18, 
+                    number: 1011519,
+                    name: 'TF Sticky Mat 100W/9m2 - 900W'
+                }, {
+                    length: 20, 
+                    number: 1011520,
+                    name: 'TF Sticky Mat 100W/10m2 - 1000W'
+                }, {
+                    length: 24, 
+                    number: 1011522,
+                    name: 'TF Sticky Mat 100W/12m2 - 1200W'
+                }
+            ]
+        }, {
+            name: 'TF STICKY MAT 130W',
+            areas: {
+                inside: true
+            },
+
+            climates: {
+                dry: true,
+                wet: true
+            },
+
+            decks: {
+                tile: true,
+                parquet: true,
+                laminat: true,
+                carpet: true,
+                cork: true,
+                scale: true,
+                concrete: true
+            },
+
+            wattage: {
+                '130': true,
+                undefined: true
+            },
+
+            casting: {
+                undefined: true
+            },
+
+            products: [
+                { 
+                    length: 6,
+                    number: 1011523,
+                    name: 'TF Sticky Mat 130W/3m2 - 390W'
+                }, {
+                    length: 8, 
+                    number: 1011524,
+                    name: 'TF Sticky Mat 130W/4m2 - 520W'
+                }, {
+                    length: 10, 
+                    number: 1011525,
+                    name: 'TF Sticky Mat 130W/5m2 - 650W'
+                }, {
+                    length: 12, 
+                    number: 1011526,
+                    name: 'TF Sticky Mat 130W/6m2 - 780W'
+                }, {
+                    length: 14, 
+                    number: 1011527,
+                    name: 'TF Sticky Mat 130W/7m2 - 910W'
+                }, {
+                    length: 16, 
+                    number: 1011528,
+                    name: 'TF Sticky Mat 130W/8m2 - 1040W'
+                }, {
+                    length: 18, 
+                    number: 1011529,
+                    name: 'TF Sticky Mat 130W/9m2 - 1170W'
+                }, {
+                    length: 20, 
+                    number: 1011550,
+                    name: 'TF Sticky Mat 130W/10m2 - 1300W'
+                }, {
+                    length: 24, 
+                    number: 1011552,
+                    name: 'TF Sticky Mat 130W/12m2 - 1560W'
+                }
+            ]
+        }, {
+            name: 'TF STICKY MAT 160W',
+            areas: {
+                inside: true
+            },
+
+            climates: {
+                dry: true,
+                wet: true
+            },
+
+            decks: {
+                tile: true,
+                parquet: true,
+                laminat: true,
+                carpet: true,
+                cork: true,
+                scale: true,
+                concrete: true
+            },
+
+            wattage: {
+                '160': true,
+                undefined: true
+            },
+
+            casting: {
+                undefined: true
+            },
+
+            products: [
+                { 
+                    length: 2,
+                    number: 1011530,
+                    name: 'TF Sticky Mat 160W/1m2 - 160W'
+                }, {
+                    length: 3, 
+                    number: 1011531,
+                    name: 'TF Sticky Mat 160W/1,5m2 - 240W'
+                }, {
+                    length: 4, 
+                    number: 1011532,
+                    name: 'TF Sticky Mat 160W/2m2 - 320W'
+                }, {
+                    length: 5, 
+                    number: 1011533,
+                    name: 'TF Sticky Mat 160W/2,5m2 - 400W'
+                }, {
+                    length: 6, 
+                    number: 1011534,
+                    name: 'TF Sticky Mat 160W/3m2 - 480W'
+                }, {
+                    length: 7, 
+                    number: 1011535,
+                    name: 'TF Sticky Mat 160W/3,5m2 - 560W'
+                }, {
+                    length: 8, 
+                    number: 1011536,
+                    name: 'TF Sticky Mat 160W/4m2 - 640W'
+                }, {
+                    length: 9, 
+                    number: 1011537,
+                    name: 'TF Sticky Mat 160W/4,5m2 - 720W'
+                }, {
+                    length: 10, 
+                    number: 1011538,
+                    name: 'TF Sticky Mat 160W/5m2 - 800W'
+                }, {
+                    length: 12, 
+                    number: 1011540,
+                    name: 'TF Sticky Mat 160W/6m2 - 960W'
+                }, {
+                    length: 14, 
+                    number: 1011542,
+                    name: 'TF Sticky Mat 160W/7m2 - 1120W'
+                }, {
+                    length: 16, 
+                    number: 1011544,
+                    name: 'TF Sticky Mat 160W/8m2 - 1280W'
+                }, {
+                    length: 18, 
+                    number: 1011546,
+                    name: 'TF Sticky Mat 160W/9m2 - 1440W'
+                }
+            ]
+        },
+    ];
+
+    var i = mats.length;
+    while (i--) {
+        if (mats[i].areas[area] && mats[i].climates[climate] && mats[i].decks[deck] && mats[i].wattage[watt] && mats[i].casting[cast]) {
+
+            this.validMat = mats[i];
+            console.log(mats[i].name);
+
+            // call some action
+        }
+    }
+}

@@ -1,11 +1,11 @@
 
-// TODO:
-// Shortcut "grid.paper" to "this.paper". KONSEKVENT VS INKONSEKVENT MUCH?
 function Measurement () {
+    this.paper = grid.paper;
     this.measurements = grid.paper.set();
     this.measurementValues = [];
     this.tmpMeasurements = grid.paper.set();
     this.angMeasurements = grid.paper.set();
+    this.wallText = grid.paper.set();
     
     this.inverted = null;
 }
@@ -28,6 +28,7 @@ Measurement.prototype.refreshMeasurements = function () {
 
     measurementValues.length = 0;
     this.measurements.remove();
+    this.wallText.remove();
     this.angMeasurements.remove();
 
     this.inverted = null;
@@ -165,7 +166,7 @@ Measurement.prototype.angleMeasurement = function (index, overload) {
                 hc,
                 textPoint = this.midPoint(textPoint, p2);
 
-            hc = grid.paper.text(textPoint[0], textPoint[1], newAngle + String.fromCharCode(176));
+            hc = this.paper.text(textPoint[0], textPoint[1], newAngle + String.fromCharCode(176));
         }
 
 
@@ -190,9 +191,10 @@ Measurement.prototype.lengthMeasurement = function (wall) {
         endP1 = wall.getPointAtLength(ourRoom.radius),
         startP2 = wall.attrs.path[1],
         endP2 = wall.getPointAtLength((wall.getTotalLength() - ourRoom.radius)),
+        paper = this.paper,
 
 
-        m1 = grid.paper.path("M"+startP1[1]+","+startP1[2]+"L"+endP1.x+","+endP1.y).attr(
+        m1 = paper.path("M"+startP1[1]+","+startP1[2]+"L"+endP1.x+","+endP1.y).attr(
         {
             fill: "#00000", 
             stroke: "#2F4F4F",
@@ -200,7 +202,7 @@ Measurement.prototype.lengthMeasurement = function (wall) {
             'stroke-linecap': "round"
         }),
 
-        m2 = grid.paper.path("M"+startP2[1]+","+startP2[2]+"L"+endP2.x+","+endP2.y).attr(
+        m2 = paper.path("M"+startP2[1]+","+startP2[2]+"L"+endP2.x+","+endP2.y).attr(
         {
             fill: "#00000", 
             stroke: "#2F4F4F",
@@ -254,9 +256,10 @@ Measurement.prototype.endLine = function(x, y) {
 
     var x1 = this.startX,
         y1 = this.startY,
+        paper = this.paper,
 
     // Drawing the line paralell to the wall.        
-    m = grid.paper.path("M"+x1+","+y1+"L"+x+","+y).attr({
+    m = paper.path("M"+x1+","+y1+"L"+x+","+y).attr({
             fill: "#00000", 
             stroke: "#2F4F4F",
             'stroke-width': 1,
@@ -269,27 +272,38 @@ Measurement.prototype.endLine = function(x, y) {
     len = len.toFixed(2),
 
     // Draws a rectangle at the middle of the line
-    r = grid.paper.rect(textPoint.x-25, textPoint.y-10, 50, 20, 5, 5).attr({
+    r = paper.rect(textPoint.x-25, textPoint.y-10, 50, 20, 5, 5).attr({
         opacity: 1,
         fill: "white"
     }),
 
     // Adds text on top of the rectangle, to display the length of the wall.
-    t = grid.paper.text(textPoint.x, textPoint.y, len + " m").attr({
+    t = paper.text(textPoint.x, textPoint.y, len + " m").attr({
         opacity: 1,
         'font-size': 12,
         'font-family': "verdana",
         'font-style': "oblique"
     });
 
-    this.measurements.push(m, r, t);
+    this.measurements.push(m);
+    this.wallText.push(r, t); 
+    this.updateOnZoom(grid.rat);
+}
+
+/**
+ * Updates the size of the text and rectangle that display the length of each wall
+ * @param ratio - A value stored in 'grid.js', that is inc/dec -rementet on zoom (+ and -), the elements
+ * are scaled based on the 'current ratio' of the grid.
+**/
+Measurement.prototype.updateOnZoom = function (ratio) {
+
+    this.wallText.transform("s"+ratio);
 }
 
 
 /**
  * Function that creates a "circle" from point1 to point2.
  * 
- *
 **/
 Measurement.prototype.sector = function (centerX, centerY, p1, p2, angle, r) {
     var big = (angle >= 180) ? 1 : 0,
@@ -299,7 +313,7 @@ Measurement.prototype.sector = function (centerX, centerY, p1, p2, angle, r) {
         y2 = p2.y,
         strokeColor = ((angle < ourRoom.minAngle || angle > ourRoom.maxAngle) && !ourRoom.finished) ? "ff0000" : "2F4F4F";
 
-    return grid.paper.path(["M", centerX, centerY, "L", x1, y1, "A", r, r, 0, big, 0, x2, y2, "z"]).attr(            
+    return this.paper.path(["M", centerX, centerY, "L", x1, y1, "A", r, r, 0, big, 0, x2, y2, "z"]).attr(            
         {
             fill: "#00000", 
             stroke: strokeColor,
