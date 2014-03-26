@@ -273,10 +273,18 @@ ResultGrid.prototype.findStart = function() {
 
 //Function tries to place mats in decreasing length
 ResultGrid.prototype.placeMat = function (squareNo, subsquareNo) {
-    var l = [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1200],
-        mat;
-    
-    //console.log(options.validMat);
+
+    //var l = [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1200],
+    var mat;
+
+    //TESTING: Used for getting the lengths available for chosen mat.    
+    var l = [];
+    for (var i = 0; i < options.validMat.products.length; i++) {
+        // Length of mats is stored in meters, we want it in cm.
+        l[i] = options.validMat.products[i].length*100;
+    }
+
+    console.log("Lengths available: "+l);
 
     // Picks color, then increments.
     this.currentColor = this.pickColor();
@@ -288,7 +296,7 @@ ResultGrid.prototype.placeMat = function (squareNo, subsquareNo) {
 
         if (c <= this.unusedArea) {
             mat = new HeatingMat(length, null, this.currentColor);
-            mat.productNr = 1337;
+            mat.productNr = options.validMat.products[l.length].number;
             //console.log("Trying " + length/100 + "m at square " + squareNo);
             if ( this.placeSquare(squareNo, subsquareNo, mat, 0, -1) )
                 return true;
@@ -303,7 +311,7 @@ ResultGrid.prototype.placeMat = function (squareNo, subsquareNo) {
 }
 
 /**
- *  Function that returns a color based on indexes 1-4
+ *  Function that returns a color based on indexes 0-3
  *
 **/
 ResultGrid.prototype.pickColor = function () {
@@ -365,6 +373,7 @@ ResultGrid.prototype.placeSquare = function (squareNo, subsquareNo, mat, lastSqu
         this.squares[squareNo].populated = true;
         mat.addSquare();
         this.unusedArea -= area;
+        //Olaf&Christian's .
         square.setArrow(4, mat);
 
         //Tries to populate next square, in order up-right-left-down
@@ -425,7 +434,7 @@ ResultGrid.prototype.placeSquare = function (squareNo, subsquareNo, mat, lastSqu
         //If function comes to this point, attempt has failed.
         //Reset and revert to previous square
         this.unusedArea += area;
-        square.arrow.remove();
+        square.arrows.remove();
         this.squares[squareNo].populated = false;
         mat.removeSquare();
     } else if ( this.placeSubsquare(squareNo, subsquareNo, mat, lastSquareNo, lastSubsquareNo) ) {
