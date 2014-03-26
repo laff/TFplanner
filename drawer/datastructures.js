@@ -1,8 +1,10 @@
 //Constructor for the floor heating mats,
 //takes length in cm as parameter
 function HeatingMat(matLength) {
+
 	this.totalArea = matLength*50;
 	this.unusedArea = this.totalArea;
+    this.timestamp = Date.now()/1000;
 }
 
 HeatingMat.prototype.addSquare = function() {
@@ -19,6 +21,12 @@ HeatingMat.prototype.removeSquare = function() {
 
 HeatingMat.prototype.removeSubsquare = function() {
 	this.unusedArea += 10*10;
+}
+
+HeatingMat.prototype.abort = function() {
+    console.log("Aborting");
+
+   this.timeout = true;
 }
 
 //Constructor for a 0.5m X 0.5m square
@@ -202,6 +210,7 @@ function Subsquare (x, y, paper, path) {
         lr = false;
 
     // Normal operation, but these cnecks are unneccesary if we willingly move a wall
+    // or divide a square we know is inside
     if (path != null) {
         ul = Raphael.isPointInsidePath( path, x,y );
         ur = Raphael.isPointInsidePath( path, x + xdim, y ); 
