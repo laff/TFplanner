@@ -11,6 +11,7 @@ function HeatingMat(matLength, timeoutLength, color) {
     this.matColor = color;
     this.productNr;
     this.textPlaced = 0;
+    this.lastDirection = null;
 }
 
 HeatingMat.prototype.addSquare = function() {
@@ -40,9 +41,12 @@ function Square (x, y, path, paper) {
     this.populated = false;
     this.subsquares = [];
     this.area = 0;
-    this.arrow = null;
     this.paper = paper;
+    this.arrows = paper.set();
     this.reallyInside = true;
+
+    // Square is texted
+    this.texted = false;
 
     var xdim = 50, 
         ydim = 50,
@@ -91,50 +95,91 @@ function Square (x, y, path, paper) {
 **/
 Square.prototype.setArrow = function(dir, mat) {
     var paper = this.paper,
+        that = this,
         y = this.ypos,
         x = this.xpos,
+        currentDirection,
         attributes = {
-                    'stroke-opacity': 1, 
-                    'stroke': "#E73029", 
-                    'stroke-width': 3,
-                    "arrow-end": "classic-midium-midium"
-                };
+            'stroke-opacity': 1, 
+            'stroke': "#E73029", 
+            'stroke-width': 3,
+            "arrow-end": "classic-midium-midium"
+        },
+        drawLineard = function(from, to) {
+            
+            var x1,
+                x2,
+                y1, 
+                y2,
+                direction = (from != null) ? (from + to) : to;
 
-    if (mat.textPlaced == 2) {
-        // put that text in there
-        console.log("place text"+ mat.productNr);
-    } else {
-        mat.textPlaced++;
-    }
+            console.log(direction);
+
+            that.arrows.push(paper.path("M"+(x+25)+", "+(y+35)+", L"+ (x+25)+", "+(y+ 15)).attr(attributes));
+
+        };
+
 
     this.rect.attr({'fill': mat.matColor});    
+        
+   if (dir != 4) {
+        this.arrows.remove();
+   }
 
-    if (dir != 4)
-        this.arrow.remove();
+    if (this.texted) {
+        return;
+    }
 
     switch (dir) {
         //up
         case 0: 
-            this.arrow = paper.path("M"+(x+25)+", "+(y+35)+", L"+ (x+25)+", "+(y+ 15)).attr(attributes);
+            currentDirection = 'up';
+            //this.arrows.push(paper.path("M"+(x+25)+", "+(y+35)+", L"+ (x+25)+", "+(y+ 15)).attr(attributes));
             break;
         //right
         case 1:
-            this.arrow = paper.path("M"+(x+15)+", "+(y+25)+", L"+ (x+35)+", "+(y+25)).attr(attributes);
+            currentDirection = 'right';
+            //this.arrows.push(paper.path("M"+(x+15)+", "+(y+25)+", L"+ (x+35)+", "+(y+25)).attr(attributes));
             break;
         //left
         case 2: 
-            this.arrow = paper.path("M"+(x+35)+", "+(y+25)+", L"+ (x+15)+", "+(y+ 25)).attr(attributes);
+            currentDirection = 'left';
+            //this.arrows.push(paper.path("M"+(x+35)+", "+(y+25)+", L"+ (x+15)+", "+(y+ 25)).attr(attributes));
             break;
         //down
         case 3:
-            this.arrow = paper.path("M"+(x+25)+", "+(y+15)+", L"+ (x+25)+", "+(y+35)).attr(attributes);
+            currentDirection = 'down';
+            //this.arrows.push(paper.path("M"+(x+25)+", "+(y+15)+", L"+ (x+25)+", "+(y+35)).attr(attributes));
             break;
+
         case 4:
-            this.arrow = paper.circle(x+25, y+25, 3).attr({'fill': "#E73029", 'fill-opacity': 1});
+            this.arrows.push(paper.circle(x+25, y+25, 3).attr({'fill': "#E73029", 'fill-opacity': 1}));
             break;
+
         default: 
             break;
     }
+
+    drawLineard(mat.lastDirection, currentDirection);
+
+    mat.lastDirection = currentDirection;
+
+    if (mat.textPlaced == 2) {
+
+        paper.rect(x-5, y+15, 60, 20, 5, 5).attr({
+            opacity: 1,
+            fill: "white"
+        });
+
+        paper.text(x+28, y+25, mat.productNr).attr({
+            'font-size': 12 
+        });
+
+        this.texted = true;
+
+        this.arrows.remove();     
+    }
+    mat.textPlaced++;
 }
 
 //Checks whether all the subsquares along a square edge contains a wall.

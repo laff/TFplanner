@@ -11,17 +11,17 @@ function FootMenu () {
 **/
 FootMenu.prototype.initFooter = function () {
 	var paper = this.footPaper,
-	height = paper.height,
-	width = paper.width,
-	ld = paper.set(),
-	sv = paper.set(),
-	clr = paper.set(),
-	load,
-	loadTxt,
-	save,
-	saveTxt,
-	clear,
-	clearTxt;
+    	height = paper.height,
+    	width = paper.width,
+    	ld = paper.set(),
+    	sv = paper.set(),
+    	clr = paper.set(),
+    	load,
+    	loadTxt,
+    	save,
+    	saveTxt,
+    	clear,
+    	clearTxt;
 
     paper.canvas.style.backgroundColor = '#A59C94';
 
@@ -105,11 +105,12 @@ FootMenu.prototype.initFooter = function () {
     // Clear Room and re-iniate so the user can draw a new room.
    clr.mouseup( function () {
     	ourRoom.clearRoom();
-        ourRoom.initRoom();
+        ourRoom = new DrawRoom(20);
         tabs.select(1);
         options.showOptions(1);
         options.preDefArr = null;
-        options.roomTitle.remove();
+        options.roomTitle != null ? options.roomTitle.remove() : null;
+        
     });
 }
 
