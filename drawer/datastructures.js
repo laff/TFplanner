@@ -11,7 +11,11 @@ function HeatingMat(matLength, timeoutLength, color) {
     this.matColor = color;
     this.productNr;
     this.textPlaced = 0;
-    this.lastDirection = null;
+
+
+    this.matId = mattur.matIndex;
+    mattur.matIndex++;
+
 }
 
 HeatingMat.prototype.addSquare = function() {
@@ -45,6 +49,8 @@ function Square (x, y, path, paper) {
     this.arrows = paper.set();
     this.reallyInside = true;
 
+
+    this.direction = null;
     // Square is texted
     this.texted = false;
 
@@ -89,81 +95,189 @@ function Square (x, y, path, paper) {
     }
     //End of populateSquare()
 }
+
+
 /**
- *  This function adds arrows to the squares.
- *  In addition it sets a color to the squares, even tho the function name doesnt give that away.
+ *  Function that draws mats and shit based on the direction of the sun & wind.
+ *  Stores lastdirection, right?
 **/
-Square.prototype.setArrow = function(dir, mat) {
-    var paper = this.paper,
-        that = this,
-        y = this.ypos,
+Square.prototype.drawMatline = function(from) {
+
+    var y = this.ypos,
         x = this.xpos,
-        currentDirection,
+        to = this.direction,
+        paper = this.paper,
         attributes = {
+            'stroke-opacity': 1, 
+            'stroke': "#E73029", 
+            'stroke-width': 3
+        },
+        attribut = {
             'stroke-opacity': 1, 
             'stroke': "#E73029", 
             'stroke-width': 3,
             "arrow-end": "classic-midium-midium"
         },
-        drawLineard = function(from, to) {
-            
-            var x1,
-                x2,
-                y1, 
-                y2,
-                direction = (from != null) ? (from + to) : to;
+        attributts = {
+            'stroke-opacity': 1, 
+            'stroke': "#E73029", 
+            'stroke-width': 3
+        },
+        direction = (from + to);
 
-            console.log(direction);
+    this.arrows.remove();
 
-            that.arrows.push(paper.path("M"+(x+25)+", "+(y+35)+", L"+ (x+25)+", "+(y+ 15)).attr(attributes));
+    switch (direction) {
 
-        };
+        case 'rightright':
+            this.arrows.push(paper.path("M"+(x)+", "+(y+25)+", L"+ (x+50)+", "+(y+25)).attr(attributes));
+            break;
 
+        case 'leftleft':
+            this.arrows.push(paper.path("M"+(x+50)+", "+(y+25)+", L"+ (x)+", "+(y+25)).attr(attributes));
+            break;
+
+        case 'upup':
+            this.arrows.push(paper.path("M"+(x+25)+", "+(y)+", L"+ (x+25)+", "+(y+50)).attr(attributes));
+            break;
+
+        case 'downdown':
+            this.arrows.push(paper.path("M"+(x+25)+", "+(y+50)+", L"+ (x+25)+", "+(y)).attr(attributes));
+            break;
+
+        case 'upright':
+            this.arrows.push(paper.path("M"+(x+25)+", "+(y+50)+", L"+ (x+25)+", "+(y+25)+", L"+ (x+50)+", "+(y+25)).attr(attributes));
+            break;
+
+        case 'leftdown':
+            this.arrows.push(paper.path("M"+(x+50)+", "+(y+25)+", L"+ (x+25)+", "+(y+25)+", L"+ (x+25)+", "+(y+50)).attr(attributes));
+            break;
+
+        case 'rightdown':
+            this.arrows.push(paper.path("M"+(x)+", "+(y+25)+", L"+ (x+25)+", "+(y+25)+", L"+ (x+25)+", "+(y+50)).attr(attributes));
+            break;
+
+        case 'upleft': 
+            this.arrows.push(paper.path("M"+(x+25)+", "+(y+50)+", L"+ (x+25)+", "+(y+25)+", L"+ (x)+", "+(y+25)).attr(attributes));
+            break;
+
+        case 'rightup':
+            this.arrows.push(paper.path("M"+(x)+", "+(y+25)+", L"+ (x+25)+", "+(y+25)+", L"+ (x+25)+", "+(y)).attr(attributes));
+            break;
+
+        case 'downleft':
+            this.arrows.push(paper.path("M"+(x+25)+", "+(y)+", L"+ (x+25)+", "+(y+25)+", L"+ (x)+", "+(y+25)).attr(attributes));
+            break;
+
+        case 'downright':
+            this.arrows.push(paper.path("M"+(x+25)+", "+(y)+", L"+ (x+25)+", "+(y+25)+", L"+ (x+50)+", "+(y+25)).attr(attributes));
+            break;
+
+        case 'leftup':
+            this.arrows.push(paper.path("M"+(x+50)+", "+(y+25)+", L"+ (x+25)+", "+(y+25)+", L"+ (x+25)+", "+(y)).attr(attributes));
+            break;
+
+        case 'nullup':
+            this.arrows.push(paper.path("M"+(x+15)+", "+(y+25)+", L"+ (x+35)+", "+(y+25)+", M"+ (x+25)+", "+(y+25)+", L"+ (x+25)+", "+(y)).attr(attributts));
+            break;
+
+        case 'nullright':
+            this.arrows.push(paper.path("M"+(x+25)+", "+(y+15)+", L"+ (x+25)+", "+(y+35)+", M"+ (x+25)+", "+(y+25)+", L"+ (x+50)+", "+(y+25)).attr(attributts));
+            break;
+
+        case 'nullleft':
+            this.arrows.push(paper.path("M"+(x+25)+", "+(y+15)+", L"+ (x+25)+", "+(y+35)+", M"+ (x+25)+", "+(y+25)+", L"+ (x)+", "+(y+25)).attr(attributts));
+            break;
+
+        case 'nulldown':
+            this.arrows.push(paper.path("M"+(x+15)+", "+(y+25)+", L"+ (x+35)+", "+(y+25)+", M"+ (x+25)+", "+(y+25)+", L"+ (x+25)+", "+(y+50)).attr(attributts));
+            break;
+
+        case 'upnull':
+            this.arrows.push(paper.path("M"+(x+25)+", "+(y+50)+", L"+ (x+25)+", "+(y+25)).attr(attribut));
+            break;
+
+        case 'rightnull':
+            this.arrows.push(paper.path("M"+(x)+", "+(y+25)+", L"+ (x+25)+", "+(y+25)).attr(attribut));
+            break;
+
+        case 'leftnull':
+            this.arrows.push(paper.path("M"+(x+50)+", "+(y+25)+", L"+ (x+25)+", "+(y+25)).attr(attribut));
+            break;
+
+        case 'downnull':
+            this.arrows.push(paper.path("M"+(x+25)+", "+(y)+", L"+ (x+25)+", "+(y+25)).attr(attribut));
+            break;
+
+        default: 
+            break;
+    }
+}
+
+/**
+ *  This function adds arrows to the squares.
+ *  In addition it sets a color to the squares, even tho the function name doesnt give that away.
+**/
+Square.prototype.setArrow = function(dir, mat, squareNo) {
+
+
+    if (dir != 4) {
+        mattur.addSquare(mat.matId, squareNo);
+    }
 
     this.rect.attr({'fill': mat.matColor});    
-        
-   if (dir != 4) {
-        this.arrows.remove();
-   }
-
-    if (this.texted) {
-        return;
-    }
 
     switch (dir) {
         //up
         case 0: 
-            currentDirection = 'up';
+            this.direction = 'up';
             //this.arrows.push(paper.path("M"+(x+25)+", "+(y+35)+", L"+ (x+25)+", "+(y+ 15)).attr(attributes));
             break;
         //right
         case 1:
-            currentDirection = 'right';
+            this.direction = 'right';
             //this.arrows.push(paper.path("M"+(x+15)+", "+(y+25)+", L"+ (x+35)+", "+(y+25)).attr(attributes));
             break;
         //left
         case 2: 
-            currentDirection = 'left';
+            this.direction = 'left';
             //this.arrows.push(paper.path("M"+(x+35)+", "+(y+25)+", L"+ (x+15)+", "+(y+ 25)).attr(attributes));
             break;
         //down
         case 3:
-            currentDirection = 'down';
+            this.direction = 'down';
             //this.arrows.push(paper.path("M"+(x+25)+", "+(y+15)+", L"+ (x+25)+", "+(y+35)).attr(attributes));
             break;
 
         case 4:
-            this.arrows.push(paper.circle(x+25, y+25, 3).attr({'fill': "#E73029", 'fill-opacity': 1}));
+            //currentDirection = null;
+            //this.arrows.push(paper.circle(x+25, y+25, 3).attr({'fill': "#E73029", 'fill-opacity': 1}));
             break;
 
         default: 
             break;
     }
 
-    drawLineard(mat.lastDirection, currentDirection);
 
-    mat.lastDirection = currentDirection;
+   //     this.arrows.remove();
 
+
+ //   if (mat.lastDirection == null) {
+ //       mat.lastDirection = currentDirection;
+ //   }
+
+/*
+    if (this.texted) {
+        mat.lastDirection = currentDirection;
+        return;
+    }
+*/
+    //drawLineard(currentDirection, mat.lastDirection);
+
+
+    //mat.lastDirection = currentDirection;
+
+    /*
     if (mat.textPlaced == 2) {
 
         paper.rect(x-5, y+15, 60, 20, 5, 5).attr({
@@ -180,6 +294,7 @@ Square.prototype.setArrow = function(dir, mat) {
         this.arrows.remove();     
     }
     mat.textPlaced++;
+    */
 }
 
 //Checks whether all the subsquares along a square edge contains a wall.
@@ -296,5 +411,33 @@ function Subsquare (x, y, paper, path) {
         this.rect.attr ({
             'stroke-width': 0.1
         });
+    }
+}
+
+
+/**
+ *  Ninja constructor for our heatingmats
+ *  Basically containing number of mats and what squares they are placed in / order.
+ *
+**/
+function Mats () {
+    
+    this.list = [];
+    this.matIndex = 0;
+
+}
+
+
+/**
+ *  Function that adds squares to the mats they "belong" to.
+**/
+Mats.prototype.addSquare = function(mati, squareNo) {
+
+    if (this.list[mati] == null) {
+        this.list[mati] = [];
+    }
+
+    if (($.inArray(squareNo, this.list[mati])) < 0) {
+        this.list[mati].push(squareNo);
     }
 }

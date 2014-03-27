@@ -78,12 +78,15 @@ FootMenu.prototype.initFooter = function () {
 
     	// Currently for testing
         if (ourRoom.finished == true) {
-            var path = grid.moveRoom(),
-                resultGrid = new ResultGrid(path);
+            var path = grid.moveRoom();
+            
+            resultGrid = new ResultGrid(path);
 
             scrollBox.paper.clear();
             
+            resultGrid.displayMats();
 
+            /*
             setTimeout( function () {
                 // I think this is a "safe" way to do this, first clear the resultGrid (in reality this is
                 // the same grid as 'grid')
@@ -99,6 +102,7 @@ FootMenu.prototype.initFooter = function () {
                 ourRoom = new DrawRoom(20);
                 obstacles = new Obstacles();
             }, 50000);    
+*/
         }
     });
 

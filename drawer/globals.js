@@ -1,4 +1,3 @@
-
 // Global variables.
 var grid,
     measurement,
@@ -9,7 +8,8 @@ var grid,
     scrollBox,
     footmenu,
     tabs,
-    finishedRoom = null;
+    finishedRoom = null,
+    mattur;
 
 $(document).ready(function() {  
 
@@ -28,6 +28,8 @@ $(document).ready(function() {
     options = new Options();
 
     obstacles = new Obstacles();
+
+    mattur = new Mats();
 
     // initiates the options_container
     //options.initDraw();

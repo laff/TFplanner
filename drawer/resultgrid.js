@@ -45,6 +45,35 @@ function ResultGrid(pathString) {
     //this.draw(this.height, this.width, this.path);
 }
 
+
+/**
+ *  Drawing mats by calling fancy functions on all the squares.
+**/
+ResultGrid.prototype.displayMats = function() {
+
+
+    var mats = mattur.list,
+        squares = this.squares;
+
+    for (var i = 0; i < mats.length; i++) {
+
+        var tmpDirection = null,
+            j = (mats[i].length);
+        while  (j--) { //(var j = 0; j < mats[i].length; j++) {
+
+
+            if (j == 0) {
+                squares[mats[i][j]].direction = null;
+
+            }
+            squares[mats[i][j]].drawMatline(tmpDirection);
+
+            tmpDirection = squares[mats[i][j]].direction;
+
+        }
+    }
+}
+
 /*
 OBS: Function(ality) moved to 'grid.js' and is cloned with the 'getWalls'-function, 
 and now appears as 'moveRoom()'. 
@@ -371,13 +400,13 @@ ResultGrid.prototype.placeSquare = function (squareNo, subsquareNo, mat, lastSqu
         mat.addSquare();
         this.unusedArea -= area;
         //Olaf&Christian's .
-        square.setArrow(4, mat);
+        square.setArrow(4, mat, squareNo);
 
         //Tries to populate next square, in order up-right-left-down
         if (up.reallyInside && !up.populated) {
             if ( !up.hasObstacles && !up.hasWall) {
                 if ( this.placeSquare(u, 0, mat, squareNo, -1) ) {
-                    this.squares[squareNo].setArrow(0, mat);
+                    this.squares[squareNo].setArrow(0, mat, squareNo);
                     return true;
                 }                 
             } else {
@@ -390,7 +419,7 @@ ResultGrid.prototype.placeSquare = function (squareNo, subsquareNo, mat, lastSqu
         if (right.reallyInside && !right.populated) {
             if ( !right.hasObstacles && !right.hasWall ) {
                 if ( this.placeSquare(r, 0, mat, squareNo, -1) ) {
-                    this.squares[squareNo].setArrow(1, mat);
+                    this.squares[squareNo].setArrow(1, mat, squareNo);
                     return true;
                 }                  
             } else {
@@ -403,7 +432,7 @@ ResultGrid.prototype.placeSquare = function (squareNo, subsquareNo, mat, lastSqu
         if (left.reallyInside && !left.populated) {
             if ( !left.hasObstacles && !left.hasWall ) {
                 if ( this.placeSquare(l, 0, mat, squareNo, -1) ) {
-                    this.squares[squareNo].setArrow(2, mat);
+                    this.squares[squareNo].setArrow(2, mat, squareNo);
                     return true;
                 }                  
             } else {
@@ -416,7 +445,7 @@ ResultGrid.prototype.placeSquare = function (squareNo, subsquareNo, mat, lastSqu
         if (down.reallyInside && !down.populated) {
             if ( !down.hasObstacles && !down.hasWall ) {
                 if ( this.placeSquare(d, 0, mat, squareNo, -1) ) {
-                    this.squares[squareNo].setArrow(3, mat);
+                    this.squares[squareNo].setArrow(3, mat, squareNo);
                     return true;
                 }                
             } else {
