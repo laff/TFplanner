@@ -132,7 +132,7 @@ Square.prototype.drawMatline = function(from) {
         case 'rightright':
             this.arrows.push(paper.path("M"+(x)+", "+(y+25)+", L"+ (x+50)+", "+(y+25)).attr(attributes));
             break;
-
+            
         case 'leftleft':
             this.arrows.push(paper.path("M"+(x+50)+", "+(y+25)+", L"+ (x)+", "+(y+25)).attr(attributes));
             break;
@@ -414,6 +414,19 @@ function Subsquare (x, y, paper, path) {
     }
 }
 
+Subsquare.prototype.setArrow = function(dir, mat) {
+    this.rect.attr({
+        'fill': mat.matColor,
+        'fill-opacity': 0.7
+    });
+
+    if (dir == 4) {
+        this.rect.attr({
+            'fill': "white",
+            'fill-opacity': 1
+        });        
+    }
+}
 
 /**
  *  Ninja constructor for our heatingmats
@@ -439,5 +452,6 @@ Mats.prototype.addSquare = function(mati, squareNo) {
 
     if (($.inArray(squareNo, this.list[mati])) < 0) {
         this.list[mati].push(squareNo);
+
     }
 }
