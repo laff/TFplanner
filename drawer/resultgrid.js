@@ -9,7 +9,7 @@ function ResultGrid(pathString) {
     //this.offsetX = 0;
     //this.offsetY = 0;
     //this.scale = 1;
-    this.paper = grid.paper; //Raphael(document.getElementById('canvas_container'));
+    this.paper = grid.paper;
     this.squares = [];
     this.area = 0;
     this.unusedArea = 0;
@@ -18,8 +18,6 @@ function ResultGrid(pathString) {
     this.attempts = 0;
 
     //this.findDimension();
-
-    //No scaling of image
     this.path = pathString;
 
     this.populateSquares();
@@ -35,15 +33,12 @@ function ResultGrid(pathString) {
         '#545454'
     ];
     this.currentColor;
-
-
     //this.draw(this.height, this.width, this.path);
 
     this.findStart();
 
     console.log(this.squares[54]);
     console.log(this.squares[98]);
-
     //this.draw(this.height, this.width, this.path);
 }
 
@@ -51,28 +46,31 @@ function ResultGrid(pathString) {
 /**
  *  Drawing mats by calling fancy functions on all the squares.
 **/
-ResultGrid.prototype.displayMats = function() {
+ResultGrid.prototype.displayMats = function () {
 
     var mats = mattur.list,
-        squares = this.squares;
+        squares = this.squares,
+        tmpDirection,
+        j;
 
     for (var i = 0; i < mats.length; i++) {
 
         if (mats[i] == undefined) {
             continue;
         }
-        var tmpDirection = null,
-            j = (mats[i].length);
-        
-        while  (j--) {
 
+        tmpDirection = null;
+        j = (mats[i].length);
+        // The mats are placed 'bottom-up', so we need to draw them 'backwards'.
+        while  (j--) {
+            
             if (j == 0) {
                 squares[mats[i][j]].direction = null;
             }
+
             squares[mats[i][j]].drawMatline(tmpDirection);
-
+            // Save the direction of the previous mat.
             tmpDirection = squares[mats[i][j]].direction;
-
         }
     }
 }

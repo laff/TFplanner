@@ -445,7 +445,7 @@ function Mats () {
 
 
 /**
- *  Function that adds squares to the mats they "belong" to.
+ * Function that adds squares to the mats they "belong" to.
 **/
 Mats.prototype.addSquare = function(mati, squareNo) {
 

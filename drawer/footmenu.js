@@ -11,6 +11,7 @@ function FootMenu () {
 **/
 FootMenu.prototype.initFooter = function () {
 	var paper = this.footPaper,
+        that = this,
     	height = paper.height,
     	width = paper.width,
     	ld = paper.set(),
@@ -73,47 +74,15 @@ FootMenu.prototype.initFooter = function () {
 
     // Actions for the 'Save'-button.
     sv.mouseup( function () {
+
         // OBS: This is the 'save as image' function-call.
         // grid.save();
-
-    	// Currently for testing
-        if (ourRoom.finished == true) {
-            var path = grid.moveRoom();
-            
-            resultGrid = new ResultGrid(path);
-
-            scrollBox.paper.clear();
-            
-            resultGrid.displayMats();
-
-            /*
-            setTimeout( function () {
-                // I think this is a "safe" way to do this, first clear the resultGrid (in reality this is
-                // the same grid as 'grid')
-                // Then create our initial grid before we initalize the drawing.
-                resultGrid.clear();
-                resultGrid = null;
-                ourRoom.clearRoom();
-                tabs.select(1);
-                options.showOptions(1);
-                grid = new Grid();
-                scrollBox = new ScrollBox();
-                measurement = new Measurement();
-                ourRoom = new DrawRoom(20);
-                obstacles = new Obstacles();
-            }, 50000);    
-*/
-        }
     });
 
     // Clear Room and re-iniate so the user can draw a new room.
    clr.mouseup( function () {
-    	ourRoom.clearRoom();
-        ourRoom = new DrawRoom(20);
-        tabs.select(1);
-        options.showOptions(1);
-        options.preDefArr = null;
-        options.roomTitle != null ? options.roomTitle.remove() : null;
+
+        that.clearAll();
         
     });
 }
@@ -138,4 +107,37 @@ FootMenu.prototype.setHandlers = function (coll) {
             fill: ""
         });
     });
+}
+
+/**
+ * Function to clear ALL stuff and create new instances of them, so that the
+ * user can create a new drawing, this includes:
+ * ResultGrid
+ * Grid
+ * ScrollBox
+ * Measurement
+ * DrawRoom
+ * Obstacles
+ * Mats
+**/
+FootMenu.prototype.clearAll = function () {
+
+/* INFO: I think this is a "safe" way to do this, first clear the resultGrid (in reality this is
+ * the same grid as 'grid')
+ * Then create our initial grid before we initalize the drawing.
+ */
+    (resultGrid != null) ? resultGrid.clear() : null; 
+    (options.roomTitle != null) ? options.roomTitle.remove() : null;
+    options.preDefArr = null;
+    scrollBox.paper.clear();
+
+    ourRoom.clearRoom();
+    tabs.select(1);
+    options.showOptions(1);
+    grid = new Grid();
+    scrollBox = new ScrollBox();
+    measurement = new Measurement();
+    ourRoom = new DrawRoom(20);
+    obstacles = new Obstacles();
+    mattur = new Mats();
 }
