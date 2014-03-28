@@ -10,7 +10,7 @@ function HeatingMat(matLength, timeoutLength, color) {
     this.validPeriod = timeoutLength ? timeoutLength : 3;
     this.matColor = color;
     this.productNr;
-    this.textPlaced = 0;
+    this.textPlaced = false;
 
 
     this.matId = mattur.matIndex;
@@ -48,6 +48,7 @@ function Square (x, y, path, paper) {
     this.paper = paper;
     this.arrows = paper.set();
     this.reallyInside = true;
+    this.productNr;
 
 
     this.direction = null;
@@ -123,11 +124,25 @@ Square.prototype.drawMatline = function(from) {
             'stroke': "#E73029", 
             'stroke-width': 3
         },
-        direction = (from + to);
+        direction = (from != 'productNr') ? (from + to) : from;
 
     this.arrows.remove();
 
     switch (direction) {
+
+        case 'productNr':
+            var rec = paper.rect(x-5, y+15, 60, 20, 5, 5).attr({
+                    opacity: 1,
+                    fill: "white"
+               }),
+
+                tex = paper.text(x+28, y+25, this.productNr).attr({
+                    'font-size': 12 
+                });
+
+            this.arrows.push(rec, tex);
+
+            break;
 
         case 'rightright':
             this.arrows.push(paper.path("M"+(x)+", "+(y+25)+", L"+ (x+50)+", "+(y+25)).attr(attributes));
@@ -224,11 +239,13 @@ Square.prototype.drawMatline = function(from) {
 Square.prototype.setArrow = function(dir, mat, squareNo) {
 
 
+    this.productNr = mat.productNr;
+
     if (dir < 5 && dir >= 0) {
         mattur.addSquare(mat.matId, squareNo);
     }
 
-    this.rect.attr({'fill': mat.matColor});    
+    this.rect.attr({'fill': mat.matColor});
 
     switch (dir) {
         //up
@@ -263,7 +280,6 @@ Square.prototype.setArrow = function(dir, mat, squareNo) {
         default: 
             break;
     }
-
 
    //     this.arrows.remove();
 
@@ -440,15 +456,13 @@ Subsquare.prototype.setArrow = function(dir, mat) {
  *
 **/
 function Mats () {
-    
     this.list = [];
     this.matIndex = 0;
-
 }
 
 
 /**
- *  Function that adds squares to the mats they "belong" to.
+ * Function that adds squares to the mats they "belong" to.
 **/
 Mats.prototype.addSquare = function(mati, squareNo) {
 

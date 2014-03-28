@@ -9,7 +9,7 @@ function ResultGrid(pathString) {
     //this.offsetX = 0;
     //this.offsetY = 0;
     //this.scale = 1;
-    this.paper = grid.paper; //Raphael(document.getElementById('canvas_container'));
+    this.paper = grid.paper;
     this.squares = [];
     this.area = 0;
     this.unusedArea = 0;
@@ -18,8 +18,6 @@ function ResultGrid(pathString) {
     this.attempts = 0;
 
     //this.findDimension();
-
-    //No scaling of image
     this.path = pathString;
 
     this.populateSquares();
@@ -35,8 +33,6 @@ function ResultGrid(pathString) {
         '#545454'
     ];
     this.currentColor;
-
-
     //this.draw(this.height, this.width, this.path);
 
     this.findStart();
@@ -48,30 +44,55 @@ function ResultGrid(pathString) {
 /**
  *  Drawing mats by calling fancy functions on all the squares.
 **/
-ResultGrid.prototype.displayMats = function() {
+ResultGrid.prototype.displayMats = function () {
 
     var mats = mattur.list,
-        squares = this.squares;
+        squares = this.squares,
+        products = [];
 
     for (var i = 0; i < mats.length; i++) {
 
         if (mats[i] == undefined) {
             continue;
         }
-        var tmpDirection = null,
-            j = (mats[i].length);
-        
-        while  (j--) {
 
+        // Extract productnumber from the first square.
+        products.push(squares[mats[i][0]].productNr);
+
+
+
+        // Go through  each square, starting  with the highest square index.
+        // This is because mats are placed backwards initially.
+        var tmpDirection = null,
+            j = (mats[i].length),
+            k = 0;
+        while  (j--) {
+            
             if (j == 0) {
                 squares[mats[i][j]].direction = null;
             }
-            squares[mats[i][j]].drawMatline(tmpDirection);
+
+            // Draw productnumber instead of arrow.
+            if (k == 2) {
+                squares[mats[i][j]].drawMatline('productNr');
+
+            // Draw arrow.
+            } else {
+                squares[mats[i][j]].drawMatline(tmpDirection);
+            }
+
+            // Put the productnumber to front of arrow
+            if (k == 3) {
+                squares[mats[i][(j + 1)]].arrows.toFront();
+            }
+
+            k++;
 
             tmpDirection = squares[mats[i][j]].direction;
-
         }
     }
+
+    console.log(products);
 }
 
 /*
