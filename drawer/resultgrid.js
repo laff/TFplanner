@@ -54,27 +54,50 @@ function ResultGrid(pathString) {
 ResultGrid.prototype.displayMats = function() {
 
     var mats = mattur.list,
-        squares = this.squares;
+        squares = this.squares,
+        products = [];
 
     for (var i = 0; i < mats.length; i++) {
 
         if (mats[i] == undefined) {
             continue;
         }
+
+        // Extract productnumber from the first square.
+        products.push(squares[mats[i][0]].productNr);
+
+        // Go through  each square, starting  with the highest square index.
+        // This is because mats are placed backwards initially.
         var tmpDirection = null,
-            j = (mats[i].length);
-        
+            j = (mats[i].length),
+            k = 0;
         while  (j--) {
 
             if (j == 0) {
                 squares[mats[i][j]].direction = null;
             }
-            squares[mats[i][j]].drawMatline(tmpDirection);
+
+            // Draw productnumber instead of arrow.
+            if (k == 2) {
+                squares[mats[i][j]].drawMatline('productNr');
+
+            // Draw arrow.
+            } else {
+                squares[mats[i][j]].drawMatline(tmpDirection);
+            }
+
+            // Put the productnumber to front of arrow
+            if (k == 3) {
+                squares[mats[i][(j + 1)]].arrows.toFront();
+            }
+
+            k++;
 
             tmpDirection = squares[mats[i][j]].direction;
-
         }
     }
+
+    console.log(products);
 }
 
 /*
