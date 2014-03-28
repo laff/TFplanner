@@ -9,6 +9,7 @@ var grid,
     footmenu,
     tabs,
     finishedRoom = null,
+    resultGrid = null,
     mattur;
 
 $(document).ready(function() {  

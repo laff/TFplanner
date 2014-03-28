@@ -469,23 +469,31 @@ Options.prototype.casting = function (form) {
 Options.prototype.generateButton = function (form) {
 
     var container = this.container,
-        input = document.createElement('input');
+        input = document.createElement('input'),
+        path;
 
     $('#genButton').remove();
 
     input.id = 'genButton';
     input.type = 'button';
     input.title = 'Klikk for '+this.dotA+' generere leggeanvisning';
-
     input.value = 'Generer leggeanvisning';
 
     form.appendChild(input);
     $(container).append(form);
 
     $('#genButton').click( function () {
+        //Finds the heatingmat based on specs chosen by the user.
         options.tfProducts();
-        // OBS: Call the algorithm and generate a drawing!
-        // We also must find the product(s) that matches the chosen values!
+
+        // If we have a finished room, we can call the algorithm and generate a drawing!
+        if (ourRoom.finished == true) {
+
+            path = grid.moveRoom();
+            resultGrid = new ResultGrid(path);
+            scrollBox.paper.clear();
+            resultGrid.displayMats();
+        }
     });
 }
 
