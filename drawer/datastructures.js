@@ -256,6 +256,9 @@ Square.prototype.setArrow = function(dir, mat, squareNo) {
             this.direction = 'hell';
             //this.arrows.push(paper.circle(x+25, y+25, 3).attr({'fill': "#E73029", 'fill-opacity': 1}));
             break;
+        case 6:
+            this.rect.attr({'fill': "white"});
+            break;
 
         default: 
             break;
