@@ -53,20 +53,21 @@ function ResultGrid(pathString) {
 **/
 ResultGrid.prototype.displayMats = function() {
 
-
     var mats = mattur.list,
         squares = this.squares;
 
     for (var i = 0; i < mats.length; i++) {
 
+        if (mats[i] == undefined) {
+            continue;
+        }
         var tmpDirection = null,
             j = (mats[i].length);
-        while  (j--) { //(var j = 0; j < mats[i].length; j++) {
-
+        
+        while  (j--) {
 
             if (j == 0) {
                 squares[mats[i][j]].direction = null;
-
             }
             squares[mats[i][j]].drawMatline(tmpDirection);
 
@@ -403,7 +404,7 @@ ResultGrid.prototype.placeSquare = function (squareNo, subsquareNo, mat, lastSqu
         mat.addSquare();
         this.unusedArea -= area;
         //Olaf&Christian's .
-        square.setArrow(4, mat, squareNo);
+        square.setArrow(5, mat, squareNo);
 
         //Tries to populate next square, in order up-right-left-down
         if (up.reallyInside && !up.populated) {
@@ -414,8 +415,10 @@ ResultGrid.prototype.placeSquare = function (squareNo, subsquareNo, mat, lastSqu
                 }                 
             } else {
                 for (var i = 20; i < 25; ++i) {
-                    if ( this.placeSquare(u, i, mat, squareNo, lastSubsquareNo) )
+                    if ( this.placeSquare(u, i, mat, squareNo, lastSubsquareNo) ) {
+                        this.squares[squareNo].setArrow(4, mat, squareNo);
                         return true;
+                    }
                 }
             }
         }
@@ -427,11 +430,14 @@ ResultGrid.prototype.placeSquare = function (squareNo, subsquareNo, mat, lastSqu
                 }                  
             } else {
                 for (var i = 0; i < 21; i += 5) {
-                    if ( this.placeSquare(r, i, mat, squareNo, lastSubsquareNo) )
+                    if ( this.placeSquare(r, i, mat, squareNo, lastSubsquareNo) ) {
+                        this.squares[squareNo].setArrow(4, mat, squareNo);
                         return true;
+                    }
                 }
             }
         }
+
         if (left.reallyInside && !left.populated) {
             if ( !left.hasObstacles && !left.hasWall ) {
                 if ( this.placeSquare(l, 0, mat, squareNo, -1) ) {
@@ -440,8 +446,11 @@ ResultGrid.prototype.placeSquare = function (squareNo, subsquareNo, mat, lastSqu
                 }                  
             } else {
                 for (var i = 4; i < 25; i += 5) {
-                    if ( this.placeSquare(l, i, mat, squareNo, lastSubsquareNo) )
+                    if ( this.placeSquare(l, i, mat, squareNo, lastSubsquareNo) ) {
+                        this.squares[squareNo].setArrow(4, mat, squareNo);
                         return true;
+                    }
+                        
                 }
             }
         }
@@ -453,8 +462,11 @@ ResultGrid.prototype.placeSquare = function (squareNo, subsquareNo, mat, lastSqu
                 }                
             } else {
                 for (var i = 0; i < 5; ++i) {
-                    if ( this.placeSquare(d, i, mat, squareNo, lastSubsquareNo) )
+                    if ( this.placeSquare(d, i, mat, squareNo, lastSubsquareNo) ) {
+                        this.squares[squareNo].setArrow(4, mat, squareNo);
                         return true;
+                    }
+                        
                 }
             }
         }

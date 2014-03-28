@@ -210,6 +210,9 @@ Square.prototype.drawMatline = function(from) {
             break;
 
         default: 
+            this.arrows.push(paper.text(x+28, y+25, direction).attr({
+                'font-size': 12 
+            }));
             break;
     }
 }
@@ -221,7 +224,7 @@ Square.prototype.drawMatline = function(from) {
 Square.prototype.setArrow = function(dir, mat, squareNo) {
 
 
-    if (dir != 4) {
+    if (dir < 5 && dir >= 0) {
         mattur.addSquare(mat.matId, squareNo);
     }
 
@@ -250,7 +253,7 @@ Square.prototype.setArrow = function(dir, mat, squareNo) {
             break;
 
         case 4:
-            //currentDirection = null;
+            this.direction = 'hell';
             //this.arrows.push(paper.circle(x+25, y+25, 3).attr({'fill': "#E73029", 'fill-opacity': 1}));
             break;
 
