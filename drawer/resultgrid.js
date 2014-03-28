@@ -41,8 +41,8 @@ function ResultGrid(pathString) {
 
     this.findStart();
 
-    console.log(this.squares[38]);
-
+    console.log(this.squares[54]);
+    console.log(this.squares[98]);
 
     //this.draw(this.height, this.width, this.path);
 }
