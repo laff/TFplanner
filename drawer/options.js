@@ -493,6 +493,8 @@ Options.prototype.generateButton = function (form) {
             resultGrid = new ResultGrid(path);
             scrollBox.paper.clear();
             resultGrid.displayMats();
+            measurement.wallText.toFront();
+            grid.boxSet.toFront();
         }
     });
 }
