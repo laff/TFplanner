@@ -162,6 +162,8 @@ ResultGrid.prototype.findDimension = function() {
 
 //Draws a scaled version of the path. VERY UNFINISHED!
 // OBS: Parameters currently not being used!
+
+/*
 ResultGrid.prototype.draw = function(h, w, path) {
     var paper = this.paper,
         canvas = $('#canvas_container'), 
@@ -223,7 +225,7 @@ ResultGrid.prototype.draw = function(h, w, path) {
         }
     }
 }
-
+*/
 
 //Divides the area into suqares, does wall and obstacle detection
 ResultGrid.prototype.populateSquares = function() {
