@@ -377,7 +377,7 @@ ResultGrid.prototype.placeSquare = function (squareNo, subsquareNo, mat, lastSqu
         width = this.squarewidth,
         height = this.squareheight,
         area = 50*50,
-        timeout = Date.now()/1000;
+        timeout = Date.now();
 
     //The recursive placement is taking too long, abort mat
     if ( (timeout - mat.timestamp) > mat.validPeriod) {
@@ -430,6 +430,21 @@ ResultGrid.prototype.placeSquare = function (squareNo, subsquareNo, mat, lastSqu
             var squareList = [squareNo, squareNo-width, squareNo +1, squareNo-1, squareNo+width];
 
             if ( this.adjacentWall(squareList, -1) && ( this.unusedArea == 0 || this.findStart() ) ) {
+                var temp = squareNo-lastSquareNo,
+                    dir;
+
+                if ( temp > 1 ) {
+                    dir = 0;
+                } else if ( temp == 1) {
+                    dir = 1;
+                } else if (temp == -1) {
+                    dir = 2;
+                } else {
+                    dir = 3;
+                }
+
+
+                this.squares[squareNo].setArrow(dir, mat, squareNo);
 
                 return true;
             } else {
@@ -514,7 +529,7 @@ ResultGrid.prototype.placeSquare = function (squareNo, subsquareNo, mat, lastSqu
         mat.removeSquare();
     } else {
         //If the end needs to be divided to reach a wall, we need to know which direction we came from
-        if (mat.unusedArea < area) {
+        if (mat.unusedArea < area && lastSubsquareNo == -1) {
             var diff = subsquareNo - lastSubsquareNo;
             //From left or top
             if (diff < 0) {
@@ -541,7 +556,7 @@ ResultGrid.prototype.placeSubsquare = function(squareNo, subsquareNo, mat, lastS
         subsquares = square.subsquares,
         added = false,
         abort = false,
-        timeout = Date.now()/1000;
+        timeout = Date.now();
 
     //The recursive placement is taking too long, abort mat
     //Simply returning false does not work due to asynchronous nature
@@ -629,6 +644,7 @@ ResultGrid.prototype.placeSubsquare = function(squareNo, subsquareNo, mat, lastS
             up = subsquares[u];
             if ( !up.hasWall && !up.hasObstacle && !up.populated 
                  && this.placeSubsquare(squareNo, u, mat, squareNo, subsquareNo) ) {
+                this.squares[squareNo].subsquares[subsquareNo].setArrow(0, mat);
                 return true;
             }
         }
@@ -637,6 +653,7 @@ ResultGrid.prototype.placeSubsquare = function(squareNo, subsquareNo, mat, lastS
             right = subsquares[r];
             if ( !right.hasWall && !right.hasObstacle && !right.populated 
                  && this.placeSubsquare(squareNo, r, mat, squareNo, subsquareNo) ) {
+                this.squares[squareNo].subsquares[subsquareNo].setArrow(1, mat);
                 return true;
             }
         }
@@ -645,6 +662,7 @@ ResultGrid.prototype.placeSubsquare = function(squareNo, subsquareNo, mat, lastS
             left = subsquares[l];
             if ( !left.hasWall && !left.hasObstacle && !left.populated 
                  && this.placeSubsquare(squareNo, l, mat, squareNo, subsquareNo) ) {
+                this.squares[squareNo].subsquares[subsquareNo].setArrow(2, mat);
                 return true;
             }
         }
@@ -653,6 +671,7 @@ ResultGrid.prototype.placeSubsquare = function(squareNo, subsquareNo, mat, lastS
             down = subsquares[d];
             if ( !down.hasWall && !down.hasObstacle && !down.populated 
                  && this.placeSubsquare(squareNo, d, mat, squareNo, subsquareNo) ) {
+                this.squares[squareNo].subsquares[subsquareNo].setArrow(3, mat);
                 return true;
             }
         }
