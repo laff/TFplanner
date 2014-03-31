@@ -6,8 +6,8 @@ function HeatingMat(matLength, timeoutLength, color) {
 
 	this.totalArea = (matLength * 50);
 	this.unusedArea = this.totalArea;
-    this.timestamp = (Date.now() / 1000);
-    this.validPeriod = timeoutLength ? timeoutLength : 3;
+    this.timestamp = Date.now();
+    this.validPeriod = timeoutLength ? timeoutLength : 3000;
     this.matColor = color;
     this.productNr;
     this.textPlaced = false;
@@ -397,6 +397,10 @@ function Subsquare (x, y, paper, path) {
     this.hasWall = false;
     this.populated = false;
     this.rect;
+    this.paper = paper;
+    this.x = x;
+    this.y = y;
+    this.direction = null;
 
     var xdim = 10,
         ydim = 10,
@@ -437,18 +441,49 @@ function Subsquare (x, y, paper, path) {
 }
 
 Subsquare.prototype.setArrow = function(dir, mat) {
+    var paper = this.paper,
+        x = this.x,
+        y = this.y;
+
     this.rect.attr({
         'fill': mat.matColor,
         'fill-opacity': 0.7
     });
 
-    if (dir == 4) {
-        this.rect.attr({
-            'fill': "white",
-            'fill-opacity': 1
-        });        
+
+    switch (dir) {
+        //up
+        case 0: 
+            this.direction = 'up';
+            //this.arrows = (paper.path("M"+(x+2.5)+", "+(y+4)+", L"+ (x+2.5)+", "+(y+ 2)));
+            break;
+        //right
+        case 1:
+            this.direction = 'right';
+            //this.arrows = (paper.path("M"+(x+2)+", "+(y+2.5)+", L"+ (x+4)+", "+(y+2.5)));
+            break;
+        //left
+        case 2: 
+            this.direction = 'left';
+            //this.arrows = (paper.path("M"+(x+4)+", "+(y+2.5)+", L"+ (x+2)+", "+(y+ 2.5)));
+            break;
+        //down
+        case 3:
+            this.direction = 'down';
+            //this.arrow = (paper.path("M"+(x+2.5)+", "+(y+2)+", L"+ (x+2.5)+", "+(y+4)));
+            break;
+
+        case 4:
+            this.rect.attr({
+                'fill': "white",
+                'fill-opacity': 1,
+                'stroke-width': 0.1
+            });
+            this.direction = null;
+            break;   
     }
 }
+
 
 /**
  *  Ninja constructor for our heatingmats
