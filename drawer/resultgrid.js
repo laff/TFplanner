@@ -21,6 +21,9 @@ function ResultGrid(pathString) {
     this.path = pathString;
 
     this.populateSquares();
+    this.supplyPoint =  this.setSupplyPoint();
+    console.log(this.supplyPoint);
+    this.addObstacles();
     this.moveWalls();
 
 
@@ -251,8 +254,6 @@ ResultGrid.prototype.populateSquares = function() {
             squares[length++] = square;
         }
     }
-
-    this.addObstacles();
 }
 
 
@@ -279,10 +280,28 @@ ResultGrid.prototype.findStart = function() {
     var squares = this.squares, 
         len = squares.length,
         width = this.squarewidth,
-        height = this.squareheight;
+        height = this.squareheight,
+        supply = this.supplyPoint,
+        xmin = null,
+        xmax = null,
+        ymin = null, 
+        ymax = null;
+
+    if (supply) {
+        xmin = supply[0];
+        xmax = supply[1];
+        ymin = supply[2];
+        ymax = supply[3];
+    }
 
     for (var i = 0; i < len; ++i) {
         var square = squares[i];
+
+        //If not inside the supply boundaries we can skip to next square
+        if (supply && (square.xpos <= xmin || square.xpos >= xmax || 
+                       square.ypos < ymin || square.ypos >= ymax) ) {
+            continue;
+        }
         
         if (square.reallyInside && !square.populated) {
 
@@ -1039,4 +1058,60 @@ ResultGrid.prototype.addObstacles = function() {
         }
     }
     //End of addObstacles
+}
+
+
+ResultGrid.prototype.setSupplyPoint = function () {
+
+    var list = obstacles.obstacleSet,
+        texts = obstacles.txtSet,
+        len = obstacles.obstacleSet.length, 
+        walls = ourRoom.walls,
+        wallLength = walls.length,
+        wall,
+        supply = obstacles.supplyPoint,
+        xmin,
+        xmax,
+        ymin,
+        ymax,
+        x1,
+        x2, 
+        y1, 
+        y2,
+        x,
+        y;
+
+    for (var i = 0; i < len; ++i) {
+        if (list[i].id == supply) {
+            x = list[i].attr("x");
+            y = list[i].attr("y");
+
+            //Remvoves supplyPoint so that it doesn't act as obstacle (take up space etc.)
+            obstacles.obstacleSet[i].remove();
+            obstacles.txtSet[i].remove()
+
+            //Why 11? Because of the x/y offset when moving the room and because
+            // the supply point itself has dimensions 10*10
+            //And, as importantly, these go to 11
+            for (var l = 0; l < wallLength; ++l) {
+
+                wall = walls[l];
+                x1 = wall.attrs.path[0][1];
+                x2 = wall.attrs.path[1][1];
+                y1 = wall.attrs.path[0][2];
+                y2 = wall.attrs.path[1][2];
+                xmin = (x1 < x2) ? (x1 - 11) : (x2 - 11);
+                xmax = (x1 < x2) ? (x2 + 11) : (x1 + 11);
+                ymin = (y1 < y2) ? (y1 - 11) : (y2 - 11);
+                ymax = (y1 < y2) ? (y2 + 11) : (y1 + 11);
+
+                //+/-40 to allow for whole square inside boundaries
+                if (x < xmax && x > xmin && y < ymax && y > ymin) {
+                    var arr = [xmin-40, xmax+40, ymin-40, ymax+40];
+                    return arr;
+                }
+            } 
+        }
+    }
+    //End of setAccessPoint    
 }
