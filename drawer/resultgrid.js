@@ -6,9 +6,6 @@ function ResultGrid(pathString) {
     //this.size = 5;
     this.height = grid.resHeight;
     this.width = grid.resWidth;
-    //this.offsetX = 0;
-    //this.offsetY = 0;
-    //this.scale = 1;
     this.paper = grid.paper;
     this.squares = [];
     this.area = 0;
@@ -95,76 +92,9 @@ ResultGrid.prototype.displayMats = function () {
             tmpDirection = squares[mats[i][j]].direction;
         }
     }
-<<<<<<< HEAD
-=======
 
     this.chosenMats = products;
 }
-
-/*
-OBS: Function(ality) moved to 'grid.js' and is cloned with the 'getWalls'-function, 
-and now appears as 'moveRoom()'. 
-The use of grid`s class-variables for width and height might be a bit dirty!
-
-//Function finds the height and width of the figure, as well as the height
-// and width of the screen. Also sets scale of image based on relation
-// between screen height/width and room height/width
-ResultGrid.prototype.findDimension = function() {
-    var minX = 1000000, 
-        maxX = 0, 
-        minY = 1000000, 
-        maxY = 0, 
-        walls = ourRoom.walls,
-        numberOfWalls = walls.length,
-        yscale,
-        xscale,
-        canvas = $('#canvas_container');
-
-    for (var i = 0; i < numberOfWalls; ++i)
-    {
-        //Find largest and smallest X value
-        if ( (walls[i].attrs.path[0][1]) > maxX )
-            maxX = walls[i].attrs.path[0][1];
-
-        if ( (walls[i].attrs.path[1][1]) > maxX)
-            maxX = walls[i].attrs.path[1][1];
-
-        if ( (walls[i].attrs.path[0][1]) < minX )
-            minX = walls[i].attrs.path[0][1];
-
-        if ( (walls[i].attrs.path[1][1]) < minX )
-            minX = walls[i].attrs.path[1][1];
-
-        //Find smallest and largest Y value
-        if ( (walls[i].attrs.path[0][2]) > maxY )
-            maxY = walls[i].attrs.path[0][2];
-
-        if ( (walls[i].attrs.path[1][2]) > maxY )
-            maxY = walls[i].attrs.path[1][2];
-
-        if ( (walls[i].attrs.path[0][2]) < minY )
-            minY = walls[i].attrs.path[0][2];
-
-        if ( (walls[i].attrs.path[1][2]) < minY )
-            minY = walls[i].attrs.path[1][2];
-    } 
-
-    //Sets ResultGrid variables
-    this.offsetX = minX - 49;
-    this.offsetY = minY - 49;
-    this.width = (maxX - minX);
-    this.height = (maxY - minY);
-
-    //Finds a scale for final room, used to draw result
-    //NOT CURRENTLY USED FOR ANYTHING
-    xscale = canvas.width()/this.width,
-    yscale = canvas.height()/this.height;
-    this.scale = (xscale < yscale)?xscale:yscale;
-    this.scale = this.scale.toFixed();
-  //  this.paper.setViewBox(0, 0, (this.width*this.scale), (this.height*this.scale), true);
->>>>>>> b664a84e1af0afccdd2223866a3eb6a263fb01fc
-}
-
 
 /**
  * Function creates a square structure
