@@ -36,7 +36,7 @@ HeatingMat.prototype.removeSubsquare = function() {
 
 
 //Constructor for a 0.5m X 0.5m square
-function Square (x, y, path, paper) {
+function Square (x, y, path, paper, nr) {
     this.xpos = x;
     this.ypos = y;
     this.insideRoom = false;
@@ -48,6 +48,7 @@ function Square (x, y, path, paper) {
     this.paper = paper;
     this.arrows = paper.set();
     this.reallyInside = true;
+    this.nr = nr;
     this.productNr;
 
 
@@ -86,7 +87,7 @@ function Square (x, y, path, paper) {
 
         for ( var i = 0; i < ydim; i += ysubdim) {
             for (var j = 0; j < xdim; j += xsubdim) {
-                subsquare = new Subsquare(x+j, y+i, paper, path);
+                subsquare = new Subsquare(x+j, y+i, paper, path, this.nr, length);
                 this.subsquares[length++] = subsquare;
                 if (subsquare.insideRoom)
                     this.area += xsubdim*ysubdim;
@@ -117,7 +118,6 @@ Square.prototype.drawMatline = function(from) {
             'stroke-width': 3
         },
         direction = (from != 'productNr') ? (from + to) : from;
-
     this.arrows.remove();
 
     switch (direction) {
@@ -217,7 +217,7 @@ Square.prototype.drawMatline = function(from) {
             break;
 
         default: 
-            this.arrows.push(paper.text(x+28, y+25, direction).attr({
+            this.arrows.push(paper.text(x+25, y+25, direction).attr({
                 'font-size': 12 
             }));
             break;
@@ -229,7 +229,6 @@ Square.prototype.drawMatline = function(from) {
  *  In addition it sets a color to the squares, even tho the function name doesnt give that away.
 **/
 Square.prototype.setArrow = function(dir, mat, squareNo) {
-
 
     this.productNr = mat.productNr;
 
@@ -272,43 +271,6 @@ Square.prototype.setArrow = function(dir, mat, squareNo) {
         default: 
             break;
     }
-
-   //     this.arrows.remove();
-
-
- //   if (mat.lastDirection == null) {
- //       mat.lastDirection = currentDirection;
- //   }
-
-/*
-    if (this.texted) {
-        mat.lastDirection = currentDirection;
-        return;
-    }
-*/
-    //drawLineard(currentDirection, mat.lastDirection);
-
-
-    //mat.lastDirection = currentDirection;
-
-    /*
-    if (mat.textPlaced == 2) {
-
-        paper.rect(x-5, y+15, 60, 20, 5, 5).attr({
-            opacity: 1,
-            fill: "white"
-        });
-
-        paper.text(x+28, y+25, mat.productNr).attr({
-            'font-size': 12 
-        });
-
-        this.texted = true;
-
-        this.arrows.remove();     
-    }
-    mat.textPlaced++;
-    */
 }
 
 //Checks whether all the subsquares along a square edge contains a wall.
@@ -370,7 +332,7 @@ Square.prototype.addWall = function(arr) {
 	if ( !(this.hasWall || this.hasObstacles) ) {
 		for ( var i = 0; i < ydim; i += subdim) {
 	        for (var j = 0; j < xdim; j += subdim) {
-	            this.subsquares[length++] = new Subsquare(this.xpos+j, this.ypos+i, this.paper, null);
+	            this.subsquares[length++] = new Subsquare(this.xpos+j, this.ypos+i, this.paper, null, this.nr);
 	        }
 	    }
 	}	
@@ -383,7 +345,7 @@ Square.prototype.addWall = function(arr) {
 }
 
 //Constructor for 0.1m X 0.1m square
-function Subsquare (x, y, paper, path) {
+function Subsquare (x, y, paper, path, squareNo, subNo) {
     this.insideRoom = false;
     this.hasObstacle = false;
     this.hasWall = false;
@@ -393,6 +355,9 @@ function Subsquare (x, y, paper, path) {
     this.x = x;
     this.y = y;
     this.direction = null;
+    this.arrows = paper.set();
+    this.squareNo = squareNo;
+    this.subNo = subNo;
 
     var xdim = 10,
         ydim = 10,
@@ -432,7 +397,10 @@ function Subsquare (x, y, paper, path) {
     }
 }
 
-Subsquare.prototype.setArrow = function(dir, mat) {
+/**
+ * OBS: The if-check after the switch may not need to check all those values, Anders?
+**/
+Subsquare.prototype.setArrow = function(dir, mat, subsquareNo) {
     var paper = this.paper,
         x = this.x,
         y = this.y;
@@ -442,6 +410,7 @@ Subsquare.prototype.setArrow = function(dir, mat) {
         'fill-opacity': 0.7
     });
 
+    this.arrows.remove();
 
     switch (dir) {
         //up
@@ -474,6 +443,10 @@ Subsquare.prototype.setArrow = function(dir, mat) {
             this.direction = null;
             break;   
     }
+
+    if (dir < 4 && dir >= 0 && this.insideRoom == true && this.squareNo != undefined) {
+        mattur.addSubsquare(mat.matId, this);
+    }
 }
 
 
@@ -484,6 +457,8 @@ Subsquare.prototype.setArrow = function(dir, mat) {
 **/
 function Mats () {
     this.list = [];
+    this.subList = [];
+    this.subObj = [];
     this.matIndex = 0;
 }
 
@@ -495,10 +470,136 @@ Mats.prototype.addSquare = function(mati, squareNo) {
 
     if (this.list[mati] == null) {
         this.list[mati] = [];
-    }
+    } 
 
     if (($.inArray(squareNo, this.list[mati])) < 0) {
         this.list[mati].push(squareNo);
+    }
+}
 
+
+
+/**
+ * Subsquares are re-drawn, so they ALWAYS get different ID`s, need to come 
+ * up with a clever solution.
+ */
+Mats.prototype.addSubsquare = function (mati, subsquare) {
+    var num = subsquare.squareNo;
+
+    if (this.subList[num] == null) {
+        this.subList[num] = [];
+    }
+
+    if (($.inArray(subsquare.subNo, this.subList[num])) < 0)  {
+        // Adds subsquares to arrays, these arrays is traversed and 'cleaned' in resultgrid.
+        this.subList[num].push(subsquare.subNo);
+        this.subObj.push(subsquare);
+    }
+}
+
+/**
+ * Pretty much the same functionality as drawMatLine, but this is done in subsquares, and must use
+ * some different coordinates.
+ * @param from - what direction the mat 'comes from'.
+ * @param subsquare - The actual subsquare-object, we need coordinates and some stuff from it.
+**/
+Mats.prototype.drawSubMat = function (from, subsquare) {
+
+    var y = subsquare.y,
+        x = subsquare.x,
+        to = subsquare.direction,
+        paper = subsquare.paper,
+        attributes = {
+            'stroke': "red"
+        },
+
+    direction = from+to;
+
+    //TODO: We might want a default-case AND; what should we do when we get 'something''null'
+    switch (direction) {
+        case 'rightright':
+            paper.path("M"+(x)+", "+(y+5)+", L"+(x+10)+", "+(y+5)).attr(attributes);
+            break;
+
+        case 'leftleft':
+            paper.path("M"+(x+10)+", "+(y+5)+", L"+(x)+", "+(y+5)).attr(attributes);
+            break;
+
+        case 'upup':
+            paper.path("M"+(x+5)+", "+(y+10)+", L"+(x+5)+", "+(y)).attr(attributes);
+            break;
+
+        case 'downdown':
+            paper.path("M"+(x+5)+", "+(y)+", L"+(x+5)+", "+(y+10)).attr(attributes);
+            break;
+
+        case 'downleft':
+            paper.path("M"+(x+5)+", "+(y)+", L"+(x+5)+", "+(y+5)+", L"+(x)+", "+(y+5)).attr(attributes);
+            break;
+         
+        case 'upright':
+            paper.path("M"+(x+5)+", "+(y+10)+", L"+(x+5)+", "+(y+5)+", L"+(x+10)+", "+(y+5)).attr(attributes);
+            break;
+
+        case 'leftdown':
+            paper.path("M"+(x+10)+", "+(y+5)+", L"+(x+5)+", "+(y+5)+", L"+(x+5)+", "+(y+10)).attr(attributes);
+            break;
+ 
+        case 'rightdown':
+            paper.path("M"+(x)+", "+(y+5)+", L"+(x+5)+", "+(y+5)+", L"+(x+5)+", "+(y+10)).attr(attributes);
+            break;
+
+        case 'upleft': 
+            paper.path("M"+(x+5)+", "+(y+10)+", L"+(x+5)+", "+(y+5)+", L"+(x)+", "+(y+5)).attr(attributes);
+            break;
+
+        case 'rightup':
+            paper.path("M"+(x)+", "+(y+5)+", L"+(x+5)+", "+(y+5)+", L"+(x+5)+", "+(y)).attr(attributes);
+            break;
+
+        case 'downleft':
+            paper.path("M"+(x+5)+", "+(y)+", L"+(x+5)+", "+(y+5)+", L"+(x)+", "+(y+5)).attr(attributes);
+            break;
+
+        case 'downright':
+            paper.path("M"+(x+5)+", "+(y)+", L"+(x+5)+", "+(y+5)+", L"+(x+10)+", "+(y+5)).attr(attributes);
+            break;
+
+        case 'leftup':
+            paper.path("M"+(x+10)+", "+(y+5)+", L"+(x+5)+", "+(y+5)+", L"+(x+5)+", "+(y)).attr(attributes);
+            break;
+
+        case 'nullup':
+            paper.path("M"+(x+5)+", "+(y+5)+", L"+(x+5)+", "+(y)).attr(attributes);
+            break;
+
+        case 'nullright':
+            paper.path("M"+(x+5)+", "+(y+5)+", L"+(x+10)+", "+(y+5)).attr(attributes);
+            break;
+
+        case 'nullleft':
+            paper.path("M"+(x+5)+", "+(y+5)+", L"+(x)+", "+(y+5)).attr(attributes);
+            break;
+
+        case 'nulldown':
+            paper.path("M"+(x+5)+", "+(y+5)+", L"+(x+5)+", "+(y+10)).attr(attributes);
+            break;
+/*
+        case 'upnull':
+            this.arrows.push(paper.path("M"+(x+25)+", "+(y+50)+", L"+(x+25)+", "+(y+25)+", M"+(x+15)+", "+(y+25)+", L"+(x+15)+", "+(y+25)).attr(attributes));
+            break;
+
+        case 'rightnull':
+            this.arrows.push(paper.path("M"+(x)+", "+(y+25)+", L"+(x+25)+", "+(y+25)+", M"+(x+25)+", "+(y+15)+", L"+(x+25)+", "+(y+35)).attr(attributes));
+            break;
+
+        case 'leftnull':
+            this.arrows.push(paper.path("M"+(x+50)+", "+(y+25)+", L"+(x+25)+", "+(y+25)+", M"+(x+25)+", "+(y+15)+", L"+(x+25)+", "+(y+35)).attr(attributes));
+            break;
+    
+        case 'downnull':
+            paper.path("M"+(x+5)+", "+(y)+", L"+(x+5)+", "+(y+5)).attr(attributes);
+            break;
+    */        
     }
 }
