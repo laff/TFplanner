@@ -353,8 +353,8 @@ Grid.prototype.moveRoom = function () {
             minY = walls[i].attrs.path[1][2];
     } 
 
-    offsetX = minX - 99;
-    offsetY = minY - 99;
+    offsetX = minX - 99.5;
+    offsetY = minY - 99.5;
     this.resWidth = (maxX - minX);
     this.resHeight = (maxY - minY);
     xstart = (walls[0].attrs.path[0][1] - offsetX);
@@ -393,20 +393,122 @@ Grid.prototype.moveRoom = function () {
  * Function to save our svg-drawing as a .png file.
  * Using libraries published at 'https://code.google.com/p/canvg/' under MIT-license.
 **/
-Grid.prototype.save = function () {
+Grid.prototype.save = function (callback) {
     var paper = this.paper,
-        svg = paper.toSVG();
+        svg = paper.toSVG(),
+        chosenMats = resultGrid.chosenMats,
+        matTypes = options.validMat.products,
+        matTable = null;
 
-    //Use canvg-package to draw on a 'not-shown' canvas-element.
-    canvg(document.getElementById('myCanvas'), svg);
+    // store generated svg to footmenu variable.
+    footmenu.svg = svg;
 
-    // Used so we are sure that the canvas is fully loaded before .png is generated.
-    setTimeout(function () {
-        // Fetch the dataURL from the 'myCanvas', then force a download of the picture, with a defined filename.
-        var dataURL = document.getElementById('myCanvas').toDataURL("image/png"),
-            a = document.createElement('a');
-            a.href = dataURL;
-            a.download = options.projectName+'.png';
-            a.click();
-    }, 100);
+    // create table of chosen mats and attributes.
+    // decide mat amounts and info by going through chosen mats.
+    var mats = [],
+        tmp = null;
+    for (var i = 0; i < chosenMats.length; i++) {
+
+        // store mat (productnumber).
+        var chosenMat = chosenMats[i];
+
+        // if mat already counted
+        if (chosenMat == tmp) {
+            mats[(mats.length - 1)][2]++;
+
+        // else mat needs to be counted/ sat.
+        } else {
+
+            // getting productname
+            var name;
+            for (var j = 0; j < matTypes.length; j++) {
+                if (matTypes[j].number == chosenMat) {
+                    name = matTypes[j].name;
+                }
+            }
+
+            mats.push([chosenMat, name, 1]);
+        }
+        tmp = chosenMat;
+    }
+
+    // element variables. tableEle will be sent to saveSVG.php.
+    var tableEle = document.createElement('table'),
+        trEle,
+        thEle,
+        tdEle,
+        tableString;
+
+    // setting id to table element
+    tableEle.id = 'matTable';
+
+
+    trEle = document.createElement('tr');
+
+    // create and add header 'productnumber'
+    thEle = document.createElement('th');
+    thEle.innerHTML = 'Produktnummer';
+    trEle.appendChild(thEle);
+
+    // create and add header 'name'
+    thEle = document.createElement('th');
+    thEle.innerHTML = 'Beskrivelse';
+    trEle.appendChild(thEle);
+
+    // create and add header 'amount'
+    thEle = document.createElement('th');
+    thEle.innerHTML = 'Antall';
+    trEle.appendChild(thEle);
+
+    // add header row to table
+    tableEle.appendChild(trEle);
+
+
+    // Going through mats array creating rows and columns.
+    for (var i = 0; i < mats.length; i++) {
+
+        // Create row
+        trEle = document.createElement('tr');
+        
+        // Add column 'productnumber' to row
+        tdEle = document.createElement('td');
+        tdEle.innerHTML = mats[i][0];
+        trEle.appendChild(tdEle);
+
+        // Add column 'name' to row
+        tdEle = document.createElement('td');
+        tdEle.innerHTML = mats[i][1];
+        trEle.appendChild(tdEle);
+
+        // Add column 'amount' to row
+        tdEle = document.createElement('td');
+        tdEle.innerHTML = mats[i][2];
+        trEle.appendChild(tdEle);
+
+        // Add row to table
+        tableEle.appendChild(trEle);
+    }
+
+    // converting dom element to string.
+    // This is needed for the post beneath as pure dom elements can not be passed.
+    var tmp = document.createElement('div');
+    tmp.appendChild(tableEle);
+    tableString = tmp.innerHTML;
+
+
+    /**
+     *  Post svg and table html to php script that creates a page to be exported as pdf.
+     *
+    **/
+    $.post(
+        'export/saveSVG.php', 
+        {
+            'svg': svg,
+            'mats': tableString
+        }, 
+        function (data) {
+            footmenu.drawId = data;
+            callback();
+        });
+
 }
