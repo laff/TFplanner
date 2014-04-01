@@ -12,18 +12,8 @@ function ResultGrid(pathString) {
     this.unusedArea = 0;
     this.squarewidth = 0;
     this.squareheight= 0;
-    this.attempts = 0;
-
     this.path = pathString;
-
-    //Functionality to prepare data structure
-    this.addSquares();
-    this.supplyPoint =  this.setSupplyPoint();
-    this.addObstacles();
-    this.moveWalls();
-
     this.chosenMats = null;
-
     // Color palette
     this.colorIndex = 0;
     this.matColors = [
@@ -33,6 +23,12 @@ function ResultGrid(pathString) {
         '#545454'
     ];
     this.currentColor;
+
+    //Functionality to prepare data structure
+    this.addSquares();
+    this.supplyPoint =  this.setSupplyPoint();
+    this.addObstacles();
+    this.moveWalls();
 
     //Starts to populate the data structure
     this.findStart();
@@ -358,7 +354,7 @@ ResultGrid.prototype.placeSquare = function (squareNo, subsquareNo, mat, lastSqu
             } else { 
                 for (var i = 20; i < 25; ++i) {
                     if ( this.placeSquare(u, i, mat, squareNo, lastSubsquareNo) ) {
-                        this.squares[squareNo].setArrow(4, mat, squareNo);
+                        this.squares[squareNo].setArrow(1, mat, squareNo);
                         return true;
                     }
                 }
@@ -371,7 +367,7 @@ ResultGrid.prototype.placeSquare = function (squareNo, subsquareNo, mat, lastSqu
             } else { 
                 for (var i = 0; i < 21; i += 5) {
                     if ( this.placeSquare(r, i, mat, squareNo, lastSubsquareNo) ) {
-                        this.squares[squareNo].setArrow(4, mat, squareNo);
+                        this.squares[squareNo].setArrow(1, mat, squareNo);
                         return true;
                     }
                 }
@@ -386,7 +382,7 @@ ResultGrid.prototype.placeSquare = function (squareNo, subsquareNo, mat, lastSqu
             } else { 
                 for (var i = 4; i < 25; i += 5) {
                     if ( this.placeSquare(l, i, mat, squareNo, lastSubsquareNo) ) {
-                        this.squares[squareNo].setArrow(4, mat, squareNo);
+                        this.squares[squareNo].setArrow(2, mat, squareNo);
                         return true;
                     }   
                 }
@@ -401,7 +397,7 @@ ResultGrid.prototype.placeSquare = function (squareNo, subsquareNo, mat, lastSqu
             } else {
                 for (var i = 0; i < 5; ++i) {
                     if ( this.placeSquare(d, i, mat, squareNo, lastSubsquareNo) ) {
-                        this.squares[squareNo].setArrow(4, mat, squareNo);
+                        this.squares[squareNo].setArrow(3, mat, squareNo);
                         return true;
                     }                      
                 }
