@@ -213,3 +213,10 @@ pip-log.txt
 
 #Mr Developer
 .mr.developer.cfg
+
+##########
+# Specially for this project
+##########
+
+\entry_*
+\export_*
