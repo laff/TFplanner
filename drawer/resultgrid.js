@@ -354,7 +354,7 @@ ResultGrid.prototype.placeSquare = function (squareNo, subsquareNo, mat, lastSqu
             } else { 
                 for (var i = 20; i < 25; ++i) {
                     if ( this.placeSquare(u, i, mat, squareNo, lastSubsquareNo) ) {
-                        this.squares[squareNo].setArrow(1, mat, squareNo);
+                        this.squares[squareNo].setArrow(0, mat, squareNo);
                         return true;
                     }
                 }
