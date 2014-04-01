@@ -4,6 +4,8 @@
 function FootMenu () {
 	this.footPaper = Raphael(document.getElementById('footmenu'));
 	this.initFooter();
+    this.svg;
+    this.drawId = 'fuckall';
 }
 
 /**
@@ -22,7 +24,112 @@ FootMenu.prototype.initFooter = function () {
     	save,
     	saveTxt,
     	clear,
-    	clearTxt;
+    	clearTxt,
+        saveAs = function() {
+            var svg = footmenu.svg,
+                drawId = footmenu.drawId,
+
+                // Creating "popup" elements
+                popupDiv = document.createElement('div'),
+                qText = document.createElement('p'),
+                buttonPNG = document.createElement('button'),
+                buttonPDF = document.createElement('button');
+
+
+            popupDiv.id = 'saveaspopup';
+
+            qText.innerHTML = 'Lagre som PNG eller PDF?';
+
+            buttonPNG.id = 'pngchosen';
+            buttonPNG.innerHTML = 'PNG';
+
+            buttonPDF.id = 'pdfchosen';
+            buttonPDF.innerHTML = 'PDF';
+
+            popupDiv.appendChild(qText);
+            popupDiv.appendChild(buttonPNG);
+            popupDiv.appendChild(buttonPDF);
+
+            $('#container').append(popupDiv);
+
+            // call function that adds action listeners
+            addAction();
+
+            // THE FUNCITONALITY BENEATH IS MENT FOR DOWNLOADING IMAGE (PNG).
+
+            /*
+
+                //Use canvg-package to draw on a 'not-shown' canvas-element.
+                canvg(document.getElementById('myCanvas'), svg);
+
+                // Used so we are sure that the canvas is fully loaded before .png is generated.
+                setTimeout(function () {
+                    // Fetch the dataURL from the 'myCanvas', then force a download of the picture, with a defined filename.
+                    var dataURL = document.getElementById('myCanvas').toDataURL("image/png"),
+                        a = document.createElement('a');
+                        a.href = dataURL;
+                        a.download = options.projectName+'.png';
+                        a.click();
+
+                    return svg;
+                }, 100);
+            */
+
+        },
+        addAction = function() {
+
+            var svg = footmenu.svg,
+                drawId = footmenu.drawId,
+                type = null,
+                removePopup = function() {
+                    document.getElementById('saveaspopup').remove();
+                },
+                postExport = function(callback) {
+                    $.post(
+                        'export/export.php', 
+                        {'data': drawId}, 
+                        function (data) {
+                            callback(data);
+                        });
+                },
+                download = function(url) {
+                    console.log(url);
+                    var a = document.createElement('a');
+                    a.href = 'export/'+url;
+                    a.download = options.projectName+type;
+                    a.click();
+                };
+
+            $('#pngchosen').click(function() {
+                type = '.png';
+                removePopup();
+
+                //Use canvg-package to draw on a 'not-shown' canvas-element.
+                canvg(document.getElementById('myCanvas'), svg);
+
+                // Used so we are sure that the canvas is fully loaded before .png is generated.
+                setTimeout(function () {
+                    // Fetch the dataURL from the 'myCanvas', then force a download of the picture, with a defined filename.
+                    var dataURL = document.getElementById('myCanvas').toDataURL("image/png");
+
+                    download(dataURL);
+
+                    /*
+                        a = document.createElement('a');
+                    a.href = dataURL;
+                    a.download = options.projectName+'.png';
+                    a.click();
+                    */
+                }, 100);
+            });
+
+            $('#pdfchosen').click(function() {
+                type = '.pdf';
+                removePopup();
+                postExport(download); 
+            });
+
+        };
 
     paper.canvas.style.backgroundColor = '#A59C94';
 
@@ -69,14 +176,21 @@ FootMenu.prototype.initFooter = function () {
     ld.mouseup( function () {
     
         // This button will be reb0rn as a "HELP"-button (?)
+        $.ajax({
+            url: 'export/export.php',
+            success: function() {
+                console.log("file saved to server, now let the user download!");
+            }
+        });
 
     });
 
     // Actions for the 'Save'-button.
     sv.mouseup( function () {
 
-        // OBS: This is the 'save as image' function-call.
-        // grid.save();
+        // save svg and entry ID (drawid).
+        grid.save(saveAs);
+
     });
 
     // Clear Room and re-iniate so the user can draw a new room.

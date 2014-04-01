@@ -1693,7 +1693,6 @@ Options.prototype.tfProducts = function () {
             this.validMat = mats[i];
             console.log(mats[i].name);
 
-            // call some action
         }
     }
 }

@@ -23,6 +23,7 @@ function ResultGrid(pathString) {
     this.populateSquares();
     this.moveWalls();
 
+    this.chosenMats = null;
 
     // Color choosar
     this.colorIndex = 0;
@@ -49,6 +50,9 @@ ResultGrid.prototype.displayMats = function () {
     var mats = mattur.list,
         squares = this.squares,
         products = [];
+
+    // Clear out array incase doubleclick etc.
+    this.chosenMats = null;
 
     for (var i = 0; i < mats.length; i++) {
 
@@ -92,7 +96,7 @@ ResultGrid.prototype.displayMats = function () {
         }
     }
 
-    console.log(products);
+    this.chosenMats = products;
 }
 
 /*
