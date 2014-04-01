@@ -169,6 +169,39 @@
 	width: 10%!important;
 }
 
+/*
+	CSS for the popup asking if you want to save as png or pdf.
+*/
+#saveaspopup {
+	background: white;
+	position: fixed;
+	z-index: 2;
+	top: 50%;
+	left: 50%;
+	margin:-100px 0 0 -100px;  
+	width:200px;  
+	height:200px;
+	border-color: #D6D6D6;
+	border-style: solid;
+	border-width: 2px;
+}
+
+#saveaspopup p {
+	margin-top: 10%;
+	text-align: center;
+}
+
+#pngchosen {
+	margin-top: 30%;
+	margin-left: 25%;
+	float: left;
+}
+
+#pdfchosen {
+	margin-top: 30%;
+	float: left;
+}
+
 /* Overriding default p css due to the god damn spacing 
 fucking up everything. GO TO HELL CSS! GO TO HELL! */
 p {
