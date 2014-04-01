@@ -6,8 +6,8 @@ function HeatingMat(matLength, timeoutLength, color) {
 
 	this.totalArea = (matLength * 50);
 	this.unusedArea = this.totalArea;
-    this.timestamp = (Date.now() / 1000);
-    this.validPeriod = timeoutLength ? timeoutLength : 3;
+    this.timestamp = Date.now();
+    this.validPeriod = timeoutLength ? timeoutLength : 3000;
     this.matColor = color;
     this.productNr;
     this.textPlaced = false;
@@ -67,7 +67,10 @@ function Square (x, y, path, paper) {
         lr = Raphael.isPointInsidePath( path, x+xdim, y+ydim ),
         length = 0;
 
-    this.rect = paper.rect(x, y, xdim, ydim);
+    this.rect = paper.rect(x, y, xdim, ydim).attr({
+        'stroke-opacity': 0.2,
+        'stroke-width': 2
+    });
 
     //If whole square is inside
     if (  ul && ur && ll && lr ) {
@@ -113,17 +116,6 @@ Square.prototype.drawMatline = function(from) {
             'stroke': "#E73029", 
             'stroke-width': 3
         },
-        attribut = {
-            'stroke-opacity': 1, 
-            'stroke': "#E73029", 
-            'stroke-width': 3,
-            "arrow-end": "classic-midium-midium"
-        },
-        attributts = {
-            'stroke-opacity': 1, 
-            'stroke': "#E73029", 
-            'stroke-width': 3
-        },
         direction = (from != 'productNr') ? (from + to) : from;
 
     this.arrows.remove();
@@ -145,83 +137,83 @@ Square.prototype.drawMatline = function(from) {
             break;
 
         case 'rightright':
-            this.arrows.push(paper.path("M"+(x)+", "+(y+25)+", L"+ (x+50)+", "+(y+25)).attr(attributes));
+            this.arrows.push(paper.path("M"+(x)+", "+(y+25)+", L"+(x+50)+", "+(y+25)).attr(attributes));
             break;
             
         case 'leftleft':
-            this.arrows.push(paper.path("M"+(x+50)+", "+(y+25)+", L"+ (x)+", "+(y+25)).attr(attributes));
+            this.arrows.push(paper.path("M"+(x+50)+", "+(y+25)+", L"+(x)+", "+(y+25)).attr(attributes));
             break;
 
         case 'upup':
-            this.arrows.push(paper.path("M"+(x+25)+", "+(y)+", L"+ (x+25)+", "+(y+50)).attr(attributes));
+            this.arrows.push(paper.path("M"+(x+25)+", "+(y)+", L"+(x+25)+", "+(y+50)).attr(attributes));
             break;
 
         case 'downdown':
-            this.arrows.push(paper.path("M"+(x+25)+", "+(y+50)+", L"+ (x+25)+", "+(y)).attr(attributes));
+            this.arrows.push(paper.path("M"+(x+25)+", "+(y+50)+", L"+(x+25)+", "+(y)).attr(attributes));
             break;
 
         case 'upright':
-            this.arrows.push(paper.path("M"+(x+25)+", "+(y+50)+", L"+ (x+25)+", "+(y+25)+", L"+ (x+50)+", "+(y+25)).attr(attributes));
+            this.arrows.push(paper.path("M"+(x+25)+", "+(y+50)+", L"+(x+25)+", "+(y+25)+", L"+(x+50)+", "+(y+25)).attr(attributes));
             break;
 
         case 'leftdown':
-            this.arrows.push(paper.path("M"+(x+50)+", "+(y+25)+", L"+ (x+25)+", "+(y+25)+", L"+ (x+25)+", "+(y+50)).attr(attributes));
+            this.arrows.push(paper.path("M"+(x+50)+", "+(y+25)+", L"+(x+25)+", "+(y+25)+", L"+(x+25)+", "+(y+50)).attr(attributes));
             break;
 
         case 'rightdown':
-            this.arrows.push(paper.path("M"+(x)+", "+(y+25)+", L"+ (x+25)+", "+(y+25)+", L"+ (x+25)+", "+(y+50)).attr(attributes));
+            this.arrows.push(paper.path("M"+(x)+", "+(y+25)+", L"+(x+25)+", "+(y+25)+", L"+(x+25)+", "+(y+50)).attr(attributes));
             break;
 
         case 'upleft': 
-            this.arrows.push(paper.path("M"+(x+25)+", "+(y+50)+", L"+ (x+25)+", "+(y+25)+", L"+ (x)+", "+(y+25)).attr(attributes));
+            this.arrows.push(paper.path("M"+(x+25)+", "+(y+50)+", L"+(x+25)+", "+(y+25)+", L"+(x)+", "+(y+25)).attr(attributes));
             break;
 
         case 'rightup':
-            this.arrows.push(paper.path("M"+(x)+", "+(y+25)+", L"+ (x+25)+", "+(y+25)+", L"+ (x+25)+", "+(y)).attr(attributes));
+            this.arrows.push(paper.path("M"+(x)+", "+(y+25)+", L"+(x+25)+", "+(y+25)+", L"+(x+25)+", "+(y)).attr(attributes));
             break;
 
         case 'downleft':
-            this.arrows.push(paper.path("M"+(x+25)+", "+(y)+", L"+ (x+25)+", "+(y+25)+", L"+ (x)+", "+(y+25)).attr(attributes));
+            this.arrows.push(paper.path("M"+(x+25)+", "+(y)+", L"+(x+25)+", "+(y+25)+", L"+(x)+", "+(y+25)).attr(attributes));
             break;
 
         case 'downright':
-            this.arrows.push(paper.path("M"+(x+25)+", "+(y)+", L"+ (x+25)+", "+(y+25)+", L"+ (x+50)+", "+(y+25)).attr(attributes));
+            this.arrows.push(paper.path("M"+(x+25)+", "+(y)+", L"+(x+25)+", "+(y+25)+", L"+(x+50)+", "+(y+25)).attr(attributes));
             break;
 
         case 'leftup':
-            this.arrows.push(paper.path("M"+(x+50)+", "+(y+25)+", L"+ (x+25)+", "+(y+25)+", L"+ (x+25)+", "+(y)).attr(attributes));
+            this.arrows.push(paper.path("M"+(x+50)+", "+(y+25)+", L"+(x+25)+", "+(y+25)+", L"+(x+25)+", "+(y)).attr(attributes));
             break;
 
         case 'nullup':
-            this.arrows.push(paper.path("M"+(x+15)+", "+(y+25)+", L"+ (x+35)+", "+(y+25)+", M"+ (x+25)+", "+(y+25)+", L"+ (x+25)+", "+(y)).attr(attributts));
+            this.arrows.push(paper.path("M"+(x+10)+", "+(y+35)+", L"+(x+40)+", "+(y+35)+", M"+(x+15)+", "+(y+25)+", L"+(x+35)+", "+(y+25)+", M"+(x+25)+", "+(y+25)+", L"+(x+25)+", "+(y)).attr(attributes));
             break;
 
         case 'nullright':
-            this.arrows.push(paper.path("M"+(x+25)+", "+(y+15)+", L"+ (x+25)+", "+(y+35)+", M"+ (x+25)+", "+(y+25)+", L"+ (x+50)+", "+(y+25)).attr(attributts));
+            this.arrows.push(paper.path("M"+(x+15)+", "+(y+10)+", L"+(x+15)+", "+(y+40)+", M"+(x+25)+", "+(y+15)+", L"+(x+25)+", "+(y+35)+", M"+(x+25)+", "+(y+25)+", L"+(x+50)+", "+(y+25)).attr(attributes));
             break;
 
         case 'nullleft':
-            this.arrows.push(paper.path("M"+(x+25)+", "+(y+15)+", L"+ (x+25)+", "+(y+35)+", M"+ (x+25)+", "+(y+25)+", L"+ (x)+", "+(y+25)).attr(attributts));
+            this.arrows.push(paper.path("M"+(x+35)+", "+(y+10)+", L"+(x+35)+", "+(y+40)+", M"+(x+25)+", "+(y+15)+", L"+(x+25)+", "+(y+35)+", M"+(x+25)+", "+(y+25)+", L"+(x)+", "+(y+25)).attr(attributes));
             break;
 
         case 'nulldown':
-            this.arrows.push(paper.path("M"+(x+15)+", "+(y+25)+", L"+ (x+35)+", "+(y+25)+", M"+ (x+25)+", "+(y+25)+", L"+ (x+25)+", "+(y+50)).attr(attributts));
+            this.arrows.push(paper.path("M"+(x+10)+", "+(y+15)+", L"+(x+40)+", "+(y+15)+", M"+(x+15)+", "+(y+25)+", L"+(x+35)+", "+(y+25)+", M"+(x+25)+", "+(y+25)+", L"+(x+25)+", "+(y+50)).attr(attributes));
             break;
 
         case 'upnull':
-            this.arrows.push(paper.path("M"+(x+25)+", "+(y+50)+", L"+ (x+25)+", "+(y+25)).attr(attribut));
+            this.arrows.push(paper.path("M"+(x+25)+", "+(y+50)+", L"+(x+25)+", "+(y+25)+", M"+(x+15)+", "+(y+25)+", L"+(x+15)+", "+(y+25)).attr(attributes));
             break;
 
         case 'rightnull':
-            this.arrows.push(paper.path("M"+(x)+", "+(y+25)+", L"+ (x+25)+", "+(y+25)).attr(attribut));
+            this.arrows.push(paper.path("M"+(x)+", "+(y+25)+", L"+(x+25)+", "+(y+25)+", M"+(x+25)+", "+(y+15)+", L"+(x+25)+", "+(y+35)).attr(attributes));
             break;
 
         case 'leftnull':
-            this.arrows.push(paper.path("M"+(x+50)+", "+(y+25)+", L"+ (x+25)+", "+(y+25)).attr(attribut));
+            this.arrows.push(paper.path("M"+(x+50)+", "+(y+25)+", L"+(x+25)+", "+(y+25)+", M"+(x+25)+", "+(y+15)+", L"+(x+25)+", "+(y+35)).attr(attributes));
             break;
 
         case 'downnull':
-            this.arrows.push(paper.path("M"+(x+25)+", "+(y)+", L"+ (x+25)+", "+(y+25)).attr(attribut));
+            this.arrows.push(paper.path("M"+(x+25)+", "+(y)+", L"+(x+25)+", "+(y+25)+", M"+(x+15)+", "+(y+25)+", L"+(x+35)+", "+(y+25)).attr(attributes));
             break;
 
         default: 
@@ -397,6 +389,10 @@ function Subsquare (x, y, paper, path) {
     this.hasWall = false;
     this.populated = false;
     this.rect;
+    this.paper = paper;
+    this.x = x;
+    this.y = y;
+    this.direction = null;
 
     var xdim = 10,
         ydim = 10,
@@ -437,18 +433,49 @@ function Subsquare (x, y, paper, path) {
 }
 
 Subsquare.prototype.setArrow = function(dir, mat) {
+    var paper = this.paper,
+        x = this.x,
+        y = this.y;
+
     this.rect.attr({
         'fill': mat.matColor,
         'fill-opacity': 0.7
     });
 
-    if (dir == 4) {
-        this.rect.attr({
-            'fill': "white",
-            'fill-opacity': 1
-        });        
+
+    switch (dir) {
+        //up
+        case 0: 
+            this.direction = 'up';
+            //this.arrows = (paper.path("M"+(x+2.5)+", "+(y+4)+", L"+ (x+2.5)+", "+(y+ 2)));
+            break;
+        //right
+        case 1:
+            this.direction = 'right';
+            //this.arrows = (paper.path("M"+(x+2)+", "+(y+2.5)+", L"+ (x+4)+", "+(y+2.5)));
+            break;
+        //left
+        case 2: 
+            this.direction = 'left';
+            //this.arrows = (paper.path("M"+(x+4)+", "+(y+2.5)+", L"+ (x+2)+", "+(y+ 2.5)));
+            break;
+        //down
+        case 3:
+            this.direction = 'down';
+            //this.arrow = (paper.path("M"+(x+2.5)+", "+(y+2)+", L"+ (x+2.5)+", "+(y+4)));
+            break;
+
+        case 4:
+            this.rect.attr({
+                'fill': "white",
+                'fill-opacity': 1,
+                'stroke-width': 0.1
+            });
+            this.direction = null;
+            break;   
     }
 }
+
 
 /**
  *  Ninja constructor for our heatingmats

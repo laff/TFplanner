@@ -5,6 +5,7 @@ function Grid() {
     this.size = 5;               // How many pixels between each horizontal/vertical line.
     this.cutPix = 0.5;           // Used so that the drawing of a line not overlaps on the previous pixel.
     this.paper = Raphael(document.getElementById('canvas_container'));
+    this.boxSet = this.paper.set();
     this.draw();
     this.scale();
     this.zoom();
@@ -13,6 +14,7 @@ function Grid() {
     this.resWidth = 0;
     this.resHeight = 0;
     this.rat = 1.0;             // Used for scaling up the visualized wall-lengths.
+
 }
 
 Grid.prototype.draw = function() {
@@ -30,8 +32,7 @@ Grid.prototype.draw = function() {
 
     // Draw vertical lines on the screen (lines are drawn so that the screen is filled even on min. zoom)
     for (var i = 0; i <= width; i+=10) {
-
-         //Path-function is named 'paperproto.path' in raphael.js           
+    
         line = paper.path("M"+(i*size+cutPix)+", "+0+", L"+(i*size+cutPix)+", "+(size*height)).attr({'stroke-opacity': 0.4});  
     }
 
@@ -43,8 +44,8 @@ Grid.prototype.draw = function() {
 }
 
 /**
- *  Function that visualizes the scale of our grid. 
- *
+ * Function that visualizes the scale of our grid. 
+ * Also adds the components, to have easier access to them.
 **/
 Grid.prototype.scale = function() {
     var paper = this.paper,
@@ -59,6 +60,8 @@ Grid.prototype.scale = function() {
         arrowNW = paper.path("M"+0+", " +50+", L"+25+", "+50+"M"+50+", " +25+", L"+50+", "+0).attr(strokeAttr),
         arrowSE = paper.path("M"+50+", " +100+", L"+50+", "+75+"M"+75+", " +50+", L"+100+", "+50).attr(strokeAttr),
         t = paper.text(50, 50, "100 cm");
+
+    this.boxSet.push(box, arrowNW, arrowSE, t);
 }
 
 /**
@@ -350,8 +353,8 @@ Grid.prototype.moveRoom = function () {
             minY = walls[i].attrs.path[1][2];
     } 
 
-    offsetX = minX - 99;
-    offsetY = minY - 99;
+    offsetX = minX - 99.5;
+    offsetY = minY - 99.5;
     this.resWidth = (maxX - minX);
     this.resHeight = (maxY - minY);
     xstart = (walls[0].attrs.path[0][1] - offsetX);

@@ -21,6 +21,9 @@ function ResultGrid(pathString) {
     this.path = pathString;
 
     this.populateSquares();
+    this.supplyPoint =  this.setSupplyPoint();
+    console.log(this.supplyPoint);
+    this.addObstacles();
     this.moveWalls();
 
     this.chosenMats = null;
@@ -166,6 +169,8 @@ ResultGrid.prototype.findDimension = function() {
 
 //Draws a scaled version of the path. VERY UNFINISHED!
 // OBS: Parameters currently not being used!
+
+/*
 ResultGrid.prototype.draw = function(h, w, path) {
     var paper = this.paper,
         canvas = $('#canvas_container'), 
@@ -227,7 +232,7 @@ ResultGrid.prototype.draw = function(h, w, path) {
         }
     }
 }
-
+*/
 
 //Divides the area into suqares, does wall and obstacle detection
 ResultGrid.prototype.populateSquares = function() {
@@ -255,8 +260,6 @@ ResultGrid.prototype.populateSquares = function() {
             squares[length++] = square;
         }
     }
-
-    this.addObstacles();
 }
 
 
@@ -283,10 +286,28 @@ ResultGrid.prototype.findStart = function() {
     var squares = this.squares, 
         len = squares.length,
         width = this.squarewidth,
-        height = this.squareheight;
+        height = this.squareheight,
+        supply = this.supplyPoint,
+        xmin = null,
+        xmax = null,
+        ymin = null, 
+        ymax = null;
+
+    if (supply) {
+        xmin = supply[0];
+        xmax = supply[1];
+        ymin = supply[2];
+        ymax = supply[3];
+    }
 
     for (var i = 0; i < len; ++i) {
         var square = squares[i];
+
+        //If not inside the supply boundaries we can skip to next square
+        if (supply && (square.xpos <= xmin || square.xpos >= xmax || 
+                       square.ypos < ymin || square.ypos >= ymax) ) {
+            continue;
+        }
         
         if (square.reallyInside && !square.populated) {
 
@@ -379,7 +400,7 @@ ResultGrid.prototype.placeSquare = function (squareNo, subsquareNo, mat, lastSqu
         width = this.squarewidth,
         height = this.squareheight,
         area = 50*50,
-        timeout = Date.now()/1000;
+        timeout = Date.now();
 
     //The recursive placement is taking too long, abort mat
     if ( (timeout - mat.timestamp) > mat.validPeriod) {
@@ -432,6 +453,21 @@ ResultGrid.prototype.placeSquare = function (squareNo, subsquareNo, mat, lastSqu
             var squareList = [squareNo, squareNo-width, squareNo +1, squareNo-1, squareNo+width];
 
             if ( this.adjacentWall(squareList, -1) && ( this.unusedArea == 0 || this.findStart() ) ) {
+                var temp = squareNo-lastSquareNo,
+                    dir;
+
+                if ( temp > 1 ) {
+                    dir = 0;
+                } else if ( temp == 1) {
+                    dir = 1;
+                } else if (temp == -1) {
+                    dir = 2;
+                } else {
+                    dir = 3;
+                }
+
+
+                this.squares[squareNo].setArrow(dir, mat, squareNo);
 
                 return true;
             } else {
@@ -516,7 +552,7 @@ ResultGrid.prototype.placeSquare = function (squareNo, subsquareNo, mat, lastSqu
         mat.removeSquare();
     } else {
         //If the end needs to be divided to reach a wall, we need to know which direction we came from
-        if (mat.unusedArea < area) {
+        if (mat.unusedArea < area && lastSubsquareNo == -1) {
             var diff = subsquareNo - lastSubsquareNo;
             //From left or top
             if (diff < 0) {
@@ -543,7 +579,7 @@ ResultGrid.prototype.placeSubsquare = function(squareNo, subsquareNo, mat, lastS
         subsquares = square.subsquares,
         added = false,
         abort = false,
-        timeout = Date.now()/1000;
+        timeout = Date.now();
 
     //The recursive placement is taking too long, abort mat
     //Simply returning false does not work due to asynchronous nature
@@ -631,6 +667,7 @@ ResultGrid.prototype.placeSubsquare = function(squareNo, subsquareNo, mat, lastS
             up = subsquares[u];
             if ( !up.hasWall && !up.hasObstacle && !up.populated 
                  && this.placeSubsquare(squareNo, u, mat, squareNo, subsquareNo) ) {
+                this.squares[squareNo].subsquares[subsquareNo].setArrow(0, mat);
                 return true;
             }
         }
@@ -639,6 +676,7 @@ ResultGrid.prototype.placeSubsquare = function(squareNo, subsquareNo, mat, lastS
             right = subsquares[r];
             if ( !right.hasWall && !right.hasObstacle && !right.populated 
                  && this.placeSubsquare(squareNo, r, mat, squareNo, subsquareNo) ) {
+                this.squares[squareNo].subsquares[subsquareNo].setArrow(1, mat);
                 return true;
             }
         }
@@ -647,6 +685,7 @@ ResultGrid.prototype.placeSubsquare = function(squareNo, subsquareNo, mat, lastS
             left = subsquares[l];
             if ( !left.hasWall && !left.hasObstacle && !left.populated 
                  && this.placeSubsquare(squareNo, l, mat, squareNo, subsquareNo) ) {
+                this.squares[squareNo].subsquares[subsquareNo].setArrow(2, mat);
                 return true;
             }
         }
@@ -655,6 +694,7 @@ ResultGrid.prototype.placeSubsquare = function(squareNo, subsquareNo, mat, lastS
             down = subsquares[d];
             if ( !down.hasWall && !down.hasObstacle && !down.populated 
                  && this.placeSubsquare(squareNo, d, mat, squareNo, subsquareNo) ) {
+                this.squares[squareNo].subsquares[subsquareNo].setArrow(3, mat);
                 return true;
             }
         }
@@ -1024,4 +1064,60 @@ ResultGrid.prototype.addObstacles = function() {
         }
     }
     //End of addObstacles
+}
+
+
+ResultGrid.prototype.setSupplyPoint = function () {
+
+    var list = obstacles.obstacleSet,
+        texts = obstacles.txtSet,
+        len = obstacles.obstacleSet.length, 
+        walls = ourRoom.walls,
+        wallLength = walls.length,
+        wall,
+        supply = obstacles.supplyPoint,
+        xmin,
+        xmax,
+        ymin,
+        ymax,
+        x1,
+        x2, 
+        y1, 
+        y2,
+        x,
+        y;
+
+    for (var i = 0; i < len; ++i) {
+        if (list[i].id == supply) {
+            x = list[i].attr("x");
+            y = list[i].attr("y");
+
+            //Remvoves supplyPoint so that it doesn't act as obstacle (take up space etc.)
+            obstacles.obstacleSet[i].remove();
+            obstacles.txtSet[i].remove()
+
+            //Why 11? Because of the x/y offset when moving the room and because
+            // the supply point itself has dimensions 10*10
+            //And, as importantly, these go to 11
+            for (var l = 0; l < wallLength; ++l) {
+
+                wall = walls[l];
+                x1 = wall.attrs.path[0][1];
+                x2 = wall.attrs.path[1][1];
+                y1 = wall.attrs.path[0][2];
+                y2 = wall.attrs.path[1][2];
+                xmin = (x1 < x2) ? (x1 - 11) : (x2 - 11);
+                xmax = (x1 < x2) ? (x2 + 11) : (x1 + 11);
+                ymin = (y1 < y2) ? (y1 - 11) : (y2 - 11);
+                ymax = (y1 < y2) ? (y2 + 11) : (y1 + 11);
+
+                //+/-40 to allow for whole square inside boundaries
+                if (x < xmax && x > xmin && y < ymax && y > ymin) {
+                    var arr = [xmin-40, xmax+40, ymin-40, ymax+40];
+                    return arr;
+                }
+            } 
+        }
+    }
+    //End of setAccessPoint    
 }
