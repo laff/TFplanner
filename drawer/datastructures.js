@@ -1,7 +1,17 @@
-//Constructor for the floor heating mats,
-//takes length in cm as parameter
-//Param timeoutLength is for choosing the timespan before
-// the mat times out and reverts. NOT CURRENTLY IMPLEMENTED
+/*
+ This file contains assorted minor structures used by resultGrid
+  and their functions
+ HeatingMat - Square - Subsquare - Mats
+*/
+
+/**
+ * Constructor for the floor heating mats.
+ * @param matLength - The length of the mat
+ * @param timeoutLength - The time limit for this mat to be
+ *  placed. If limit is exceeded, next length will be tried
+ *  instead.
+ * @param color - The color of the mat
+**/
 function HeatingMat(matLength, timeoutLength, color) {
 
 	this.totalArea = (matLength * 50);
@@ -15,27 +25,43 @@ function HeatingMat(matLength, timeoutLength, color) {
 
     this.matId = mattur.matIndex;
     mattur.matIndex++;
-
 }
 
+/**
+ * Reduces the available area by the area of one square
+**/
 HeatingMat.prototype.addSquare = function() {
 	this.unusedArea -= 50*50;
 }
 
+/**
+ * Reduces the available area by the area of one subsquare
+**/
 HeatingMat.prototype.addSubsquare = function() {
 	this.unusedArea -= 10*10;
 }
 
+/**
+ * Increases the available area by the area of one square
+**/
 HeatingMat.prototype.removeSquare = function() {
 	this.unusedArea += 50*50;
 }
 
+/**
+ * Increases the availalbe area by the area of one subsquare
+**/
 HeatingMat.prototype.removeSubsquare = function() {
 	this.unusedArea += 10*10;
 }
 
-
-//Constructor for a 0.5m X 0.5m square
+/**
+ * Constructor for a 0.5m X 0.5m square
+ * @param x - X coordinate of upper left corner
+ * @param y - Y coordinate of upper left corner
+ * @param path - The path string of the room
+ * @param paper - The canvas of the grid
+**/
 function Square (x, y, path, paper) {
     this.xpos = x;
     this.ypos = y;
@@ -311,9 +337,12 @@ Square.prototype.setArrow = function(dir, mat, squareNo) {
     */
 }
 
-//Checks whether all the subsquares along a square edge contains a wall.
-// If this function returns true we can "shift" the wall to the next square (if unoccupied),
-// this allows us to maximize number of "wall-less" squares 
+/**
+ * Returns true if all the subsquares along a square edge contains a wall.
+ * If this function returns true we can "shift" the wall to the next square (if unoccupied),
+ * this allows us to maximize number of "wall-less" squares.
+ * @param arr - Array of subsquares to be checked (one square edge) 
+**/
 Square.prototype.movableWall = function(arr) {
 	var sub = this.subsquares;
 
@@ -323,7 +352,10 @@ Square.prototype.movableWall = function(arr) {
 	return false;
 }
 
-//Removes wall elements along a squares edge
+/**
+ * Removes wall elements along a square edge
+ * @param arr - Array containing subsquares to be removed (one square edge)
+**/
 Square.prototype.removeWall = function(arr) {
 	var subsquare,
 		area = 10*10,
@@ -348,7 +380,9 @@ Square.prototype.removeWall = function(arr) {
 	this.clearSubsquares();
 }
 
-//Function clears the subsquare array of the square
+/**
+ * Function clears the subsquare array of the square
+**/
 Square.prototype.clearSubsquares = function() {
 	this.hasWall = false;
 	this.hasObstacles = false;
@@ -358,8 +392,11 @@ Square.prototype.clearSubsquares = function() {
 	}
 }
 
-//Adds wall elements along a squares edge
-//Function does not add area to the room given, that is done by the removeWall-function
+/**
+ * Adds wall elements along a square edge
+ * Function does not add usable area to the room, that is done by the removeWall-function
+ * @param arr - Array of wall elements to be added (one square edge)
+**/
 Square.prototype.addWall = function(arr) {
 	var length = 0,
 		xdim = 50,
@@ -382,7 +419,12 @@ Square.prototype.addWall = function(arr) {
 	this.hasWall = true;
 }
 
-//Constructor for 0.1m X 0.1m square
+/**
+ * Constructor for 10 cm X 10 cm subsquare
+ * @param x - X coordinate for upper left corner
+ * @param y - Y coordinate for upper left corner
+ * @param paper - Canvas for 
+**/
 function Subsquare (x, y, paper, path) {
     this.insideRoom = false;
     this.hasObstacle = false;
@@ -401,8 +443,9 @@ function Subsquare (x, y, paper, path) {
         ll = false,
         lr = false;
 
-    // Normal operation, but these cnecks are unneccesary if we willingly move a wall
-    // or divide a square we know is inside
+    //Checks whether all corners are inside of room
+    //If path == null this check does not to be done, it is quite
+    // time consuming
     if (path != null) {
         ul = Raphael.isPointInsidePath( path, x,y );
         ur = Raphael.isPointInsidePath( path, x + xdim, y ); 
@@ -411,23 +454,23 @@ function Subsquare (x, y, paper, path) {
     }
     this.rect = paper.rect(x, y, xdim, ydim);
 
-    //Subsquares are either in or out
+    //Subsquares are either in or out, if they are
+    // "partially in" it means they contain a wall
     if ( ul && ur && ll && lr) {
         this.rect.attr({
             'stroke-width': 0.1
         });
         this.insideRoom = true;
-        this.hasWall = false;
     } 
     else if (ul || ur || ll || lr) {
         this.rect.attr({
-            'stroke-width': 0.1
+            'stroke-width': 0
         });
         this.hasWall = true;
     }
     else {
         this.rect.attr ({
-            'stroke-width': 0.1
+            'stroke-width': 0
         });
     }
 }
@@ -490,7 +533,9 @@ function Mats () {
 
 /**
  * Function that adds squares to the mats they "belong" to.
-**/
+ * @param mati - 
+ * @param squareNo - Index of the square to be added
+*/
 Mats.prototype.addSquare = function(mati, squareNo) {
 
     if (this.list[mati] == null) {
