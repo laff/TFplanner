@@ -140,7 +140,7 @@ Square.prototype.drawMatline = function(from) {
         paper = this.paper,
         attributes = {
             'stroke-opacity': 1, 
-            'stroke': "#E73029", 
+            'stroke': "#CB2C30", 
             'stroke-width': 3
         },
         direction = (from != 'productNr') ? (from + to) : from;
@@ -152,9 +152,9 @@ Square.prototype.drawMatline = function(from) {
             var rec = paper.rect(x-5, y+15, 60, 20, 5, 5).attr({
                     opacity: 1,
                     fill: "white"
-               }),
+                }),
 
-                tex = paper.text(x+28, y+25, this.productNr).attr({
+                tex = paper.text(x+25, y+25, this.productNr).attr({
                     'font-size': 12 
                 });
 
@@ -287,7 +287,7 @@ Square.prototype.setArrow = function(dir, mat, squareNo) {
             break;
 
         case 4:
-            this.direction = 'hell';
+            this.direction = null;
             //this.arrows.push(paper.circle(x+25, y+25, 3).attr({'fill': "#E73029", 'fill-opacity': 1}));
             break;
         case 6:
@@ -430,13 +430,13 @@ function Subsquare (x, y, paper, path, squareNo, subNo) {
     } 
     else if (ul || ur || ll || lr) {
         this.rect.attr({
-            'stroke-width': 0
+            'stroke-width': 0.1
         });
         this.hasWall = true;
     }
     else {
         this.rect.attr ({
-            'stroke-width': 0
+            'stroke-width': 0.1
         });
     }
 }
