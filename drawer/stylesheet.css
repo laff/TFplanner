@@ -192,14 +192,25 @@
 }
 
 #pngchosen {
+	width: 25%;
 	margin-top: 30%;
 	margin-left: 25%;
 	float: left;
 }
 
 #pdfchosen {
+	width: 25%;
 	margin-top: 30%;
 	float: left;
+}
+
+#cancelExport {
+	width: 40%;
+	clear: both;
+	display: block;
+	margin-left: 30%;
+	border-spacing: 5%;
+	text-align: center;
 }
 
 /* Overriding default p css due to the god damn spacing 

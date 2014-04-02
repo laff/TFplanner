@@ -33,7 +33,8 @@ FootMenu.prototype.initFooter = function () {
                 popupDiv = document.createElement('div'),
                 qText = document.createElement('p'),
                 buttonPNG = document.createElement('button'),
-                buttonPDF = document.createElement('button');
+                buttonPDF = document.createElement('button'),
+                buttonCancel = document.createElement('button');
 
 
             popupDiv.id = 'saveaspopup';
@@ -46,9 +47,13 @@ FootMenu.prototype.initFooter = function () {
             buttonPDF.id = 'pdfchosen';
             buttonPDF.innerHTML = 'PDF';
 
+            buttonCancel.id = 'cancelExport';
+            buttonCancel.innerHTML = 'Avbryt';
+
             popupDiv.appendChild(qText);
             popupDiv.appendChild(buttonPNG);
             popupDiv.appendChild(buttonPDF);
+            popupDiv.appendChild(buttonCancel);
 
             $('#container').append(popupDiv);
 
@@ -127,6 +132,10 @@ FootMenu.prototype.initFooter = function () {
                 type = '.pdf';
                 removePopup();
                 postExport(download); 
+            });
+
+            $('#cancelExport').click(function() {
+                removePopup();
             });
 
         };
