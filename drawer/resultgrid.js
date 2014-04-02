@@ -271,18 +271,33 @@ ResultGrid.prototype.findStart = function() {
 ResultGrid.prototype.placeMat = function (squareNo, subsquareNo) {
 
     var mat,    
-        l = [];
+        l = [],
+        pref = [];
 
-    for (var i = 0; i < options.validMat.products.length; i++) {
-        // Length of mats is stored in meters, we want it in cm.
-        l[i] = options.validMat.products[i].length*100;
-    }
 
     // Picks color, then increments.
     this.currentColor = this.pickColor();
     this.colorIndex++;
 
+/*
+Christian`s stuff, committed so I can continue at home
+    if (options.prefMat != null) {
+        for (var i = 0; i < options.prefMat.length; i++) {
+            l[i] = options.prefMat[i]*100;
+        }   
+    } 
 
+    // If the prefMat contains anything, we want to use these mats first, and these
+    // mats we also want to delete when they are used.
+    // If we end up with a prefMat.length = 0 AND unusedArea = 0, the room is filled, and
+    // there is no point to do anything with the validMat-array.
+
+*/
+    for (var i = 0; i < options.validMat.products.length; i++) {
+        // Length of mats is stored in meters, we want it in cm.
+        l[i] = options.validMat.products[i].length*100;
+    }
+    
     while (l.length > 0) {
         var length = l.pop(),
             c = length * 50;

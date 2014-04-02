@@ -25,6 +25,8 @@ function Options (tab) {
 
     // mat object based on specificatins selected
     this.validMat = null;
+    // Will contain mat-lengths the user prefer to start with.
+    this.prefMat = null;
 }
 
 
@@ -498,7 +500,56 @@ Options.prototype.generateButton = function (form) {
             grid.boxSet.toFront();
         }
     });
+
+    // When we have chosen all steps and the 'generate-button' is created, we also want
+    // to display the possible mats the user prefer to use.
+    options.preferredMats(form);
 }
+
+/**
+ * This function is run in case the user want to specify what mats to start with
+ * in the room.
+**/
+Options.prototype.preferredMats = function (form) {
+    // OBS: Make a nice solution for this, also called in '#genButton'-click.
+    options.tfProducts();
+    var container = this.container,
+        that = this,
+        span = document.createElement('span'),
+        lengths = document.createElement('select'),
+        add = document.createElement('input'),
+        availLengths = [];
+
+        options.prefMat = [];
+
+    lengths.id = 'lengths';
+    add.id = 'addLength';
+    add.type = 'button';
+    add.title = 'Legg til foretrukken mattelengde';
+    add.value = 'Legg til mattelengde';
+
+    form.appendChild(span);
+    form.appendChild(lengths);
+    form.appendChild(add);
+
+    // Add all the available lengths of this mat to the dropdown.
+    for (var i = 0; i < options.validMat.products.length; i++) {
+        availLengths[i] = options.validMat.products[i].length;
+        $('#lengths').append("<option value="+i+">"+availLengths[i]+"m</option>"); 
+    }
+    $(container).append(form);
+
+
+    // This click-action should add the chosen mat-length to array, so that
+    // the algorithm will use this mat first.
+    $('#addLength').click( function () {
+        
+        options.prefMat.push(options.validMat.products[$('#lengths').val()]);
+
+        console.log(options.prefMat);
+    });
+}
+
 
 /**
  * Set up 'Obstacles'-tab. This includes possibility to define Projectname and adding obstacles.
