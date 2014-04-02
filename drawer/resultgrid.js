@@ -336,7 +336,16 @@ ResultGrid.prototype.placeSquare = function (squareNo, subsquareNo, mat, lastSqu
         width = this.squarewidth,
         height = this.squareheight,
         area = 50*50,
-        timeout = Date.now();
+        timeout = Date.now(),
+        u = squareNo-width,
+        l = squareNo-1,
+        r = squareNo+1,
+        d = squareNo+width,
+        up = squares[u], 
+        left =  squares[l], 
+        right = squares[r], 
+        down = squares[d],
+        arr;
 
     //If thee recursive placement is taking too long, abort mat
     //Due to asynchronous nature of javascript this is safer than simply returning false
@@ -348,7 +357,7 @@ ResultGrid.prototype.placeSquare = function (squareNo, subsquareNo, mat, lastSqu
     //If there are now walls or other obstacles is square (no subsquare structure)
     // or if there is not enough area left in mat to fill an empty square
     if ( !square.populated && (square.subsquares.length == 0) && (mat.unusedArea >= area) ) {
-
+        /*
         //Neighboring squares and their numbers in squares array
         var u = squareNo-width,
             l = squareNo-1,
@@ -358,6 +367,7 @@ ResultGrid.prototype.placeSquare = function (squareNo, subsquareNo, mat, lastSqu
             left =  squares[l], 
             right = squares[r], 
             down = squares[d];
+            */
             
 
         //Toggles this square as populated
@@ -371,9 +381,17 @@ ResultGrid.prototype.placeSquare = function (squareNo, subsquareNo, mat, lastSqu
         //If whole mat has been successfully placed: return true if new mat can be placed or room
         // is full, if not revert and recurse
         if (mat.unusedArea == 0) {
-            var squareList = [squareNo, squareNo-width, squareNo +1, squareNo-1, squareNo+width];
+            var squareList = [squareNo, squareNo-width, squareNo +1, squareNo-1, squareNo+width],
+                supply = this.supplyPoint,
+                correctWall = true;
 
-            if ( this.adjacentWall(squareList, -1) && ( this.unusedArea == 0 || this.findStart() ) ) {
+            //Mats cannot end on same wall that contains the supplypoint
+            if (supply && (square.xpos >= supply[0] && square.xpos <= supply[1] && 
+                           square.ypos >= supply[2] && square.ypos <= supply[3]) ) {
+                correctWall = false;
+            }
+
+            if ( correctWall && this.adjacentWall(squareList, -1) && ( this.unusedArea == 0 || this.findStart() ) ) {
                 var temp = squareNo-lastSquareNo,
                     dir;
 
@@ -403,16 +421,25 @@ ResultGrid.prototype.placeSquare = function (squareNo, subsquareNo, mat, lastSqu
         }
 
         //Tries to populate next square, in order up-right-left-down
-        if (up.reallyInside && !up.populated) { 
+        if (up.reallyInside && !up.populated) {
+            var sub = up.obstacles;
+            arr =  [20, 21, 22, 23, 24];
+
             if ( !up.hasObstacles && !up.hasWall) {
                 if (this.placeSquare(u, 0, mat, squareNo, -1) ) {
                     this.squares[squareNo].setArrow(0, mat, squareNo);
                     return true;
                 }      
-            } else { 
-                for (var i = 20; i < 25; ++i) {
-                    if ( this.placeSquare(u, i, mat, squareNo, lastSubsquareNo) ) {
-                        this.squares[squareNo].setArrow(0, mat, squareNo);
+            } /* else if ( !sub[arr[0]].hasObstacle && !sub[arr[0]].hasWall && !sub[arr[0]].populated &&
+                        !sub[arr[1]].hasObstacle && !sub[arr[1]].hasWall && !sub[arr[1]].populated &&
+                        !sub[arr[2]].hasObstacle && !sub[arr[2]].hasWall && !sub[arr[2]].populated &&
+                        !sub[arr[3]].hasObstacle && !sub[arr[3]].hasWall && !sub[arr[3]].populated &&
+                        !sub[arr[4]].hasObstacle && !sub[arr[4]].hasWall && !sub[arr[4]].populated && ) {
+
+            } */ else { 
+                for (var i = 0; i < 5; ++i) {
+                    if ( this.placeSquare(u, arr[i], mat, squareNo, lastSubsquareNo) ) {
+                        this.squares[squareNo].setArrow(4, mat, squareNo);
                         return true;
                     }
                 }
@@ -425,7 +452,7 @@ ResultGrid.prototype.placeSquare = function (squareNo, subsquareNo, mat, lastSqu
             } else { 
                 for (var i = 0; i < 21; i += 5) {
                     if ( this.placeSquare(r, i, mat, squareNo, lastSubsquareNo) ) {
-                        this.squares[squareNo].setArrow(1, mat, squareNo);
+                        this.squares[squareNo].setArrow(4, mat, squareNo);
                         return true;
                     }
                 }
@@ -440,7 +467,7 @@ ResultGrid.prototype.placeSquare = function (squareNo, subsquareNo, mat, lastSqu
             } else { 
                 for (var i = 4; i < 25; i += 5) {
                     if ( this.placeSquare(l, i, mat, squareNo, lastSubsquareNo) ) {
-                        this.squares[squareNo].setArrow(2, mat, squareNo);
+                        this.squares[squareNo].setArrow(4, mat, squareNo);
                         return true;
                     }   
                 }
@@ -455,7 +482,7 @@ ResultGrid.prototype.placeSquare = function (squareNo, subsquareNo, mat, lastSqu
             } else {
                 for (var i = 0; i < 5; ++i) {
                     if ( this.placeSquare(d, i, mat, squareNo, lastSubsquareNo) ) {
-                        this.squares[squareNo].setArrow(3, mat, squareNo);
+                        this.squares[squareNo].setArrow(4, mat, squareNo);
                         return true;
                     }                      
                 }
@@ -469,8 +496,6 @@ ResultGrid.prototype.placeSquare = function (squareNo, subsquareNo, mat, lastSqu
         this.squares[squareNo].populated = false;
         mat.removeSquare();
     } 
-    //This else-branch will occur if square has subsquare structure or there is not enough
-    // mat area left to cover the entire square
     else {
         //If the end needs to be divided into subsquares to reach a wall we will 
         // need to know which direction we came from
