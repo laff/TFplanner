@@ -390,12 +390,26 @@ Grid.prototype.moveRoom = function () {
 }
 
 /**
+ *  sets up the paper for svg convertion, converts and returns svg.
+ *
+**/
+Grid.prototype.setupPaper = function() {
+
+    var paper = this.paper;
+
+
+        console.log(this.resWidth, this.resHeight);
+
+    return paper.toSVG();
+}
+
+/**
  * Function to save our svg-drawing as a .png file.
  * Using libraries published at 'https://code.google.com/p/canvg/' under MIT-license.
 **/
 Grid.prototype.save = function (callback) {
     var paper = this.paper,
-        svg = paper.toSVG(),
+        svg = this.setupPaper();
         chosenMats = resultGrid.chosenMats,
         matTypes = options.validMat.products,
         matTable = null;

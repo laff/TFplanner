@@ -287,7 +287,7 @@ Square.prototype.setArrow = function(dir, mat, squareNo) {
             break;
 
         case 4:
-            this.direction = 'hell';
+            this.direction = null;
             //this.arrows.push(paper.circle(x+25, y+25, 3).attr({'fill': "#E73029", 'fill-opacity': 1}));
             break;
         case 6:
@@ -430,13 +430,13 @@ function Subsquare (x, y, paper, path, squareNo, subNo) {
     } 
     else if (ul || ur || ll || lr) {
         this.rect.attr({
-            'stroke-width': 0
+            'stroke-width': 0.1
         });
         this.hasWall = true;
     }
     else {
         this.rect.attr ({
-            'stroke-width': 0
+            'stroke-width': 0.1
         });
     }
 }
