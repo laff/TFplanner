@@ -12,18 +12,8 @@ function ResultGrid(pathString) {
     this.unusedArea = 0;
     this.squarewidth = 0;
     this.squareheight= 0;
-    this.attempts = 0;
-
     this.path = pathString;
-
-    //Functionality to prepare data structure
-    this.addSquares();
-    this.supplyPoint =  this.setSupplyPoint();
-    this.addObstacles();
-    this.moveWalls();
-
     this.chosenMats = null;
-
     // Color palette
     this.colorIndex = 0;
     this.matColors = [
@@ -33,6 +23,12 @@ function ResultGrid(pathString) {
         '#545454'
     ];
     this.currentColor;
+
+    //Functionality to prepare data structure
+    this.addSquares();
+    this.supplyPoint =  this.setSupplyPoint();
+    this.addObstacles();
+    this.moveWalls();
 
     //Starts to populate the data structure
     this.findStart();
@@ -44,8 +40,10 @@ function ResultGrid(pathString) {
 **/
 ResultGrid.prototype.displayMats = function () {
 
-    var mats = mattur.list,
+    var mats = mattur.list,     // FIX THESE NAMES
+        matti = mattur.subList, // DENNI OG!
         squares = this.squares,
+        subObj = mattur.subObj,
         products = [];
 
     // Clear out array incase doubleclick etc.
@@ -59,7 +57,7 @@ ResultGrid.prototype.displayMats = function () {
 
         // Extract productnumber from the first square.
         products.push(squares[mats[i][0]].productNr);
-
+        //console.log(mats[i]);
 
 
         // Go through  each square, starting  with the highest square index.
@@ -68,7 +66,6 @@ ResultGrid.prototype.displayMats = function () {
             j = (mats[i].length),
             k = 0;
         while  (j--) {
-            
             if (j == 0) {
                 squares[mats[i][j]].direction = null;
             }
@@ -93,6 +90,63 @@ ResultGrid.prototype.displayMats = function () {
         }
     }
 
+    for (var i = 0; i < matti.length; i++) {
+        // Will get a lot of undefined indexes, because of the length-parameter to the array.
+        if (matti[i] != undefined) {
+            // Loop through mats, then we must check each index in the mat.
+            for (var j = 0; j < mats.length; j++) {
+                // Will get a lot of undefined indexes, because of the length-parameter to the array.
+                if (mats[j] != undefined) { 
+                    // If it already exist in mats, we do not want to do anything with it.
+                    if (($.inArray(i, mats[j]) != -1)) {
+                        // Delete the item from the array, but the index is kept 'blank'. (Length of array stays the same)
+                        delete matti[i];
+                    }
+                }
+            }
+        }
+    }
+
+    var temp = [];
+
+    for (var k = 0; k < matti.length; k++) {
+        // This index still exist in the array, and we don`t want to delete these, cause
+        // they are the only ones we want to draw into.
+        if (matti[k] != undefined) {
+            temp.push(k);
+        }
+    }
+    // Traverse, and delete all subsquares that no longer exist (because they are transformed to Square)
+    for (var l = 0; l < subObj.length; l++) {
+        if (($.inArray(subObj[l].squareNo, temp)) < 0) {
+            delete subObj[l];
+        }
+    }
+    
+    // Now the subObj-array should contain ONLY the subsquares that really 'exist'.
+
+    // Temp-storing some directions and stuff.
+    // OBS: May be better ways to to this 'jumping to new Square'-stuff.
+    var tmpDirection = null,
+        currentSqNo = null,
+        prevSqNo = null;
+
+        for (var j = 0; j < subObj.length; j++) {
+            // Since this array is complete chaos, we might have some undefined indexes.
+            if (subObj[j] != undefined) {
+
+                currentSqNo = subObj[j].squareNo;
+                // If we jumps into a new square, the from-direction is set to 'null'.
+                if (currentSqNo != prevSqNo) {
+                    tmpDirection = null;
+                }
+                // Draw the mat on a subsquare, in correct direction.
+                mattur.drawSubMat(tmpDirection, subObj[j]);
+
+                tmpDirection = subObj[j].direction;
+                prevSqNo = subObj[j].squareNo;
+            }
+        }
     this.chosenMats = products;
 }
 
@@ -120,7 +174,7 @@ ResultGrid.prototype.addSquares = function() {
 
     for (var i = 0; i < height; i += ydim) {
         for (var j = 0; j < width; j += xdim) {
-            square = new Square(j, i, path, paper);
+            square = new Square(j, i, path, paper, length+1);
             squares[length++] = square;
         }
     }
@@ -358,7 +412,7 @@ ResultGrid.prototype.placeSquare = function (squareNo, subsquareNo, mat, lastSqu
             } else { 
                 for (var i = 20; i < 25; ++i) {
                     if ( this.placeSquare(u, i, mat, squareNo, lastSubsquareNo) ) {
-                        this.squares[squareNo].setArrow(4, mat, squareNo);
+                        this.squares[squareNo].setArrow(0, mat, squareNo);
                         return true;
                     }
                 }
@@ -371,7 +425,7 @@ ResultGrid.prototype.placeSquare = function (squareNo, subsquareNo, mat, lastSqu
             } else { 
                 for (var i = 0; i < 21; i += 5) {
                     if ( this.placeSquare(r, i, mat, squareNo, lastSubsquareNo) ) {
-                        this.squares[squareNo].setArrow(4, mat, squareNo);
+                        this.squares[squareNo].setArrow(1, mat, squareNo);
                         return true;
                     }
                 }
@@ -386,7 +440,7 @@ ResultGrid.prototype.placeSquare = function (squareNo, subsquareNo, mat, lastSqu
             } else { 
                 for (var i = 4; i < 25; i += 5) {
                     if ( this.placeSquare(l, i, mat, squareNo, lastSubsquareNo) ) {
-                        this.squares[squareNo].setArrow(4, mat, squareNo);
+                        this.squares[squareNo].setArrow(2, mat, squareNo);
                         return true;
                     }   
                 }
@@ -401,7 +455,7 @@ ResultGrid.prototype.placeSquare = function (squareNo, subsquareNo, mat, lastSqu
             } else {
                 for (var i = 0; i < 5; ++i) {
                     if ( this.placeSquare(d, i, mat, squareNo, lastSubsquareNo) ) {
-                        this.squares[squareNo].setArrow(4, mat, squareNo);
+                        this.squares[squareNo].setArrow(3, mat, squareNo);
                         return true;
                     }                      
                 }
@@ -460,8 +514,10 @@ ResultGrid.prototype.placeSubsquare = function(squareNo, subsquareNo, mat, lastS
         abort = false,
         timeout = Date.now();
 
+
     //If the recursive placement is taking too long, abort mat
     //Simply returning false will not work due to asynchronous nature
+
     if ( (timeout - mat.timestamp) > mat.validPeriod) {
         abort = true;
     }
@@ -473,7 +529,7 @@ ResultGrid.prototype.placeSubsquare = function(squareNo, subsquareNo, mat, lastS
         for (var i = 0; i < 25; ++i) {
             var x = square.xpos + (i%5)*10,
                 y = square.ypos + Math.floor(i/5)*10, 
-                s = new Subsquare(x, y, this.paper, null);
+                s = new Subsquare(x, y, this.paper, null, squareNo, i);
 
             s.insideRoom = true;
             this.squares[squareNo].subsquares.push(s);
@@ -499,7 +555,7 @@ ResultGrid.prototype.placeSubsquare = function(squareNo, subsquareNo, mat, lastS
     //The subsquare must be free to populate
     if ( !(sub.hasWall || sub.hasObstacle || sub.populated) ) {
         this.squares[squareNo].subsquares[subsquareNo].populated = true;
-        sub.setArrow(0, mat);
+        sub.setArrow(0, mat, subsquareNo);
         this.unusedArea -= area;
         mat.addSubsquare();
 
@@ -514,7 +570,7 @@ ResultGrid.prototype.placeSubsquare = function(squareNo, subsquareNo, mat, lastS
                 this.unusedArea += area;
                 mat.removeSubsquare();
                 this.squares[squareNo].populated = false;
-                this.squares[squareNo].subsquares[subsquareNo].setArrow(4, mat);
+                this.squares[squareNo].subsquares[subsquareNo].setArrow(4, mat, subsquareNo);
                 if (added == true) {
                     this.squares[squareNo].clearSubsquares();
                 }
@@ -537,7 +593,8 @@ ResultGrid.prototype.placeSubsquare = function(squareNo, subsquareNo, mat, lastS
             up = subsquares[u];
             if ( !up.hasWall && !up.hasObstacle && !up.populated 
                  && this.placeSubsquare(squareNo, u, mat, squareNo, subsquareNo) ) {
-                this.squares[squareNo].subsquares[subsquareNo].setArrow(0, mat);
+
+                this.squares[squareNo].subsquares[subsquareNo].setArrow(0, mat, subsquareNo);
                 return true;
             }
         }
@@ -546,7 +603,7 @@ ResultGrid.prototype.placeSubsquare = function(squareNo, subsquareNo, mat, lastS
             right = subsquares[r];
             if ( !right.hasWall && !right.hasObstacle && !right.populated 
                  && this.placeSubsquare(squareNo, r, mat, squareNo, subsquareNo) ) {
-                this.squares[squareNo].subsquares[subsquareNo].setArrow(1, mat);
+                this.squares[squareNo].subsquares[subsquareNo].setArrow(1, mat, subsquareNo);
                 return true;
             }
         }
@@ -555,7 +612,7 @@ ResultGrid.prototype.placeSubsquare = function(squareNo, subsquareNo, mat, lastS
             left = subsquares[l];
             if ( !left.hasWall && !left.hasObstacle && !left.populated 
                  && this.placeSubsquare(squareNo, l, mat, squareNo, subsquareNo) ) {
-                this.squares[squareNo].subsquares[subsquareNo].setArrow(2, mat);
+                this.squares[squareNo].subsquares[subsquareNo].setArrow(2, mat, subsquareNo);
                 return true;
             }
         }
@@ -564,7 +621,7 @@ ResultGrid.prototype.placeSubsquare = function(squareNo, subsquareNo, mat, lastS
             down = subsquares[d];
             if ( !down.hasWall && !down.hasObstacle && !down.populated 
                  && this.placeSubsquare(squareNo, d, mat, squareNo, subsquareNo) ) {
-                this.squares[squareNo].subsquares[subsquareNo].setArrow(3, mat);
+                this.squares[squareNo].subsquares[subsquareNo].setArrow(3, mat, subsquareNo);
                 return true;
             }
         }
@@ -606,7 +663,7 @@ ResultGrid.prototype.placeSubsquare = function(squareNo, subsquareNo, mat, lastS
         mat.removeSubsquare();
         this.squares[squareNo].populated = false;
         this.squares[squareNo].subsquares[subsquareNo].populated = false;
-        this.squares[squareNo].subsquares[subsquareNo].setArrow(4, mat);
+        this.squares[squareNo].subsquares[subsquareNo].setArrow(4, mat, squareNo);
     }
 
     //If a subsquare structure was constructed, remove it
@@ -924,7 +981,7 @@ ResultGrid.prototype.addObstacles = function() {
                     for (var n = 0; n < 25; ++n) {
                         var xtemp = square.xpos + (n%5)*10,
                             ytemp = square.ypos + Math.floor(n/5)*10, 
-                            s = new Subsquare(xtemp, ytemp, this.paper, null);
+                            s = new Subsquare(xtemp, ytemp, this.paper, null, currentSquare, n);
 
                         s.insideRoom = true;
                         this.squares[currentSquare].subsquares.push(s);
