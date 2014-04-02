@@ -395,10 +395,13 @@ Grid.prototype.moveRoom = function () {
 **/
 Grid.prototype.setupPaper = function() {
 
-    var paper = this.paper;
+    var paper = this.paper,
+        viewW = (this.resWidth + 200),
+        viewH = (this.resHeight + 200);
 
+    paper.width = viewW;
+    paper.height = viewH;
 
-        console.log(this.resWidth, this.resHeight);
 
     return paper.toSVG();
 }

@@ -81,6 +81,10 @@ FootMenu.prototype.initFooter = function () {
             */
 
         },
+        /**
+         *  
+         *
+        **/
         addAction = function() {
 
             var svg = footmenu.svg,
@@ -94,13 +98,14 @@ FootMenu.prototype.initFooter = function () {
                         'export/export.php', 
                         {'data': drawId}, 
                         function (data) {
-                            callback(data);
+                            callback(data, true);
                         });
                 },
-                download = function(url) {
+                download = function(url, exporting) {
                     console.log(url);
                     var a = document.createElement('a');
-                    a.href = 'export/'+url;
+                    // if exporting use export prefix
+                    a.href = (exporting) ? 'export/'+url : url;
                     a.download = options.projectName+type;
                     a.click();
                 };
