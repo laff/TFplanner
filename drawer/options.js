@@ -9,6 +9,7 @@ function Options (tab) {
     this.inColor = '#d8d8d8';        // Color for mouseover
     this.imgColor = 'white';         // Color for the button-icons.
     this.roomTitle = null;           // Raphael-element
+    this.titleRect = null;
     this.projectName ='Prosjektnavn/tittel'; // String in html input-field
 
     // Default show.
@@ -774,15 +775,33 @@ Options.prototype.actionListeners = function () {
 Options.prototype.setTitle = function () {
     // Get the text from the html-element, and update it.
     var title = document.getElementById('roomTitle').value;
-        this.projectName = title;
-    // Clear the title-element if it already exist.
-    this.roomTitle != null ? this.roomTitle.remove() : null;       
+    this.projectName = title;
+    
+    var rectX = null,
+        rectY = 30,
+        rectLen = null,
+        textX = 400,
+        textY = 42;
 
-    this.roomTitle = grid.paper.text(350, 35, title).attr({
+    // Clear the title-element if it already exist.
+    this.roomTitle != null ? this.roomTitle.remove() : null;
+    this.titleRect != null ? this.titleRect.remove() : null;           
+
+    this.roomTitle = grid.paper.text(textX, textY, title).attr({
         'font-size': 20,
         'font-family': 'verdana',
         'font-style': 'oblique'
     });
+
+    rectLen = (this.roomTitle.getBBox().width + 30);
+    rectX = (400 - (rectLen / 2));
+
+    this.titleRect = grid.paper.rect(rectX, rectY, rectLen, 30, 5, 5).attr({
+        opacity: 1,
+        fill: "white"
+    });
+
+    this.roomTitle.toFront();
 }
 
 /** 
