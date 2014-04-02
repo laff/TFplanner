@@ -140,7 +140,7 @@ Square.prototype.drawMatline = function(from) {
         paper = this.paper,
         attributes = {
             'stroke-opacity': 1, 
-            'stroke': "#E73029", 
+            'stroke': "#CB2C30", 
             'stroke-width': 3
         },
         direction = (from != 'productNr') ? (from + to) : from;
@@ -152,9 +152,9 @@ Square.prototype.drawMatline = function(from) {
             var rec = paper.rect(x-5, y+15, 60, 20, 5, 5).attr({
                     opacity: 1,
                     fill: "white"
-               }),
+                }),
 
-                tex = paper.text(x+28, y+25, this.productNr).attr({
+                tex = paper.text(x+25, y+25, this.productNr).attr({
                     'font-size': 12 
                 });
 

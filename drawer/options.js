@@ -525,18 +525,22 @@ Options.prototype.initObstacles = function () {
         html += "<div class='inputfield'><input type='text' id='roomTitle' value="+this.projectName+" autocomplete='off'><br></div>";
         html += "<input id='titleSubmit' type='button' value='Endre prosjektnavn'>";
         html += '</form>';
+
+        html += '<h3> Sett tilf'+crossO+'rselspunkt </h3>';
+        html += '<form class=forms>';
+        html += "<input id='supplySubmit' type='button' value='Sett tilf"+crossO+"rselspunkt'>";
+        html += '</form>';
         // Header
         html += '<h3> Legg til hindring </h3>';
 
         // Form start
         html += '<form class=forms>';
 
-        // Select
+        // Select (5 is missing, because same functionality is used for supplyPoint)
         html += "<select id ='obstacleType'><option value=1> Avl"+crossO+"p </option>";
         html += "<option value=2> Toalett </option>";
         html += "<option value=3> Dusj </option>";
         html += "<option value=4> Badekar </option>";
-        html += "<option value=5> Tilf"+crossO+"rsel </option>";
         html += "<option value=6> Benk </option>";
         html += "<option value=7> Pipe </option>";
         html += "<option value=8> Egendefinert </option></select>";
@@ -755,7 +759,7 @@ Options.prototype.actionListeners = function () {
         that.setTitle();
     });
 
-    // Prevent the default 'submit form' when enter-button is pressed, (this refreshes the page)
+    // Prevent the default 'submit form' when enter-button is pressed(this refreshes the page),
     // but apply the input-text to the title.
     $('#roomTitle').keypress(function (e) {
 
@@ -764,6 +768,10 @@ Options.prototype.actionListeners = function () {
             this.blur();
             that.setTitle();
         }
+    });
+
+    $('#supplySubmit').click(function () {
+        obstacles.createObstacle("5", "Startpunkt");
     });
 }
 
@@ -776,7 +784,7 @@ Options.prototype.setTitle = function () {
     var title = document.getElementById('roomTitle').value;
         this.projectName = title;
     // Clear the title-element if it already exist.
-    this.roomTitle != null ? this.roomTitle.remove() : null;       
+    this.roomTitle = (this.roomTitle != null) ? this.roomTitle.remove() : null;       
 
     this.roomTitle = grid.paper.text(350, 35, title).attr({
         'font-size': 20,
@@ -796,8 +804,7 @@ Options.prototype.initDefine = function () {
         defSubmit = 'defSubmit',
         wallsLength = (preDefArr != null) ? (preDefArr[1].length - 1) : null,
         // Starting with a clean slate @ the html variable.
-        html = "",
-        dotA = this.dotA;
+        html = "";
 
     // Removing the svg paper and adding room class for background color
     this.optPaper.remove();
@@ -805,7 +812,7 @@ Options.prototype.initDefine = function () {
     $(container).addClass('roomTab');
     $(container).removeClass('obstacleTab');
 
-    html += '<h3> Egendefiner m'+dotA+'l </h3>';
+    html += '<h3> Egendefiner m'+this.dotA+'l </h3>';
 
     // If preDef is assigned, list the walls and let the user input stuff, YO.
     if (preDefArr != null) {
@@ -837,9 +844,6 @@ Options.prototype.initDefine = function () {
     // Add click action for the "submit button".
     $('#'+defSubmit).click(function() {
 
-        var walls = [],
-            valid = false;
-
         // Goes through the input elements and stores the length
         for (var i = 0; i < wallsLength; i++) {
             preDefArr[1][i] = $('#wall'+i).val();
@@ -847,35 +851,43 @@ Options.prototype.initDefine = function () {
 
         finishedRoom.selectWall();
         ourRoom.createRoom(preDefArr);
-
     });
 
 
     /**
      * Functionality that signals what wall that is selected when typing into the input field.
-     *
     **/
     $('.inputt').mousedown(function() {
-        var child = $(this).children(),
-            id,
-            walls = ourRoom.walls,
-            wallsLength = walls.length;
 
-        // Sort out id of input field (should be same as wall id).
-        if (child[0] != null) {
-            id = child[0].id;
-        } else {
-            id = child.context.id;
-        }
+        var child = $(this).children(),
+            // Sort out id of input field (should be same as wall id).
+            id = (child[0] != null) ? child[0].id : child.context.id;
 
         // Get wall ID.
         id = id.slice(-1);
 
-        // have a temporary selected wall thing, created.
-        finishedRoom.selectWall(id);
+        // If the last wall-index is targeted we unselect.
+        id != wallsLength ? finishedRoom.selectWall(id) : finishedRoom.selectWall(null);
     });
 
+    
+    // Pretty much the same as previous function, but this one handles 'keydown' in the inputfield
+    $('.inputt').keydown(function (e) {
 
+        // Handling actions when 'Tab' is pressed in the input-field(s).
+        if (e.keyCode == 9) { 
+
+            var child = $(this).children(),
+            id = (child[0] != null) ? child[0].id : child.context.id;
+
+            // Get wall ID, and add increment with 1, since we tabbed from the previous wall.
+            id = id.slice(-1);
+            id++;
+
+            // If the last wall-index is targeted when tab is pressed, we unselect.
+            id != wallsLength ? finishedRoom.selectWall(id) : finishedRoom.selectWall(null);
+        } 
+    });
 }
 
 /*

@@ -65,8 +65,8 @@ Obstacles.prototype.createObstacle = function (num, txt) {
 
 		// Connection-point
 		case '5':
-			w = 10;
-			h = 10;
+			w = 20;
+			h = 20;
 			break;
 		// Bench
 		case '6':

@@ -45,14 +45,14 @@ Grid.prototype.draw = function() {
 
 /**
  * Function that visualizes the scale of our grid. 
- * Also adds the components, to have easier access to them.
+ * Also adds the components to a set, to have easier access to them.
 **/
 Grid.prototype.scale = function() {
     var paper = this.paper,
-        box = paper.rect(1, 1, 99, 99).attr({'stroke-opacity': 1, 'stroke': "#CF2930", 'stroke-width': 3, 'fill': "white", 'fill-opacity': 0.7}),
+        box = paper.rect(1, 1, 99, 99).attr({'stroke-opacity': 1, 'stroke': "#CB2C30", 'stroke-width': 3, 'fill': "white", 'fill-opacity': 0.7}),
         strokeAttr = {
             'stroke-opacity': 1, 
-            'stroke': "#CF2930", 
+            'stroke': "#CB2C30", 
             'stroke-width': 3, 
             "arrow-start": "classic-midium-midium",
             "arrow-end": "classic-midium-midium"
