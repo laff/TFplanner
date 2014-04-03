@@ -38,12 +38,7 @@ DrawRoom.prototype.initRoom = function () {
             return;
         }
 
-        if (room.lastPoint == null) {
-            room.lastPoint = point;
-
-        } else {
-            room.wallEnd(point);
-        }
+        (room.lastPoint == null) ? room.lastPoint = point : room.wallEnd(point);
     });
 
     // Binds action for mouseover, specifically for showing temp shit
