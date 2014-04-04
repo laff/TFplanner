@@ -8,7 +8,7 @@ function Options (tab) {
     this.defColor = '#707061';       // Default color.
     this.inColor = '#d8d8d8';        // Color for mouseover
     this.imgColor = 'white';         // Color for the button-icons.
-    this.roomTitle = null;           // Raphael-element
+    this.titleText = null;           // Raphael-element
     this.titleRect = null;
     this.projectName ='Prosjektnavn/tittel'; // String in html input-field
 
@@ -499,12 +499,21 @@ Options.prototype.generateButton = function (form) {
         // If we have a finished room, we can call the algorithm and generate a drawing!
         if (ourRoom.finished == true) {
 
+
+            // The functionality beneath is invoked in such an order that the final drawing is display correctly
             path = grid.moveRoom();
             resultGrid = new ResultGrid(path);
             scrollBox.paper.clear();
+
+            grid.gridSet.toFront(); 
             resultGrid.displayMats();
+            
+            ourRoom.walls.toFront();
+
             measurement.wallText.toFront();
             grid.boxSet.toFront();
+            options.setupTitle();
+
         }
     });
 
@@ -589,7 +598,7 @@ Options.prototype.initObstacles = function () {
         // Add inputfield and button to add a 'projectname'.
         html += '<h3> Sett prosjektnavn </h3>';
         html += '<form class=forms>';
-        html += "<div class='inputfield'><input type='text' id='roomTitle' value="+this.projectName+" autocomplete='off'><br></div>";
+        html += "<div class='inputfield'><input type='text' id='titleText' value="+this.projectName+" autocomplete='off'><br></div>";
         html += "<input id='titleSubmit' type='button' value='Endre prosjektnavn'>";
         html += '</form>';
 
@@ -687,9 +696,9 @@ Options.prototype.obstacleList = function (obstacle) {
     $(container).html(html);
 
     // Sets the focus on the 'project-name'-field the first time 'obstacles'-tab is selected
-    if (ourRoom.finished ==  true && this.roomTitle == null) {
+    if (ourRoom.finished ==  true && this.titleText == null) {
         this.setTitle();
-        var input = document.getElementById('roomTitle');
+        var input = document.getElementById('titleText');
             input.focus();
             input.select();
     }
@@ -828,7 +837,7 @@ Options.prototype.actionListeners = function () {
 
     // Prevent the default 'submit form' when enter-button is pressed(this refreshes the page),
     // but apply the input-text to the title.
-    $('#roomTitle').keypress(function (e) {
+    $('#titleText').keypress(function (e) {
 
         if (e.which == 13) {
             e.preventDefault();
@@ -848,35 +857,46 @@ Options.prototype.actionListeners = function () {
 **/
 Options.prototype.setTitle = function () {
     // Get the text from the html-element, and update it.
-    var title = document.getElementById('roomTitle').value;
+    var title = document.getElementById('titleText').value;
     this.projectName = title;
     
-    var rectX = null,
+    var drawWidth = (grid.resWidth + 201),
+        rectX = null,
         rectY = 30,
         rectLen = null,
-        textX = 400,
+        textX = (drawWidth / 2),
         textY = 42;
 
     // Clear the title-element if it already exist.
-    this.roomTitle != null ? this.roomTitle.remove() : null;
+    this.titleText != null ? this.titleText.remove() : null;
     this.titleRect != null ? this.titleRect.remove() : null;           
 
 
-    this.roomTitle = grid.paper.text(textX, textY, title).attr({
+    this.titleText = grid.paper.text(textX, textY, title).attr({
         'font-size': 20,
         'font-family': 'verdana',
         'font-style': 'oblique'
     });
 
-    rectLen = (this.roomTitle.getBBox().width + 30);
-    rectX = (400 - (rectLen / 2));
+    rectLen = (this.titleText.getBBox().width + 30);
+    rectX = (textX - (rectLen / 2));
 
     this.titleRect = grid.paper.rect(rectX, rectY, rectLen, 30, 5, 5).attr({
         opacity: 1,
         fill: "white"
     });
 
-    this.roomTitle.toFront();
+    this.setupTitle();
+}
+
+/**
+ *  This function shows title and its rectangle in the right order.
+ *  It is called within options.setTitle and grid.setupPaper
+**/
+Options.prototype.setupTitle = function() {
+
+    this.titleRect.toFront();
+    this.titleText.toFront();
 }
 
 /** 
