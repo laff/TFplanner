@@ -65,19 +65,15 @@ ResultGrid.prototype.displayMats = function () {
         var tmpDirection = null,
             j = (mats[i].length),
             k = 0;
+
         while  (j--) {
+
             if (j == 0) {
                 squares[mats[i][j]].direction = null;
             }
 
-            // Draw productnumber instead of arrow.
-            if (k == 2) {
-                squares[mats[i][j]].drawMatline('productNr');
-
-            // Draw arrow.
-            } else {
-                squares[mats[i][j]].drawMatline(tmpDirection);
-            }
+            // Draw productnumber or line.
+            (k != 2) ? squares[mats[i][j]].drawMatline(tmpDirection) : squares[mats[i][j]].drawMatline('productNr');
 
             // Put the productnumber to front of arrow
             if (k == 3) {
@@ -247,7 +243,7 @@ ResultGrid.prototype.findStart = function() {
             } else {
                 //Checks for each subsquare if it has adjacent wall and recursive mat
                 // placement 
-                for (var j=0; j < 25; ++j) {
+                for (var j = 0; j < 25; ++j) {
                     if ( this.adjacentWall(squareList, j) && this.placeMat(i, 0) ) {
                         return true;
                     }           
@@ -271,28 +267,47 @@ ResultGrid.prototype.findStart = function() {
 ResultGrid.prototype.placeMat = function (squareNo, subsquareNo) {
 
     var mat,    
-        l = [],
-        pref = [];
-
+        l = [];
 
     // Picks color, then increments.
     this.currentColor = this.pickColor();
     this.colorIndex++;
 
-/*
-Christian`s stuff, committed so I can continue at home
-    if (options.prefMat != null) {
+    /** This functionality will be used if the user want to "override" what mat-lengths
+     * to use. If the chosen mat doesn`t fit, it will not be used. This indicates
+     * that the user must have some experience laying heatingmats, and know what 
+     * lengths that will fit in the room.
+    **/
+    if (options.prefMat.length > 0) {
+        var pref = [],
+            prodNum;
+
         for (var i = 0; i < options.prefMat.length; i++) {
-            l[i] = options.prefMat[i]*100;
-        }   
+            pref[i] = options.prefMat[i].length*100;
+            // The object is undefined at this point, store the product-number.
+            prodNum[i] = options.prefMat[i].number;
+        }
+
+        if (pref.length > 0) {
+            var length = pref.shift(),
+                num = prodNum.shift(),
+                c = length * 50;
+
+            if (c <= this.unusedArea) {
+                mat = new HeatingMat(length, null, this.currentColor);
+                mat.productNr = num;
+                // Take the mat out of the array, if it doesn`t fit in the room, we don`t
+                // want to put it out anyway.
+                options.prefMat.shift();
+                // PlaceSquare is where the placement of the mat begins
+                if (this.placeSquare(squareNo, subsquareNo, mat, 0, -1)) {
+                    return true;
+                }
+                delete mat;
+            }
+        }
     } 
 
-    // If the prefMat contains anything, we want to use these mats first, and these
-    // mats we also want to delete when they are used.
-    // If we end up with a prefMat.length = 0 AND unusedArea = 0, the room is filled, and
-    // there is no point to do anything with the validMat-array.
-
-*/
     for (var i = 0; i < options.validMat.products.length; i++) {
         // Length of mats is stored in meters, we want it in cm.
         l[i] = options.validMat.products[i].length*100;
