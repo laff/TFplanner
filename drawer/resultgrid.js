@@ -280,7 +280,7 @@ ResultGrid.prototype.placeMat = function (squareNo, subsquareNo) {
     **/
     if (options.prefMat.length > 0) {
         var pref = [],
-            prodNum;
+            prodNum = [];
 
         for (var i = 0; i < options.prefMat.length; i++) {
             pref[i] = options.prefMat[i].length*100;
