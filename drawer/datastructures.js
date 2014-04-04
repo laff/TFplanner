@@ -100,18 +100,18 @@ function Square (x, y, path, paper, nr) {
     });
 
     //If whole square is inside
-    if (  ul && ur && ll && lr ) {
+    if ( ul && ur && ll && lr ) {
 
         this.insideRoom = true;
         this.hasWall = false;
         this.area = xdim*ydim;
     }
     //If at least one corner is inside   
-    else if ( ul || ur || ll || lr) {
+    else if (ul || ur || ll || lr) {
         this.insideRoom = true;
         this.hasWall = true;
 
-        for ( var i = 0; i < ydim; i += ysubdim) {
+        for (var i = 0; i < ydim; i += ysubdim) {
             for (var j = 0; j < xdim; j += xsubdim) {
                 subsquare = new Subsquare(x+j, y+i, paper, path, this.nr, length);
                 this.subsquares[length++] = subsquare;

@@ -97,7 +97,7 @@ Options.prototype.initSpecs = function () {
         specSubmit = 'specSubmit',
         crossO = this.crossO,
         html,
-        that = this;
+        opts = this;
 
     // Clear current html
     $(container).html("");
@@ -165,12 +165,19 @@ Options.prototype.initSpecs = function () {
             $('#wattage').remove();
             $('#watt').remove();
         }
+
         if ($('#genButton').length) {
             $('#genButton').next().remove();
             $('#genButton').remove();
         }
+
+        if ($('#length').length) {
+            $('#length').remove();
+            $('#lengths').remove();
+            $('#addLength').remove();
+        }
         
-        that.inOrOut(form);
+        opts.inOrOut(form);
     });
 }
 
@@ -182,7 +189,7 @@ Options.prototype.inOrOut = function (form) {
 
     var container = this.container,     
         selected = $('#inOutType').val(),
-        that = this,
+        opts = this,
         crossO = this.crossO,
         dotA = this.dotA;
 
@@ -193,10 +200,10 @@ Options.prototype.inOrOut = function (form) {
             option2 = document.createElement("option"),
             span = document.createElement("span");
 
-        span.innerHTML = "Velg v"+dotA+"trom/t"+crossO+"rrom: ";
         dryWet.id = 'climateType';
         span.id = 'dryOrWet';
 
+        span.innerHTML = "Velg v"+dotA+"trom/t"+crossO+"rrom: ";
         option1.value = "dry";
         option1.text = "T"+crossO+"rrom";
         option2.value = "wet";
@@ -214,7 +221,7 @@ Options.prototype.inOrOut = function (form) {
 
     } else {
         // 'Outside' is chosen, so we jump directly to the options associated with this option.
-        that.chooseDeck(form);
+        opts.chooseDeck(form);
     }
 
     // Call new function to set up the 'deck'-dropdown on change.
@@ -234,7 +241,6 @@ Options.prototype.inOrOut = function (form) {
         } 
 
         if ($('#casting').length) {
-            $('#casting').next().remove();
             $('#casting').remove();
             $('#cast').remove();
         }
@@ -244,7 +250,13 @@ Options.prototype.inOrOut = function (form) {
             $('#genButton').remove();
         }
 
-        that.chooseDeck(form);
+        if ($('#length').length) {
+            $('#length').remove();
+            $('#lengths').remove();
+            $('#addLength').remove();
+        }
+
+        opts.chooseDeck(form);
     });
 }
 
@@ -254,7 +266,7 @@ Options.prototype.inOrOut = function (form) {
 Options.prototype.chooseDeck = function (form) {
 
     var container = this.container,
-        that = this,
+        opts = this,
         selected = $('#inOutType').val(),
         selectedClim = $('#climateType').val(),
         span = document.createElement("span"),
@@ -266,11 +278,6 @@ Options.prototype.chooseDeck = function (form) {
         option5 = document.createElement("option"),
         option6 = document.createElement("option"),
         option7 = document.createElement("option");
-
-    $('#length').remove();
-    $('#lengths').remove();
-    $('#addLength').remove();
-
 
     deck.id = 'deckType';
     span.id = 'decks';
@@ -353,8 +360,14 @@ Options.prototype.chooseDeck = function (form) {
             $('#genButton').next().remove();
             $('#genButton').remove();
         }
+
+        if ($('#length').length) {
+            $('#length').remove();
+            $('#lengths').remove();
+            $('#addLength').remove();
+        }
         // Calling next function, based on selected value.
-        (selected == 'inside') ? that.wattage(form) : that.generateButton(form);
+        (selected == 'inside') ? opts.wattage(form) : opts.generateButton(form);
     });
 }
 
@@ -365,7 +378,7 @@ Options.prototype.chooseDeck = function (form) {
 Options.prototype.wattage = function (form) {
 
     var container = this.container,
-        that = this,
+        opts = this,
         span = document.createElement('span'),
         watt = document.createElement('select'),
         option1 = document.createElement('option'),
@@ -377,7 +390,6 @@ Options.prototype.wattage = function (form) {
     span.id = 'watt';
 
     span.innerHTML = 'Velg mattens effekt: ';
-
     option1.value = 60;
     option1.text = '60W';
     option2.value = 100;
@@ -416,11 +428,17 @@ Options.prototype.wattage = function (form) {
             $('#genButton').remove();
         }
 
+        if ($('#length').length) {
+            $('#length').remove();
+            $('#lengths').remove();
+            $('#addLength').remove();
+        }
+
         // For one specific option, casting/not casting must be made available.
         if ((deck == 'parquet' || deck == 'laminat') && watt == '60') {
-            options.casting(form);
+            opts.casting(form);
         } else {
-            that.generateButton(form);
+            opts.generateButton(form);
         }
     });
 }
@@ -433,7 +451,7 @@ Options.prototype.wattage = function (form) {
 Options.prototype.casting = function (form) {
 
     var container = this.container,
-        that = this,
+        opts = this,
         span = document.createElement('span'),
         cast = document.createElement('select'),
         option1 = document.createElement('option'),
@@ -443,7 +461,6 @@ Options.prototype.casting = function (form) {
     span.id = 'cast';
 
     span.innerHTML = 'Skal gulvet avrettes?';
-
     option1.value = 'nocast';
     option1.text = 'Nei';
     option2.value = 'cast';
@@ -466,7 +483,13 @@ Options.prototype.casting = function (form) {
             $('#genButton').next().remove();
             $('#genButton').remove();
         }
-        that.generateButton(form);
+
+        if ($('#length').length) {
+            $('#length').remove();
+            $('#lengths').remove();
+            $('#addLength').remove();
+        }
+        opts.generateButton(form);
     });
 }
 
@@ -480,6 +503,7 @@ Options.prototype.casting = function (form) {
 Options.prototype.generateButton = function (form) {
 
     var container = this.container,
+        opts = this,
         input = document.createElement('input'),
         path;
 
@@ -493,9 +517,9 @@ Options.prototype.generateButton = function (form) {
     $(container).append(form);
 
     $('#genButton').click( function () {
-        //Finds the heatingmat based on specs chosen by the user.
-        options.tfProducts();
 
+
+        
         // If we have a finished room, we can call the algorithm and generate a drawing!
         if (ourRoom.finished == true) {
 
@@ -519,29 +543,28 @@ Options.prototype.generateButton = function (form) {
 
     // When we have chosen all steps and the 'generate-button' is created, we also want
     // to display the possible mats the user prefer to use.
-    //  options.preferredMats(form);
+    opts.preferredMats(form);
 }
 
 /**
- * This function is run in case the user want to specify what mats to start with
+ * This function makes it possible for the user to specify mat-length(s) to start with
  * in the room.
+ * @param form - The form is passed "all the way" through the 'specs'-functionality and
+ * stuff is appended to it.
 **/
 Options.prototype.preferredMats = function (form) {
 
     var container = this.container,
+        opts = this,
         header = document.createElement('h3'),
         span = document.createElement('span'),
         lengths = document.createElement('select'),
         add = document.createElement('input'),
         availLengths = [];
 
-    $('#length').remove();
-    $('#lengths').remove();
-    $('#addLength').remove();
-
-    // OBS: Also called in '#genButton'-click.
-    this.tfProducts();
-    this.prefMat = [];
+    //Finds the correct heatingmat based on specs chosen by the user.
+    opts.tfProducts();
+    opts.prefMat = [];
 
     // Setting up the html-stuff.
     span.id = 'length';
@@ -557,8 +580,8 @@ Options.prototype.preferredMats = function (form) {
     form.appendChild(add);
 
     // Add all the available lengths of this mat to the dropdown.
-    for (var i = 0; i < options.validMat.products.length; i++) {
-        availLengths[i] = options.validMat.products[i].length;
+    for (var i = 0; i < opts.validMat.products.length; i++) {
+        availLengths[i] = opts.validMat.products[i].length;
         $('#lengths').append("<option value="+i+">"+availLengths[i]+"m</option>"); 
     }
 
@@ -568,8 +591,7 @@ Options.prototype.preferredMats = function (form) {
     // the algorithm will use this mat first.
     $('#addLength').click( function () {
         
-        options.prefMat.push(options.validMat.products[$('#lengths').val()]);
-
+        opts.prefMat.push(opts.validMat.products[$('#lengths').val()]);
         console.log(options.prefMat);
     });
 }
@@ -1268,7 +1290,7 @@ Options.prototype.preDefRoom = function (value) {
 
     switch(value) {
         case 0:
-            return rectArr = [[180, 270, 360, 90],[600, 1200, 600, 1200]];                                            //Rectangle-shaped
+            return rectArr = [[180, 270, 360, 90],[600, 400, 600, 400]];                                            //Rectangle-shaped
         case 1:
             return lArr = [[180, 270, 180, 270, 360, 90],[200, 200, 200, 150, 400, 350]];                           //L-shaped
         case 2:
