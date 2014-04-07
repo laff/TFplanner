@@ -117,14 +117,32 @@ FinishedRoom.prototype.clickableWall = function(prev, current, next) {
     });
    
     var start = function () {
-        //this.lastdx = this.attr("lastdx");
-        //this.lastdy = this.attr("lastdy");
+
+        // Figure out if the wall is horizontalish or verticalish
+        var wall = thisWall.attrs.path,
+            p1x = wall[0][1],
+            p1y = wall[0][2],
+            p2x = wall[1][1],
+            p2y = wall[1][2],
+            diffpx = (p1x - p2x),
+            diffpy = (p1y - p2y);
+
+        diffpx = (diffpx < 0) ? (diffpx * -1) : diffpx;
+        diffpy = (diffpy < 0) ? (diffpy * -1) : diffpy;
+
+        if (diffpx <= diffpy) {
+            this.horizontally = true;
+
+        } else {
+            this.horizontally = false;
+        }
+
     },
 
     move = function (dx, dy) {
         var xy = grid.getZoomedXY(dx, dy),
-            diffx = (this.lastdx != null) ? (this.lastdx - xy[0]) : 0,
-            diffy = (this.lastdy != null) ? (this.lastdy - xy[1]) : 0;
+            diffx = (this.lastdx != null) ? (this.horizontally) ? (this.lastdx - xy[0]) : 0 : 0,
+            diffy = (this.lastdy != null) ? (!this.horizontally) ? (this.lastdy - xy[1]) : 0 : 0;
 
         this.lastdx = xy[0];
         this.lastdy = xy[1];
