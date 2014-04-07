@@ -121,7 +121,7 @@ FinishedRoom.prototype.clickableWall = function(prev, current, next) {
         // Figure out if the wall is horizontalish or verticalish
         var wall = thisWall.attrs.path,
             p1x = wall[0][1],
-            p1y = wall[0][2],
+            p1y = wall[0][2], 
             p2x = wall[1][1],
             p2y = wall[1][2],
             diffpx = (p1x - p2x),
@@ -141,6 +141,7 @@ FinishedRoom.prototype.clickableWall = function(prev, current, next) {
 
     move = function (dx, dy) {
         var xy = grid.getZoomedXY(dx, dy),
+            // setting diffx or diffy to 0 based on the horizontal bool or if lastdx/y is null.
             diffx = (this.lastdx != null) ? (this.horizontally) ? (this.lastdx - xy[0]) : 0 : 0,
             diffy = (this.lastdy != null) ? (!this.horizontally) ? (this.lastdy - xy[1]) : 0 : 0;
 
