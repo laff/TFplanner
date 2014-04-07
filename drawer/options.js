@@ -168,6 +168,8 @@ Options.prototype.initSpecs = function () {
 
         if ($('#genButton').length) {
             $('#genButton').next().remove();
+            $('#genButton').next().remove();
+            $('#genButton').next().remove();
             $('#genButton').remove();
         }
 
@@ -246,6 +248,8 @@ Options.prototype.inOrOut = function (form) {
         }
 
         if ($('#genButton').length) {
+            $('#genButton').next().remove();
+            $('#genButton').next().remove();
             $('#genButton').next().remove();
             $('#genButton').remove();
         }
@@ -358,6 +362,8 @@ Options.prototype.chooseDeck = function (form) {
 
         if ($('#genButton').length) {
             $('#genButton').next().remove();
+            $('#genButton').next().remove();
+            $('#genButton').next().remove();
             $('#genButton').remove();
         }
 
@@ -425,6 +431,8 @@ Options.prototype.wattage = function (form) {
 
         if ($('#genButton').length) {
             $('#genButton').next().remove();
+            $('#genButton').next().remove();
+            $('#genButton').next().remove();
             $('#genButton').remove();
         }
 
@@ -481,6 +489,8 @@ Options.prototype.casting = function (form) {
 
         if ($('#genButton').length) {
             $('#genButton').next().remove();
+            $('#genButton').next().remove();
+            $('#genButton').next().remove();
             $('#genButton').remove();
         }
 
@@ -512,8 +522,9 @@ Options.prototype.generateButton = function (form) {
     input.title = 'Klikk for '+this.dotA+' generere leggeanvisning';
     input.value = 'Generer leggeanvisning';
 
+
     form.appendChild(input);
-    $(form).append('<br>');
+    $(form).append('<br><br><br>');
     $(container).append(form);
 
     $('#genButton').click( function () {
@@ -592,7 +603,6 @@ Options.prototype.preferredMats = function (form) {
     $('#addLength').click( function () {
         
         opts.prefMat.push(opts.validMat.products[$('#lengths').val()]);
-        console.log(options.prefMat);
     });
 }
 
@@ -611,7 +621,6 @@ Options.prototype.initObstacles = function () {
     // adding class css.
     $(container).addClass('obstacleTab');
     $(container).removeClass('specTab');
-
 
     if (ourRoom.finished ==  true) {
         // Move the room to coordinates (99, 99)
@@ -734,7 +743,7 @@ Options.prototype.obstacleList = function (obstacle) {
 **/
 Options.prototype.actionListeners = function () {
 
-    var that = this;
+    var opts = this;
 
     // If the 8th option is selected. aka "Egendefinert"
     $('#obstacleType').change(function() {
@@ -776,8 +785,8 @@ Options.prototype.actionListeners = function () {
 
                     // Create the obstacle, and update the tab.
                     obstacles.createObstacle(value, text);
-                    that.initObstacles();
-                    that.obstacleList();
+                    opts.initObstacles();
+                    opts.obstacleList();
                 }
             });
         // We might get some issues if 'egendefinert' is chosen, followed by that the user choose an other
@@ -790,13 +799,13 @@ Options.prototype.actionListeners = function () {
 
     // Add click action for the "submit button".
     $('.change').click(function() {
-        that.obstacleList(this.id);
+        opts.obstacleList(this.id);
         obstacles.selectObstacle(this.id);
     });
 
     $('.delete').click(function () {
         obstacles.deleteObstacle(this.parentNode.firstChild.nextSibling.id);
-        that.obstacleList();
+        opts.obstacleList();
     });
 
     // Add click action for the "submit button".
@@ -810,8 +819,8 @@ Options.prototype.actionListeners = function () {
         obstacles.createObstacle(value, text);
 
         // Creating / refreshing list of obstacles.
-        that.initObstacles();
-        that.obstacleList();
+        opts.initObstacles();
+        opts.obstacleList();
     });
 
 
@@ -834,7 +843,7 @@ Options.prototype.actionListeners = function () {
             roundY
         );
 
-        that.obstacleList();
+        opts.obstacleList();
 
         obstacles.selectObstacle(null);
     });
@@ -854,7 +863,7 @@ Options.prototype.actionListeners = function () {
     // Action for the button to create a title on the paper.
     $('#titleSubmit').click(function () {
 
-        that.setTitle();
+        opts.setTitle();
     });
 
     // Prevent the default 'submit form' when enter-button is pressed(this refreshes the page),
@@ -864,7 +873,7 @@ Options.prototype.actionListeners = function () {
         if (e.which == 13) {
             e.preventDefault();
             this.blur();
-            that.setTitle();
+            opts.setTitle();
         }
     });
 
