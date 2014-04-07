@@ -150,14 +150,24 @@ Square.prototype.drawMatline = function(from) {
     switch (direction) {
 
         case 'productNr':
-            var rec = paper.rect(x-5, y+15, 60, 20, 5, 5).attr({
-                    opacity: 1,
-                    fill: "white"
-                }),
-
+            var texX = (x + 25),
+                texY = (y + 25),
                 tex = paper.text(x+25, y+25, this.productNr).attr({
-                    'font-size': 12 
-                });
+                    'font-size': measurement.fontsize
+                }),
+                
+                // Dynamic size of the rectangle surrounding the text.
+                rectLen = (tex.getBBox().width + 10),
+                rectHeight = (tex.getBBox().height),
+                rectX = (texX - (rectLen / 2)),
+                rectY = (texY - (rectHeight / 2)),
+
+                rec = paper.rect(rectX, rectY, rectLen, rectHeight, 5, 5).attr({
+                        opacity: 1,
+                        fill: "white"
+                    });
+
+            tex.toFront();
 
             this.arrows.push(rec, tex);
 

@@ -909,6 +909,7 @@ Options.prototype.setTitle = function () {
         'font-style': 'oblique'
     });
 
+    // Dynamic size of the rectangle surrounding the text.
     rectLen = (this.titleText.getBBox().width + 30);
     rectX = (textX - (rectLen / 2));
 

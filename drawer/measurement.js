@@ -8,6 +8,8 @@ function Measurement () {
     this.wallText = grid.paper.set();
     
     this.inverted = null;
+
+    this.fontsize;
 }
 
 /**
@@ -24,7 +26,9 @@ Measurement.prototype.refreshMeasurements = function () {
     var walls = ourRoom.walls,
         finished = ourRoom.finished,
         len = walls.length,
-        measurementValues = this.measurementValues;
+        measurementValues = this.measurementValues,
+        longestWall = null,
+        fontsize;
 
     measurementValues.length = 0;
     this.measurements.remove();
@@ -32,6 +36,38 @@ Measurement.prototype.refreshMeasurements = function () {
     this.angMeasurements.remove();
 
     this.inverted = null;
+
+    // Calculate text size of the measurements
+    this.fontsize = 12;
+    for (var i = 0; i < len; i++) {
+        var currentWall = walls[i].getTotalLength();
+
+        if (longestWall != null) {
+            if (longestWall <= currentWall) {
+                longestWall = currentWall;
+            }
+        } else {
+            longestWall = currentWall;
+        }
+    }
+
+    fontsize = (longestWall)/100;
+    fontsize = (fontsize * 1.4);
+
+    if (fontsize > 12 && fontsize < 14) {
+        fontsize = 12;
+    }
+    if (fontsize >= 14 && fontsize < 16) {
+        fontsize = 14;
+    }
+    if (fontsize >= 16 && fontsize < 18) {
+        fontsize = 16;
+    } 
+    if (fontsize >= 18) {
+        fontsize = 18;
+    }
+
+    this.fontsize = (fontsize > this.fontsize) ? fontsize : this.fontsize;
     
     for (var i = 0; i < len; i++) {
 
@@ -271,35 +307,31 @@ Measurement.prototype.endLine = function(x, y) {
     len = new Number(m.getTotalLength())/100,
     len = len.toFixed(2),
 
-    // Draws a rectangle at the middle of the line
-    r = paper.rect(textPoint.x-25, textPoint.y-10, 50, 20, 5, 5).attr({
-        opacity: 1,
-        fill: "white"
-    }),
-
     // Adds text on top of the rectangle, to display the length of the wall.
     t = paper.text(textPoint.x, textPoint.y, len + " m").attr({
         opacity: 1,
-        'font-size': 12,
+        'font-size': this.fontsize,
         'font-family': "verdana",
         'font-style': "oblique"
+    }),
+
+    // Dynamic size of the rectangle surrounding the text.
+    rectLen = (t.getBBox().width + 20),
+    rectHeight = (t.getBBox().height),
+    rectX = (textPoint.x - (rectLen / 2)),
+    rectY = (textPoint.y - (rectHeight / 2)),
+
+    // Draws a rectangle at the middle of the line
+    r = paper.rect(rectX, rectY , rectLen, rectHeight, 5, 5).attr({
+        opacity: 1,
+        fill: "white"
     });
+
+    t.toFront();
 
     this.measurements.push(m);
     this.wallText.push(r, t); 
-    this.updateOnZoom(grid.rat);
 }
-
-/**
- * Updates the size of the text and rectangle that display the length of each wall
- * @param ratio - A value stored in 'grid.js', that is inc/dec -rementet on zoom (+ and -), the elements
- * are scaled based on the 'current ratio' of the grid.
-**/
-Measurement.prototype.updateOnZoom = function (ratio) {
-
-    this.wallText.transform("s"+ratio);
-}
-
 
 /**
  * Function that creates a "circle" from point1 to point2.
