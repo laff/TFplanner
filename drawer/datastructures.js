@@ -17,6 +17,7 @@ function HeatingMat(matLength, timeoutLength, color) {
 	this.totalArea = (matLength * 50);
 	this.unusedArea = this.totalArea;
     this.timestamp = Date.now();
+    console.log("Timeoutlength is: " + timeoutLength + " Mat length is : " + matLength);
     this.validPeriod = timeoutLength ? timeoutLength : 3000;
     this.matColor = color;
     this.productNr;

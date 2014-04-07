@@ -8,6 +8,7 @@ function ResultGrid(pathString) {
     this.width = grid.resWidth;
     this.paper = grid.paper;
     this.squares = [];
+    this.startSquares = [];
     this.area = 0;
     this.unusedArea = 0;
     this.squarewidth = 0;
@@ -29,9 +30,12 @@ function ResultGrid(pathString) {
     this.supplyPoint =  this.setSupplyPoint();
     this.addObstacles();
     this.moveWalls();
+    this.createStartPoints();
+    console.log(this.startSquares);
 
     //Starts to populate the data structure
     this.findStart();
+
 }
 
 
@@ -201,15 +205,69 @@ ResultGrid.prototype.clear = function () {
  * calls placeMat to start the placement process
 **/
 ResultGrid.prototype.findStart = function() {
-    var squares = this.squares, 
-        len = squares.length,
+    var squares = this.squares,
+        startSquares = this.startSquares, 
+        len = startSquares.length,
         width = this.squarewidth,
         height = this.squareheight,
         supply = this.supplyPoint,
-        xmin = null,
-        xmax = null,
-        ymin = null, 
-        ymax = null;
+        that = this,
+        checkSquare = function(i, callback) {
+            
+            var index = startSquares[i],
+                square = squares[index],
+                squareList = [ index, index-width, index+1, index-1, index+width ],
+                checkSubSquare = function(i, j, callback1) {
+
+                console.log("Square: " + index + " subsquare: " + j);
+                if (j >= 25) {
+                    that.squares[index].populated = true;
+                    return false;
+                }   
+
+                if ( that.adjacentWall(squareList, j) && that.placeMat(index, j, 500) ) {
+                    return true;
+                } else {
+                    return callback1(i, j+1, callback1);
+                }
+            };
+
+            if (i >= len) {
+                return false;
+            }
+
+            if (square.reallyInside && !square.populated) {
+                
+                if (square.subsquares.length == 0) {
+
+                    //Criteria: If adjacent to a wall and recursive mat placement works,
+                    // return true
+                    if ( that.placeMat( index, 0, 3000) ) {
+                         return true;
+                    }
+
+                } else {
+                    //Checks for each subsquare if it has adjacent wall and recursive mat
+                    // placement 
+                    /*
+                    for (var j = 0; j < 25; ++j) {
+                        if ( that.adjacentWall(squareList, j) && that.placeMat(i, j) ) {
+                            return true;
+                        }           
+                    } 
+                    /*/
+                    if (checkSubSquare(i, 0, checkSubSquare)) {
+                        return true;
+                    } else {
+                        return callback(i+1, callback);
+                    }
+                }
+                
+            } else {
+                return callback(i+1, callback);
+            }
+            return false;
+        };
 
     if (supply) {
         xmin = supply[0];
@@ -218,12 +276,14 @@ ResultGrid.prototype.findStart = function() {
         ymax = supply[3];
     }
 
+    return checkSquare(0, checkSquare);
+
+/*
     for (var i = 0; i < len; ++i) {
         var square = squares[i];
 
         //If not inside the supply boundaries we can skip to next square
-        if (supply && (square.xpos <= xmin || square.xpos >= xmax || 
-                       square.ypos < ymin || square.ypos >= ymax) ) {
+        if (supply && (square.xpos <= xmin || square.xpos >= xmax || square.ypos < ymin || square.ypos >= ymax) ) {
             continue;
         }
         
@@ -252,7 +312,8 @@ ResultGrid.prototype.findStart = function() {
             
         }
     }
-    return false;
+    */
+    //return false;
     //End of findStart()
 }
 
@@ -264,7 +325,7 @@ ResultGrid.prototype.findStart = function() {
  * @param subsquareNo - The index of the subsquare, iff any, where mat
  *  is to be placed
 **/
-ResultGrid.prototype.placeMat = function (squareNo, subsquareNo) {
+ResultGrid.prototype.placeMat = function (squareNo, subsquareNo, validPeriod) {
 
     var mat,    
         l = [];
@@ -280,7 +341,7 @@ ResultGrid.prototype.placeMat = function (squareNo, subsquareNo) {
     **/
     if (options.prefMat.length > 0) {
         var pref = [],
-            prodNum;
+            prodNum = [];
 
         for (var i = 0; i < options.prefMat.length; i++) {
             pref[i] = options.prefMat[i].length*100;
@@ -294,7 +355,7 @@ ResultGrid.prototype.placeMat = function (squareNo, subsquareNo) {
                 c = length * 50;
 
             if (c <= this.unusedArea) {
-                mat = new HeatingMat(length, null, this.currentColor);
+                mat = new HeatingMat(length, validPeriod, this.currentColor);
                 mat.productNr = num;
                 // Take the mat out of the array, if it doesn`t fit in the room, we don`t
                 // want to put it out anyway.
@@ -318,7 +379,7 @@ ResultGrid.prototype.placeMat = function (squareNo, subsquareNo) {
             c = length * 50;
 
         if (c <= this.unusedArea) {
-            mat = new HeatingMat(length, null, this.currentColor);
+            mat = new HeatingMat(length, validPeriod, this.currentColor);
             mat.productNr = options.validMat.products[l.length].number;
 
             //placeSquare is where the placement of the mat begins
@@ -532,7 +593,7 @@ ResultGrid.prototype.placeSquare = function (squareNo, subsquareNo, mat, lastSqu
         if (mat.unusedArea < area && lastSubsquareNo == -1) {
             var diff = subsquareNo - lastSubsquareNo;
             //From left or top
-            if (diff > 1) {
+            if (diff < -1) {
                 subsquareNo = 20;
             } else if ( diff == -1) {
                 subsquareNo = 4; 
@@ -1129,3 +1190,26 @@ ResultGrid.prototype.setSupplyPoint = function () {
     }
     //End of setSupplyPoint    
 }
+
+ResultGrid.prototype.createStartPoints = function() {
+
+    var square,
+        squares = this.squares,
+        width = this.squarewidth,
+        len = squares.length - width, 
+        supply = this.supplyPoint;
+
+
+    for (var i = width; i < len; ++i) {
+        square = squares[i];
+        //If not inside the supply boundaries we can skip to next square
+        if (supply && (square.xpos <= supply[0] || square.xpos >= supply[1] || square.ypos < supply[2] || square.ypos >= supply[3]) ) {
+            continue;
+        }
+        var squareList = [i, i-width, i+1, i-1, i+width];
+        if ( this.adjacentWall(squareList, -1) && square.reallyInside) {
+
+            this.startSquares.push(i);
+        }
+    }
+} 
