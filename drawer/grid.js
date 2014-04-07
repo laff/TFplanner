@@ -170,7 +170,8 @@ Grid.prototype.zoom = function() {
         * and negative, if wheel was scrolled down.
         */
         if (delta) {
-            grid.handle(delta);
+            grid.handle(delta, event);
+
         }
             
 
@@ -208,30 +209,27 @@ Grid.prototype.zoom = function() {
  * This is the function that actually handles the zooming
  * It must react to delta being more/less than zero.
  */
-Grid.prototype.handle = function(delta) {
+Grid.prototype.handle = function(delta, event) {
         
     var paper = this.paper,
         vB = paper._viewBox,
         viewBoxWidth = this.viewBoxWidth,
         viewBoxHeight = this.viewBoxHeight,
-        vX,
-        vY;
+        orgX = vB[0],
+        orgY = vB[1],
+        zoom = false;
 
     if (delta > 0) {
         this.viewBoxWidth *= 0.95;
         this.viewBoxHeight*= 0.95;
+        zoom = true;
 
     } else {
         this.viewBoxWidth *= 1.05;
         this.viewBoxHeight *= 1.05;
     }
 
-    // This will zoom into middle of the screen.
-    vX = (vB[0] - ((viewBoxWidth - vB[2]) / 2));
-    vY = (vB[1] - ((viewBoxHeight - vB[3]) / 2));
-
-
-    paper.setViewBox(vX, vY, viewBoxWidth, viewBoxHeight);
+    paper.setViewBox(orgX, orgY, viewBoxWidth, viewBoxHeight);
 }
 
 
