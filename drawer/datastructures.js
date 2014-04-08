@@ -444,7 +444,7 @@ function Subsquare (x, y, paper, path, squareNo, subNo) {
 /**
  * OBS: The if-check after the switch may not need to check all those values, Anders?
 **/
-Subsquare.prototype.setArrow = function(dir, mat, subsquareNo) {
+Subsquare.prototype.setArrow = function(dir, mat) {
     var paper = this.paper,
         x = this.x,
         y = this.y;
@@ -485,6 +485,9 @@ Subsquare.prototype.setArrow = function(dir, mat, subsquareNo) {
                 'stroke-width': 0.1
             });
             this.direction = null;
+            break;
+
+        default:
             break;   
     }
 

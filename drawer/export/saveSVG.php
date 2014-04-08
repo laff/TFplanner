@@ -24,8 +24,13 @@ function saveSVG($svg, $matTable) {
 			continue;
 		}
 
+		$split = explode('_', $rootFile);
+
+		if (count($split) < 2) {
+			continue;
+		}
 		// Count entries.
-		if (explode('_', $rootFile)[0] == 'entry') {
+		if ($split[0] == 'entry') {
 			$count++;
 
 			$fileDir = $dir.'/'.$rootFile;
