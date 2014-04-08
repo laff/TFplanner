@@ -99,21 +99,21 @@ Tabs.prototype.select = function (index) {
 
 		case 1 :
 			this.room.toFront();
-			this.room[1].attr('fill', '#CF2930');
+			this.room[1].attr('fill', '#CB2C30');
 			this.obst[1].attr('fill', 'black');
 			this.spec[1].attr('fill', 'black');
 			break;
 
 		case 2 : 
 			this.obst.toFront();
-			this.obst[1].attr('fill', '#CF2930');
+			this.obst[1].attr('fill', '#CB2C30');
 			this.room[1].attr('fill', 'black');
 			this.spec[1].attr('fill', 'black');
 			break;
 
 		case 3 :
 			this.spec.toFront();
-			this.spec[1].attr('fill', '#CF2930');
+			this.spec[1].attr('fill', '#CB2C30');
 			this.room[1].attr('fill', 'black');
 			this.obst[1].attr('fill', 'black');
 			break;

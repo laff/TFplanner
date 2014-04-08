@@ -17,6 +17,7 @@ function HeatingMat(matLength, timeoutLength, color) {
 	this.totalArea = (matLength * 50);
 	this.unusedArea = this.totalArea;
     this.timestamp = Date.now();
+    console.log("Timeoutlength is: " + timeoutLength + " Mat length is : " + matLength);
     this.validPeriod = timeoutLength ? timeoutLength : 3000;
     this.matColor = color;
     this.productNr;
@@ -96,22 +97,22 @@ function Square (x, y, path, paper, nr) {
 
     this.rect = paper.rect(x, y, xdim, ydim).attr({
         'stroke-opacity': 0.2,
-        'stroke-width': 2
+        'stroke-width': 0
     });
 
     //If whole square is inside
-    if (  ul && ur && ll && lr ) {
+    if ( ul && ur && ll && lr ) {
 
         this.insideRoom = true;
         this.hasWall = false;
         this.area = xdim*ydim;
     }
     //If at least one corner is inside   
-    else if ( ul || ur || ll || lr) {
+    else if (ul || ur || ll || lr) {
         this.insideRoom = true;
         this.hasWall = true;
 
-        for ( var i = 0; i < ydim; i += ysubdim) {
+        for (var i = 0; i < ydim; i += ysubdim) {
             for (var j = 0; j < xdim; j += xsubdim) {
                 subsquare = new Subsquare(x+j, y+i, paper, path, this.nr, length);
                 this.subsquares[length++] = subsquare;
@@ -140,7 +141,7 @@ Square.prototype.drawMatline = function(from) {
         paper = this.paper,
         attributes = {
             'stroke-opacity': 1, 
-            'stroke': "#E73029", 
+            'stroke': "#CB2C30", 
             'stroke-width': 3
         },
         direction = (from != 'productNr') ? (from + to) : from;
@@ -149,14 +150,24 @@ Square.prototype.drawMatline = function(from) {
     switch (direction) {
 
         case 'productNr':
-            var rec = paper.rect(x-5, y+15, 60, 20, 5, 5).attr({
-                    opacity: 1,
-                    fill: "white"
-               }),
+            var texX = (x + 25),
+                texY = (y + 25),
+                tex = paper.text(x+25, y+25, this.productNr).attr({
+                    'font-size': measurement.fontsize
+                }),
+                
+                // Dynamic size of the rectangle surrounding the text.
+                rectLen = (tex.getBBox().width + 10),
+                rectHeight = (tex.getBBox().height),
+                rectX = (texX - (rectLen / 2)),
+                rectY = (texY - (rectHeight / 2)),
 
-                tex = paper.text(x+28, y+25, this.productNr).attr({
-                    'font-size': 12 
-                });
+                rec = paper.rect(rectX, rectY, rectLen, rectHeight, 5, 5).attr({
+                        opacity: 1,
+                        fill: "white"
+                    });
+
+            tex.toFront();
 
             this.arrows.push(rec, tex);
 

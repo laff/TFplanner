@@ -8,7 +8,7 @@ function Options (tab) {
     this.defColor = '#707061';       // Default color.
     this.inColor = '#d8d8d8';        // Color for mouseover
     this.imgColor = 'white';         // Color for the button-icons.
-    this.roomTitle = null;           // Raphael-element
+    this.titleText = null;           // Raphael-element
     this.titleRect = null;
     this.projectName ='Prosjektnavn/tittel'; // String in html input-field
 
@@ -25,6 +25,8 @@ function Options (tab) {
 
     // mat object based on specificatins selected
     this.validMat = null;
+    // Will contain mat-lengths the user prefer to start with.
+    this.prefMat = null;
 }
 
 
@@ -95,7 +97,7 @@ Options.prototype.initSpecs = function () {
         specSubmit = 'specSubmit',
         crossO = this.crossO,
         html,
-        that = this;
+        opts = this;
 
     // Clear current html
     $(container).html("");
@@ -144,7 +146,40 @@ Options.prototype.initSpecs = function () {
     }
 
     $('#inOutType').change( function () {
-        that.inOrOut(form);
+
+        // If #inOutType-id changes, we want to clear EVERYTHING following it:
+        if ($('#climateType').length) {
+            $('#climateType').next().remove();
+            $('#climateType').remove();
+            $('#dryOrWet').remove();
+        } 
+
+        if ($('#deckType').length) {
+            $('#deckType').next().remove();
+            $('#deckType').remove();
+            $('#decks').remove();
+        } 
+
+        if ($('#wattage').length) {
+            $('#wattage').next().remove();
+            $('#wattage').remove();
+            $('#watt').remove();
+        }
+
+        if ($('#genButton').length) {
+            $('#genButton').next().remove();
+            $('#genButton').next().remove();
+            $('#genButton').next().remove();
+            $('#genButton').remove();
+        }
+
+        if ($('#length').length) {
+            $('#length').remove();
+            $('#lengths').remove();
+            $('#addLength').remove();
+        }
+        
+        opts.inOrOut(form);
     });
 }
 
@@ -156,39 +191,21 @@ Options.prototype.inOrOut = function (form) {
 
     var container = this.container,     
         selected = $('#inOutType').val(),
-        that = this,
+        opts = this,
         crossO = this.crossO,
         dotA = this.dotA;
 
-    // If the 'climateType'-id already exists, we want to delete the
-    // <br> tag after it, and then remove the id itself.
-    if ($('#climateType').length) {
-        $('#climateType').next().remove();
-        $('#climateType').remove();
-        $('#dryOrWet').remove();
-    }
-
-    $('#wattage').next().remove();
-    $('#wattage').remove();
-    $('#watt').remove();
-
-    $('#decks').remove(); 
-    $('#genButton').remove();
-
      //Inside is selected
     if (selected == "inside") {
-        $('#deckType').next().remove();
-        $('#deckType').remove();
-
         var dryWet = document.createElement("select"),
             option1 = document.createElement("option"),
             option2 = document.createElement("option"),
             span = document.createElement("span");
 
-        span.innerHTML = "Velg v"+dotA+"trom/t"+crossO+"rrom: ";
         dryWet.id = 'climateType';
         span.id = 'dryOrWet';
 
+        span.innerHTML = "Velg v"+dotA+"trom/t"+crossO+"rrom: ";
         option1.value = "dry";
         option1.text = "T"+crossO+"rrom";
         option2.value = "wet";
@@ -206,12 +223,44 @@ Options.prototype.inOrOut = function (form) {
 
     } else {
         // 'Outside' is chosen, so we jump directly to the options associated with this option.
-        that.chooseDeck(form);
+        opts.chooseDeck(form);
     }
 
     // Call new function to set up the 'deck'-dropdown on change.
     $('#climateType').change( function () {
-        that.chooseDeck(form);
+
+        //If this one changes, we want to remove all elements following it:
+        if ($('#deckType').length) {
+            $('#deckType').next().remove();
+            $('#deckType').remove();
+            $('#decks').remove();
+        } 
+
+        if ($('#wattage').length) {
+            $('#wattage').next().remove();
+            $('#wattage').remove();
+            $('#watt').remove();
+        } 
+
+        if ($('#casting').length) {
+            $('#casting').remove();
+            $('#cast').remove();
+        }
+
+        if ($('#genButton').length) {
+            $('#genButton').next().remove();
+            $('#genButton').next().remove();
+            $('#genButton').next().remove();
+            $('#genButton').remove();
+        }
+
+        if ($('#length').length) {
+            $('#length').remove();
+            $('#lengths').remove();
+            $('#addLength').remove();
+        }
+
+        opts.chooseDeck(form);
     });
 }
 
@@ -221,7 +270,7 @@ Options.prototype.inOrOut = function (form) {
 Options.prototype.chooseDeck = function (form) {
 
     var container = this.container,
-        that = this,
+        opts = this,
         selected = $('#inOutType').val(),
         selectedClim = $('#climateType').val(),
         span = document.createElement("span"),
@@ -233,25 +282,6 @@ Options.prototype.chooseDeck = function (form) {
         option5 = document.createElement("option"),
         option6 = document.createElement("option"),
         option7 = document.createElement("option");
-
-    // Make sure that a <select> with this id not exists, no need to use 'if' cause
-    // nothing will happen if it doesn`t exist. Also remove the 'decks-<span>' that display text.
-    if ($('#deckType').length) {
-        $('#deckType').next().remove();
-        $('#deckType').remove();
-        $('#decks').remove();
-    }
-    
-    $('#wattage').next().remove();
-    $('#wattage').remove();
-    $('#watt').remove();
-
-    $('#casting').next().remove();
-    $('#casting').remove();
-    $('#cast').remove();
-
-    $('#genButton').remove();
-
 
     deck.id = 'deckType';
     span.id = 'decks';
@@ -318,19 +348,32 @@ Options.prototype.chooseDeck = function (form) {
     // unless 'wattage' also has to be selected.
     $('#deckType').change( function () {
 
-        if (selected == 'inside') {
-            options.wattage(form);
-        } else {
-            // Remove dropdown for choosing wattage and casting.
+        // Cleaning up some html-elements, if they exist:
+        if ($('#wattage').length) {
             $('#wattage').next().remove();
             $('#wattage').remove();
             $('#watt').remove();
+        }
 
-            $('#casting').next().remove();
+        if ($('#casting').length) {
             $('#casting').remove();
             $('#cast').remove();
-            that.generateButton(form);
         }
+
+        if ($('#genButton').length) {
+            $('#genButton').next().remove();
+            $('#genButton').next().remove();
+            $('#genButton').next().remove();
+            $('#genButton').remove();
+        }
+
+        if ($('#length').length) {
+            $('#length').remove();
+            $('#lengths').remove();
+            $('#addLength').remove();
+        }
+        // Calling next function, based on selected value.
+        (selected == 'inside') ? opts.wattage(form) : opts.generateButton(form);
     });
 }
 
@@ -341,7 +384,7 @@ Options.prototype.chooseDeck = function (form) {
 Options.prototype.wattage = function (form) {
 
     var container = this.container,
-        that = this,
+        opts = this,
         span = document.createElement('span'),
         watt = document.createElement('select'),
         option1 = document.createElement('option'),
@@ -349,25 +392,10 @@ Options.prototype.wattage = function (form) {
         option3 = document.createElement('option'),
         option4 = document.createElement('option');
 
-    // Make sure that a <select> with this id not exists, no need to use 'if' cause
-    // nothing will happen if it doesn`t exist. Also remove the <span> that display text.
-    if ($('#wattage').length) {
-        $('#wattage').next().remove();
-        $('#wattage').remove();
-        $('#watt').remove();
-    }
-
-    $('#casting').next().remove();
-    $('#casting').remove();
-    $('#cast').remove();
-
-    $('#genButton').remove();
-
     watt.id = 'wattage';
     span.id = 'watt';
 
     span.innerHTML = 'Velg mattens effekt: ';
-
     option1.value = 60;
     option1.text = '60W';
     option2.value = 100;
@@ -395,14 +423,30 @@ Options.prototype.wattage = function (form) {
 
         var deck = $('#deckType').val(),
             watt = $('#wattage').val();
-
-        if (( deck == 'parquet' || deck == 'laminat') && watt == '60') {
-            options.casting(form);
-        } else {
-            $('#casting').next().remove();
+        // The elements that follow #wattage will be removed, before they are added again.
+        if ($('#casting').length) {
             $('#casting').remove();
             $('#cast').remove();
-            that.generateButton(form);
+        } 
+
+        if ($('#genButton').length) {
+            $('#genButton').next().remove();
+            $('#genButton').next().remove();
+            $('#genButton').next().remove();
+            $('#genButton').remove();
+        }
+
+        if ($('#length').length) {
+            $('#length').remove();
+            $('#lengths').remove();
+            $('#addLength').remove();
+        }
+
+        // For one specific option, casting/not casting must be made available.
+        if ((deck == 'parquet' || deck == 'laminat') && watt == '60') {
+            opts.casting(form);
+        } else {
+            opts.generateButton(form);
         }
     });
 }
@@ -415,33 +459,20 @@ Options.prototype.wattage = function (form) {
 Options.prototype.casting = function (form) {
 
     var container = this.container,
-        that = this,
+        opts = this,
         span = document.createElement('span'),
         cast = document.createElement('select'),
         option1 = document.createElement('option'),
         option2 = document.createElement('option');
 
-    // Make sure that a <select> with this id not exists, no need to use 'if' cause
-    // nothing will happen if it doesn`t exist. Also remove the <span> that display text.
-    if ($('#casting').length) {
-        $('#casting').next().remove();
-        $('#casting').remove();
-        $('#cast').remove();
-    }
-
-    $('#genButton').remove();
-
     cast.id = 'casting';
     span.id = 'cast';
 
     span.innerHTML = 'Skal gulvet avrettes?';
-
-
     option1.value = 'nocast';
     option1.text = 'Nei';
     option2.value = 'cast';
     option2.text = 'Ja';
-
 
     cast.add(option1, null);
     cast.add(option2, null);
@@ -456,7 +487,19 @@ Options.prototype.casting = function (form) {
     // When the user have selected an item in this list, the 'generate'-button is created.
     $('#casting').change( function () {
 
-        that.generateButton(form);
+        if ($('#genButton').length) {
+            $('#genButton').next().remove();
+            $('#genButton').next().remove();
+            $('#genButton').next().remove();
+            $('#genButton').remove();
+        }
+
+        if ($('#length').length) {
+            $('#length').remove();
+            $('#lengths').remove();
+            $('#addLength').remove();
+        }
+        opts.generateButton(form);
     });
 }
 
@@ -470,35 +513,99 @@ Options.prototype.casting = function (form) {
 Options.prototype.generateButton = function (form) {
 
     var container = this.container,
+        opts = this,
         input = document.createElement('input'),
         path;
-
-    $('#genButton').remove();
 
     input.id = 'genButton';
     input.type = 'button';
     input.title = 'Klikk for '+this.dotA+' generere leggeanvisning';
     input.value = 'Generer leggeanvisning';
 
+
     form.appendChild(input);
+    $(form).append('<br><br><br>');
     $(container).append(form);
 
     $('#genButton').click( function () {
-        //Finds the heatingmat based on specs chosen by the user.
-        options.tfProducts();
 
+
+        
         // If we have a finished room, we can call the algorithm and generate a drawing!
         if (ourRoom.finished == true) {
 
+
+            // The functionality beneath is invoked in such an order that the final drawing is display correctly
             path = grid.moveRoom();
             resultGrid = new ResultGrid(path);
             scrollBox.paper.clear();
+
+            grid.gridSet.toFront(); 
             resultGrid.displayMats();
+            
+            ourRoom.walls.toFront();
+
             measurement.wallText.toFront();
             grid.boxSet.toFront();
+            options.setupTitle();
+
         }
     });
+
+    // When we have chosen all steps and the 'generate-button' is created, we also want
+    // to display the possible mats the user prefer to use.
+    opts.preferredMats(form);
 }
+
+/**
+ * This function makes it possible for the user to specify mat-length(s) to start with
+ * in the room.
+ * @param form - The form is passed "all the way" through the 'specs'-functionality and
+ * stuff is appended to it.
+**/
+Options.prototype.preferredMats = function (form) {
+
+    var container = this.container,
+        opts = this,
+        header = document.createElement('h3'),
+        span = document.createElement('span'),
+        lengths = document.createElement('select'),
+        add = document.createElement('input'),
+        availLengths = [];
+
+    //Finds the correct heatingmat based on specs chosen by the user.
+    opts.tfProducts();
+    opts.prefMat = [];
+
+    // Setting up the html-stuff.
+    span.id = 'length';
+    span.innerHTML = 'Legg til selvvalgte lengder';
+    lengths.id = 'lengths';
+    add.id = 'addLength';
+    add.type = 'button';
+    add.title = 'Legg til foretrukken mattelengde';
+    add.value = 'Legg til matte';
+
+    form.appendChild(span);
+    form.appendChild(lengths);
+    form.appendChild(add);
+
+    // Add all the available lengths of this mat to the dropdown.
+    for (var i = 0; i < opts.validMat.products.length; i++) {
+        availLengths[i] = opts.validMat.products[i].length;
+        $('#lengths').append("<option value="+i+">"+availLengths[i]+"m</option>"); 
+    }
+
+    $(container).append(form);
+
+    // This click-action should add the chosen mat-length to array, so that
+    // the algorithm will use this mat first.
+    $('#addLength').click( function () {
+        
+        opts.prefMat.push(opts.validMat.products[$('#lengths').val()]);
+    });
+}
+
 
 /**
  * Set up 'Obstacles'-tab. This includes possibility to define Projectname and adding obstacles.
@@ -515,7 +622,6 @@ Options.prototype.initObstacles = function () {
     $(container).addClass('obstacleTab');
     $(container).removeClass('specTab');
 
-
     if (ourRoom.finished ==  true) {
         // Move the room to coordinates (99, 99)
         grid.moveRoom();
@@ -523,8 +629,13 @@ Options.prototype.initObstacles = function () {
         // Add inputfield and button to add a 'projectname'.
         html += '<h3> Sett prosjektnavn </h3>';
         html += '<form class=forms>';
-        html += "<div class='inputfield'><input type='text' id='roomTitle' value="+this.projectName+" autocomplete='off'><br></div>";
+        html += "<div class='inputfield'><input type='text' id='titleText' value="+this.projectName+" autocomplete='off'><br></div>";
         html += "<input id='titleSubmit' type='button' value='Endre prosjektnavn'>";
+        html += '</form>';
+
+        html += '<h3> Sett tilf'+crossO+'rselspunkt </h3>';
+        html += '<form class=forms>';
+        html += "<input id='supplySubmit' type='button' value='Sett tilf"+crossO+"rselspunkt'>";
         html += '</form>';
         // Header
         html += '<h3> Legg til hindring </h3>';
@@ -532,12 +643,11 @@ Options.prototype.initObstacles = function () {
         // Form start
         html += '<form class=forms>';
 
-        // Select
+        // Select (5 is missing, because same functionality is used for supplyPoint)
         html += "<select id ='obstacleType'><option value=1> Avl"+crossO+"p </option>";
         html += "<option value=2> Toalett </option>";
         html += "<option value=3> Dusj </option>";
         html += "<option value=4> Badekar </option>";
-        html += "<option value=5> Tilf"+crossO+"rsel </option>";
         html += "<option value=6> Benk </option>";
         html += "<option value=7> Pipe </option>";
         html += "<option value=8> Egendefinert </option></select>";
@@ -617,9 +727,9 @@ Options.prototype.obstacleList = function (obstacle) {
     $(container).html(html);
 
     // Sets the focus on the 'project-name'-field the first time 'obstacles'-tab is selected
-    if (ourRoom.finished ==  true && this.roomTitle == null) {
+    if (ourRoom.finished ==  true && this.titleText == null) {
         this.setTitle();
-        var input = document.getElementById('roomTitle');
+        var input = document.getElementById('titleText');
             input.focus();
             input.select();
     }
@@ -633,7 +743,7 @@ Options.prototype.obstacleList = function (obstacle) {
 **/
 Options.prototype.actionListeners = function () {
 
-    var that = this;
+    var opts = this;
 
     // If the 8th option is selected. aka "Egendefinert"
     $('#obstacleType').change(function() {
@@ -675,8 +785,8 @@ Options.prototype.actionListeners = function () {
 
                     // Create the obstacle, and update the tab.
                     obstacles.createObstacle(value, text);
-                    that.initObstacles();
-                    that.obstacleList();
+                    opts.initObstacles();
+                    opts.obstacleList();
                 }
             });
         // We might get some issues if 'egendefinert' is chosen, followed by that the user choose an other
@@ -689,13 +799,13 @@ Options.prototype.actionListeners = function () {
 
     // Add click action for the "submit button".
     $('.change').click(function() {
-        that.obstacleList(this.id);
+        opts.obstacleList(this.id);
         obstacles.selectObstacle(this.id);
     });
 
     $('.delete').click(function () {
         obstacles.deleteObstacle(this.parentNode.firstChild.nextSibling.id);
-        that.obstacleList();
+        opts.obstacleList();
     });
 
     // Add click action for the "submit button".
@@ -709,8 +819,8 @@ Options.prototype.actionListeners = function () {
         obstacles.createObstacle(value, text);
 
         // Creating / refreshing list of obstacles.
-        that.initObstacles();
-        that.obstacleList();
+        opts.initObstacles();
+        opts.obstacleList();
     });
 
 
@@ -733,7 +843,7 @@ Options.prototype.actionListeners = function () {
             roundY
         );
 
-        that.obstacleList();
+        opts.obstacleList();
 
         obstacles.selectObstacle(null);
     });
@@ -753,18 +863,22 @@ Options.prototype.actionListeners = function () {
     // Action for the button to create a title on the paper.
     $('#titleSubmit').click(function () {
 
-        that.setTitle();
+        opts.setTitle();
     });
 
-    // Prevent the default 'submit form' when enter-button is pressed, (this refreshes the page)
+    // Prevent the default 'submit form' when enter-button is pressed(this refreshes the page),
     // but apply the input-text to the title.
-    $('#roomTitle').keypress(function (e) {
+    $('#titleText').keypress(function (e) {
 
         if (e.which == 13) {
             e.preventDefault();
             this.blur();
-            that.setTitle();
+            opts.setTitle();
         }
+    });
+
+    $('#supplySubmit').click(function () {
+        obstacles.createObstacle("5", "Startpunkt");
     });
 }
 
@@ -774,34 +888,48 @@ Options.prototype.actionListeners = function () {
 **/
 Options.prototype.setTitle = function () {
     // Get the text from the html-element, and update it.
-    var title = document.getElementById('roomTitle').value;
+    var title = document.getElementById('titleText').value;
     this.projectName = title;
     
-    var rectX = null,
+    var drawWidth = (grid.resWidth + 201),
+        rectX = null,
         rectY = 30,
         rectLen = null,
-        textX = 400,
+        textX = (drawWidth / 2),
         textY = 42;
 
     // Clear the title-element if it already exist.
-    this.roomTitle != null ? this.roomTitle.remove() : null;
+    this.titleText != null ? this.titleText.remove() : null;
     this.titleRect != null ? this.titleRect.remove() : null;           
 
-    this.roomTitle = grid.paper.text(textX, textY, title).attr({
+
+    this.titleText = grid.paper.text(textX, textY, title).attr({
         'font-size': 20,
         'font-family': 'verdana',
         'font-style': 'oblique'
     });
 
-    rectLen = (this.roomTitle.getBBox().width + 30);
-    rectX = (400 - (rectLen / 2));
+    // Dynamic size of the rectangle surrounding the text.
+    rectLen = (this.titleText.getBBox().width + 30);
+    rectX = (textX - (rectLen / 2));
 
     this.titleRect = grid.paper.rect(rectX, rectY, rectLen, 30, 5, 5).attr({
         opacity: 1,
         fill: "white"
     });
 
-    this.roomTitle.toFront();
+    this.setupTitle();
+}
+
+/**
+ *  This function shows title and its rectangle in the right order.
+ *  It is called within options.setTitle and grid.setupPaper
+**/
+Options.prototype.setupTitle = function() {
+    if (this.titleRect) {
+        this.titleRect.toFront();
+        this.titleText.toFront();
+    }
 }
 
 /** 
@@ -815,8 +943,7 @@ Options.prototype.initDefine = function () {
         defSubmit = 'defSubmit',
         wallsLength = (preDefArr != null) ? (preDefArr[1].length - 1) : null,
         // Starting with a clean slate @ the html variable.
-        html = "",
-        dotA = this.dotA;
+        html = "";
 
     // Removing the svg paper and adding room class for background color
     this.optPaper.remove();
@@ -824,7 +951,7 @@ Options.prototype.initDefine = function () {
     $(container).addClass('roomTab');
     $(container).removeClass('obstacleTab');
 
-    html += '<h3> Egendefiner m'+dotA+'l </h3>';
+    html += '<h3> Egendefiner m'+this.dotA+'l </h3>';
 
     // If preDef is assigned, list the walls and let the user input stuff, YO.
     if (preDefArr != null) {
@@ -856,9 +983,6 @@ Options.prototype.initDefine = function () {
     // Add click action for the "submit button".
     $('#'+defSubmit).click(function() {
 
-        var walls = [],
-            valid = false;
-
         // Goes through the input elements and stores the length
         for (var i = 0; i < wallsLength; i++) {
             preDefArr[1][i] = $('#wall'+i).val();
@@ -866,35 +990,43 @@ Options.prototype.initDefine = function () {
 
         finishedRoom.selectWall();
         ourRoom.createRoom(preDefArr);
-
     });
 
 
     /**
      * Functionality that signals what wall that is selected when typing into the input field.
-     *
     **/
     $('.inputt').mousedown(function() {
-        var child = $(this).children(),
-            id,
-            walls = ourRoom.walls,
-            wallsLength = walls.length;
 
-        // Sort out id of input field (should be same as wall id).
-        if (child[0] != null) {
-            id = child[0].id;
-        } else {
-            id = child.context.id;
-        }
+        var child = $(this).children(),
+            // Sort out id of input field (should be same as wall id).
+            id = (child[0] != null) ? child[0].id : child.context.id;
 
         // Get wall ID.
         id = id.slice(-1);
 
-        // have a temporary selected wall thing, created.
-        finishedRoom.selectWall(id);
+        // If the last wall-index is targeted we unselect.
+        id != wallsLength ? finishedRoom.selectWall(id) : finishedRoom.selectWall(null);
     });
 
+    
+    // Pretty much the same as previous function, but this one handles 'keydown' in the inputfield
+    $('.inputt').keydown(function (e) {
 
+        // Handling actions when 'Tab' is pressed in the input-field(s).
+        if (e.keyCode == 9) { 
+
+            var child = $(this).children(),
+            id = (child[0] != null) ? child[0].id : child.context.id;
+
+            // Get wall ID, and add increment with 1, since we tabbed from the previous wall.
+            id = id.slice(-1);
+            id++;
+
+            // If the last wall-index is targeted when tab is pressed, we unselect.
+            id != wallsLength ? finishedRoom.selectWall(id) : finishedRoom.selectWall(null);
+        } 
+    });
 }
 
 /*
@@ -1169,7 +1301,7 @@ Options.prototype.preDefRoom = function (value) {
 
     switch(value) {
         case 0:
-            return rectArr = [[180, 270, 360, 90],[600, 700, 600, 700]];                                            //Rectangle-shaped
+            return rectArr = [[180, 270, 360, 90],[600, 400, 600, 400]];                                            //Rectangle-shaped
         case 1:
             return lArr = [[180, 270, 180, 270, 360, 90],[200, 200, 200, 150, 400, 350]];                           //L-shaped
         case 2:

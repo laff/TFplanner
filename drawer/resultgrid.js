@@ -8,6 +8,7 @@ function ResultGrid(pathString) {
     this.width = grid.resWidth;
     this.paper = grid.paper;
     this.squares = [];
+    this.startSquares = [];
     this.area = 0;
     this.unusedArea = 0;
     this.squarewidth = 0;
@@ -29,9 +30,12 @@ function ResultGrid(pathString) {
     this.supplyPoint =  this.setSupplyPoint();
     this.addObstacles();
     this.moveWalls();
+    this.createStartPoints();
+    console.log(this.startSquares);
 
     //Starts to populate the data structure
     this.findStart();
+
 }
 
 
@@ -65,19 +69,15 @@ ResultGrid.prototype.displayMats = function () {
         var tmpDirection = null,
             j = (mats[i].length),
             k = 0;
+
         while  (j--) {
+
             if (j == 0) {
                 squares[mats[i][j]].direction = null;
             }
 
-            // Draw productnumber instead of arrow.
-            if (k == 2) {
-                squares[mats[i][j]].drawMatline('productNr');
-
-            // Draw arrow.
-            } else {
-                squares[mats[i][j]].drawMatline(tmpDirection);
-            }
+            // Draw productnumber or line.
+            (k != 2) ? squares[mats[i][j]].drawMatline(tmpDirection) : squares[mats[i][j]].drawMatline('productNr');
 
             // Put the productnumber to front of arrow
             if (k == 3) {
@@ -205,61 +205,63 @@ ResultGrid.prototype.clear = function () {
  * calls placeMat to start the placement process
 **/
 ResultGrid.prototype.findStart = function() {
-    var squares = this.squares, 
-        len = squares.length,
+    var squares = this.squares,
+        startSquares = this.startSquares,
+        len = startSquares.length,
         width = this.squarewidth,
         height = this.squareheight,
         supply = this.supplyPoint,
         xmin = null,
         xmax = null,
-        ymin = null, 
+        ymin = null,
         ymax = null;
-
+ 
     if (supply) {
         xmin = supply[0];
         xmax = supply[1];
         ymin = supply[2];
         ymax = supply[3];
     }
-
+ 
     for (var i = 0; i < len; ++i) {
-        var square = squares[i];
+         var index = startSquares[i],
+            square = squares[index],
+            squareList = [ index, index-width, index+1, index-1, index+width ];
 
         //If not inside the supply boundaries we can skip to next square
-        if (supply && (square.xpos <= xmin || square.xpos >= xmax || 
+        if (supply && (square.xpos <= xmin || square.xpos >= xmax ||
                        square.ypos < ymin || square.ypos >= ymax) ) {
             continue;
         }
-        
+       
         if (square.reallyInside && !square.populated) {
-
-            //Neighbouring square numbers 
-            var squareList = [i, i-width, i+1, i-1, i+width];
-            
+ 
+            //Neighbouring square numbers
+            //var squareList = [i, i-width, i+1, i-1, i+width];
+           
             if (square.subsquares.length == 0) {
-
+ 
                 //Criteria: If adjacent to a wall and recursive mat placement works,
                 // return true
-                if ( this.adjacentWall(squareList, -1) && this.placeMat(i, 0)  ) {
+                if ( this.adjacentWall(squareList, -1) && this.placeMat(index, 0, 3000)  ) {
                      return true;
                 }
-
+ 
             } else {
                 //Checks for each subsquare if it has adjacent wall and recursive mat
-                // placement 
+                // placement
                 for (var j=0; j < 25; ++j) {
-                    if ( this.adjacentWall(squareList, j) && this.placeMat(i, j) ) {
+                    if ( this.adjacentWall(squareList, j) && this.placeMat(index, j, 200) ) {
                         return true;
-                    }           
+                    }          
                 }        
             }
-            
+           
         }
     }
     return false;
     //End of findStart()
 }
-
 
 /**
  * Function tries to place mats by deciding mat length, then calling placeSquare.
@@ -268,27 +270,61 @@ ResultGrid.prototype.findStart = function() {
  * @param subsquareNo - The index of the subsquare, iff any, where mat
  *  is to be placed
 **/
-ResultGrid.prototype.placeMat = function (squareNo, subsquareNo) {
+ResultGrid.prototype.placeMat = function (squareNo, subsquareNo, validPeriod) {
 
     var mat,    
         l = [];
-
-    for (var i = 0; i < options.validMat.products.length; i++) {
-        // Length of mats is stored in meters, we want it in cm.
-        l[i] = options.validMat.products[i].length*100;
-    }
 
     // Picks color, then increments.
     this.currentColor = this.pickColor();
     this.colorIndex++;
 
+    /** This functionality will be used if the user want to "override" what mat-lengths
+     * to use. If the chosen mat doesn`t fit, it will not be used. This indicates
+     * that the user must have some experience laying heatingmats, and know what 
+     * lengths that will fit in the room.
+    **/
+    if (options.prefMat.length > 0) {
+        var pref = [],
+            prodNum = [];
 
+        for (var i = 0; i < options.prefMat.length; i++) {
+            pref[i] = options.prefMat[i].length*100;
+            // The object is undefined at this point, store the product-number.
+            prodNum[i] = options.prefMat[i].number;
+        }
+
+        if (pref.length > 0) {
+            var length = pref.shift(),
+                num = prodNum.shift(),
+                c = length * 50;
+
+            if (c <= this.unusedArea) {
+                mat = new HeatingMat(length, validPeriod, this.currentColor);
+                mat.productNr = num;
+                // Take the mat out of the array, if it doesn`t fit in the room, we don`t
+                // want to put it out anyway.
+                options.prefMat.shift();
+                // PlaceSquare is where the placement of the mat begins
+                if (this.placeSquare(squareNo, subsquareNo, mat, 0, -1)) {
+                    return true;
+                }
+                delete mat;
+            }
+        }
+    } 
+
+    for (var i = 0; i < options.validMat.products.length; i++) {
+        // Length of mats is stored in meters, we want it in cm.
+        l[i] = options.validMat.products[i].length*100;
+    }
+    
     while (l.length > 0) {
         var length = l.pop(),
             c = length * 50;
 
         if (c <= this.unusedArea) {
-            mat = new HeatingMat(length, null, this.currentColor);
+            mat = new HeatingMat(length, validPeriod, this.currentColor);
             mat.productNr = options.validMat.products[l.length].number;
 
             //placeSquare is where the placement of the mat begins
@@ -1414,8 +1450,6 @@ ResultGrid.prototype.setSupplyPoint = function () {
     //End of setSupplyPoint    
 }
 
-
-
 /**
 * Checks that all subsquares in an array are free to populate, returns true
 * if they are
@@ -1560,3 +1594,27 @@ ResultGrid.prototype.proceed = function( squareNo, dir, direction, lastSquareNo,
     }
     return false;
 }
+
+ResultGrid.prototype.createStartPoints = function() {
+
+    var square,
+        squares = this.squares,
+        width = this.squarewidth,
+        len = squares.length - width, 
+        supply = this.supplyPoint;
+
+
+    for (var i = width; i < len; ++i) {
+        square = squares[i];
+        //If not inside the supply boundaries we can skip to next square
+        if (supply && (square.xpos <= supply[0] || square.xpos >= supply[1] || square.ypos < supply[2] || square.ypos >= supply[3]) ) {
+            continue;
+        }
+        var squareList = [i, i-width, i+1, i-1, i+width];
+        if ( this.adjacentWall(squareList, -1) && square.reallyInside) {
+
+            this.startSquares.push(i);
+        }
+    }
+} 
+

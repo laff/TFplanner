@@ -6,6 +6,7 @@ function Grid() {
     this.cutPix = 0.5;           // Used so that the drawing of a line not overlaps on the previous pixel.
     this.paper = Raphael(document.getElementById('canvas_container'));
     this.boxSet = this.paper.set();
+    this.gridSet = this.paper.set();
     this.draw();
     this.scale();
     this.zoom();
@@ -14,7 +15,6 @@ function Grid() {
     this.resWidth = 0;
     this.resHeight = 0;
     this.rat = 1.0;             // Used for scaling up the visualized wall-lengths.
-
 }
 
 Grid.prototype.draw = function() {
@@ -25,7 +25,8 @@ Grid.prototype.draw = function() {
         cutPix = this.cutPix,           
         line,                                   // Saves the path to a variable during construction.
         width = (canvas.width()).toFixed(),     // The width and the height of the svg-element.
-        height = (canvas.height()).toFixed();
+        height = (canvas.height()).toFixed(),
+        gridSet = this.gridSet;
 
     paper.setViewBox(0, 0, paper.width, paper.height); 
     
@@ -34,34 +35,46 @@ Grid.prototype.draw = function() {
     for (var i = 0; i <= width; i+=10) {
     
         line = paper.path("M"+(i*size+cutPix)+", "+0+", L"+(i*size+cutPix)+", "+(size*height)).attr({'stroke-opacity': 0.4});  
+        gridSet.push(line);
     }
 
     // Draw horizontal lines on the screen (lines are drawn so that the screen is filled even on min. zoom)
     for (var i = 0; i <= height; i+=10) {
 
         line = paper.path("M"+0+", "+(i*size+cutPix)+", L"+(size*width)+", "+(i*size+cutPix)).attr({'stroke-opacity': 0.4});
+        gridSet.push(line);
     }
 }
 
 /**
  * Function that visualizes the scale of our grid. 
- * Also adds the components, to have easier access to them.
+ * Also adds the components to a set, to have easier access to them.
 **/
 Grid.prototype.scale = function() {
     var paper = this.paper,
-        box = paper.rect(1, 1, 99, 99).attr({'stroke-opacity': 1, 'stroke': "#CF2930", 'stroke-width': 3, 'fill': "white", 'fill-opacity': 0.7}),
+        box = paper.rect(1, 1, 99, 99).attr({
+            'stroke-opacity': 1, 
+            'stroke': "#CB2C30", 
+            'stroke-width': 3, 
+            'fill': "white", 
+            'fill-opacity': 0.7}),
         strokeAttr = {
             'stroke-opacity': 1, 
-            'stroke': "#CF2930", 
+            'stroke': "#CB2C30", 
             'stroke-width': 3, 
             "arrow-start": "classic-midium-midium",
             "arrow-end": "classic-midium-midium"
         },
         arrowNW = paper.path("M"+0+", " +50+", L"+25+", "+50+"M"+50+", " +25+", L"+50+", "+0).attr(strokeAttr),
         arrowSE = paper.path("M"+50+", " +100+", L"+50+", "+75+"M"+75+", " +50+", L"+100+", "+50).attr(strokeAttr),
+        tRect = paper.rect(30, 40, 40, 20, 5, 5).attr({
+            'stroke-width': 0,
+            opacity: 1,
+            fill: 'white'
+        }),
         t = paper.text(50, 50, "100 cm");
 
-    this.boxSet.push(box, arrowNW, arrowSE, t);
+    this.boxSet.push(box, arrowNW, arrowSE, tRect, t);
 }
 
 /**
@@ -157,7 +170,8 @@ Grid.prototype.zoom = function() {
         * and negative, if wheel was scrolled down.
         */
         if (delta) {
-            grid.handle(delta);
+            grid.handle(delta, event);
+
         }
             
 
@@ -195,43 +209,27 @@ Grid.prototype.zoom = function() {
  * This is the function that actually handles the zooming
  * It must react to delta being more/less than zero.
  */
-Grid.prototype.handle = function(delta) {
+Grid.prototype.handle = function(delta, event) {
         
     var paper = this.paper,
         vB = paper._viewBox,
         viewBoxWidth = this.viewBoxWidth,
         viewBoxHeight = this.viewBoxHeight,
-        vX,
-        vY;
+        orgX = vB[0],
+        orgY = vB[1],
+        zoom = false;
 
     if (delta > 0) {
         this.viewBoxWidth *= 0.95;
         this.viewBoxHeight*= 0.95;
-
-        // Scaling of the visualized wall-lengths
-        this.rat -= 0.05;
-        measurement.updateOnZoom(this.rat);
-        measurement.refreshMeasurements();
-        
-
+        zoom = true;
 
     } else {
         this.viewBoxWidth *= 1.05;
         this.viewBoxHeight *= 1.05;
-
-        // Scaling of the visualized wall-lengths
-        this.rat += 0.05;
-        measurement.updateOnZoom(this.rat);
-        measurement.refreshMeasurements();
-        
     }
 
-    // This will zoom into middle of the screen.
-    vX = (vB[0] - ((viewBoxWidth - vB[2]) / 2));
-    vY = (vB[1] - ((viewBoxHeight - vB[3]) / 2));
-
-
-    paper.setViewBox(vX, vY, viewBoxWidth, viewBoxHeight);
+    paper.setViewBox(orgX, orgY, viewBoxWidth, viewBoxHeight);
 }
 
 
@@ -391,14 +389,27 @@ Grid.prototype.moveRoom = function () {
 
 /**
  *  sets up the paper for svg convertion, converts and returns svg.
- *
+ *  adding 201 which represents the 1 meter offset + the 1 pixel offset that shows the grid outlines.
 **/
 Grid.prototype.setupPaper = function() {
 
-    var paper = this.paper;
+    var paper = this.paper,
+        viewW = (this.resWidth + 201),
+        viewH = (this.resHeight + 201);
 
+    // Sets width and height of the svg so that the export is the appropriate size.
+    paper.width = viewW;
+    paper.height = viewH;
 
-        console.log(this.resWidth, this.resHeight);
+    /**
+     *  Seems like we dont need the shit beneath
+     *  Functinoality added to the generate button in options
+    **/
+    // Removing angle measurements
+    //measurement.angMeasurements.remove();
+
+    // Rearranging / showing title rect and text.
+    //options.setupTitle();
 
     return paper.toSVG();
 }
