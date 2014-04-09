@@ -926,9 +926,10 @@ Options.prototype.setTitle = function () {
  *  It is called within options.setTitle and grid.setupPaper
 **/
 Options.prototype.setupTitle = function() {
-
-    this.titleRect.toFront();
-    this.titleText.toFront();
+    if (this.titleRect) {
+        this.titleRect.toFront();
+        this.titleText.toFront();
+    }
 }
 
 /** 

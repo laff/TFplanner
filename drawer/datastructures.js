@@ -173,18 +173,14 @@ Square.prototype.drawMatline = function(from) {
 
             break;
 
+        case 'rightleft':
+        case 'leftright':
         case 'rightright':
-            this.arrows.push(paper.path("M"+(x)+", "+(y+25)+", L"+(x+50)+", "+(y+25)).attr(attributes));
-            break;
-            
         case 'leftleft':
             this.arrows.push(paper.path("M"+(x+50)+", "+(y+25)+", L"+(x)+", "+(y+25)).attr(attributes));
             break;
 
         case 'upup':
-            this.arrows.push(paper.path("M"+(x+25)+", "+(y)+", L"+(x+25)+", "+(y+50)).attr(attributes));
-            break;
-
         case 'downdown':
             this.arrows.push(paper.path("M"+(x+25)+", "+(y+50)+", L"+(x+25)+", "+(y)).attr(attributes));
             break;
@@ -455,7 +451,7 @@ function Subsquare (x, y, paper, path, squareNo, subNo) {
 /**
  * OBS: The if-check after the switch may not need to check all those values, Anders?
 **/
-Subsquare.prototype.setArrow = function(dir, mat, subsquareNo) {
+Subsquare.prototype.setArrow = function(dir, mat) {
     var paper = this.paper,
         x = this.x,
         y = this.y;
@@ -496,6 +492,9 @@ Subsquare.prototype.setArrow = function(dir, mat, subsquareNo) {
                 'stroke-width': 0.1
             });
             this.direction = null;
+            break;
+
+        default:
             break;   
     }
 
