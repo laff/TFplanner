@@ -27,6 +27,10 @@ function Options (tab) {
     this.validMat = null;
     // Will contain mat-lengths the user prefer to start with.
     this.prefMat = null;
+
+
+    // Showing title once options is loaded.
+    this.setTitle();
 }
 
 
@@ -888,7 +892,10 @@ Options.prototype.actionListeners = function () {
 **/
 Options.prototype.setTitle = function () {
     // Get the text from the html-element, and update it.
-    var title = document.getElementById('titleText').value;
+    var titleEle = document.getElementById('titleText'),
+        title = (titleEle != null) ? titleEle.value : this.projectName;
+
+
     this.projectName = title;
     
     var drawWidth = (grid.resWidth + 201),
@@ -897,6 +904,7 @@ Options.prototype.setTitle = function () {
         rectLen = null,
         textX = (drawWidth / 2),
         textY = 42;
+
 
     // Clear the title-element if it already exist.
     this.titleText != null ? this.titleText.remove() : null;

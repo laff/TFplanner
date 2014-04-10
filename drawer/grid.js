@@ -12,8 +12,8 @@ function Grid() {
     this.zoom();
     this.viewBoxWidth = this.paper.width;
     this.viewBoxHeight = this.paper.height;
-    this.resWidth = 0;
-    this.resHeight = 0;
+    this.resWidth = (this.viewBoxWidth / 2);
+    this.resHeight = null;
     this.rat = 1.0;             // Used for scaling up the visualized wall-lengths.
 }
 
