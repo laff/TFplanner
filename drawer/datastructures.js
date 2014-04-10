@@ -17,7 +17,6 @@ function HeatingMat(matLength, timeoutLength, color) {
 	this.totalArea = (matLength * 50);
 	this.unusedArea = this.totalArea;
     this.timestamp = Date.now();
-    console.log("Timeoutlength is: " + timeoutLength + " Mat length is : " + matLength);
     this.validPeriod = timeoutLength ? timeoutLength : 3000;
     this.matColor = color;
     this.productNr;
@@ -356,7 +355,7 @@ Square.prototype.clearSubsquares = function() {
 	this.hasWall = false;
 	this.hasObstacles = false;
 	for (var i = 24; i >= 0 ; --i){
-		this.subsquares[i].rect.remove();
+		//this.subsquares[i].rect.remove();
 		this.subsquares.pop();
 	}
 }
@@ -400,6 +399,7 @@ function Subsquare (x, y, paper, path, squareNo, subNo) {
     this.hasObstacle = false;
     this.hasWall = false;
     this.populated = false;
+    this.hasRect = false;
     this.rect;
     this.paper = paper;
     this.x = x;
@@ -425,26 +425,15 @@ function Subsquare (x, y, paper, path, squareNo, subNo) {
         ll = Raphael.isPointInsidePath( path, x, y + ydim );
         lr = Raphael.isPointInsidePath( path, x+xdim, y+ydim );
     }
-    this.rect = paper.rect(x, y, xdim, ydim);
+    //this.rect = paper.rect(x, y, xdim, ydim);
 
     //Subsquares are either in or out, if they are
     // "partially in" it means they contain a wall
     if ( ul && ur && ll && lr) {
-        this.rect.attr({
-            'stroke-width': 0.1
-        });
         this.insideRoom = true;
     } 
     else if (ul || ur || ll || lr) {
-        this.rect.attr({
-            'stroke-width': 0.1
-        });
         this.hasWall = true;
-    }
-    else {
-        this.rect.attr ({
-            'stroke-width': 0.1
-        });
     }
 }
 
@@ -456,9 +445,11 @@ Subsquare.prototype.setArrow = function(dir, mat) {
         x = this.x,
         y = this.y;
 
+    this.rect = paper.rect(x, y, 10, 10);
+
     this.rect.attr({
-        'fill': mat.matColor,
-        'fill-opacity': 0.7
+        'stroke-width': 0,
+        'fill': mat.matColor
     });
 
     this.arrows.remove();
@@ -487,10 +478,9 @@ Subsquare.prototype.setArrow = function(dir, mat) {
 
         case 4:
             this.rect.attr({
-                'fill': "white",
-                'fill-opacity': 1,
-                'stroke-width': 0.1
+                'fill': "white"
             });
+            this.rect.remove();
             this.direction = null;
             break;
 
