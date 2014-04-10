@@ -431,19 +431,19 @@ function Subsquare (x, y, paper, path, squareNo, subNo) {
     // "partially in" it means they contain a wall
     if ( ul && ur && ll && lr) {
         this.rect.attr({
-            'stroke-width': 0.1
+            'stroke-width': 0
         });
         this.insideRoom = true;
     } 
     else if (ul || ur || ll || lr) {
         this.rect.attr({
-            'stroke-width': 0.1
+            'stroke-width': 0
         });
         this.hasWall = true;
     }
     else {
         this.rect.attr ({
-            'stroke-width': 0.1
+            'stroke-width': 0
         });
     }
 }
@@ -489,7 +489,7 @@ Subsquare.prototype.setArrow = function(dir, mat) {
             this.rect.attr({
                 'fill': "white",
                 'fill-opacity': 1,
-                'stroke-width': 0.1
+                'stroke-width': 0
             });
             this.direction = null;
             break;

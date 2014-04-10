@@ -27,14 +27,27 @@ function ResultGrid(pathString) {
 
     //Functionality to prepare data structure
     this.addSquares();
-    this.supplyPoint =  this.setSupplyPoint();
-    this.addObstacles();
-    this.moveWalls();
-    this.createStartPoints();
-    console.log(this.startSquares);
 
-    //Starts to populate the data structure
-    this.findStart();
+    // the following  functionality is called within a timeout.
+    // this gives the javascript some breathing room for updating UI 
+    // (within addsquares which calls progress text update).
+    var that = this;
+    setTimeout(function() {
+        that.supplyPoint =  that.setSupplyPoint();
+        that.addObstacles();
+        that.moveWalls();
+        that.createStartPoints();
+
+        //Starts to populate the data structure
+        that.findStart();
+
+        that.displayMats();
+
+    }, 2);
+
+
+
+
 
 }
 
@@ -148,6 +161,9 @@ ResultGrid.prototype.displayMats = function () {
             }
         }
     this.chosenMats = products;
+
+    // Removes the progress
+    options.updateProgress(true);
 }
 
 /**
@@ -178,6 +194,8 @@ ResultGrid.prototype.addSquares = function() {
             squares[length++] = square;
         }
     }
+
+    options.updateProgress(false);
 }
 
 /**
