@@ -152,7 +152,7 @@ FootMenu.prototype.initFooter = function () {
 
 	// Positions the icon ~center of the paper + scales it up a bit.
     load.transform('t'+((width/6)-17)+','+((height/2)-15)+',s1.3');
-    loadTxt = paper.text(width/6-1, height/2+2, "Last");
+    loadTxt = paper.text(width/6-1, height/2+2, "Hjelp");
 
     // Add items to a set, then add mousehandlers, and set a tooltip.
     this.setHandlers(ld.push(load, loadTxt));

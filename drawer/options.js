@@ -27,6 +27,10 @@ function Options (tab) {
     this.validMat = null;
     // Will contain mat-lengths the user prefer to start with.
     this.prefMat = null;
+
+
+    // Showing title once options is loaded.
+    this.setTitle();
 }
 
 
@@ -515,7 +519,31 @@ Options.prototype.generateButton = function (form) {
     var container = this.container,
         opts = this,
         input = document.createElement('input'),
-        path;
+        path,
+        createProgresswindow = function(callback) {
+
+            var grayDiv = document.createElement('div'),
+                infoDiv = document.createElement('div'),
+                information = document.createElement('p');
+
+            grayDiv.id = 'progress';
+            infoDiv.id = 'infoprogress';
+            information.id = 'progressinformation';
+
+            information.innerHTML = 'Kalkulerer areal';
+
+            infoDiv.appendChild(information);
+            
+
+            
+            $('#container').append(grayDiv);
+            $('#container').append(infoDiv);
+
+            setTimeout(function() {
+                callback();
+            }, 10);
+
+        };
 
     input.id = 'genButton';
     input.type = 'button';
@@ -528,26 +556,26 @@ Options.prototype.generateButton = function (form) {
     $(container).append(form);
 
     $('#genButton').click( function () {
-
-
         
         // If we have a finished room, we can call the algorithm and generate a drawing!
         if (ourRoom.finished == true) {
 
+            createProgresswindow(function() {
+                    // The functionality beneath is invoked in such an order that the final drawing is display correctly
+                    path = grid.moveRoom();
+                    resultGrid = new ResultGrid(path);
 
-            // The functionality beneath is invoked in such an order that the final drawing is display correctly
-            path = grid.moveRoom();
-            resultGrid = new ResultGrid(path);
-            scrollBox.paper.clear();
+                    scrollBox.paper.clear();
 
-            grid.gridSet.toFront(); 
-            resultGrid.displayMats();
-            
-            ourRoom.walls.toFront();
+                    grid.gridSet.toFront(); 
+                    //resultGrid.displayMats();
+                    
+                    ourRoom.walls.toFront();
 
-            measurement.wallText.toFront();
-            grid.boxSet.toFront();
-            options.setupTitle();
+                    measurement.wallText.toFront();
+                    grid.boxSet.toFront();
+                    options.setupTitle();
+                });
 
         }
     });
@@ -555,6 +583,24 @@ Options.prototype.generateButton = function (form) {
     // When we have chosen all steps and the 'generate-button' is created, we also want
     // to display the possible mats the user prefer to use.
     opts.preferredMats(form);
+}
+
+/**
+ *  Function that either removes progress or updates it.
+ *
+**/
+Options.prototype.updateProgress = function (remove) {
+
+    // removing the progress visual
+    if (remove) {
+        console.log('removing');
+        document.getElementById('progress').remove();
+        document.getElementById('infoprogress').remove();
+
+    } else {
+        console.log('updating text');
+        document.getElementById('infoprogress').innerHTML = 'Kalkulerer leggeanvisning';
+    }
 }
 
 /**
@@ -888,7 +934,10 @@ Options.prototype.actionListeners = function () {
 **/
 Options.prototype.setTitle = function () {
     // Get the text from the html-element, and update it.
-    var title = document.getElementById('titleText').value;
+    var titleEle = document.getElementById('titleText'),
+        title = (titleEle != null) ? titleEle.value : this.projectName;
+
+
     this.projectName = title;
     
     var drawWidth = (grid.resWidth + 201),
@@ -897,6 +946,7 @@ Options.prototype.setTitle = function () {
         rectLen = null,
         textX = (drawWidth / 2),
         textY = 42;
+
 
     // Clear the title-element if it already exist.
     this.titleText != null ? this.titleText.remove() : null;
