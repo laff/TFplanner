@@ -771,7 +771,7 @@ Options.prototype.obstacleList = function (obstacle) {
             // Checks if the obstacletType stored equals "Startpunkt" which translates to "supplypoint" in english.
             // Creates checkbox
             if (obstacleArr[i].data('obstacleType') == 'Startpunkt') {
-                html += "Slutte mot vegg: <input type='checkbox' id='supplyend' checked>";
+                html += "Kan slutte startvegg: <input type='checkbox' id='supplyend' checked>";
             }
 
             // Button element.
@@ -894,7 +894,7 @@ Options.prototype.actionListeners = function () {
 
         // stores the users choice on the matter of ending the mats at the supplywall or not.
         if (supply) {
-            obstacles.supplyEnd = supply.checked;
+            obstacles.supplyEnd = !supply.checked;
         }
         
 
@@ -997,7 +997,7 @@ Options.prototype.setTitle = function () {
  *  It is called within options.setTitle and grid.setupPaper
 **/
 Options.prototype.setupTitle = function() {
-    if (this.titleRect) {
+    if (this.titleRect != null && this.titleText != null) {
         this.titleRect.toFront();
         this.titleText.toFront();
     }

@@ -254,18 +254,23 @@ FootMenu.prototype.clearAll = function () {
  * the same grid as 'grid')
  * Then create our initial grid before we initalize the drawing.
  */
+ /*
+ *  TODO! Put all of this inside a contructor for our script?
+ *
+ */
+
+    // Remove any visuals
     (resultGrid != null) ? resultGrid.clear() : null; 
     (options.roomTitle != null) ? options.roomTitle.remove() : null;
-    options.preDefArr = null;
     scrollBox.paper.clear();
-
     ourRoom.clearRoom();
-    tabs.select(1);
-    options.showOptions(1);
+
+    // Create new objects
     grid = new Grid();
     scrollBox = new ScrollBox();
     measurement = new Measurement();
     ourRoom = new DrawRoom(20);
+    options = new Options();
     obstacles = new Obstacles();
     mattur = new Mats();
 }
