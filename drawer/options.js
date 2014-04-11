@@ -771,7 +771,7 @@ Options.prototype.obstacleList = function (obstacle) {
             // Checks if the obstacletType stored equals "Startpunkt" which translates to "supplypoint" in english.
             // Creates checkbox
             if (obstacleArr[i].data('obstacleType') == 'Startpunkt') {
-                html += "Kan slutte startvegg: <input type='checkbox' id='supplyend' checked>";
+                html += "Kan slutte mot startvegg: <input type='checkbox' id='supplyend'>";
             }
 
             // Button element.

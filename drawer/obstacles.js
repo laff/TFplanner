@@ -13,7 +13,7 @@ function Obstacles () {
 	this.supplyPoint = null;
 	// True means that the mat needs to both start and end at the supplypoint/wall.
 	// false means that it will start at the supplypoint/wall but 
-	this.supplyEnd = false;
+	this.supplyEnd = true;
 }
 
 /**
