@@ -11,6 +11,8 @@ function ResultGrid(pathString) {
     this.startSquares = [];
     this.area = 0;
     this.unusedArea = 0;
+    //Squarewidth and squareheight are the number
+    // of squares high and wide the structure is
     this.squarewidth = 0;
     this.squareheight= 0;
     this.path = pathString;
@@ -38,9 +40,11 @@ function ResultGrid(pathString) {
     var that = this;
     setTimeout(function() {
         //Starts to populate the data structure
-        that.findStart();
+        var promp = that.findStart();
 
         that.displayMats();
+
+        console.log(promp);
 
     }, 2);
 }
@@ -161,7 +165,7 @@ ResultGrid.prototype.displayMats = function () {
 }
 
 /**
- * Function creates a square structure
+ * Function creates a square/data structure
 **/
 ResultGrid.prototype.addSquares = function() {
     var squares = this.squares,
@@ -255,16 +259,31 @@ ResultGrid.prototype.findStart = function() {
  
                 //Criteria: If adjacent to a wall and recursive mat placement works,
                 // return true
-                if ( this.adjacentWall(squareList, -1) && this.placeMat(index, 0, 3000)  ) {
+                if ( this.adjacentWall(squareList, -1) && this.placeMat(index, 3000, false, false)  ) {
                      return true;
                 }
  
             } else {
+                var strips =[ [0, 1, 2, 3, 4], [5, 6, 7, 8, 9], [10, 11, 12, 13, 14],
+                              [15, 16, 17, 18, 19], [20, 21, 22, 23, 24], [0, 5, 10, 15, 20],
+                              [1, 6, 11, 16, 21], [2, 7, 12, 17, 22], [3, 8, 13, 18, 23],
+                              [4, 9, 14, 19, 24]];
+
                 //Checks for each subsquare if it has adjacent wall and recursive mat
                 // placement
                 for (var j=0; j < 25; ++j) {
-                    if ( this.adjacentWall(squareList, j) && this.placeMat(index, j, 200) ) {
-                        return true;
+
+                    if ( this.adjacentWall(squareList, j) ) {//&& this.placeMat(index, j, 200) ) {
+                        var hor = Math.floor(j/5),
+                            vert = j%5,
+                            arr1 = strips[hor],
+                            arr2 = strips[vert+5];
+                        arr1 = this.arrFree(index, arr1) ? arr1 : false;
+                        arr2 = this.arrFree(index, arr2) ? arr2 : false;
+
+                        if ( this.placeMat(index, 200, arr1, arr2) ) {
+                            return true;
+                        }
                     }          
                 }        
             }
@@ -282,7 +301,7 @@ ResultGrid.prototype.findStart = function() {
  * @param subsquareNo - The index of the subsquare, iff any, where mat
  *  is to be placed
 **/
-ResultGrid.prototype.placeMat = function (squareNo, subsquareNo, validPeriod) {
+ResultGrid.prototype.placeMat = function (squareNo, validPeriod, arr1, arr2) {
 
     var mat,    
         l = [];
@@ -318,8 +337,11 @@ ResultGrid.prototype.placeMat = function (squareNo, subsquareNo, validPeriod) {
                 // want to put it out anyway.
                 options.prefMat.shift();
                 // PlaceSquare is where the placement of the mat begins
-                if (this.placeSquare(squareNo, subsquareNo, mat, 0, -1)) {
+                if ( !arr1 && !arr2 && this.placeSquare(squareNo, 0, mat, 0, -1) ) {
                     return true;
+                } else if ( (arr1 && this.placeStrip(squareNo, arr1, mat, 0) ) || 
+                            (arr2 && this.placeStrip(squareNo, arr2, mat, 0) ) ) {
+                return true;
                 }
                 delete mat;
             }
@@ -340,13 +362,15 @@ ResultGrid.prototype.placeMat = function (squareNo, subsquareNo, validPeriod) {
             mat.productNr = options.validMat.products[l.length].number;
 
             //placeSquare is where the placement of the mat begins
-            if ( this.placeSquare(squareNo, subsquareNo, mat, 0, -1) ) {
+            if ( !arr1 && !arr2 && this.placeSquare(squareNo, 0, mat, 0, -1) ) {
+                return true;
+            } else if ( (arr1 && this.placeStrip(squareNo, arr1, mat, 0) ) || 
+                        (arr2 && this.placeStrip(squareNo, arr2, mat, 0) ) ) {
                 return true;
             }
             delete mat;
         }
     }
-
     //If we reach this point mat placement has failed, and we revert
     // and presumably recurse
     this.colorIndex--;
@@ -989,7 +1013,6 @@ ResultGrid.prototype.placeSubsquare = function(squareNo, subsquareNo, mat, lastS
         left = null, 
         right = null, 
         down = null;
-
 
     //The subsquare must be free to populate
     if ( !(sub.hasWall || sub.hasObstacle || sub.populated) ) {
