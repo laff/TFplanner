@@ -11,6 +11,9 @@ function Obstacles () {
 	this.txtSet = this.paper.set();
 	this.lineSet = this.paper.set();
 	this.supplyPoint = null;
+	// True means that the mat needs to both start and end at the supplypoint/wall.
+	// false means that it will start at the supplypoint/wall but 
+	this.supplyEnd = true;
 }
 
 /**
@@ -34,7 +37,36 @@ Obstacles.prototype.createObstacle = function (num, txt) {
 		x = 100,
 		y = 100,
 		paper = this.paper,
-		obst = this;
+		obst = this,
+		
+		/**
+		 *	Function that finds the wall that is most western.
+		 *	Returns it middlepoint.
+		**/
+		westernWall = function() {
+
+			var walls = ourRoom.walls,
+				west = null;
+
+			for (var i = 0; i < walls.length; i++) {
+
+				var wall = walls[i];
+
+				if (west == null) {
+					west = wall.getPointAtLength((wall.getTotalLength() / 2));
+
+				} else {
+					var newWall = wall.getPointAtLength((wall.getTotalLength() / 2));
+
+					if (newWall.x < west.x) {
+						west = newWall;
+					}
+				}
+			}
+
+			x = west.x;
+			y = west.y;
+		};
 
 	// Setting w and h values based on input
 	switch (num) {
@@ -67,6 +99,7 @@ Obstacles.prototype.createObstacle = function (num, txt) {
 		case '5':
 			w = 10;
 			h = 10;
+			westernWall();
 			break;
 		// Bench
 		case '6':

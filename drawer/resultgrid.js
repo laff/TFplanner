@@ -28,29 +28,25 @@ function ResultGrid(pathString) {
     //Functionality to prepare data structure
     this.addSquares();
 
-    // the following  functionality is called within a timeout.
-    // this gives the javascript some breathing room for updating UI 
-    // (within addsquares which calls progress text update).
-    var that = this;
-    setTimeout(function() {
-        that.supplyPoint =  that.setSupplyPoint();
-        that.addObstacles();
-        that.moveWalls();
-        that.createStartPoints();
-
-        //Starts to populate the data structure
-        that.findStart();
-
-        that.displayMats();
-
-    }, 2);
-
-
-
-
-
 }
 
+/**
+ *  Function that invokes the functionalites associated with the mat placements / guide.
+ *
+**/
+ResultGrid.prototype.calculateGuide = function () {
+
+        this.supplyPoint =  this.setSupplyPoint();
+        this.addObstacles();
+        this.moveWalls();
+        this.createStartPoints();
+
+        //Starts to populate the data structure
+        this.findStart();
+
+        this.displayMats();
+
+}
 
 /**
  *  Drawing mats by calling fancy functions on all the squares.
@@ -195,7 +191,7 @@ ResultGrid.prototype.addSquares = function() {
         }
     }
 
-    options.updateProgress(false);
+    options.updateProgress(false, this);
 }
 
 /**
@@ -261,7 +257,7 @@ ResultGrid.prototype.findStart = function() {
  
                 //Criteria: If adjacent to a wall and recursive mat placement works,
                 // return true
-                if ( this.adjacentWall(squareList, -1) && this.placeMat(index, 0, 3000)  ) {
+                if ( this.adjacentWall(squareList, -1) && this.placeMat(index, 0, 100)  ) {
                      return true;
                 }
  
@@ -269,7 +265,7 @@ ResultGrid.prototype.findStart = function() {
                 //Checks for each subsquare if it has adjacent wall and recursive mat
                 // placement
                 for (var j=0; j < 25; ++j) {
-                    if ( this.adjacentWall(squareList, j) && this.placeMat(index, j, 200) ) {
+                    if ( this.adjacentWall(squareList, j) && this.placeMat(index, j, 50) ) {
                         return true;
                     }          
                 }        
@@ -441,10 +437,13 @@ ResultGrid.prototype.placeSquare = function (squareNo, subsquareNo, mat, lastSqu
                 correctWall = true;
 
             //Mats cannot end on same wall that contains the supplypoint
-            if (supply && (square.xpos >= supply[0] && square.xpos <= supply[1] && 
-                           square.ypos >= supply[2] && square.ypos <= supply[3]) ) {
-                correctWall = false;
+            if (obstacles.supplyEnd) {
+                if (supply && (square.xpos >= supply[0] && square.xpos <= supply[1] && 
+                               square.ypos >= supply[2] && square.ypos <= supply[3])) {
+                    correctWall = false;
+                }
             }
+
 
             if ( correctWall && this.adjacentWall(squareList, -1) && ( this.unusedArea == 0 || this.findStart() ) ) {
                 var direction;
