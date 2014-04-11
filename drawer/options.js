@@ -560,12 +560,13 @@ Options.prototype.generateButton = function (form) {
         // If we have a finished room, we can call the algorithm and generate a drawing!
         if (ourRoom.finished == true) {
 
-            createProgresswindow(function() {
+            createProgresswindow(
+                function() {
                     // The functionality beneath is invoked in such an order that the final drawing is display correctly
                     path = grid.moveRoom();
                     resultGrid = new ResultGrid(path);
 
-                    scrollBox.paper.clear();
+                    //scrollBox.paper.clear();
 
                     grid.gridSet.toFront(); 
                     //resultGrid.displayMats();
@@ -576,7 +577,6 @@ Options.prototype.generateButton = function (form) {
                     grid.boxSet.toFront();
                     options.setupTitle();
                 });
-
         }
     });
 
@@ -589,17 +589,18 @@ Options.prototype.generateButton = function (form) {
  *  Function that either removes progress or updates it.
  *
 **/
-Options.prototype.updateProgress = function (remove) {
+Options.prototype.updateProgress = function (remove, resultgrid) {
 
     // removing the progress visual
     if (remove) {
-        console.log('removing');
         document.getElementById('progress').remove();
         document.getElementById('infoprogress').remove();
 
     } else {
-        console.log('updating text');
         document.getElementById('infoprogress').innerHTML = 'Kalkulerer leggeanvisning';
+
+        // give the javascript breathingroom for gui updates
+        setTimeout(function() { resultgrid.calculateGuide(); }, 1);
     }
 }
 
@@ -669,8 +670,11 @@ Options.prototype.initObstacles = function () {
     $(container).removeClass('specTab');
 
     if (ourRoom.finished ==  true) {
-        // Move the room to coordinates (99, 99)
-        grid.moveRoom();
+        // Move the room to coordinates (99, 99), but only if obstacles has not been loaded.
+        if (obstacles.supplyPoint == null) {
+            grid.moveRoom();
+            obstacles.createObstacle("5", "Startpunkt");
+        }
 
         // Add inputfield and button to add a 'projectname'.
         html += '<h3> Sett prosjektnavn </h3>';
@@ -678,11 +682,12 @@ Options.prototype.initObstacles = function () {
         html += "<div class='inputfield'><input type='text' id='titleText' value="+this.projectName+" autocomplete='off'><br></div>";
         html += "<input id='titleSubmit' type='button' value='Endre prosjektnavn'>";
         html += '</form>';
-
+        /*
         html += '<h3> Sett tilf'+crossO+'rselspunkt </h3>';
         html += '<form class=forms>';
         html += "<input id='supplySubmit' type='button' value='Sett tilf"+crossO+"rselspunkt'>";
         html += '</form>';
+        */
         // Header
         html += '<h3> Legg til hindring </h3>';
 
@@ -748,7 +753,7 @@ Options.prototype.obstacleList = function (obstacle) {
                 height = obstacleArr[i].attrs.height,
                 x = obstacleArr[i].attrs.x,
                 y = obstacleArr[i].attrs.y,
-                increase = "<input class='plusminus' type='button' name='increase' value='+' />";
+                increase = "<input class='plusminus' type='button' name='increase' value='+' />",
                 decrease = "<input class='plusminus' type='button' name='decrease' value='-' />";
 
             // Div start by a line break
@@ -762,8 +767,16 @@ Options.prototype.obstacleList = function (obstacle) {
             html += "<div class='inputfield'><div class='inputtext'>X avstand: </div>"+decrease+"<input type='number' id='posx' value="+(x - 100)+">"+increase+"<br></div>";
             // position y
             html += "<div class='inputfield'><div class='inputtext'>Y avstand: </div>"+decrease+"<input type='number' id='posy' value="+(y - 100)+">"+increase+"</div>";
+            
+            // Checks if the obstacletType stored equals "Startpunkt" which translates to "supplypoint" in english.
+            // Creates checkbox
+            if (obstacleArr[i].data('obstacleType') == 'Startpunkt') {
+                html += "Slutte mot vegg: <input type='checkbox' id='supplyend' checked>";
+            }
+
             // Button element.
             html += "<input id=changeObst name="+i+" type='button' value="+save+">";
+
             // Div end.
             html += "</div>";
         }
@@ -876,7 +889,14 @@ Options.prototype.actionListeners = function () {
         var roundX = (Math.round((($('#posx').val())/ 10)) * 10) + 100,
             roundY = (Math.round((($('#posy').val())/ 10)) * 10) + 100,
             roundW = (Math.round((($('#width').val())/ 10)) * 10),
-            roundH = (Math.round((($('#height').val())/ 10)) * 10);
+            roundH = (Math.round((($('#height').val())/ 10)) * 10),
+            supply = document.getElementById('supplyend');
+
+        // stores the users choice on the matter of ending the mats at the supplywall or not.
+        if (supply) {
+            obstacles.supplyEnd = supply.checked;
+        }
+        
 
         $('#posx').val((roundX - 100));
         $('#posy').val((roundY - 100));
@@ -922,10 +942,11 @@ Options.prototype.actionListeners = function () {
             opts.setTitle();
         }
     });
-
+/*
     $('#supplySubmit').click(function () {
         obstacles.createObstacle("5", "Startpunkt");
     });
+*/
 }
 
 /**

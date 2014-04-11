@@ -29,26 +29,26 @@ function ResultGrid(pathString) {
 
     //Functionality to prepare data structure
     this.addSquares();
+}
+
+/**
+ *  Function that invokes the functionalites associated with the mat placements / guide.
+ *
+**/
+ResultGrid.prototype.calculateGuide = function () {
+
     this.supplyPoint =  this.setSupplyPoint();
     this.addObstacles();
     this.moveWalls();
     this.createStartPoints();
 
-    // the following  functionality is called within a timeout.
-    // this gives the javascript some breathing room for updating UI 
-    // (within addsquares which calls progress text update).
-    var that = this;
-    setTimeout(function() {
-        //Starts to populate the data structure
-        var promp = that.findStart();
+    //Starts to populate the data structure
+    this.findStart();
 
-        that.displayMats();
+    this.displayMats();
 
-        console.log(promp);
 
-    }, 2);
 }
-
 
 /**
  *  Drawing mats by calling fancy functions on all the squares.
@@ -193,7 +193,7 @@ ResultGrid.prototype.addSquares = function() {
         }
     }
 
-    options.updateProgress(false);
+    options.updateProgress(false, this);
 }
 
 /**
@@ -284,6 +284,7 @@ ResultGrid.prototype.findStart = function() {
                         if ( this.placeMat(index, 50, arr1, arr2) ) {
                             return true;
                         }
+
                     }          
                 }        
             }
@@ -446,13 +447,16 @@ ResultGrid.prototype.placeSquare = function (squareNo, subsquareNo, mat, lastSqu
                 correctWall = true;
 
             //Mats cannot end on same wall that contains the supplypoint
-            if (supply && (square.xpos >= supply[0] && square.xpos <= supply[1] && 
-                           square.ypos >= supply[2] && square.ypos <= supply[3]) ) {
+            if ( obstacles.supplyEnd && supply && 
+                 ( square.xpos >= supply[0] && square.xpos <= supply[1] && 
+                   square.ypos >= supply[2] && square.ypos <= supply[3] ) ) {
                 correctWall = false;
             }
 
+
             if ( correctWall && this.adjacentWall(squareList, -1) && 
                  ( this.unusedArea == 0 || this.findStart() ) ) {
+
                 var direction;
 
                 if ( dir > 1 ) {
@@ -786,11 +790,12 @@ ResultGrid.prototype.placeStrip = function(squareNo, arr, mat, lastSquareNo) {
         correctWall = true;
 
         //Mats cannot end on same wall that contains the supplypoint
-        if (supply && (square.xpos < supply[0] || square.xpos > supply[1] || 
-                       square.ypos < supply[2] || square.ypos > supply[3]) ) {
+        if ( obstacles.supplyEnd && supply && 
+             ( square.xpos >= supply[0] && square.xpos <= supply[1] && 
+               square.ypos >= supply[2] && square.ypos <= supply[3] ) ) {
             correctWall = false;
         }
-        
+
         //One subsquare must be adjacent to a valid wall segment
         if ( correctWall &&
              ( this.adjacentWall(squareList, arr[0]) || 

@@ -98,6 +98,10 @@
 	float: left;
 }
 
+#supplyend {
+	float: none!important;
+}
+
 #canvas_container {  
 	float: right;
 
