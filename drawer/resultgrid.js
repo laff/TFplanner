@@ -259,7 +259,7 @@ ResultGrid.prototype.findStart = function() {
  
                 //Criteria: If adjacent to a wall and recursive mat placement works,
                 // return true
-                if ( this.adjacentWall(squareList, -1) && this.placeMat(index, 3000, false, false)  ) {
+                if ( this.adjacentWall(squareList, -1) && this.placeMat(index, 100, false, false)  ) {
                      return true;
                 }
  
@@ -281,7 +281,7 @@ ResultGrid.prototype.findStart = function() {
                         arr1 = this.arrFree(index, arr1) ? arr1 : false;
                         arr2 = this.arrFree(index, arr2) ? arr2 : false;
 
-                        if ( this.placeMat(index, 200, arr1, arr2) ) {
+                        if ( this.placeMat(index, 50, arr1, arr2) ) {
                             return true;
                         }
                     }          
@@ -421,7 +421,6 @@ ResultGrid.prototype.placeSquare = function (squareNo, subsquareNo, mat, lastSqu
         dir = squareNo - lastSquareNo;
 
     //If thee recursive placement is taking too long, abort mat
-    //Due to asynchronous nature of javascript this is safer than simply returning false
     if ( (timeout - mat.timestamp) > mat.validPeriod) {
         return false;
     }
@@ -693,12 +692,20 @@ ResultGrid.prototype.placeSquare = function (squareNo, subsquareNo, mat, lastSqu
         //If the end needs to be divided into subsquares to reach a wall we will 
         // need to know which direction we came from
         if (mat.unusedArea < area && lastSubsquareNo == -1) {
+            var arr;
             //From left or top
             if (dir > 1) {
+                arr = [0, 1, 2, 3, 4];
                 subsquareNo = 20;
             } else if ( dir == -1) {
+                arr = [4, 9, 14, 19, 24];
                 subsquareNo = 4; 
-            } else {
+            } else if (dir == 1) {
+                subsquareNo = 0;
+                arr = [0, 5, 10, 15, 20];
+            }
+            else {
+                arr = [20, 21, 22, 23, 24];
                 subsquareNo = 0;
             }
         }
@@ -779,8 +786,8 @@ ResultGrid.prototype.placeStrip = function(squareNo, arr, mat, lastSquareNo) {
         correctWall = true;
 
         //Mats cannot end on same wall that contains the supplypoint
-        if (supply && (square.xpos >= supply[0] && square.xpos <= supply[1] && 
-                       square.ypos >= supply[2] && square.ypos <= supply[3]) ) {
+        if (supply && (square.xpos < supply[0] || square.xpos > supply[1] || 
+                       square.ypos < supply[2] || square.ypos > supply[3]) ) {
             correctWall = false;
         }
         
