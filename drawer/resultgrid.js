@@ -259,7 +259,7 @@ ResultGrid.prototype.findStart = function() {
  
                 //Criteria: If adjacent to a wall and recursive mat placement works,
                 // return true
-                if ( this.adjacentWall(squareList, -1) && this.placeMat(index, 300, false, false)  ) {
+                if ( this.adjacentWall(squareList, -1) && this.placeMat(index, 100, false, false)  ) {
                      return true;
                 }
  
@@ -864,6 +864,8 @@ ResultGrid.prototype.placeStrip = function(squareNo, arr, mat, lastSquareNo) {
 /**
  * Function populated a subsquare, if possible, then recursively calls itself. When no
  * new subsquare can be reached it will try to call placeSquare for the next square instead.
+ * This function has been rendered obsolete by placeStrip(), but is still the fallback procedure
+ * for placeSquare().
  * @param squareNo - Index of square containing the subsquare to be populated
  * @param subSquareNo - Index of subsquare to be populated
  * @param mat - The heating mat which is currently placed
@@ -1185,12 +1187,11 @@ ResultGrid.prototype.moveWalls = function() {
 
     }
 
-    // Stores the available area in options. converts it to m2 first.
-    options.availableArea = (this.area / 10000);
-
+    console.log("Availabe area: " + this.area + " square cm");
     this.area -= 3000;
     this.area -= this.area%10000;
     this.unusedArea = this.area;
+    console.log("Usable area: " + this.area + " square cm");
 
     //End of moveWalls
 }
