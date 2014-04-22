@@ -259,14 +259,14 @@ ResultGrid.prototype.findStart = function() {
  
                 //Criteria: If adjacent to a wall and recursive mat placement works,
                 // return true
-                if ( this.adjacentWall(squareList, -1) && this.placeMat(index, 100, false, false)  ) {
+                if ( this.adjacentWall(squareList, -1) && this.placeMat(index, 300, false, false)  ) {
                      return true;
                 }
  
             } else {
-                var strips =[ [0, 1, 2, 3, 4], [5, 6, 7, 8, 9], [10, 11, 12, 13, 14],
+                var strips =[ [0, 1, 2, 3, 4],      [5, 6, 7, 8, 9],      [10, 11, 12, 13, 14],
                               [15, 16, 17, 18, 19], [20, 21, 22, 23, 24], [0, 5, 10, 15, 20],
-                              [1, 6, 11, 16, 21], [2, 7, 12, 17, 22], [3, 8, 13, 18, 23],
+                              [1, 6, 11, 16, 21],   [2, 7, 12, 17, 22],   [3, 8, 13, 18, 23],
                               [4, 9, 14, 19, 24]];
 
                 //Checks for each subsquare if it has adjacent wall and recursive mat
@@ -591,6 +591,13 @@ ResultGrid.prototype.placeStrip = function(squareNo, arr, mat, lastSquareNo) {
         }
         added = true;
     }
+
+    if ( !this.arrFree(squareNo, arr) ) {
+        if (added) {
+            this.squares[squareNo].clearSubsquares();
+        }
+        return false;
+    }
     
     for (var i = 0; i < 5; ++i) {
         this.squares[squareNo].subsquares[arr[i]].populated = true;
@@ -650,25 +657,23 @@ ResultGrid.prototype.placeStrip = function(squareNo, arr, mat, lastSquareNo) {
 
 
 
-    //NEEDS WORK
+    //Finds adjacent strips
     if (arr[0] <= 4 && arr[4] >=20) {
         //Vertical strip - right/left placement
         rstrip = (arr[0] < 4) ? [arr[0]+1, arr[1]+1, arr[2]+1, arr[3]+1, arr[4]+1] : null;
         lstrip = (arr[0] > 0) ? [arr[0]-1, arr[1]-1, arr[2]-1, arr[3]-1, arr[4]-1] : null;
         ustrip = null;
         dstrip = null;
-        offset = (dir == 1) ? 1 : -1;
     } else {
         //Horizontal strip - up/down placement
         ustrip = (arr[0] > 4) ? [arr[0]-5, arr[1]-5, arr[2]-5, arr[3]-5, arr[4]-5] : null;
         dstrip = (arr[0] < 20) ? [arr[0]+5, arr[1]+5, arr[2]+5, arr[3]+5, arr[4]+5] : null;
         rstrip = null;
         lstrip = null;
-        offset = (dir == width) ? 5 : -5;
     }
     nextArr = [arr[0]+offset, arr[1]+offset, arr[2]+offset, arr[3]+offset, arr[4]+offset];
 
-    if ( !abort && rstrip && this.arrFree(squareNo, rstrip) && 
+    if ( !abort && rstrip && //this.arrFree(squareNo, rstrip) && 
          this.placeStrip(squareNo, rstrip, mat, lastSquareNo) ) {
 
         for (var i = 0; i < 5; ++i) {
@@ -687,7 +692,7 @@ ResultGrid.prototype.placeStrip = function(squareNo, arr, mat, lastSquareNo) {
 
         this.squares[squareNo].subsquares[arr[2]].setArrow(arrowDir, mat);
         return true;  
-    } else if ( !abort && lstrip && this.arrFree(squareNo, lstrip) && 
+    } else if ( !abort && lstrip && //this.arrFree(squareNo, lstrip) && 
          this.placeStrip(squareNo, lstrip, mat, lastSquareNo) ) {
 
         for (var i = 0; i < 5; ++i) {
@@ -706,7 +711,7 @@ ResultGrid.prototype.placeStrip = function(squareNo, arr, mat, lastSquareNo) {
 
         this.squares[squareNo].subsquares[arr[2]].setArrow(arrowDir, mat);
         return true;  
-    } else if ( !abort && ustrip && this.arrFree(squareNo, ustrip) && 
+    } else if ( !abort && ustrip && //this.arrFree(squareNo, ustrip) && 
          this.placeStrip(squareNo, ustrip, mat, lastSquareNo) ) {
 
         for (var i = 0; i < 5; ++i) {
@@ -725,7 +730,7 @@ ResultGrid.prototype.placeStrip = function(squareNo, arr, mat, lastSquareNo) {
 
         this.squares[squareNo].subsquares[arr[2]].setArrow(arrowDir, mat);
         return true;  
-    } else if ( !abort && dstrip && this.arrFree(squareNo, dstrip) && 
+    } else if ( !abort && dstrip && //this.arrFree(squareNo, dstrip) && 
          this.placeStrip(squareNo, dstrip, mat, lastSquareNo) ) {
 
         for (var i = 0; i < 5; ++i) {
@@ -744,33 +749,8 @@ ResultGrid.prototype.placeStrip = function(squareNo, arr, mat, lastSquareNo) {
 
         this.squares[squareNo].subsquares[arr[2]].setArrow(arrowDir, mat);
         return true;  
-    }
-
-    /*
-    //Tries to place next strip inside square, if not it will try to populate the next
-    // square in the order right-left-up-down
-    if ( ( ( nextArr[0] >= 0 && nextArr[0] < 5 && nextArr[4] >= 20 && nextArr[4] < 25 ) ||
-           ( nextArr[0] %5 == 0 && nextArr[0] >= 0 && nextArr[0] <= 20 )  ) && !abort &&
-         this.arrFree(squareNo, nextArr) && this.placeStrip(squareNo, nextArr, mat, lastSquareNo) ) {
-
-        for (var i = 0; i < 5; ++i) {
-            this.squares[squareNo].subsquares[arr[i]].setArrow(9, mat);
-        }
-        
-        if (dir > 1) {
-            arrowDir = 3;
-        } else if (dir == 1) {
-            arrowDir = 2;
-        } else if (dir == -1) {
-            arrowDir = 1;
-        } else {
-            arrowDir =0;
-        }
-
-        this.squares[squareNo].subsquares[arr[2]].setArrow(arrowDir, mat);
-        return true;
-    }*/ else if ( (arr[4] % 5 == 4) && !right.populated && right.reallyInside && 
-                right.subsquares.length == 0 && !abort && 
+    } else if ( (arr[4] % 5 == 4) && !right.populated && right.reallyInside && 
+                right.subsquares.length == 0 && !abort && (mat.unusedArea >= right.area) &&
                 this.placeSquare(r, 0, mat, squareNo, -1) ) {
         for (var i = 0; i < 5; ++i) {
             this.squares[squareNo].subsquares[arr[i]].setArrow(9, mat);
@@ -778,14 +758,15 @@ ResultGrid.prototype.placeStrip = function(squareNo, arr, mat, lastSquareNo) {
         this.squares[squareNo].subsquares[arr[2]].setArrow(1, mat);
         return true;
     }  else if ( arr[0] % 5 == 4 && arr[4] % 5 == 4 && !right.populated && right.reallyInside && 
-                !abort && this.arrFree(r, arr) && this.placeStrip(r, arr, mat, squareNo) ) {
+                !abort && //this.arrFree(r, arr) && 
+                this.placeStrip(r, arr, mat, squareNo) ) {
         for (var i = 0; i < 5; ++i) {
             this.squares[squareNo].subsquares[arr[i]].setArrow(9, mat);
         }
         this.squares[squareNo].subsquares[arr[2]].setArrow(1, mat);
         return true;
     } else if ( arr[0] == 4 && arr[4]  == 24 && !right.populated && right.reallyInside &&  
-                !abort && this.arrFree(r, [0, 5, 10, 15, 20]) && 
+                !abort && //this.arrFree(r, [0, 5, 10, 15, 20]) && 
                 this.placeStrip(u, [0, 5, 10, 15, 20], mat, squareNo) ) {
         for (var i = 0; i < 5; ++i) {
             this.squares[squareNo].subsquares[arr[i]].setArrow(9, mat);
@@ -793,7 +774,7 @@ ResultGrid.prototype.placeStrip = function(squareNo, arr, mat, lastSquareNo) {
         this.squares[squareNo].subsquares[arr[2]].setArrow(1, mat);
         return true; 
     } else if ( (arr[0] % 5 == 0) && !left.populated && left.reallyInside &&
-                left.subsquares.length == 0 && !abort &&
+                left.subsquares.length == 0 && !abort && (mat.unusedArea >= left.area) &&
                 this.placeSquare(l, 4, mat, squareNo, -1) ) {
         for (var i = 0; i < 5; ++i) {
             this.squares[squareNo].subsquares[arr[i]].setArrow(9, mat);
@@ -801,14 +782,15 @@ ResultGrid.prototype.placeStrip = function(squareNo, arr, mat, lastSquareNo) {
         this.squares[squareNo].subsquares[arr[2]].setArrow(2, mat);
         return true;
     } else if ( arr[0] % 5 ==  0 && arr[0] % 5 == 4  && !left.populated && left.reallyInside && 
-                !abort && this.arrFree(l, arr) && this.placeStrip(l, arr, mat, squareNo) ) {
+                !abort && //this.arrFree(l, arr) && 
+                this.placeStrip(l, arr, mat, squareNo) ) {
         for (var i = 0; i < 5; ++i) {
             this.squares[squareNo].subsquares[arr[i]].setArrow(9, mat);
         }
         this.squares[squareNo].subsquares[arr[2]].setArrow(2, mat);
         return true;
     } else if ( arr[0] == 0 && arr[4] == 20 && !left.populated && left.reallyInside && 
-                !abort && this.arrFree(l, [4, 9, 14, 19, 24]) &&
+                !abort && //this.arrFree(l, [4, 9, 14, 19, 24]) &&
                 this.placeStrip(u, [4, 9, 14, 19, 24], mat, squareNo) ) {
         for (var i = 0; i < 5; ++i) {
             this.squares[squareNo].subsquares[arr[i]].setArrow(9, mat);
@@ -816,7 +798,7 @@ ResultGrid.prototype.placeStrip = function(squareNo, arr, mat, lastSquareNo) {
         this.squares[squareNo].subsquares[arr[2]].setArrow(2, mat);
         return true; 
     } else if ( arr[0] >= 0 && arr[0] < 5 && !up.populated && up.reallyInside && 
-                up.subsquares.length == 0 && !abort &&
+                up.subsquares.length == 0 && !abort && (mat.unusedArea >= up.area) &&
                 this.placeSquare(u, 20, mat, squareNo, -1) ) {
         for (var i = 0; i < 5; ++i) {
             this.squares[squareNo].subsquares[arr[i]].setArrow(9, mat);
@@ -824,14 +806,15 @@ ResultGrid.prototype.placeStrip = function(squareNo, arr, mat, lastSquareNo) {
         this.squares[squareNo].subsquares[arr[2]].setArrow(0, mat);
         return true;
     } else if ( arr[0] >= 0 && arr[0] < 5 && arr[4] >= 20 && !up.populated && up.reallyInside && 
-                !abort && this.arrFree(u, arr) && this.placeStrip(u, arr, mat, squareNo) ) {
+                !abort && //this.arrFree(u, arr) && 
+                this.placeStrip(u, arr, mat, squareNo) ) {
         for (var i = 0; i < 5; ++i) {
             this.squares[squareNo].subsquares[arr[i]].setArrow(9, mat);
         }
         this.squares[squareNo].subsquares[arr[2]].setArrow(0, mat);
         return true;
     } else if ( arr[0] == 0 && arr[4] == 4 && !up.populated && up.reallyInside && !abort && 
-                this.arrFree(u, [20, 21, 22, 23, 24]) &&
+                //this.arrFree(u, [20, 21, 22, 23, 24]) &&
                 this.placeStrip(u, [20, 21, 22, 23, 24], mat, squareNo) ) {
         for (var i = 0; i < 5; ++i) {
             this.squares[squareNo].subsquares[arr[i]].setArrow(9, mat);
@@ -839,7 +822,7 @@ ResultGrid.prototype.placeStrip = function(squareNo, arr, mat, lastSquareNo) {
         this.squares[squareNo].subsquares[arr[2]].setArrow(0, mat);
         return true;
     } else if ( (arr[4] >= 20 && arr[4] < 25 ) && !down.populated && down.reallyInside && 
-                down.subsquares.length == 0 && !abort && 
+                down.subsquares.length == 0 && !abort && (mat.unusedArea >= down.area) &&
                 this.placeSquare(d, 0, mat, squareNo, -1) ) {
         for (var i = 0; i < 5; ++i) {
             this.squares[squareNo].subsquares[arr[i]].setArrow(9, mat);
@@ -847,15 +830,16 @@ ResultGrid.prototype.placeStrip = function(squareNo, arr, mat, lastSquareNo) {
         this.squares[squareNo].subsquares[arr[2]].setArrow(3, mat);
         return true;
     } else if ( arr[0] >= 0 && arr[0] < 5 && arr[4] >= 20 && !down.populated && down.reallyInside && 
-                !abort && this.arrFree(d, arr) && this.placeStrip(d, arr, mat, squareNo) ) {
+                !abort && //this.arrFree(d, arr) && 
+                this.placeStrip(d, arr, mat, squareNo) ) {
         for (var i = 0; i < 5; ++i) {
             this.squares[squareNo].subsquares[arr[i]].setArrow(9, mat);
         }
         this.squares[squareNo].subsquares[arr[2]].setArrow(3, mat);
         return true;
     } else if ( arr[0] == 0 && arr[4] == 4 && !down.populated && down.reallyInside && !abort && 
-                this.arrFree(d, [0, 1, 2, 3, 4])
-                && this.placeStrip(d, [0, 1, 2, 3, 4], mat, squareNo) ) {
+                //this.arrFree(d, [0, 1, 2, 3, 4]) && 
+                this.placeStrip(d, [0, 1, 2, 3, 4], mat, squareNo) ) {
         for (var i = 0; i < 5; ++i) {
             this.squares[squareNo].subsquares[arr[i]].setArrow(9, mat);
         }
@@ -945,7 +929,8 @@ ResultGrid.prototype.placeSubsquare = function(squareNo, subsquareNo, mat, lastS
         if (mat.unusedArea == 0) {
             var squareList = [squareNo, squareNo-width, squareNo +1, squareNo-1, squareNo+width];
             
-            if ( this.adjacentWall(squareList, subsquareNo) && ( this.unusedArea == 0 || this.findStart() ) ) {
+            if ( this.adjacentWall(squareList, subsquareNo) && 
+                 ( this.unusedArea == 0 || this.findStart() ) ) {
                 sub.setArrow(0, mat, subsquareNo);
                 return true;
             } else  {
@@ -1011,7 +996,8 @@ ResultGrid.prototype.placeSubsquare = function(squareNo, subsquareNo, mat, lastS
         //Up into the adjacent square
         if (u < 0 && abort == false) {
             up = squares[squareNo-width];
-            if ( up.reallyInside && !up.populated && this.placeSquare(squareNo-width, u+25, mat, squareNo, subsquareNo) ) {
+            if ( up.reallyInside && !up.populated && 
+                 this.placeSquare(squareNo-width, u+25, mat, squareNo, subsquareNo) ) {
                 return true;
             }
         }
@@ -1019,7 +1005,8 @@ ResultGrid.prototype.placeSubsquare = function(squareNo, subsquareNo, mat, lastS
         //Right to next square
         if (r%5 == 0 && abort == false) {
             right = squares[squareNo+1];
-            if ( right.reallyInside && !right.populated && this.placeSquare(squareNo+1, r-5, mat, squareNo, subsquareNo) ) {
+            if ( right.reallyInside && !right.populated && 
+                 this.placeSquare(squareNo+1, r-5, mat, squareNo, subsquareNo) ) {
                 return true;
             }
         }
@@ -1027,7 +1014,8 @@ ResultGrid.prototype.placeSubsquare = function(squareNo, subsquareNo, mat, lastS
         //Left to previous square
         if ( (l == -1 || l%5 == 4) && abort == false) {
             left = squares[squareNo-1];
-            if ( left.reallyInside && !left.populated && this.placeSquare(squareNo-1, l+5, mat, squareNo, subsquareNo) ) {
+            if ( left.reallyInside && !left.populated && 
+                 this.placeSquare(squareNo-1, l+5, mat, squareNo, subsquareNo) ) {
                 return true;
             }
         }
@@ -1035,7 +1023,8 @@ ResultGrid.prototype.placeSubsquare = function(squareNo, subsquareNo, mat, lastS
         //Down to square below
         if (d > 24 && abort == false) {
             down = squares[squareNo + width];
-            if ( down.reallyInside && !down.populated && this.placeSquare(squareNo+width, d-25, mat, squareNo, subsquareNo) ) {
+            if ( down.reallyInside && !down.populated && 
+                 this.placeSquare(squareNo+width, d-25, mat, squareNo, subsquareNo) ) {
                 return true;
             }
         }
@@ -1514,18 +1503,7 @@ ResultGrid.prototype.proceed = function( squareNo, direction, lastSquareNo, mat 
             strip4 = [3, 8, 13, 18, 23];
             strip5 = [4, 9, 14, 19, 24];
 
-            /*
-            if ( dir > 1 ) {
-                arr = [strip0, strip5, strip4, strip3, strip2, strip1];
-            }
-            else if ( dir == 1 ) {
-                arr = [strip0, strip5, strip4, strip3, strip2, strip1];
-            }
-            else if ( dir < -1 ) {
-                arr = [strip0, strip1, strip2, strip3, strip4, strip5];
-            } else {*/
-                arr = [strip0, strip5, strip4, strip3, strip2, strip1];
-            //}
+            arr = [strip0, strip5, strip4, strip3, strip2, strip1];
             subsquare = 20;
             arrow = 0;
             break;
@@ -1538,19 +1516,6 @@ ResultGrid.prototype.proceed = function( squareNo, direction, lastSquareNo, mat 
             strip4 = [15, 16, 17, 18, 19];
             strip5 = [20, 21, 22, 23, 24];
 
-            /*
-            if ( dir > 1 ) {
-                arr = [strip5, strip4, strip3, strip2, strip1, strip0];
-            }
-            else if ( dir == 1 ) {
-                arr = [strip0, strip5, strip4, strip3, strip2, strip1];
-            }
-            else if ( dir < -1 ) {
-                arr = [strip1, strip2, strip3, strip4, strip5, strip0];
-            } else {
-                arr = [strip5, strip4, strip3, strip2, strip1, strip0];
-            }
-            */
             arr = [strip1, strip2, strip3, strip4, strip5, strip0];
             subsquare = 0;
             arrow = 1;
@@ -1564,17 +1529,6 @@ ResultGrid.prototype.proceed = function( squareNo, direction, lastSquareNo, mat 
             strip4 = [15, 16, 17, 18, 19];
             strip5 = [20, 21, 22, 23, 24];
 
-            /*
-            if ( dir > 1 ) {
-                arr = [strip5, strip4, strip3, strip2, strip1, strip0];
-            } else if ( dir == -1 ) {
-                arr = [strip0, strip5, strip4, strip3, strip2, strip1];
-            } else if ( dir < -1 ) {
-                arr = [strip1, strip2, strip3, strip4, strip5, strip0];
-            } else {
-                arr = [strip0, strip5, strip4, strip3, strip2, strip1];
-            }*/
-
             arr = [strip1, strip2, strip3, strip4, strip5, strip0];
             subsquare = 4;
             arrow = 2;
@@ -1587,17 +1541,6 @@ ResultGrid.prototype.proceed = function( squareNo, direction, lastSquareNo, mat 
             strip3 = [2, 7, 12, 17, 22];
             strip4 = [3, 8, 13, 18, 23];
             strip5 = [4, 9, 14, 19, 24];
-            
-            /*
-            if ( dir > 1 ) {
-                arr = [strip0, strip1, strip2, strip3, strip4, strip5];
-            } else if ( dir == 1 ) {
-                arr = [strip5, strip4, strip3, strip2, strip1, strip0];
-            } else if ( dir == -1 ) {
-                arr = [strip1, strip2, strip3, strip4, strip5, strip0];
-            } else {
-                arr = [strip0, strip1, strip2, strip3, strip4, strip5];
-            }*/
 
             arr = [strip0, strip1, strip2, strip3, strip4, strip5];
             subsquare = 0;
@@ -1610,14 +1553,14 @@ ResultGrid.prototype.proceed = function( squareNo, direction, lastSquareNo, mat 
 
     //If the square does not have obstacles or walls, try placing a full square
     //If it does contain obstacles, try placing a strip instead
-    if ( !square.hasObstacles && !square.hasWall) {
+    if ( !square.hasObstacles && !square.hasWall && (square.area <= mat.unusedArea) ) {
         if (this.placeSquare(squareNo, subsquare, mat, lastSquareNo, -1) ) {
             this.squares[lastSquareNo].setArrow(arrow, mat, lastSquareNo);
             return true;
         }      
     } else {
         for (var i = 0; i < 6; ++i) {
-            if ( this.arrFree(squareNo, arr[i]) && 
+            if ( //this.arrFree(squareNo, arr[i]) && 
                  this.placeStrip(squareNo, arr[i], mat, lastSquareNo) ) {
                 return true;
             }
