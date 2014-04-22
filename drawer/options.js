@@ -115,6 +115,7 @@ Options.prototype.initSpecs = function () {
     if (ourRoom.finished ==  true) {
         // Variables used for setting up elements.
         var header = document.createElement('h3'),
+            inOutDiv = document.createElement('div'),
             inOut = document.createElement('select'),
             form = document.createElement('form'),
             option1 = document.createElement('option'),
@@ -124,6 +125,7 @@ Options.prototype.initSpecs = function () {
         header.innerHTML = 'Velg spesifikasjoner';
         span.innerHTML = 'Velg utend'+crossO+'rs/innend'+crossO+'rs: ';
 
+        inOutDiv.id = 'inOutDiv';
         span.id = 'inOrOut';
         form.setAttribute('class', 'forms');
         form.id = 'form1';
@@ -136,12 +138,16 @@ Options.prototype.initSpecs = function () {
 
         inOut.add(option1, null);
         inOut.add(option2, null);
-        form.appendChild(span);
-        form.appendChild(inOut);
+
+        inOutDiv.appendChild(span);
+        inOutDiv.appendChild(inOut);
+        $(inOutDiv).append('<br>');
+
+        form.appendChild(inOutDiv);
 
         $(container).append(header);
         $(container).append(form);
-        $(form).append('<br>');
+
         // Default selected is 'none', so a value MUST be chosen by the user.        
         document.getElementById('inOutType').selectedIndex = -1;
     } else {
@@ -151,37 +157,15 @@ Options.prototype.initSpecs = function () {
 
     $('#inOutType').change( function () {
 
-        // If #inOutType-id changes, we want to clear EVERYTHING following it:
-        if ($('#climateType').length) {
-            $('#climateType').next().remove();
-            $('#climateType').remove();
-            $('#dryOrWet').remove();
-        } 
+        // If #inOutType-id changes, we want to clear ALL the DIVs following it:
 
-        if ($('#deckType').length) {
-            $('#deckType').next().remove();
-            $('#deckType').remove();
-            $('#decks').remove();
-        } 
-
-        if ($('#wattage').length) {
-            $('#wattage').next().remove();
-            $('#wattage').remove();
-            $('#watt').remove();
-        }
-
-        if ($('#genButton').length) {
-            $('#genButton').next().remove();
-            $('#genButton').next().remove();
-            $('#genButton').next().remove();
-            $('#genButton').remove();
-        }
-
-        if ($('#length').length) {
-            $('#length').remove();
-            $('#lengths').remove();
-            $('#addLength').remove();
-        }
+        $('#dryWetDiv').remove();
+        $('#deckDiv').remove();
+        $('#wattDiv').remove();
+        $('#castDiv').remove();
+        $('#inputDiv').remove();
+        $('#lengthDiv').remove();
+        $('#matDiv').remove();
         
         opts.inOrOut(form);
     });
@@ -201,11 +185,13 @@ Options.prototype.inOrOut = function (form) {
 
      //Inside is selected
     if (selected == "inside") {
-        var dryWet = document.createElement("select"),
-            option1 = document.createElement("option"),
-            option2 = document.createElement("option"),
-            span = document.createElement("span");
+        var dryWetDiv = document.createElement('div'),
+            dryWet = document.createElement('select'),
+            option1 = document.createElement('option'),
+            option2 = document.createElement('option'),
+            span = document.createElement('span');
 
+        dryWetDiv.id = 'dryWetDiv';
         dryWet.id = 'climateType';
         span.id = 'dryOrWet';
 
@@ -218,12 +204,14 @@ Options.prototype.inOrOut = function (form) {
         dryWet.add(option1, null);
         dryWet.add(option2, null);
 
-        form.appendChild(span);
-        form.appendChild(dryWet);
+        dryWetDiv.appendChild(span);
+        dryWetDiv.appendChild(dryWet);
+        $(dryWetDiv).append('<br>');
+
+        form.appendChild(dryWetDiv);
         // Append the form to the container.
         $(container).append(form); 
-        $(form).append("<br>");
-        document.getElementById("climateType").selectedIndex = -1;
+        document.getElementById('climateType').selectedIndex = -1;
 
     } else {
         // 'Outside' is chosen, so we jump directly to the options associated with this option.
@@ -233,36 +221,14 @@ Options.prototype.inOrOut = function (form) {
     // Call new function to set up the 'deck'-dropdown on change.
     $('#climateType').change( function () {
 
-        //If this one changes, we want to remove all elements following it:
-        if ($('#deckType').length) {
-            $('#deckType').next().remove();
-            $('#deckType').remove();
-            $('#decks').remove();
-        } 
+        //If this one changes, we want to remove all the divs following it:
 
-        if ($('#wattage').length) {
-            $('#wattage').next().remove();
-            $('#wattage').remove();
-            $('#watt').remove();
-        } 
-
-        if ($('#casting').length) {
-            $('#casting').remove();
-            $('#cast').remove();
-        }
-
-        if ($('#genButton').length) {
-            $('#genButton').next().remove();
-            $('#genButton').next().remove();
-            $('#genButton').next().remove();
-            $('#genButton').remove();
-        }
-
-        if ($('#length').length) {
-            $('#length').remove();
-            $('#lengths').remove();
-            $('#addLength').remove();
-        }
+        $('#deckDiv').remove();
+        $('#wattDiv').remove();
+        $('#castDiv').remove();
+        $('#inputDiv').remove();
+        $('#lengthDiv').remove();
+        $('#matDiv').remove();
 
         opts.chooseDeck(form);
     });
@@ -277,16 +243,18 @@ Options.prototype.chooseDeck = function (form) {
         opts = this,
         selected = $('#inOutType').val(),
         selectedClim = $('#climateType').val(),
-        span = document.createElement("span"),
-        deck = document.createElement("select"),
-        option1 = document.createElement("option"),
-        option2 = document.createElement("option"),
-        option3 = document.createElement("option"),
-        option4 = document.createElement("option"),
-        option5 = document.createElement("option"),
-        option6 = document.createElement("option"),
-        option7 = document.createElement("option");
+        deckDiv = document.createElement('div'),
+        span = document.createElement('span'),
+        deck = document.createElement('select'),
+        option1 = document.createElement('option'),
+        option2 = document.createElement('option'),
+        option3 = document.createElement('option'),
+        option4 = document.createElement('option'),
+        option5 = document.createElement('option'),
+        option6 = document.createElement('option'),
+        option7 = document.createElement('option');
 
+    deckDiv.id = 'deckDiv';
     deck.id = 'deckType';
     span.id = 'decks';
 
@@ -341,41 +309,27 @@ Options.prototype.chooseDeck = function (form) {
     }
 
     // Append the element to our form, then add the form to the container.
-    form.appendChild(span);
-    form.appendChild(deck);
+    deckDiv.appendChild(span);
+    deckDiv.appendChild(deck);
+    $(deckDiv).append('<br>');
+
+    form.appendChild(deckDiv);
     $(container).append(form);
-    $(form).append("<br>");
+
     // Set as blanc on initialization, to force the user to select an !default item.
-    document.getElementById("deckType").selectedIndex = -1;
+    document.getElementById('deckType').selectedIndex = -1;
 
     // When the user have selected an item in this list, the 'generate'-button is created,
     // unless 'wattage' also has to be selected.
     $('#deckType').change( function () {
 
         // Cleaning up some html-elements, if they exist:
-        if ($('#wattage').length) {
-            $('#wattage').next().remove();
-            $('#wattage').remove();
-            $('#watt').remove();
-        }
-
-        if ($('#casting').length) {
-            $('#casting').remove();
-            $('#cast').remove();
-        }
-
-        if ($('#genButton').length) {
-            $('#genButton').next().remove();
-            $('#genButton').next().remove();
-            $('#genButton').next().remove();
-            $('#genButton').remove();
-        }
-
-        if ($('#length').length) {
-            $('#length').remove();
-            $('#lengths').remove();
-            $('#addLength').remove();
-        }
+        $('#wattDiv').remove();
+        $('#castDiv').remove();
+        $('#inputDiv').remove();
+        $('#lengthDiv').remove();
+        $('#matDiv').remove();
+        
         // Calling next function, based on selected value.
         (selected == 'inside') ? opts.wattage(form) : opts.generateButton(form);
     });
@@ -391,11 +345,13 @@ Options.prototype.wattage = function (form) {
         opts = this,
         span = document.createElement('span'),
         watt = document.createElement('select'),
+        wattDiv = document.createElement('div'),
         option1 = document.createElement('option'),
         option2 = document.createElement('option'),
         option3 = document.createElement('option'),
         option4 = document.createElement('option');
 
+    wattDiv.id = 'wattDiv';
     watt.id = 'wattage';
     span.id = 'watt';
 
@@ -415,10 +371,13 @@ Options.prototype.wattage = function (form) {
     watt.add(option4, null);
 
     // Append the element to our form, then add the form to the container.
-    form.appendChild(span);
-    form.appendChild(watt);
+    wattDiv.appendChild(span);
+    wattDiv.appendChild(watt);
+    $(wattDiv).append('<br>');
+
+    form.appendChild(wattDiv);
     $(container).append(form);
-    $(form).append('<br>');
+
     // Set as blanc on initialization, to force the user to select an !default item.
     document.getElementById('wattage').selectedIndex = -1;
 
@@ -427,24 +386,12 @@ Options.prototype.wattage = function (form) {
 
         var deck = $('#deckType').val(),
             watt = $('#wattage').val();
+
         // The elements that follow #wattage will be removed, before they are added again.
-        if ($('#casting').length) {
-            $('#casting').remove();
-            $('#cast').remove();
-        } 
-
-        if ($('#genButton').length) {
-            $('#genButton').next().remove();
-            $('#genButton').next().remove();
-            $('#genButton').next().remove();
-            $('#genButton').remove();
-        }
-
-        if ($('#length').length) {
-            $('#length').remove();
-            $('#lengths').remove();
-            $('#addLength').remove();
-        }
+        $('#castDiv').remove();
+        $('#inputDiv').remove();
+        $('#lengthDiv').remove();
+        $('#matDiv').remove();
 
         // For one specific option, casting/not casting must be made available.
         if ((deck == 'parquet' || deck == 'laminat') && watt == '60') {
@@ -464,6 +411,7 @@ Options.prototype.casting = function (form) {
 
     var container = this.container,
         opts = this,
+        castDiv = document.createElement('div'),
         span = document.createElement('span'),
         cast = document.createElement('select'),
         option1 = document.createElement('option'),
@@ -471,6 +419,7 @@ Options.prototype.casting = function (form) {
 
     cast.id = 'casting';
     span.id = 'cast';
+    castDiv.id = 'castDiv';
 
     span.innerHTML = 'Skal gulvet avrettes?';
     option1.value = 'nocast';
@@ -481,9 +430,11 @@ Options.prototype.casting = function (form) {
     cast.add(option1, null);
     cast.add(option2, null);
 
+    castDiv.appendChild(span);
+    castDiv.appendChild(cast);
+
     // Append the element to our form, then add the form to the container.
-    form.appendChild(span);
-    form.appendChild(cast);
+    form.appendChild(castDiv);
     $(container).append(form);
     // Set as blanc on initialization, to force the user to select an !default item.
     document.getElementById('casting').selectedIndex = -1;
@@ -491,18 +442,10 @@ Options.prototype.casting = function (form) {
     // When the user have selected an item in this list, the 'generate'-button is created.
     $('#casting').change( function () {
 
-        if ($('#genButton').length) {
-            $('#genButton').next().remove();
-            $('#genButton').next().remove();
-            $('#genButton').next().remove();
-            $('#genButton').remove();
-        }
+        $('#inputDiv').remove();
+        $('#lengthDiv').remove();
+        $('#matDiv').remove();
 
-        if ($('#length').length) {
-            $('#length').remove();
-            $('#lengths').remove();
-            $('#addLength').remove();
-        }
         opts.generateButton(form);
     });
 }
@@ -519,6 +462,7 @@ Options.prototype.generateButton = function (form) {
     var container = this.container,
         opts = this,
         input = document.createElement('input'),
+        inputDiv = document.createElement('div'),
         path,
         createProgresswindow = function(callback) {
 
@@ -544,15 +488,16 @@ Options.prototype.generateButton = function (form) {
             }, 10);
 
         };
-
+    inputDiv.id = 'inputDiv';
     input.id = 'genButton';
     input.type = 'button';
     input.title = 'Klikk for '+this.dotA+' generere leggeanvisning';
     input.value = 'Generer leggeanvisning';
 
+    inputDiv.appendChild(input);
+    $(inputDiv).append('<br><br><br>');
 
-    form.appendChild(input);
-    $(form).append('<br><br><br>');
+    form.appendChild(inputDiv);
     $(container).append(form);
 
     $('#genButton').click( function () {
@@ -612,12 +557,16 @@ Options.prototype.updateProgress = function (remove, resultgrid) {
 **/
 Options.prototype.preferredMats = function (form) {
 
-    var container = this.container,
-        opts = this,
+    var opts = this,
+        container = opts.container,
         header = document.createElement('h3'),
         span = document.createElement('span'),
         lengths = document.createElement('select'),
         add = document.createElement('input'),
+        lengthDiv = document.createElement('div'),
+        matDiv = document.createElement('div'),
+        ol = document.createElement('ol'),
+        text,
         availLengths = [];
 
     //Finds the correct heatingmat based on specs chosen by the user.
@@ -627,15 +576,22 @@ Options.prototype.preferredMats = function (form) {
     // Setting up the html-stuff.
     span.id = 'length';
     span.innerHTML = 'Legg til selvvalgte lengder';
+    matDiv.id = 'matDiv';
+    lengthDiv.id = 'lengthDiv';
+
     lengths.id = 'lengths';
     add.id = 'addLength';
     add.type = 'button';
     add.title = 'Legg til foretrukken mattelengde';
     add.value = 'Legg til matte';
 
-    form.appendChild(span);
-    form.appendChild(lengths);
-    form.appendChild(add);
+    lengthDiv.appendChild(span);
+    lengthDiv.appendChild(lengths);
+    lengthDiv.appendChild(add);
+    matDiv.appendChild(ol);
+
+    form.appendChild(lengthDiv);
+    form.appendChild(matDiv);
 
     // Add all the available lengths of this mat to the dropdown.
     for (var i = 0; i < opts.validMat.products.length; i++) {
@@ -645,11 +601,13 @@ Options.prototype.preferredMats = function (form) {
 
     $(container).append(form);
 
-    // This click-action should add the chosen mat-length to array, so that
+    // This click-action add the chosen mat-length to array, so that
     // the algorithm will use this mat first.
     $('#addLength').click( function () {
-        
+
         opts.prefMat.push(opts.validMat.products[$('#lengths').val()]);
+        text = opts.prefMat[opts.prefMat.length-1].name;
+        $(ol).append('<li>'+text+'</li>');
     });
 }
 
