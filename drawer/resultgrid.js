@@ -1288,11 +1288,12 @@ ResultGrid.prototype.moveWalls = function() {
 
     }
 
-    console.log("Availabe area: " + this.area + " square cm");
+    // Stores the available area in options. converts it to m2 first.
+    options.availableArea = (this.area / 10000);
+
     this.area -= 3000;
     this.area -= this.area%10000;
     this.unusedArea = this.area;
-    console.log("Usable area: " + this.area + " square cm");
 
     //End of moveWalls
 }

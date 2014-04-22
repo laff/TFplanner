@@ -28,11 +28,43 @@ function Options (tab) {
     // Will contain mat-lengths the user prefer to start with.
     this.prefMat = null;
 
+    // Variable saved after resultgrid has calculated available area.
+    this.availableArea = null;
 
     // Showing title once options is loaded.
     this.setTitle();
 }
+/**
+ *  Function that calculates the percentage of which the mats utilize the available area.
+ *  Adds the values 'availableArea' and 'areaUtilPercentage' as a string to the projectname.
+**/
+Options.prototype.areaUtilization = function() {
+        // decides weither to remove decimals or not.
+    var availArea = ((this.availableArea % 1) != 0) ? this.availableArea.toFixed(2) : this.availableArea,
+        chosenMats = resultGrid.chosenMats,
+        matInfo = this.validMat.products,
+        squareMetres = 0,
+        areaUtilPercentage = null;
 
+    // goes through mats used and the product info for matching values.
+    // adds the meters of the chosen mats.
+    for (var j = 0; j < chosenMats.length; j++) {
+        
+        for (var i = 0; i < matInfo.length; i++) {
+
+            if (chosenMats[j] == matInfo[i].number) {
+                squareMetres += (matInfo[i].length / 2);
+            }
+        }
+    }
+    
+    areaUtilPercentage = ((100 / availArea) * squareMetres).toFixed(1);
+
+    this.projectName += ' '+availArea+'m2 ('+areaUtilPercentage+'% utnyttelse)';
+
+    this.setTitle();
+
+}
 
 /**
  *  Function that controlls what options to show based on selected tab.
@@ -523,7 +555,6 @@ Options.prototype.generateButton = function (form) {
 
                     measurement.wallText.toFront();
                     grid.boxSet.toFront();
-                    options.setTitle();
                 });
         }
     });
@@ -541,6 +572,7 @@ Options.prototype.updateProgress = function (remove, resultgrid) {
 
     // removing the progress visual
     if (remove) {
+        this.areaUtilization();
         document.getElementById('progress').remove();
         document.getElementById('infoprogress').remove();
 
