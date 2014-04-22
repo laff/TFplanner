@@ -96,6 +96,9 @@ Options.prototype.showOptions = function (tab) {
 **/
 Options.prototype.initSpecs = function () {
 
+    // set title position
+    this.setTitle();
+
     var paper = this.optPaper,
         container = this.container,
         specSubmit = 'specSubmit',
@@ -568,14 +571,14 @@ Options.prototype.generateButton = function (form) {
 
                     //scrollBox.paper.clear();
 
-                    grid.gridSet.toFront(); 
+                    //grid.gridSet.toFront(); 
                     //resultGrid.displayMats();
                     
                     ourRoom.walls.toFront();
 
                     measurement.wallText.toFront();
                     grid.boxSet.toFront();
-                    options.setupTitle();
+                    options.setTitle();
                 });
         }
     });
@@ -662,6 +665,7 @@ Options.prototype.initObstacles = function () {
     var container = this.container,
         html = "",
         crossO = this.crossO;
+
     // clear current html
     $(container).html(html);
 
@@ -716,6 +720,9 @@ Options.prototype.initObstacles = function () {
     }
 
     this.obstacleList();
+
+    // set title position
+    this.setTitle();
 }
 
 /**
@@ -954,6 +961,7 @@ Options.prototype.actionListeners = function () {
  * Since it`s added as an svg-element, this will also be visible when the image is saved.
 **/
 Options.prototype.setTitle = function () {
+
     // Get the text from the html-element, and update it.
     var titleEle = document.getElementById('titleText'),
         title = (titleEle != null) ? titleEle.value : this.projectName;
