@@ -34,14 +34,14 @@ Grid.prototype.draw = function() {
     // Draw vertical lines on the screen (lines are drawn so that the screen is filled even on min. zoom)
     for (var i = 0; i <= width; i+=10) {
     
-        line = paper.path("M"+(i*size+cutPix)+", "+0+", L"+(i*size+cutPix)+", "+(size*height)).attr({'stroke-opacity': 0.4});  
+        line = paper.path("M"+(i*size+cutPix)+", "+0+", L"+(i*size+cutPix)+", "+(size*height)).attr({'stroke-width': 0.4});  
         gridSet.push(line);
     }
 
     // Draw horizontal lines on the screen (lines are drawn so that the screen is filled even on min. zoom)
     for (var i = 0; i <= height; i+=10) {
 
-        line = paper.path("M"+0+", "+(i*size+cutPix)+", L"+(size*width)+", "+(i*size+cutPix)).attr({'stroke-opacity': 0.4});
+        line = paper.path("M"+0+", "+(i*size+cutPix)+", L"+(size*width)+", "+(i*size+cutPix)).attr({'stroke-width': 0.4});
         gridSet.push(line);
     }
 }
@@ -393,6 +393,8 @@ Grid.prototype.moveRoom = function () {
 **/
 Grid.prototype.setupPaper = function() {
 
+    this.gridSet.hide();
+
     var paper = this.paper,
         viewW = (this.resWidth + 201),
         viewH = (this.resHeight + 201);
@@ -424,6 +426,8 @@ Grid.prototype.save = function (callback) {
         chosenMats = resultGrid.chosenMats,
         matTypes = options.validMat.products,
         matTable = null;
+
+    this.gridSet.show();
 
     // store generated svg to footmenu variable.
     footmenu.svg = svg;

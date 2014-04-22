@@ -95,8 +95,7 @@ function Square (x, y, path, paper, nr) {
         length = 0;
 
     this.rect = paper.rect(x, y, xdim, ydim).attr({
-        'stroke-opacity': 0.2,
-        'stroke-width': 0
+        'stroke-width': 0.1
     });
 
     //If whole square is inside
