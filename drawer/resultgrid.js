@@ -837,7 +837,7 @@ ResultGrid.prototype.placeStrip = function(squareNo, arr, mat, lastSquareNo) {
         }
         this.squares[squareNo].subsquares[arr[2]].setArrow(3, mat);
         return true;
-    } else if ( arr[0] == 0 && arr[4] == 4 && !down.populated && down.reallyInside && !abort && 
+    } else if ( arr[0] == 20 && arr[4] == 24 && !down.populated && down.reallyInside && !abort && 
                 //this.arrFree(d, [0, 1, 2, 3, 4]) && 
                 this.placeStrip(d, [0, 1, 2, 3, 4], mat, squareNo) ) {
         for (var i = 0; i < 5; ++i) {
@@ -1187,11 +1187,10 @@ ResultGrid.prototype.moveWalls = function() {
 
     }
 
-    console.log("Availabe area: " + this.area + " square cm");
+    options.availableArea = (this.area / 10000);
     this.area -= 3000;
     this.area -= this.area%10000;
     this.unusedArea = this.area;
-    console.log("Usable area: " + this.area + " square cm");
 
     //End of moveWalls
 }
