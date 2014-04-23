@@ -1,11 +1,11 @@
 <?php
 
 if (isset($_POST['svg'])) {
-	saveSVG($_POST['svg'], $_POST['mats']);
+	saveSVG($_POST['svg'], $_POST['mats'], $_POST['note']);
 }
 
 
-function saveSVG($svg, $matTable) {
+function saveSVG($svg, $matTable, $note) {
 	// get root directory (assuming this file is located in root).
 	$dir = getcwd();
 
@@ -48,14 +48,78 @@ function saveSVG($svg, $matTable) {
 
 	echo $entryId;
 
+	$bodystart = '<body';
+
 	$head = '<head>
 				<meta charset="UTF-8">
 			</head>';
 
+	$background = '<div id="background"></div>';
+
+	$header = '<div id="headleft">
+					<img id="headlogo" src="varmesystemer_logo.jpg">
+				</div>
+
+				<div id="headright">
+					<img id="headdots" src="dots.png">
+				</div>';
+
 	$css = '<style>
+
+				body {
+					font-family: Verdana;
+				}
+
+				#background {
+					width: 100%;
+					height: 80%;
+					top: 10%;
+					position: fixed;
+					z-index: -1; 
+					background-image: url("tflogo.png");
+					background-repeat: repeat;
+					background-size: 35%;
+					-khtml-opacity:.50; 
+					-moz-opacity:.50; 
+					-ms-filter:"alpha(opacity=50)";
+					filter:alpha(opacity=50);
+					filter: progid:DXImageTransform.Microsoft.Alpha(opacity=0.5);
+					opacity:.50; 
+				}
+
+				#header {
+					width: 100%;
+					height: 10%;
+					top: 0;
+					text-align: center;
+				}
+
+				#headleft {
+					float: left;
+					width: 50%;
+					height: 10%;
+					top: 0;
+					text-align: center;
+				}
+
+				#headlogo {
+					display: inline-block;
+					width: 80%;
+				}
+
+				#headright {
+					left: 70%;
+					z-index: 0;
+					position: absolute;
+				}
+
+				#headdots {
+					float: right;
+				}
 
 				#imagecontainer {
 					width: 100%;
+					max-height: 80%;
 					text-align: center;
 				}
 
@@ -65,6 +129,7 @@ function saveSVG($svg, $matTable) {
 
 				#matTable {
 					width: 100%;
+					text-align: left;
 				}
 
 				table {
@@ -72,35 +137,46 @@ function saveSVG($svg, $matTable) {
 				}
 
 				table, tr, td, th {
-					border: 1px solid black;
+					border: 2px solid black;
+				}
+
+				#note {
+					width: 100%;
+					text-align: center;
 				}
 
 				#footer {
 					width: 100%;
-					height: 8%;
+					height: 10%;
 					position: absolute;
 					bottom: 0;
 					text-align: center;
 				}
 
-				#companylogo {
+				#footleft {
 					float: left;
 					width: 50%;
 				}
 
-				#logo {
+				#footlogo {
 					padding-top: 4%;
 					display: inline-block;
+					width: 50%;
 				}
 
-				#companyinfo {
+				#footright {
 					float: left;
 					width: 50%;
 				}
 
-				#info {
+				#footinfo {
 					display: inline-block;
 					text-align: left;
+					line-height: 130%;
+				}
+
+				.bold {
+					font-weight: bold;
 				}
 
 			</style>';
@@ -109,23 +185,29 @@ function saveSVG($svg, $matTable) {
 	$image = '<div id="imagecontainer"><div id="image">'.$svg.'</div></div>';
 	
 	// Table containing information on products used. 
-	$text = '<br><br><br>'.$matTable;
+	$table = '<br><br><br>'.$matTable;
+
+	// Additional note regarding this product.
+	$AdditionalNote = '<p id="note" class="bold">'.$note.'</p>';
 
 	// Footnote
 	$foot = '<div id="footer">
-				<div id="companylogo">
-					<img id="logo" src="tflogo.png">
+				<div id="footleft">
+					<img id="footlogo" src="varmesystemer_logo.jpg">
 				</div>
-				<div id="companyinfo">
-					<p id="info">
-					Østre Totenv. 24, 2816 Gjøvik <br>
-					Telefon: 61 18 77 77 - Telefax: 61 48 77 70 <br>
-					post@thermo-floor.no - www.thermo-floor.no <br>
-					</p>
+				<div id="footright">
+					<p id="footinfo">
+						<span class="bold"> Thermo-Floor AS </span> <br>
+						Østre Totenvei 24, 2816 Gjøvik <br>
+						Telefon: 61 18 77 77 <br>
+						post@thermo-floor.no - <span class="bold">www.thermo-floor.no</span> </p>
+					</div>
 				</div>
 			</div>';
 
-	file_put_contents($dir.'\entry_'.$entryId.'.html', $head.$css.$image.$text.$foot);		
+	$bodyend = '</body>';
+
+	file_put_contents($dir.'\entry_'.$entryId.'.html', $bodystart.$head.$background.$header.$css.$image.$table.$AdditionalNote.$foot.$bodyend);		
 
 }
 
