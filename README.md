@@ -29,5 +29,5 @@ This is a private folder where developing and testing will occurate.
 
 ### Folder structure!
 * `Experiments`: Experiments we encounter / use / try.
-* `drawer': This is the folder containing our working copy of the program.
-* 'drawer/export': Contains the files necessary for exporting as PDF.
+* `drawer`: This is the folder containing our working copy of the program.
+* `drawer/export`: Contains the files necessary for exporting as PDF.
