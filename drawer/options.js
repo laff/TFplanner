@@ -568,11 +568,13 @@ Options.prototype.generateButton = function (form) {
  *  Function that either removes progress or updates it.
  *
 **/
-Options.prototype.updateProgress = function (remove, resultgrid) {
+Options.prototype.updateProgress = function (remove, resultgrid, success) {
 
     // removing the progress visual
     if (remove) {
-        this.areaUtilization();
+        if (success) {
+            this.areaUtilization();
+        }
         document.getElementById('progress').remove();
         document.getElementById('infoprogress').remove();
 

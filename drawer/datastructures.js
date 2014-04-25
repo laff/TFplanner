@@ -1,7 +1,7 @@
 /*
  This file contains assorted minor structures used by resultGrid
   and their functions
- HeatingMat - Square - Subsquare - Mats
+ HeatingMat - Square - Subsquare - Mats - Coordinate
 */
 
 /**
@@ -18,9 +18,10 @@ function HeatingMat(matLength, timeoutLength, color) {
 	this.unusedArea = this.totalArea;
     this.timestamp = Date.now();
     this.validPeriod = timeoutLength ? timeoutLength : 500;
-    this.matColor = color;
+    this.matColor = null;
     this.productNr;
     this.textPlaced = false;
+    this.path = [];
 
 
     this.matId = mattur.matIndex;
@@ -53,6 +54,83 @@ HeatingMat.prototype.removeSquare = function() {
 **/
 HeatingMat.prototype.removeSubsquare = function() {
 	this.unusedArea += 10*10;
+}
+
+/**
+* Function draws the visualization line, as well as start and end
+* points, onto the paper.
+*/
+HeatingMat.prototype.draw = function(paper) {
+    var path = this.path,
+        len = path.length,
+        pathString = '',
+        x,
+        y, 
+        start,
+        end,
+        textBox,
+        text;
+
+
+    for (var i = len-1; i >= 0; --i) {
+        x = path[i][0];
+        y = path[i][1];
+
+        if (i == len-1) {
+            if ( x-path[i-1][0] < 0 ) {
+                //Start arrow pointing right
+                start = paper.path('M'+(x-5)+','+(y-5)+'L'+x+','+y+'L'+(x-5)+','+(y+5)+'Z');            
+            } else if ( x-path[i-1][0] > 0 ) {
+                //Start arrow pointing left
+                start = paper.path('M'+(x+5)+','+(y-5)+'L'+x+','+y+'L'+(x+5)+','+(y+5)+'Z');
+            } else if ( y-path[i-1][1] > 0) {
+                //Arrow pointing up
+                start = paper.path('M'+(x-5)+','+y+'L'+x+','+(y-5)+'L'+(x+5)+','+y+'Z');
+            } else {
+                //Arrow pointing downward
+                start = paper.path('M'+(x-5)+','+y+'L'+x+','+(y+5)+'L'+(x+5)+','+y+'Z');
+            }
+            start.attr({
+                'fill': 'red',
+                'stroke': 'red'
+            });
+            pathString += ('M'+x+','+y);
+        } else if (i == len-3 ) {
+
+            text = paper.text(x, y, this.productNr).attr({
+                    'font-size': measurement.fontsize
+                });
+
+            // Dynamic size of the rectangle surrounding the text.
+            var rectLen = (text.getBBox().width + 10),
+                rectHeight = (text.getBBox().height),
+                rectX = (x - (rectLen / 2)),
+                rectY = (y - (rectHeight / 2));
+
+            textBox = paper.rect(rectX, rectY, rectLen, rectHeight, 5, 5).attr({
+                opacity: 1,
+                fill: "white"
+            });
+
+            pathString += ('L'+x+','+y);
+        } else if ( i == 0) {
+            end = paper.path('M'+(x-5)+','+y+'L'+x+','+(y-5)+'L'+(x+5)+','+y+'L'+x+','+(y+5)+'Z');
+            end.attr({
+                'fill': 'red',
+                'stroke': 'red'
+            });
+            pathString += ('L'+x+','+y);
+        } else {
+            pathString += ('L'+x+','+y);
+        }
+    }
+    //Draws the actual line
+    paper.path(pathString).attr({
+        'stroke': 'red',
+        'stroke-width': 1
+    });
+    textBox.toFront();
+    text.toFront();
 }
 
 /**
@@ -296,13 +374,29 @@ Square.prototype.setArrow = function(dir, mat, squareNo) {
             //this.arrows.push(paper.circle(x+25, y+25, 3).attr({'fill': "#E73029", 'fill-opacity': 1}));
             break;
         case 6:
-            this.rect.attr({'fill': "white"});
+            this.rect.attr({'fill': 'white'});
             break;
 
         default: 
             break;
     }
 }
+
+
+/**
+* Function adds the mat color to the square, then creates and stores
+* the coordinates of the centre of the square. THis is later
+* used for drawing connecting red line through the mat.
+* @param mat - The mat currently in use
+*/
+Square.prototype.setPath = function(mat) {
+
+    var path = [this.xpos+25, this.ypos+25];
+    mat.path.push(path);
+    this.productNr = mat.productNr;
+    this.rect.attr({'fill': mat.matColor});
+}
+
 
 /**
  * Returns true if all the subsquares along a square edge contains a wall.
@@ -416,7 +510,7 @@ function Subsquare (x, y, paper, path, squareNo, subNo) {
         lr = false;
 
     //Checks whether all corners are inside of room
-    //If path == null this check does not to be done, it is quite
+    //If path == null this check does not need to be done, it is quite
     // time consuming
     if (path != null) {
         ul = Raphael.isPointInsidePath( path, x,y );
@@ -424,7 +518,6 @@ function Subsquare (x, y, paper, path, squareNo, subNo) {
         ll = Raphael.isPointInsidePath( path, x, y + ydim );
         lr = Raphael.isPointInsidePath( path, x+xdim, y+ydim );
     }
-    //this.rect = paper.rect(x, y, xdim, ydim);
 
     //Subsquares are either in or out, if they are
     // "partially in" it means they contain a wall
@@ -433,6 +526,33 @@ function Subsquare (x, y, paper, path, squareNo, subNo) {
     } else if (ul || ur || ll || lr) {
         this.hasWall = true;
     }
+}
+
+/**
+* Function sets color of the subsquare to the color
+* of the mat.
+* @param mat - The heating mat in use
+*/
+Subsquare.prototype.setColor = function(mat) {
+    var paper = this.paper,
+        x = this.x,
+        y = this.y;
+
+    this.rect = paper.rect(x, y, 10, 10);
+
+    this.rect.attr({
+        'stroke-width': 0,
+        'fill': mat.matColor
+    });
+}
+
+/**
+* Function stored the coordinates of the centre of the subsquare
+* @param mat - The heating mat in use
+*/
+Subsquare.prototype.setPath = function(mat) {
+    var path = [this.x+5, this.y+5];
+    mat.path.push(path); 
 }
 
 /**

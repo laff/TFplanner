@@ -303,8 +303,10 @@ Grid.prototype.getZoomedXY = function(x, y, not) {
 }
 
 /**
- * Function used to move the room to coordinates (99,99). This happends when the 'obstacles'-tab is clicked.
- * The paths of each wall is update, also a string is created, so that the room can be redrawn later as
+ * Function used to move the room to coordinates (99,99). 
+ * This happends when the 'obstacles'-tab is clicked.
+ * The paths of each wall is updated, also a string is created, 
+ * so that the room can be redrawn later as
  * ONE path.
 **/
 Grid.prototype.moveRoom = function () {
@@ -376,7 +378,8 @@ Grid.prototype.moveRoom = function () {
         pathString += tempString;
     }
 
-    //Refresh the measurement-stuff after moving the walls, then hide the angles and remove handlers.
+    //Refresh the measurement-stuff after moving the walls, 
+    // then hide the angles and remove handlers.
     measurement.refreshMeasurements();
     measurement.angMeasurements.hide();
     finishedRoom.removeHandlers();
@@ -388,8 +391,9 @@ Grid.prototype.moveRoom = function () {
 }
 
 /**
- *  sets up the paper for svg convertion, converts and returns svg.
- *  adding 201 which represents the 1 meter offset + the 1 pixel offset that shows the grid outlines.
+ *  Sets up the paper for svg convertion, converts and returns svg.
+ *  adding 201 which represents the 1 meter offset 
+ *  + the 1 pixel offset that shows the grid outlines.
 **/
 Grid.prototype.setupPaper = function() {
 
