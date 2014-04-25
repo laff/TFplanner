@@ -9,6 +9,7 @@ function Options (tab) {
     this.inColor = '#d8d8d8';        // Color for mouseover
     this.imgColor = 'white';         // Color for the button-icons.
     this.titleText = null;           // Raphael-element
+    this.areaText = null;
     this.titleRect = null;
     this.projectName ='Prosjektnavn/tittel'; // String in html input-field
 
@@ -30,6 +31,9 @@ function Options (tab) {
 
     // Variable saved after resultgrid has calculated available area.
     this.availableArea = null;
+
+    // String storing arae and utilized percentage of area.
+    this.utilizeString = null;
 
     // Showing title once options is loaded.
     this.setTitle();
@@ -60,10 +64,9 @@ Options.prototype.areaUtilization = function() {
     
     areaUtilPercentage = ((100 / availArea) * squareMetres).toFixed(1);
 
-    this.projectName += ' '+availArea+'m2 ('+areaUtilPercentage+'% utnyttelse)';
+    this.utilizeString = availArea+'m2 ('+areaUtilPercentage+'% utnyttelse)';
 
     this.setTitle();
-
 }
 
 /**
@@ -956,7 +959,8 @@ Options.prototype.setTitle = function () {
 
     // Get the text from the html-element, and update it.
     var titleEle = document.getElementById('titleText'),
-        title = (titleEle != null) ? titleEle.value : this.projectName;
+        title = (titleEle != null) ? titleEle.value : this.projectName,
+        utilizeString = this.utilizeString;
 
 
     this.projectName = title;
@@ -964,13 +968,16 @@ Options.prototype.setTitle = function () {
     var drawWidth = (grid.resWidth + 201),
         rectX = null,
         rectY = 30,
+        areaY = null;
         rectLen = null,
+        rectH = 30,
         textX = (drawWidth / 2),
         textY = 42;
 
 
     // Clear the title-element if it already exist.
     this.titleText != null ? this.titleText.remove() : null;
+    this.areaText != null ?  this.titleText.remove() : null;
     this.titleRect != null ? this.titleRect.remove() : null;           
 
 
@@ -980,11 +987,23 @@ Options.prototype.setTitle = function () {
         'font-style': 'oblique'
     });
 
+    areaY = ((this.titleText.getBBox().height / 2) + 10 + textY);
+
+    if (utilizeString != null) {
+        this.areaText = grid.paper.text(textX, areaY, utilizeString).attr({
+            'font-size': 14,
+            'font-family': 'verdana',
+            'font-style': 'oblique'
+        });
+
+        rectH += (this.areaText.getBBox().height); 
+    }
+
     // Dynamic size of the rectangle surrounding the text.
     rectLen = (this.titleText.getBBox().width + 30);
     rectX = (textX - (rectLen / 2));
 
-    this.titleRect = grid.paper.rect(rectX, rectY, rectLen, 30, 5, 5).attr({
+    this.titleRect = grid.paper.rect(rectX, rectY, rectLen, rectH, 5, 5).attr({
         opacity: 1,
         fill: "white"
     });
@@ -997,9 +1016,17 @@ Options.prototype.setTitle = function () {
  *  It is called within options.setTitle and grid.setupPaper
 **/
 Options.prototype.setupTitle = function() {
+
+    // if titlerect and titletext exist (should be always).
     if (this.titleRect != null && this.titleText != null) {
         this.titleRect.toFront();
         this.titleText.toFront();
+
+        // incase areatext also exists
+        if (this.areaText != null) {
+            this.areaText.toFront();
+        }
+
     }
 }
 
@@ -1406,6 +1433,8 @@ Options.prototype.tfProducts = function () {
         deck = $('#deckType').val(),
         watt = $('#wattage').val(),
         cast = $('#casting').val(),
+        crossO = this.crossO,
+        dotA = this.dotA,
 
         mats = [
         {
@@ -1427,55 +1456,63 @@ Options.prototype.tfProducts = function () {
                 '60': true
             },
 
-           casting: {
+            casting: {
                 nocast: true
-            },         
+            },
+
+            note: 'Husk '+dotA+' bestille nok TFP underlagsmatte, tape og termostat med gulvf'+crossO+'ler',
+
+            desc: 'Varmekabelmatte som parkettunderlag',
 
             products: [
                 {
                     length: 2,
-                    number: 1001131,
-                    name: 'TFP60W/1,0m2 0,5x2m 60W'
+                    number: 1001051,
+                    name: 'TFP 60W/1,0m2 0,5x2m 60W',
                 }, {
                     length: 4, 
-                    number: 1001132,
-                    name: 'TFP60W/2,0m2 0,5x4m 120W'
+                    number: 1001052,
+                    name: 'TFP 60W/2,0m2 0,5x4m 120W'
                 }, {
                     length: 6, 
-                    number: 1001133,
-                    name: 'TFP60W/3,0m2 0,5x6m 180W'
+                    number: 1001053,
+                    name: 'TFP 60W/3,0m2 0,5x6m 180W'
                 }, {
                     length: 8, 
-                    number: 1001134,
-                    name: 'TFP60W/4,0m2 0,5x8m 240W'
+                    number: 1001054,
+                    name: 'TFP 60W/4,0m2 0,5x8m 240W'
                 }, {
                     length: 10, 
-                    number: 1001135,
-                    name: 'TFP60W/5,0m2 0,5x10m 300W'
+                    number: 1001055,
+                    name: 'TFP 60W/5,0m2 0,5x10m 300W'
                 }, {
                     length: 12, 
-                    number: 1001136,
-                    name: 'TFP60W/6,0m2 0,5x12m 360W'
+                    number: 1001056,
+                    name: 'TFP 60W/6,0m2 0,5x12m 360W'
                 }, {
                     length: 14, 
-                    number: 1001137,
-                    name: 'TFP60W/7,0m2 0,5x14m 420W'
+                    number: 1001057,
+                    name: 'TFP 60W/7,0m2 0,5x14m 420W'
                 }, {
                     length: 16, 
-                    number: 1001138,
-                    name: 'TFP60W/8,0m2 0,5x16m 480W'
+                    number: 1001058,
+                    name: 'TFP 60W/8,0m2 0,5x16m 480W'
                 }, {
                     length: 18, 
-                    number: 1001139,
-                    name: 'TFP60W/9,0m2 0,5x18m 540W'
+                    number: 1001059,
+                    name: 'TFP 60W/9,0m2 0,5x18m 540W'
                 }, {
                     length: 20, 
-                    number: 1001140,
-                    name: 'TFP60W/10,0m2 0,5x20m 600W'
+                    number: 1001060,
+                    name: 'TFP 60W/10,0m2 0,5x20m 600W'
                 }, {
                     length: 24, 
-                    number: 1001142,
-                    name: 'TFP60W/12,0m2 0,5x24m 720W'
+                    number: 1001062,
+                    name: 'TFP 60W/12,0m2 0,5x24m 720W'
+                }, {
+                    length: 30,
+                    number: 1001063,
+                    name: 'TFP 60W/15,0m2 0,5x30m 900W'
                 }
             ]
         }, {
@@ -1497,55 +1534,59 @@ Options.prototype.tfProducts = function () {
                 undefined: true
             },
 
-           casting: {
+            casting: {
                 undefined: true
             },  
+
+            note: 'Husk '+dotA+' bestille styringssystem som passer anlegget. Sp'+crossO+'r Thermo-Floor om r'+dotA+'d hvis du er usikker p'+dotA+' hva som kan brukes.',
+
+            desc: 'Utend'+dotA+'rs varmekabelmatte',
 
             products: [
                 {
                     length: 2,
                     number: 1001151,
-                    name: 'TFU230V 300W/1m2 - 300W'
+                    name: 'TFU 230V 300W/1m2 - 300W'
                 }, {
                     length: 4, 
                     number: 1001152,
-                    name: 'TFU230V 300W/2m2 - 600W'
+                    name: 'TFU 230V 300W/2m2 - 600W'
                 }, {
                     length: 6, 
                     number: 1001153,
-                    name: 'TFU230V 300W/3m2 - 900W'
+                    name: 'TFU 230V 300W/3m2 - 900W'
                 }, {
                     length: 8, 
                     number: 1001154,
-                    name: 'TFU230V 300W/4m2 - 1200W'
+                    name: 'TFU 230V 300W/4m2 - 1200W'
                 }, {
                     length: 10, 
                     number: 1001155,
-                    name: 'TFU230V 300W/5m2 - 1500W'
+                    name: 'TFU 230V 300W/5m2 - 1500W'
                 }, {
                     length: 12, 
                     number: 1001156,
-                    name: 'TFU230V 300W/6m2 - 1800W'
+                    name: 'TFU 230V 300W/6m2 - 1800W'
                 }, {
                     length: 14, 
                     number: 1001157,
-                    name: 'TFU230V 300W/7m2 - 2100W'
+                    name: 'TFU 230V 300W/7m2 - 2100W'
                 }, {
                     length: 16, 
                     number: 1001158,
-                    name: 'TFU230V 300W/8m2 - 2400W'
+                    name: 'TFU 230V 300W/8m2 - 2400W'
                 }, {
                     length: 20, 
                     number: 1001160,
-                    name: 'TFU230V 300W/10m2 - 3000W'
+                    name: 'TFU 230V 300W/10m2 - 3000W'
                 }, {
                     length: 24, 
                     number: 1001162,
-                    name: 'TFU230V 300W/12m2 - 3600W'
+                    name: 'TFU 230V 300W/12m2 - 3600W'
                 }, {
                     length: 28, 
                     number: 1001164,
-                    name: 'TFU230V 300W/14m2 - 4200W'
+                    name: 'TFU 230V 300W/14m2 - 4200W'
                 }
             ]
         }, {
@@ -1571,47 +1612,51 @@ Options.prototype.tfProducts = function () {
                 undefined: true
             },
 
+            note: 'Husk '+dotA+' bestille styringssystem som passer anlegget. Sp'+crossO+'r Thermo-Floor om r'+dotA+'d hvis du er usikker p'+dotA+' hva som kan brukes.',
+
+            desc: 'Utend'+dotA+'rs varmekabelmatte',
+
             products: [
                 {
                     length: 2,
                     number: 1001151,
-                    name: 'TFU230V 300W/1m2 - 300W'
+                    name: 'TFU 230V 300W/1m2 - 300W'
                 }, {
                     length: 4, 
                     number: 1001152,
-                    name: 'TFU230V 300W/2m2 - 600W'
+                    name: 'TFU 230V 300W/2m2 - 600W'
                 }, {
                     length: 6, 
                     number: 1001153,
-                    name: 'TFU230V 300W/3m2 - 900W'
+                    name: 'TFU 230V 300W/3m2 - 900W'
                 }, {
                     length: 8, 
                     number: 1001154,
-                    name: 'TFU230V 300W/4m2 - 1200W'
+                    name: 'TFU 230V 300W/4m2 - 1200W'
                 }, {
                     length: 10, 
                     number: 1001155,
-                    name: 'TFU230V 300W/5m2 - 1500W'
+                    name: 'TFU 230V 300W/5m2 - 1500W'
                 }, {
                     length: 12, 
                     number: 1001156,
-                    name: 'TFU230V 300W/6m2 - 1800W'
+                    name: 'TFU 230V 300W/6m2 - 1800W'
                 }, {
                     length: 14, 
                     number: 1001157,
-                    name: 'TFU230V 300W/7m2 - 2100W'
+                    name: 'TFU 230V 300W/7m2 - 2100W'
                 }, {
                     length: 16, 
                     number: 1011638,
-                    name: 'TFSVK MATTE 2400W'
+                    name: 'TF SVK MATTE 2400W'
                 }, {
                     length: 20, 
                     number: 1011640,
-                    name: 'TFSVK MATTE 3000W'
+                    name: 'TF SVK MATTE 3000W'
                 }, {
                     length: 24, 
                     number: 1011642,
-                    name: 'TFSVK MATTE 3600W'
+                    name: 'TF SVK MATTE 3600W'
                 }
             ]
         }, {
@@ -1644,6 +1689,10 @@ Options.prototype.tfProducts = function () {
                 cast: true,
                 undefined: true
             },
+
+            note: 'Husk '+dotA+' bestille primer, st'+dotA+'lnett og termostat med gulvf'+crossO+'ler.',
+
+            desc: 'TF Sticky selvklebende varmekabelmatte',
 
             products: [
                 { 
@@ -1714,6 +1763,10 @@ Options.prototype.tfProducts = function () {
                 undefined: true
             },
 
+            note: 'Husk '+dotA+' bestille primer, st'+dotA+'lnett og termostat med gulvf'+crossO+'ler.',
+
+            desc: 'TF Sticky selvklebende varmekabelmatte',
+
             products: [
                 { 
                     length: 6,
@@ -1783,6 +1836,10 @@ Options.prototype.tfProducts = function () {
                 undefined: true
             },
 
+            note: 'Husk '+dotA+' bestille primer, st'+dotA+'lnett og termostat med gulvf'+crossO+'ler.',
+
+            desc: 'TF Sticky selvklebende varmekabelmatte',
+
             products: [
                 { 
                     length: 6,
@@ -1851,6 +1908,10 @@ Options.prototype.tfProducts = function () {
             casting: {
                 undefined: true
             },
+
+            note: 'Husk '+dotA+' bestille primer, st'+dotA+'lnett og termostat med gulvf'+crossO+'ler.',
+
+            desc: 'TF Sticky selvklebende varmekabelmatte',
 
             products: [
                 { 

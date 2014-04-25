@@ -1,3 +1,4 @@
+
 // Global variables.
 var grid,
     measurement,

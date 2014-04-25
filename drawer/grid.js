@@ -423,13 +423,19 @@ Grid.prototype.setupPaper = function() {
 /**
  * Function to save our svg-drawing as a .png file.
  * Using libraries published at 'https://code.google.com/p/canvg/' under MIT-license.
+ *
+ * Gathers information regarding the mats chosen, then creates and inserts it into a table.
+ * The table is together with the svg and note sent to the PHP script that creates html page for convertion to PDF.
 **/
 Grid.prototype.save = function (callback) {
     var paper = this.paper,
         svg = this.setupPaper();
         chosenMats = resultGrid.chosenMats,
         matTypes = options.validMat.products,
-        matTable = null;
+        matTable = null,
+        // Store note and desc related to the valid mat.
+        note = options.validMat.note,
+        desc = options.validMat.desc;
 
     this.gridSet.show();
 
@@ -442,17 +448,17 @@ Grid.prototype.save = function (callback) {
         tmp = null;
     for (var i = 0; i < chosenMats.length; i++) {
 
-        // store mat (productnumber).
+        // store the mat EL-NUMMER (number)
         var chosenMat = chosenMats[i];
 
-        // if mat already counted
+        // if mat already counted, add to amount
         if (chosenMat == tmp) {
             mats[(mats.length - 1)][2]++;
 
         // else mat needs to be counted/ sat.
         } else {
 
-            // getting productname
+            // getting PRODUKTNAVN (name)
             var name;
             for (var j = 0; j < matTypes.length; j++) {
                 if (matTypes[j].number == chosenMat) {
@@ -478,19 +484,24 @@ Grid.prototype.save = function (callback) {
 
     trEle = document.createElement('tr');
 
-    // create and add header 'productnumber'
+    // create and add header 'ELNUMMER'  (number)
     thEle = document.createElement('th');
-    thEle.innerHTML = 'Produktnummer';
+    thEle.innerHTML = 'EL-NUMMMER';
     trEle.appendChild(thEle);
 
-    // create and add header 'name'
+    // create and add header 'PRODUKTEBSKRIVELSE' (desc)
     thEle = document.createElement('th');
-    thEle.innerHTML = 'Beskrivelse';
+    thEle.innerHTML = 'PRODUKTBESKRIVELSE';
     trEle.appendChild(thEle);
 
-    // create and add header 'amount'
+    // create and add header 'PRODUKT' (name)
     thEle = document.createElement('th');
-    thEle.innerHTML = 'Antall';
+    thEle.innerHTML = 'PRODUKT';
+    trEle.appendChild(thEle);
+
+    // create and add header 'ANTALL' (amount)
+    thEle = document.createElement('th');
+    thEle.innerHTML = 'ANTALL';
     trEle.appendChild(thEle);
 
     // add header row to table
@@ -503,9 +514,14 @@ Grid.prototype.save = function (callback) {
         // Create row
         trEle = document.createElement('tr');
         
-        // Add column 'productnumber' to row
+        // Add column 'ELNUMMER' to row
         tdEle = document.createElement('td');
         tdEle.innerHTML = mats[i][0];
+        trEle.appendChild(tdEle);
+
+        // Add column 'desc' to row
+        tdEle = document.createElement('td');
+        tdEle.innerHTML = desc;
         trEle.appendChild(tdEle);
 
         // Add column 'name' to row
@@ -528,7 +544,6 @@ Grid.prototype.save = function (callback) {
     tmp.appendChild(tableEle);
     tableString = tmp.innerHTML;
 
-
     /**
      *  Post svg and table html to php script that creates a page to be exported as pdf.
      *
@@ -537,7 +552,8 @@ Grid.prototype.save = function (callback) {
         'export/saveSVG.php', 
         {
             'svg': svg,
-            'mats': tableString
+            'mats': tableString,
+            'note': note
         }, 
         function (data) {
             footmenu.drawId = data;
