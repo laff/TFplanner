@@ -475,10 +475,10 @@ Options.prototype.casting = function (form) {
     form.appendChild(castDiv);
     $(container).append(form);
     // Set as blanc on initialization, to force the user to select an !default item.
-    document.getElementById('casting').selectedIndex = -1;
+    cast.selectedIndex = -1;
 
     // When the user have selected an item in this list, the 'generate'-button is created.
-    $('#casting').change( function () {
+    $(cast).change( function () {
 
         $('#inputDiv').remove();
         $('#lengthDiv').remove();
@@ -574,11 +574,13 @@ Options.prototype.generateButton = function (form) {
  *  Function that either removes progress or updates it.
  *
 **/
-Options.prototype.updateProgress = function (remove, resultgrid) {
+Options.prototype.updateProgress = function (remove, success) {
 
     // removing the progress visual
     if (remove) {
-        this.areaUtilization();
+        if (success) {
+            this.areaUtilization();
+        }
         document.getElementById('progress').remove();
         document.getElementById('infoprogress').remove();
 
@@ -586,7 +588,7 @@ Options.prototype.updateProgress = function (remove, resultgrid) {
         document.getElementById('infoprogress').innerHTML = 'Kalkulerer leggeanvisning';
 
         // give the javascript breathingroom for gui updates
-        setTimeout(function() { resultgrid.calculateGuide(); }, 1);
+        setTimeout(function() { TFplanner.resultGrid.calculateGuide(); }, 1);
     }
 }
 

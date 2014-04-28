@@ -239,8 +239,10 @@ Grid.prototype.getZoomedXY = function(x, y, not) {
 };
 
 /**
- * Function used to move the room to coordinates (99,99). This happens when the 'obstacles'-tab is clicked.
- * The paths of each wall is update, also a string is created, so that the room can be redrawn later as
+ * Function used to move the room to coordinates (99,99). 
+ * This happends when the 'obstacles'-tab is clicked.
+ * The paths of each wall is updated, also a string is created, 
+ * so that the room can be redrawn later as
  * ONE path.
  * @return - Returns the path of our room as ONE string.
 **/
@@ -324,7 +326,8 @@ Grid.prototype.moveRoom = function() {
         pathString += tempString;
     }
 
-    //Refresh the measurement-stuff after moving the walls, then hide the angles and remove handlers.
+    // Refresh the measurement-stuff after moving the walls, 
+    //then hide the angles and remove handlers.
     measures.refreshMeasurements();
     measures.angMeasurements.hide();
     ns.finishedRoom.removeHandlers();
@@ -332,15 +335,16 @@ Grid.prototype.moveRoom = function() {
     tempString = ' Z';
     pathString += tempString;
 
+    // Returns the path of our room as ONE string.
     return pathString;
-};
+}
 
 /** TODO: Check the i, ii stuff, when saving as pdf. (Set to 0, because they was undefined unless)
  * Function to save our svg-drawing as a .png file.
  * Using libraries published at 'https://code.google.com/p/canvg/' under MIT-license.
  * @param callback - 
 **/
-Grid.prototype.save = function (callback) {
+Grid.prototype.save = function(callback) {
 
     var ns = TFplanner,
         doc = document,
