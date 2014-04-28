@@ -1,7 +1,7 @@
 /*
  This file contains assorted minor structures used by resultGrid
   and their functions
- HeatingMat - Square - Subsquare - Mats
+ HeatingMat - Square - Subsquare
 */
 
 /**
@@ -18,9 +18,10 @@ function HeatingMat(matLength, timeoutLength, color) {
 	this.unusedArea = this.totalArea;
     this.timestamp = Date.now();
     this.validPeriod = timeoutLength ? timeoutLength : 500;
-    this.matColor = color;
+    this.matColor = null;
     this.productNr;
     this.textPlaced = false;
+    this.path = [];
 
 
     this.matId = mattur.matIndex;
@@ -56,6 +57,83 @@ HeatingMat.prototype.removeSubsquare = function() {
 }
 
 /**
+* Function draws the visualization line, as well as start and end
+* points, onto the paper.
+*/
+HeatingMat.prototype.draw = function(paper) {
+    var path = this.path,
+        len = path.length,
+        pathString = '',
+        x,
+        y, 
+        start,
+        end,
+        textBox,
+        text;
+
+
+    for (var i = len-1; i >= 0; --i) {
+        x = path[i][0];
+        y = path[i][1];
+
+        if (i == len-1) {
+            if ( x-path[i-1][0] < 0 ) {
+                //Start arrow pointing right
+                start = paper.path('M'+(x-5)+','+(y-5)+'L'+x+','+y+'L'+(x-5)+','+(y+5)+'Z');            
+            } else if ( x-path[i-1][0] > 0 ) {
+                //Start arrow pointing left
+                start = paper.path('M'+(x+5)+','+(y-5)+'L'+x+','+y+'L'+(x+5)+','+(y+5)+'Z');
+            } else if ( y-path[i-1][1] > 0) {
+                //Arrow pointing up
+                start = paper.path('M'+(x-5)+','+y+'L'+x+','+(y-5)+'L'+(x+5)+','+y+'Z');
+            } else {
+                //Arrow pointing downward
+                start = paper.path('M'+(x-5)+','+y+'L'+x+','+(y+5)+'L'+(x+5)+','+y+'Z');
+            }
+            start.attr({
+                'fill': 'red',
+                'stroke': 'red'
+            });
+            pathString += ('M'+x+','+y);
+        } else if (i == len-3 ) {
+
+            text = paper.text(x, y, this.productNr).attr({
+                    'font-size': measurement.fontsize
+                });
+
+            // Dynamic size of the rectangle surrounding the text.
+            var rectLen = (text.getBBox().width + 10),
+                rectHeight = (text.getBBox().height),
+                rectX = (x - (rectLen / 2)),
+                rectY = (y - (rectHeight / 2));
+
+            textBox = paper.rect(rectX, rectY, rectLen, rectHeight, 5, 5).attr({
+                opacity: 1,
+                fill: "white"
+            });
+
+            pathString += ('L'+x+','+y);
+        } else if ( i == 0) {
+            end = paper.path('M'+(x-5)+','+y+'L'+x+','+(y-5)+'L'+(x+5)+','+y+'L'+x+','+(y+5)+'Z');
+            end.attr({
+                'fill': 'red',
+                'stroke': 'red'
+            });
+            pathString += ('L'+x+','+y);
+        } else {
+            pathString += ('L'+x+','+y);
+        }
+    }
+    //Draws the actual line
+    paper.path(pathString).attr({
+        'stroke': 'red',
+        'stroke-width': 1
+    });
+    textBox.toFront();
+    text.toFront();
+}
+
+/**
  * Constructor for a 0.5m X 0.5m square
  * @param x - X coordinate of upper left corner
  * @param y - Y coordinate of upper left corner
@@ -75,7 +153,6 @@ function Square (x, y, path, paper, nr) {
     this.arrows = paper.set();
     this.reallyInside = true;
     this.nr = nr;
-    this.productNr;
 
 
     this.direction = null;
@@ -128,181 +205,18 @@ function Square (x, y, path, paper, nr) {
 
 
 /**
- *  Function that draws mats and shit based on the direction of the sun & wind.
- *  Stores lastdirection, right?
-**/
-Square.prototype.drawMatline = function(from) {
+* Function adds the mat color to the square, then creates and stores
+* the coordinates of the centre of the square. THis is later
+* used for drawing connecting red line through the mat.
+* @param mat - The mat currently in use
+*/
+Square.prototype.setPath = function(mat) {
 
-    var y = this.ypos,
-        x = this.xpos,
-        to = this.direction,
-        paper = this.paper,
-        attributes = {
-            'stroke-opacity': 1, 
-            'stroke': "#CB2C30", 
-            'stroke-width': 3
-        },
-        direction = (from != 'productNr') ? (from + to) : from;
-    this.arrows.remove();
-
-    switch (direction) {
-
-        case 'productNr':
-            var texX = (x + 25),
-                texY = (y + 25),
-                tex = paper.text(x+25, y+25, this.productNr).attr({
-                    'font-size': measurement.fontsize
-                }),
-                
-                // Dynamic size of the rectangle surrounding the text.
-                rectLen = (tex.getBBox().width + 10),
-                rectHeight = (tex.getBBox().height),
-                rectX = (texX - (rectLen / 2)),
-                rectY = (texY - (rectHeight / 2)),
-
-                rec = paper.rect(rectX, rectY, rectLen, rectHeight, 5, 5).attr({
-                        opacity: 1,
-                        fill: "white"
-                    });
-
-            tex.toFront();
-
-            this.arrows.push(rec, tex);
-
-            break;
-
-        case 'rightleft':
-        case 'leftright':
-        case 'rightright':
-        case 'leftleft':
-            this.arrows.push(paper.path("M"+(x+50)+", "+(y+25)+", L"+(x)+", "+(y+25)).attr(attributes));
-            break;
-
-        case 'upup':
-        case 'downdown':
-            this.arrows.push(paper.path("M"+(x+25)+", "+(y+50)+", L"+(x+25)+", "+(y)).attr(attributes));
-            break;
-
-        case 'upright':
-            this.arrows.push(paper.path("M"+(x+25)+", "+(y+50)+", L"+(x+25)+", "+(y+25)+", L"+(x+50)+", "+(y+25)).attr(attributes));
-            break;
-
-        case 'leftdown':
-            this.arrows.push(paper.path("M"+(x+50)+", "+(y+25)+", L"+(x+25)+", "+(y+25)+", L"+(x+25)+", "+(y+50)).attr(attributes));
-            break;
-
-        case 'rightdown':
-            this.arrows.push(paper.path("M"+(x)+", "+(y+25)+", L"+(x+25)+", "+(y+25)+", L"+(x+25)+", "+(y+50)).attr(attributes));
-            break;
-
-        case 'upleft': 
-            this.arrows.push(paper.path("M"+(x+25)+", "+(y+50)+", L"+(x+25)+", "+(y+25)+", L"+(x)+", "+(y+25)).attr(attributes));
-            break;
-
-        case 'rightup':
-            this.arrows.push(paper.path("M"+(x)+", "+(y+25)+", L"+(x+25)+", "+(y+25)+", L"+(x+25)+", "+(y)).attr(attributes));
-            break;
-
-        case 'downleft':
-            this.arrows.push(paper.path("M"+(x+25)+", "+(y)+", L"+(x+25)+", "+(y+25)+", L"+(x)+", "+(y+25)).attr(attributes));
-            break;
-
-        case 'downright':
-            this.arrows.push(paper.path("M"+(x+25)+", "+(y)+", L"+(x+25)+", "+(y+25)+", L"+(x+50)+", "+(y+25)).attr(attributes));
-            break;
-
-        case 'leftup':
-            this.arrows.push(paper.path("M"+(x+50)+", "+(y+25)+", L"+(x+25)+", "+(y+25)+", L"+(x+25)+", "+(y)).attr(attributes));
-            break;
-
-        case 'nullup':
-            this.arrows.push(paper.path("M"+(x+10)+", "+(y+35)+", L"+(x+40)+", "+(y+35)+", M"+(x+15)+", "+(y+25)+", L"+(x+35)+", "+(y+25)+", M"+(x+25)+", "+(y+25)+", L"+(x+25)+", "+(y)).attr(attributes));
-            break;
-
-        case 'nullright':
-            this.arrows.push(paper.path("M"+(x+15)+", "+(y+10)+", L"+(x+15)+", "+(y+40)+", M"+(x+25)+", "+(y+15)+", L"+(x+25)+", "+(y+35)+", M"+(x+25)+", "+(y+25)+", L"+(x+50)+", "+(y+25)).attr(attributes));
-            break;
-
-        case 'nullleft':
-            this.arrows.push(paper.path("M"+(x+35)+", "+(y+10)+", L"+(x+35)+", "+(y+40)+", M"+(x+25)+", "+(y+15)+", L"+(x+25)+", "+(y+35)+", M"+(x+25)+", "+(y+25)+", L"+(x)+", "+(y+25)).attr(attributes));
-            break;
-
-        case 'nulldown':
-            this.arrows.push(paper.path("M"+(x+10)+", "+(y+15)+", L"+(x+40)+", "+(y+15)+", M"+(x+15)+", "+(y+25)+", L"+(x+35)+", "+(y+25)+", M"+(x+25)+", "+(y+25)+", L"+(x+25)+", "+(y+50)).attr(attributes));
-            break;
-
-        case 'upnull':
-            this.arrows.push(paper.path("M"+(x+25)+", "+(y+50)+", L"+(x+25)+", "+(y+25)+", M"+(x+15)+", "+(y+25)+", L"+(x+15)+", "+(y+25)).attr(attributes));
-            break;
-
-        case 'rightnull':
-            this.arrows.push(paper.path("M"+(x)+", "+(y+25)+", L"+(x+25)+", "+(y+25)+", M"+(x+25)+", "+(y+15)+", L"+(x+25)+", "+(y+35)).attr(attributes));
-            break;
-
-        case 'leftnull':
-            this.arrows.push(paper.path("M"+(x+50)+", "+(y+25)+", L"+(x+25)+", "+(y+25)+", M"+(x+25)+", "+(y+15)+", L"+(x+25)+", "+(y+35)).attr(attributes));
-            break;
-
-        case 'downnull':
-            this.arrows.push(paper.path("M"+(x+25)+", "+(y)+", L"+(x+25)+", "+(y+25)+", M"+(x+15)+", "+(y+25)+", L"+(x+35)+", "+(y+25)).attr(attributes));
-            break;
-
-        default: 
-            this.arrows.push(paper.text(x+25, y+25, direction).attr({
-                'font-size': 12 
-            }));
-            break;
-    }
-}
-
-/**
- *  This function adds arrows to the squares.
- *  In addition it sets a color to the squares, even tho the function name doesnt give that away.
-**/
-Square.prototype.setArrow = function(dir, mat, squareNo) {
-
-    this.productNr = mat.productNr;
-
-    if (dir < 5 && dir >= 0) {
-        mattur.addSquare(mat.matId, squareNo);
-    }
-
+    var path = [this.xpos+25, this.ypos+25];
+    mat.path.push(path);
     this.rect.attr({'fill': mat.matColor});
-
-    switch (dir) {
-        //up
-        case 0: 
-            this.direction = 'up';
-            //this.arrows.push(paper.path("M"+(x+25)+", "+(y+35)+", L"+ (x+25)+", "+(y+ 15)).attr(attributes));
-            break;
-        //right
-        case 1:
-            this.direction = 'right';
-            //this.arrows.push(paper.path("M"+(x+15)+", "+(y+25)+", L"+ (x+35)+", "+(y+25)).attr(attributes));
-            break;
-        //left
-        case 2: 
-            this.direction = 'left';
-            //this.arrows.push(paper.path("M"+(x+35)+", "+(y+25)+", L"+ (x+15)+", "+(y+ 25)).attr(attributes));
-            break;
-        //down
-        case 3:
-            this.direction = 'down';
-            //this.arrows.push(paper.path("M"+(x+25)+", "+(y+15)+", L"+ (x+25)+", "+(y+35)).attr(attributes));
-            break;
-
-        case 4:
-            this.direction = null;
-            //this.arrows.push(paper.circle(x+25, y+25, 3).attr({'fill': "#E73029", 'fill-opacity': 1}));
-            break;
-        case 6:
-            this.rect.attr({'fill': "white"});
-            break;
-
-        default: 
-            break;
-    }
 }
+
 
 /**
  * Returns true if all the subsquares along a square edge contains a wall.
@@ -416,7 +330,7 @@ function Subsquare (x, y, paper, path, squareNo, subNo) {
         lr = false;
 
     //Checks whether all corners are inside of room
-    //If path == null this check does not to be done, it is quite
+    //If path == null this check does not need to be done, it is quite
     // time consuming
     if (path != null) {
         ul = Raphael.isPointInsidePath( path, x,y );
@@ -424,7 +338,6 @@ function Subsquare (x, y, paper, path, squareNo, subNo) {
         ll = Raphael.isPointInsidePath( path, x, y + ydim );
         lr = Raphael.isPointInsidePath( path, x+xdim, y+ydim );
     }
-    //this.rect = paper.rect(x, y, xdim, ydim);
 
     //Subsquares are either in or out, if they are
     // "partially in" it means they contain a wall
@@ -433,6 +346,33 @@ function Subsquare (x, y, paper, path, squareNo, subNo) {
     } else if (ul || ur || ll || lr) {
         this.hasWall = true;
     }
+}
+
+/**
+* Function sets color of the subsquare to the color
+* of the mat.
+* @param mat - The heating mat in use
+*/
+Subsquare.prototype.setColor = function(mat) {
+    var paper = this.paper,
+        x = this.x,
+        y = this.y;
+
+    this.rect = paper.rect(x, y, 10, 10);
+
+    this.rect.attr({
+        'stroke-width': 0,
+        'fill': mat.matColor
+    });
+}
+
+/**
+* Function stored the coordinates of the centre of the subsquare
+* @param mat - The heating mat in use
+*/
+Subsquare.prototype.setPath = function(mat) {
+    var path = [this.x+5, this.y+5];
+    mat.path.push(path); 
 }
 
 /**
@@ -540,112 +480,5 @@ Mats.prototype.addSubsquare = function (mati, subsquare) {
         // Adds subsquares to arrays, these arrays is traversed and 'cleaned' in resultgrid.
         this.subList[num].push(subsquare.subNo);
         this.subObj.push(subsquare);
-    }
-}
-
-/**
- * Pretty much the same functionality as drawMatLine, but this is done in subsquares, and must use
- * some different coordinates.
- * @param from - what direction the mat 'comes from'.
- * @param subsquare - The actual subsquare-object, we need coordinates and some stuff from it.
-**/
-Mats.prototype.drawSubMat = function (from, subsquare) {
-
-    var y = subsquare.y,
-        x = subsquare.x,
-        to = subsquare.direction,
-        paper = subsquare.paper,
-        attributes = {
-            'stroke': "red"
-        },
-
-    direction = from+to;
-
-    //TODO: We might want a default-case AND; what should we do when we get 'something''null'
-    switch (direction) {
-        case 'rightright':
-            paper.path("M"+(x)+", "+(y+5)+", L"+(x+10)+", "+(y+5)).attr(attributes);
-            break;
-
-        case 'leftleft':
-            paper.path("M"+(x+10)+", "+(y+5)+", L"+(x)+", "+(y+5)).attr(attributes);
-            break;
-
-        case 'upup':
-            paper.path("M"+(x+5)+", "+(y+10)+", L"+(x+5)+", "+(y)).attr(attributes);
-            break;
-
-        case 'downdown':
-            paper.path("M"+(x+5)+", "+(y)+", L"+(x+5)+", "+(y+10)).attr(attributes);
-            break;
-
-        case 'downleft':
-            paper.path("M"+(x+5)+", "+(y)+", L"+(x+5)+", "+(y+5)+", L"+(x)+", "+(y+5)).attr(attributes);
-            break;
-         
-        case 'upright':
-            paper.path("M"+(x+5)+", "+(y+10)+", L"+(x+5)+", "+(y+5)+", L"+(x+10)+", "+(y+5)).attr(attributes);
-            break;
-
-        case 'leftdown':
-            paper.path("M"+(x+10)+", "+(y+5)+", L"+(x+5)+", "+(y+5)+", L"+(x+5)+", "+(y+10)).attr(attributes);
-            break;
- 
-        case 'rightdown':
-            paper.path("M"+(x)+", "+(y+5)+", L"+(x+5)+", "+(y+5)+", L"+(x+5)+", "+(y+10)).attr(attributes);
-            break;
-
-        case 'upleft': 
-            paper.path("M"+(x+5)+", "+(y+10)+", L"+(x+5)+", "+(y+5)+", L"+(x)+", "+(y+5)).attr(attributes);
-            break;
-
-        case 'rightup':
-            paper.path("M"+(x)+", "+(y+5)+", L"+(x+5)+", "+(y+5)+", L"+(x+5)+", "+(y)).attr(attributes);
-            break;
-
-        case 'downleft':
-            paper.path("M"+(x+5)+", "+(y)+", L"+(x+5)+", "+(y+5)+", L"+(x)+", "+(y+5)).attr(attributes);
-            break;
-
-        case 'downright':
-            paper.path("M"+(x+5)+", "+(y)+", L"+(x+5)+", "+(y+5)+", L"+(x+10)+", "+(y+5)).attr(attributes);
-            break;
-
-        case 'leftup':
-            paper.path("M"+(x+10)+", "+(y+5)+", L"+(x+5)+", "+(y+5)+", L"+(x+5)+", "+(y)).attr(attributes);
-            break;
-
-        case 'nullup':
-            paper.path("M"+(x+5)+", "+(y+5)+", L"+(x+5)+", "+(y)).attr(attributes);
-            break;
-
-        case 'nullright':
-            paper.path("M"+(x+5)+", "+(y+5)+", L"+(x+10)+", "+(y+5)).attr(attributes);
-            break;
-
-        case 'nullleft':
-            paper.path("M"+(x+5)+", "+(y+5)+", L"+(x)+", "+(y+5)).attr(attributes);
-            break;
-
-        case 'nulldown':
-            paper.path("M"+(x+5)+", "+(y+5)+", L"+(x+5)+", "+(y+10)).attr(attributes);
-            break;
-/*
-        case 'upnull':
-            this.arrows.push(paper.path("M"+(x+25)+", "+(y+50)+", L"+(x+25)+", "+(y+25)+", M"+(x+15)+", "+(y+25)+", L"+(x+15)+", "+(y+25)).attr(attributes));
-            break;
-
-        case 'rightnull':
-            this.arrows.push(paper.path("M"+(x)+", "+(y+25)+", L"+(x+25)+", "+(y+25)+", M"+(x+25)+", "+(y+15)+", L"+(x+25)+", "+(y+35)).attr(attributes));
-            break;
-
-        case 'leftnull':
-            this.arrows.push(paper.path("M"+(x+50)+", "+(y+25)+", L"+(x+25)+", "+(y+25)+", M"+(x+25)+", "+(y+15)+", L"+(x+25)+", "+(y+35)).attr(attributes));
-            break;
-    
-        case 'downnull':
-            paper.path("M"+(x+5)+", "+(y)+", L"+(x+5)+", "+(y+5)).attr(attributes);
-            break;
-    */        
     }
 }
