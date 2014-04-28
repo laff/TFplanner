@@ -10,7 +10,6 @@
  * @param timeoutLength - The time limit for this mat to be
  *  placed. If limit is exceeded, next length will be tried
  *  instead.
- * @param color - The color of the mat
 **/
 function HeatingMat(matLength, timeoutLength) {
 
