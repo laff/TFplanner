@@ -9,7 +9,7 @@ function FinishedRoom (radius) {
     this.pathHandle = null;
     this.howerWall = null;
     this.selectedWall = null;
-    this.undoSet = grid.paper.set();
+    this.undoSet = TFplanner.grid.paper.set();
     this.dotA = String.fromCharCode(229);
     this.crossO = String.fromCharCode(248);
 }
@@ -20,12 +20,14 @@ function FinishedRoom (radius) {
  * room is created)
 **/
 FinishedRoom.prototype.addWalls = function () {
-    this.walls = ourRoom.walls;
+    var theRoom = TFplanner.ourRoom;
+
+    this.walls = theRoom.walls;
     this.clickableCorners();
     this.setHandlers();
 
-    if (ourRoom.selfDrawn == false) {
-        options.showOptions(4);
+    if (theRoom.selfDrawn == false) {
+        TFplanner.options.showOptions(4);
     }
 }
 
@@ -69,7 +71,7 @@ FinishedRoom.prototype.selectWall = function (index) {
     }
 
     if (index != null) {
-        this.selectedWall = grid.paper.path(this.walls[index].attrs.path).attr({
+        this.selectedWall = TFplanner.grid.paper.path(this.walls[index].attrs.path).attr({
             stroke: "#3366FF",
             'stroke-width': this.radius,
             'stroke-opacity': 0.5, 
@@ -89,9 +91,11 @@ FinishedRoom.prototype.clickableWall = function(prev, current, next) {
         thisWall = current,
         nextWall = next,
         dotA = this.dotA,
-        pathArray1 = prevWall.attr("path"),
-        pathArray2 = thisWall.attr("path"),
-        pathArray3 = nextWall.attr("path"),
+        theGrid = TFplanner.grid,
+        measures = TFplanner.measurement,
+        pathArray1 = prevWall.attr('path'),
+        pathArray2 = thisWall.attr('path'),
+        pathArray3 = nextWall.attr('path'),
 
         // Copy the content of the wall-elements
         w1 = $.extend(true, {}, prevWall),
@@ -107,13 +111,13 @@ FinishedRoom.prototype.clickableWall = function(prev, current, next) {
 
 
     // Handler used so we easily can target and drag a wall.
-    room.pathHandle = grid.paper.path(thisWall.attrs.path).attr({
-        stroke: "#3366FF",
+    room.pathHandle = theGrid.paper.path(thisWall.attrs.path).attr({
+        stroke: '#3366FF',
         'stroke-width': room.radius,
         'stroke-opacity': 0.5, 
-        'stroke-linecap': "butt",
-        cursor: "move",
-        title: "Hold museknapp inne og dra for "+dotA+" flytte vegg"
+        'stroke-linecap': 'butt',
+        cursor: 'move',
+        title: 'Hold museknapp inne og dra for "+dotA+" flytte vegg'
     });
    
     var start = function () {
@@ -140,7 +144,7 @@ FinishedRoom.prototype.clickableWall = function(prev, current, next) {
     },
 
     move = function (dx, dy) {
-        var xy = grid.getZoomedXY(dx, dy),
+        var xy = theGrid.getZoomedXY(dx, dy),
             // setting diffx or diffy to 0 based on the horizontal bool or if lastdx/y is null.
             diffx = (this.lastdx != null) ? (this.horizontally) ? (this.lastdx - xy[0]) : 0 : 0,
             diffy = (this.lastdy != null) ? (!this.horizontally) ? (this.lastdy - xy[1]) : 0 : 0;
@@ -168,7 +172,7 @@ FinishedRoom.prototype.clickableWall = function(prev, current, next) {
         nextWall.attr({path: pathArray3});
         this.attr({path: pathArray2});
 
-        measurement.refreshMeasurements();
+        measures.refreshMeasurements();
     },
 
     up = function () {
@@ -189,6 +193,7 @@ FinishedRoom.prototype.clickableWall = function(prev, current, next) {
 FinishedRoom.prototype.setHandlers = function() {
     var walls = this.walls,
         room = this,
+        theRoom = TFplanner.ourRoom,
         dotA = this.dotA;
 
     // Looping through the set of walls, and adding handlers to all of them.
@@ -200,7 +205,7 @@ FinishedRoom.prototype.setHandlers = function() {
 
         element.hover(function () {
             // Do not visualize the mouseovered wall, if an other wall or corner is targeted.
-            if (room.handle == null && ourRoom.tmpCircle == null && room.pathHandle == null) {
+            if (room.handle == null && theRoom.tmpCircle == null && room.pathHandle == null) {
                 room.hoverWall = true;
                 this.attr({
                     stroke: "#008000",            
@@ -236,7 +241,9 @@ FinishedRoom.prototype.setHandlers = function() {
  * Works if the user have dragged a corner, or a wall.
 **/
 FinishedRoom.prototype.undo = function () {
-    var undoSet = this.undoSet,
+
+    var theRoom = TFplanner.ourRoom,
+        undoSet = this.undoSet,
         walls = this.walls;
 
     // This is used specially when dragging of a wall has happend (3 items in the undo-set).
@@ -244,26 +251,26 @@ FinishedRoom.prototype.undo = function () {
         
         for (var i = 0; i < walls.length; i++) {
 
-            if (undoSet[1].id == ourRoom.walls[i].id && i > 0 && i != walls.length-1) {
-               ourRoom.walls[i-1].attr({path: undoSet[0].attrs.path});
-               ourRoom.walls[i].attr({path: undoSet[1].attrs.path});
-               ourRoom.walls[i+1].attr({path: undoSet[2].attrs.path});
+            if (undoSet[1].id == theRoom.walls[i].id && i > 0 && i != walls.length-1) {
+               theRoom.walls[i-1].attr({path: undoSet[0].attrs.path});
+               theRoom.walls[i].attr({path: undoSet[1].attrs.path});
+               theRoom.walls[i+1].attr({path: undoSet[2].attrs.path});
                measurement.refreshMeasurements();
                undoSet.clear();
                return;
             // Wall number 'zero' was dragged:
-            } else if (undoSet[1].id == ourRoom.walls[i].id && i == 0) {
-               ourRoom.walls[walls.length-1].attr({path: undoSet[0].attrs.path});
-               ourRoom.walls[i].attr({path: undoSet[1].attrs.path});
-               ourRoom.walls[i+1].attr({path: undoSet[2].attrs.path});
+            } else if (undoSet[1].id == theRoom.walls[i].id && i == 0) {
+               theRoom.walls[walls.length-1].attr({path: undoSet[0].attrs.path});
+               theRoom.walls[i].attr({path: undoSet[1].attrs.path});
+               theRoom.walls[i+1].attr({path: undoSet[2].attrs.path});
                measurement.refreshMeasurements();
                undoSet.clear();
                return;
             // The 'last wall' in the array was dragged.
-            } else if (undoSet[1].id == ourRoom.walls[i].id && i == walls.length-1) {
-               ourRoom.walls[walls.length-2].attr({path: undoSet[0].attrs.path});
-               ourRoom.walls[i].attr({path: undoSet[1].attrs.path});
-               ourRoom.walls[0].attr({path: undoSet[2].attrs.path});
+            } else if (undoSet[1].id == theRoom.walls[i].id && i == walls.length-1) {
+               theRoom.walls[walls.length-2].attr({path: undoSet[0].attrs.path});
+               theRoom.walls[i].attr({path: undoSet[1].attrs.path});
+               theRoom.walls[0].attr({path: undoSet[2].attrs.path});
                measurement.refreshMeasurements();
                undoSet.clear();
                return;
@@ -273,11 +280,11 @@ FinishedRoom.prototype.undo = function () {
 
         for (var i = 0; i < walls.length; i++) {
 
-            if (undoSet[0].id == ourRoom.walls[i].id) {
-                ourRoom.walls[i].attr({path: undoSet[0].attrs.path});
+            if (undoSet[0].id == theRoom.walls[i].id) {
+                theRoom.walls[i].attr({path: undoSet[0].attrs.path});
                 
-            } else if (undoSet[1].id == ourRoom.walls[i].id) {
-                ourRoom.walls[i].attr({path: undoSet[1].attrs.path});
+            } else if (undoSet[1].id == theRoom.walls[i].id) {
+                theRoom.walls[i].attr({path: undoSet[1].attrs.path});
             }
         }
         measurement.refreshMeasurements();
@@ -312,7 +319,8 @@ FinishedRoom.prototype.removeHandlers = function () {
 **/
 FinishedRoom.prototype.clickableCorners = function() {
 
-    var room = this;
+    var room = this,
+        theRoom = TFplanner.ourRoom;
 
     $('#canvas_container').mousedown(room, function(e) {
         if ((match = room.checkMatch(e)) != null) {
@@ -324,11 +332,11 @@ FinishedRoom.prototype.clickableCorners = function() {
     $('#canvas_container').mousemove(room, function(e) {
         // No need to draw the circle if a corner or a wall already is targeted.
         if ((match = room.checkMatch(e)) != null && room.handle == null && room.pathHandle == null && room.hoverWall == null) {
-            ourRoom.visualizeRoomEnd(match);
+            theRoom.visualizeRoomEnd(match);
 
-        } else if (ourRoom.tmpCircle != null) {
-            ourRoom.tmpCircle.remove();
-            ourRoom.tmpCircle = null;
+        } else if (theRoom.tmpCircle != null) {
+            theRoom.tmpCircle.remove();
+            theRoom.tmpCircle = null;
         } 
     });
 
@@ -336,8 +344,9 @@ FinishedRoom.prototype.clickableCorners = function() {
 
 
 FinishedRoom.prototype.checkMatch = function(e) {
-    var point = ourRoom.crossBrowserXY(e),
-        match = (point != null) ? ourRoom.findCorner(point) : null;
+    var theRoom = TFplanner.ourRoom, 
+        point = theRoom.crossBrowserXY(e),
+        match = (point != null) ? theRoom.findCorner(point) : null;
 
     if (match != null) {
         return match;
@@ -393,12 +402,14 @@ FinishedRoom.prototype.drag = function(indexArr, match) {
         path2 = walls[indexArr[1][0]],
         path1Order = indexArr[0][1],    // if path1Order = 0 : startpunktet skal endres. om det er = 1, endpunktet skal endres.
         path2Order = indexArr[1][1],    
-        pathArray1 = path1.attr("path"),
-        pathArray2 = path2.attr("path"),
+        pathArray1 = path1.attr('path'),
+        pathArray2 = path2.attr('path'),
         mx = match[0],
         my = match[1],
         dotA = this.dotA,
         crossO = this.crossO,
+        theGrid = TFplanner.grid,
+        measures = TFplanner.measurement,
         room = this,
         w1 = $.extend(true, {}, path1),
         w2 = $.extend(true, {}, path2);
@@ -410,7 +421,7 @@ FinishedRoom.prototype.drag = function(indexArr, match) {
 
     this.undoSet.push(w1, w2);
 
-    room.handle = grid.paper.circle(mx, my, this.radius).attr({
+    room.handle = theGrid.paper.circle(mx, my, this.radius).attr({
         fill: "#3366FF",
         'fill-opacity': 0.5,
         'stroke-opacity': 0.5,
@@ -424,7 +435,7 @@ FinishedRoom.prototype.drag = function(indexArr, match) {
     },
 
     move = function (dx, dy) {
-        var xy = grid.getZoomedXY(dx, dy), 
+        var xy = theGrid.getZoomedXY(dx, dy), 
 
             // Calculating the difference from last mouse position.
             diffx = (this.lastx != null) ? (this.lastx - xy[0]) : 0,
@@ -463,7 +474,7 @@ FinishedRoom.prototype.drag = function(indexArr, match) {
         path2.attr({path: pathArray2});
 
         // Updating measurements for each move.
-        measurement.refreshMeasurements();
+        measures.refreshMeasurements();
     },
 
     up = function () {

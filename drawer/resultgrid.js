@@ -4,9 +4,9 @@
 **/ 
 function ResultGrid(pathString) {
     //this.size = 5;
-    this.height = grid.resHeight;
-    this.width = grid.resWidth;
-    this.paper = grid.paper;
+    this.height = TFplanner.grid.resHeight;
+    this.width = TFplanner.grid.resWidth;
+    this.paper = TFplanner.grid.paper;
     this.squares = [];
     this.startSquares = [];
     this.area = 0;
@@ -55,10 +55,11 @@ ResultGrid.prototype.calculateGuide = function () {
 **/
 ResultGrid.prototype.displayMats = function () {
 
-    var mats = mattur.list,     // FIX THESE NAMES
-        matti = mattur.subList, // DENNI OG!
+    var theMats = TFplanner.mattur,
+        mats = theMats.list,     // FIX THESE NAMES
+        matti = theMats.subList, // DENNI OG!
         squares = this.squares,
-        subObj = mattur.subObj,
+        subObj = theMats.subObj,
         products = [];
 
     // Clear out array incase doubleclick etc.
@@ -152,7 +153,7 @@ ResultGrid.prototype.displayMats = function () {
                     tmpDirection = null;
                 }
                 // Draw the mat on a subsquare, in correct direction.
-                mattur.drawSubMat(tmpDirection, subObj[j]);
+                theMats.drawSubMat(tmpDirection, subObj[j]);
 
                 tmpDirection = subObj[j].direction;
                 prevSqNo = subObj[j].squareNo;
@@ -161,7 +162,7 @@ ResultGrid.prototype.displayMats = function () {
     this.chosenMats = products;
 
     // Removes the progress
-    options.updateProgress(true);
+    TFplanner.options.updateProgress(true);
 }
 
 /**
@@ -193,7 +194,7 @@ ResultGrid.prototype.addSquares = function() {
         }
     }
 
-    options.updateProgress(false, this);
+    TFplanner.options.updateProgress(false, this);
 }
 
 /**
@@ -304,7 +305,8 @@ ResultGrid.prototype.findStart = function() {
 **/
 ResultGrid.prototype.placeMat = function (squareNo, validPeriod, arr1, arr2) {
 
-    var mat,    
+    var opts = TFplanner.options,
+        mat,    
         l = [];
 
     // Picks color, then increments.
@@ -316,14 +318,14 @@ ResultGrid.prototype.placeMat = function (squareNo, validPeriod, arr1, arr2) {
      * that the user must have some experience laying heating mats, and know what 
      * lengths that will fit in the room.
     **/
-    if (options.prefMat.length > 0) {
+    if (opts.prefMat.length > 0) {
         var pref = [],
             prodNum = [];
 
-        for (var i = 0; i < options.prefMat.length; i++) {
-            pref[i] = options.prefMat[i].length*100;
+        for (var i = 0; i < opts.prefMat.length; i++) {
+            pref[i] = opts.prefMat[i].length*100;
             // The object is undefined at this point, store the product-number.
-            prodNum[i] = options.prefMat[i].number;
+            prodNum[i] = opts.prefMat[i].number;
         }
 
         if (pref.length > 0) {
@@ -336,7 +338,7 @@ ResultGrid.prototype.placeMat = function (squareNo, validPeriod, arr1, arr2) {
                 mat.productNr = num;
                 // Take the mat out of the array, if it doesn`t fit in the room, we don`t
                 // want to put it out anyway.
-                options.prefMat.shift();
+                opts.prefMat.shift();
                 // PlaceSquare is where the placement of the mat begins
                 if ( !arr1 && !arr2 && this.placeSquare(squareNo, 0, mat, 0, -1) ) {
                     return true;
@@ -349,9 +351,9 @@ ResultGrid.prototype.placeMat = function (squareNo, validPeriod, arr1, arr2) {
         }
     } 
 
-    for (var i = 0; i < options.validMat.products.length; i++) {
+    for (var i = 0; i < opts.validMat.products.length; i++) {
         // Length of mats is stored in meters, we want it in cm.
-        l[i] = options.validMat.products[i].length*100;
+        l[i] = opts.validMat.products[i].length*100;
     }
     
     while (l.length > 0) {
@@ -360,7 +362,7 @@ ResultGrid.prototype.placeMat = function (squareNo, validPeriod, arr1, arr2) {
 
         if (c <= this.unusedArea) {
             mat = new HeatingMat(length, validPeriod, this.currentColor);
-            mat.productNr = options.validMat.products[l.length].number;
+            mat.productNr = opts.validMat.products[l.length].number;
 
             //placeSquare is where the placement of the mat begins
             if ( !arr1 && !arr2 && this.placeSquare(squareNo, 0, mat, 0, -1) ) {
@@ -410,6 +412,7 @@ ResultGrid.prototype.placeSquare = function (squareNo, subsquareNo, mat, lastSqu
         height = this.squareheight,
         area = 50*50,
         timeout = Date.now(),
+        obst = TFplanner.obstacles,
         u = squareNo-width,
         l = squareNo-1,
         r = squareNo+1,
@@ -447,7 +450,7 @@ ResultGrid.prototype.placeSquare = function (squareNo, subsquareNo, mat, lastSqu
                 correctWall = true;
 
             //Mats cannot end on same wall that contains the supplypoint
-            if ( obstacles.supplyEnd && supply && 
+            if ( obst.supplyEnd && supply && 
                  ( square.xpos >= supply[0] && square.xpos <= supply[1] && 
                    square.ypos >= supply[2] && square.ypos <= supply[3] ) ) {
                 correctWall = false;
@@ -614,7 +617,7 @@ ResultGrid.prototype.placeStrip = function(squareNo, arr, mat, lastSquareNo) {
         correctWall = true;
 
         //Mats cannot end on same wall that contains the supplypoint
-        if ( obstacles.supplyEnd && supply && 
+        if ( TFplanner.obstacles.supplyEnd && supply && 
              ( square.xpos >= supply[0] && square.xpos <= supply[1] && 
                square.ypos >= supply[2] && square.ypos <= supply[3] ) ) {
             correctWall = false;
@@ -1187,7 +1190,7 @@ ResultGrid.prototype.moveWalls = function() {
 
     }
 
-    options.availableArea = (this.area / 10000);
+    TFplanner.options.availableArea = (this.area / 10000);
     this.area -= 3000;
     this.area -= this.area%10000;
     this.unusedArea = this.area;
@@ -1312,7 +1315,7 @@ ResultGrid.prototype.adjacentWall = function (squareList, subsquareNo) {
 **/
 ResultGrid.prototype.addObstacles = function() {
 
-    var list = obstacles.obstacleSet,
+    var list = TFplanner.obstacles.obstacleSet,
         len = list.length,
         width = this.squarewidth,
         squares = this.squares,
@@ -1396,13 +1399,14 @@ ResultGrid.prototype.addObstacles = function() {
 **/
 ResultGrid.prototype.setSupplyPoint = function () {
 
-    var list = obstacles.obstacleSet,
-        texts = obstacles.txtSet,
-        len = obstacles.obstacleSet.length, 
-        walls = ourRoom.walls,
+    var obst = TFplanner.obstacles,
+        list = obst.obstacleSet,
+        texts = obst.txtSet,
+        len = obst.obstacleSet.length, 
+        walls = TFplanner.ourRoom.walls,
         wallLength = walls.length,
         wall,
-        supply = obstacles.supplyPoint,
+        supply = obst.supplyPoint,
         xmin,
         xmax,
         ymin,
@@ -1420,8 +1424,8 @@ ResultGrid.prototype.setSupplyPoint = function () {
             y = list[i].attr("y");
 
             //Remvoves supplyPoint so that it doesn't act as obstacle (take up space etc.)
-            obstacles.obstacleSet[i].remove();
-            obstacles.txtSet[i].remove()
+            obst.obstacleSet[i].remove();
+            obst.txtSet[i].remove()
 
             //Why 11? Because of the x/y offset when moving the room and because
             // the supply point itself has dimensions 10*10

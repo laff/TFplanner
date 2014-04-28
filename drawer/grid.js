@@ -2,8 +2,8 @@
  * Class that creates our grid, and adds some of the basic-functionality to it (zoom etc.)
 **/
 function Grid() {
-    this.size = 5;               // How many pixels between each horizontal/vertical line.
-    this.cutPix = 0.5;           // Used so that the drawing of a line not overlaps on the previous pixel.
+    this.size = 5;
+    this.cutPix = 0.5;
     this.paper = Raphael(document.getElementById('canvas_container'));
     this.boxSet = this.paper.set();
     this.gridSet = this.paper.set();
@@ -14,140 +14,77 @@ function Grid() {
     this.viewBoxHeight = this.paper.height;
     this.resWidth = (this.viewBoxWidth / 2);
     this.resHeight = null;
-    this.rat = 1.0;             // Used for scaling up the visualized wall-lengths.
-}
-
-Grid.prototype.draw = function() {
-
-    var paper = this.paper,
-        canvas = $('#canvas_container'),
-        size = this.size,               
-        cutPix = this.cutPix,           
-        line,                                   // Saves the path to a variable during construction.
-        width = (canvas.width()).toFixed(),     // The width and the height of the svg-element.
-        height = (canvas.height()).toFixed(),
-        gridSet = this.gridSet;
-
-    paper.setViewBox(0, 0, paper.width, paper.height); 
-    
-
-    // Draw vertical lines on the screen (lines are drawn so that the screen is filled even on min. zoom)
-    for (var i = 0; i <= width; i+=10) {
-    
-        line = paper.path("M"+(i*size+cutPix)+", "+0+", L"+(i*size+cutPix)+", "+(size*height)).attr({'stroke-width': 0.4});  
-        gridSet.push(line);
-    }
-
-    // Draw horizontal lines on the screen (lines are drawn so that the screen is filled even on min. zoom)
-    for (var i = 0; i <= height; i+=10) {
-
-        line = paper.path("M"+0+", "+(i*size+cutPix)+", L"+(size*width)+", "+(i*size+cutPix)).attr({'stroke-width': 0.4});
-        gridSet.push(line);
-    }
 }
 
 /**
- * Function that visualizes the scale of our grid. 
+ * Function that draw vertical and horizontal lines on the screen, and set the viewbox.
+ * This is the "base" of our webpage, where all drawing and stuff will happen.
+**/
+Grid.prototype.draw = function() {
+
+    var canvas = $('#canvas_container'),
+        size = this.size,               
+        cutPix = this.cutPix,
+        i,                                            
+        width = (canvas.width()).toFixed(),
+        height = (canvas.height()).toFixed();
+
+    this.paper.setViewBox(0, 0, this.paper.width, this.paper.height); 
+
+    for (i = 0; i <= width; i+=10) {
+
+        this.gridSet.push(this.paper.path('M'+(i*size+cutPix)+', '+0+', L'+(i*size+cutPix)+', '+(size*height)).attr({'stroke-opacity': 0.4}));
+    }
+
+    for (i = 0; i <= height; i+=10) {
+
+        this.gridSet.push(this.paper.path('M'+0+', '+(i*size+cutPix)+', L'+(size*width)+', '+(i*size+cutPix)).attr({'stroke-opacity': 0.4}));
+    }
+};
+
+/**
+ * Function that visualizes the scale-figure in the left corner of our grid. 
  * Also adds the components to a set, to have easier access to them.
 **/
 Grid.prototype.scale = function() {
-    var paper = this.paper,
-        box = paper.rect(1, 1, 99, 99).attr({
+
+    var box = this.paper.rect(1, 1, 99, 99).attr({
             'stroke-opacity': 1, 
-            'stroke': "#CB2C30", 
+            'stroke': '#CB2C30', 
             'stroke-width': 3, 
-            'fill': "white", 
-            'fill-opacity': 0.7}),
+            'fill': 'white', 
+            'fill-opacity': 0.7
+        }),
         strokeAttr = {
             'stroke-opacity': 1, 
-            'stroke': "#CB2C30", 
+            'stroke': '#CB2C30', 
             'stroke-width': 3, 
-            "arrow-start": "classic-midium-midium",
-            "arrow-end": "classic-midium-midium"
+            'arrow-start': 'classic-midium-midium',
+            'arrow-end': 'classic-midium-midium'
         },
-        arrowNW = paper.path("M"+0+", " +50+", L"+25+", "+50+"M"+50+", " +25+", L"+50+", "+0).attr(strokeAttr),
-        arrowSE = paper.path("M"+50+", " +100+", L"+50+", "+75+"M"+75+", " +50+", L"+100+", "+50).attr(strokeAttr),
-        tRect = paper.rect(30, 40, 40, 20, 5, 5).attr({
+        arrowNW = this.paper.path('M'+0+', '+50+', L'+25+', '+50+'M'+50+', '+25+', L'+50+', '+0).attr(strokeAttr),
+        arrowSE = this.paper.path('M'+50+', '+100+', L'+50+', '+75+'M'+75+', '+50+', L'+100+', '+50).attr(strokeAttr),
+        tRect = this.paper.rect(30, 40, 40, 20, 5, 5).attr({
             'stroke-width': 0,
             opacity: 1,
             fill: 'white'
         }),
-        t = paper.text(50, 50, "100 cm");
+        t = this.paper.text(50, 50, '100 cm');
 
     this.boxSet.push(box, arrowNW, arrowSE, tRect, t);
-}
+};
 
 /**
- * Makes sure that the user can`t draw in the left corner, where the 'scale' is.
-**/
-Grid.prototype.getRestriction = function(xy) {
-
-    var x = xy[0],
-        y = xy[1];
-
-    return (!(x < 100 && y < 100)) ? new Point(x, y) : new Point(-1, -1);
-}
-
-
-/**
- *  Zoom functionality, 
- *
- * Sauce: http://jsfiddle.net/9zu4U/147/
+ * Functionality for zooming on the paper that holds the grid.
+ * Source: http://jsfiddle.net/9zu4U/147/
 **/
 Grid.prototype.zoom = function() {
-
-    var paper = this.paper,
-        canvasID = "#canvas_container",
-
-       // viewBoxWidth = paper.width,
-       // viewBoxHeight = paper.height,
-        
-        startX,
-        startY,
-        mousedown = false,
-        dX,
-        dY,
-        oX = 0,
-        oY = 0,
-       // oWidth = viewBoxWidth,
-       // oHeight = viewBoxHeight,
-
-        // View box
-        viewBox = paper.setViewBox(oX, oY, paper.width, paper.height);
-
-
-    /** 
-     * This is high-level function.
-     * It must react to delta being more/less than zero.
-     *
-    function handle(delta) {
-        
-        var vB = paper._viewBox,
-            vX,
-            vY;
-
-        if (delta > 0) {
-            viewBoxWidth *= 0.95;
-            viewBoxHeight*= 0.95;
-
-        } else {
-            viewBoxWidth *= 1.05;
-            viewBoxHeight *= 1.05;
-        }
-
-        // This will zoom into middle of the screen.
-        vX = (vB[0] - ((viewBoxWidth - vB[2]) / 2));
-        vY = (vB[1] - ((viewBoxHeight - vB[3]) / 2));
-
-
-        paper.setViewBox(vX, vY, viewBoxWidth, viewBoxHeight);
-    }
-    */
 
     /** 
      * Event handler for mouse wheel event.
      */
     function wheel(event) {
+
         var delta = 0;
 
         /* For IE. */
@@ -170,11 +107,9 @@ Grid.prototype.zoom = function() {
         * and negative, if wheel was scrolled down.
         */
         if (delta) {
-            grid.handle(delta, event);
-
+            TFplanner.grid.handle(delta);
         }
-            
-
+    
         /** Prevent default actions caused by mouse wheel.
         * That might be ugly, but we handle scrolls somehow
         * anyway, so don't bother here..
@@ -200,120 +135,124 @@ Grid.prototype.zoom = function() {
     // Pan functionality bound to arrow keys.
     document.onkeydown = function(e) {
 
-        grid.pan(e.keyCode);
+        TFplanner.grid.pan(e.keyCode);
     };
-}
+};
 
 
 /** 
  * This is the function that actually handles the zooming
  * It must react to delta being more/less than zero.
- */
-Grid.prototype.handle = function(delta, event) {
+ * @param delta - 
+**/
+Grid.prototype.handle = function(delta) {
         
-    var paper = this.paper,
-        vB = paper._viewBox,
+    var vB = this.paper._viewBox,
         viewBoxWidth = this.viewBoxWidth,
         viewBoxHeight = this.viewBoxHeight,
         orgX = vB[0],
-        orgY = vB[1],
-        zoom = false;
+        orgY = vB[1];
 
     if (delta > 0) {
         this.viewBoxWidth *= 0.95;
         this.viewBoxHeight*= 0.95;
-        zoom = true;
-
     } else {
         this.viewBoxWidth *= 1.05;
         this.viewBoxHeight *= 1.05;
     }
 
-    paper.setViewBox(orgX, orgY, viewBoxWidth, viewBoxHeight);
-}
+    this.paper.setViewBox(orgX, orgY, viewBoxWidth, viewBoxHeight);
+};
 
 
-//Function pans grid (left, right, up, down) on the screen
-
+/** 
+ * Function that pans grid (left, right, up, down) on the screen, when 
+ * arrow-keys are pressed.
+ * @param keycode - Which arrowkey that was pressed.
+**/
 Grid.prototype.pan = function(keyCode) {
+
     var ticks = 50,
-        paper = this.paper,
-        vB = paper._viewBox;
+        vB = this.paper._viewBox;
 
     switch (keyCode) {
         // Left
         case 37:
-            if (vB[0] > 0)
-                paper.setViewBox(vB[0] - ticks, vB[1], vB[2], vB[3]);
+            if (vB[0] > 0) {
+                this.paper.setViewBox(vB[0] - ticks, vB[1], vB[2], vB[3]);
+            }
             break;
         // Up
         case 38:
-            if (vB[1] > 0)
-            paper.setViewBox(vB[0], vB[1] - ticks, vB[2], vB[3]);
+            if (vB[1] > 0) {
+                this.paper.setViewBox(vB[0], vB[1] - ticks, vB[2], vB[3]);
+            }
             break;
         // Right
         case 39:
-            paper.setViewBox(vB[0] + ticks, vB[1], vB[2], vB[3]);
+            this.paper.setViewBox(vB[0] + ticks, vB[1], vB[2], vB[3]);
             break;
 
         // Down
         case 40:
-            paper.setViewBox(vB[0], vB[1] + ticks, vB[2], vB[3]);
+            this.paper.setViewBox(vB[0], vB[1] + ticks, vB[2], vB[3]);
             break;
     }
-}
+};
 
 
+/**
+ * OBS: Is it correct that this should be call 24/7 when hovering the paper? 
+ * @param x - 
+ * @param y -
+ * @param not - (CHANGE PARA-name?)
+ * @return
+**/
 Grid.prototype.getZoomedXY = function(x, y, not) {
 
-    var paper = grid.paper,
-
         // Starting height and width
-        sH = paper._viewBox[2],
-        sW = paper._viewBox[3],
-
+    var sH = this.paper._viewBox[2],
+        sW = this.paper._viewBox[3],
         // Original height and width
-        oH = paper.width,
-        oW = paper.height,
-
+        oH = this.paper.width,
+        oW = this.paper.height,
         // Viewbox X and Y.
-        vX = paper._viewBox[0],
-        vY = paper._viewBox[1],
-
+        vX = this.paper._viewBox[0],
+        vY = this.paper._viewBox[1],
         // Calculated ratio.
         ratio;
 
     if (sH != oH && sW != oW) {
 
         ratio = (sH / oH);
-
         x *= ratio;
         y *= ratio;
-
     }
 
     if (!not) {
+
         x += vX;
         y += vY;
     }
 
-
-
     return [x, y];
-}
+};
 
 /**
- * Function used to move the room to coordinates (99,99). This happends when the 'obstacles'-tab is clicked.
+ * Function used to move the room to coordinates (99,99). This happens when the 'obstacles'-tab is clicked.
  * The paths of each wall is update, also a string is created, so that the room can be redrawn later as
  * ONE path.
+ * @return - Returns the path of our room as ONE string.
 **/
-Grid.prototype.moveRoom = function () {
+Grid.prototype.moveRoom = function() {
 
     var minX = 1000000, 
         maxX = 0, 
         minY = 1000000, 
-        maxY = 0, 
-        walls = ourRoom.walls,
+        maxY = 0,
+        ns = TFplanner,
+        measures = ns.measurement, 
+        walls = ns.ourRoom.walls,
         numberOfWalls = walls.length,
         offsetX,
         offsetY,
@@ -321,34 +260,43 @@ Grid.prototype.moveRoom = function () {
         ystart,
         tempString,
         pathString,
-        path;
+        path,
+        i;
 
-    for (var i = 0; i < numberOfWalls; ++i) {
+    for (i = 0; i < numberOfWalls; ++i) {
         //Find largest and smallest X value
-        if ((walls[i].attrs.path[0][1]) > maxX)
+        if ((walls[i].attrs.path[0][1]) > maxX) {
             maxX = walls[i].attrs.path[0][1];
+        }
 
-        if ((walls[i].attrs.path[1][1]) > maxX)
+        if ((walls[i].attrs.path[1][1]) > maxX) {
             maxX = walls[i].attrs.path[1][1];
+        }
 
-        if ((walls[i].attrs.path[0][1]) < minX)
+        if ((walls[i].attrs.path[0][1]) < minX) {
             minX = walls[i].attrs.path[0][1];
+        }
 
-        if ((walls[i].attrs.path[1][1]) < minX)
+        if ((walls[i].attrs.path[1][1]) < minX) {
             minX = walls[i].attrs.path[1][1];
+        }
 
         //Find smallest and largest Y value
-        if ((walls[i].attrs.path[0][2]) > maxY)
+        if ((walls[i].attrs.path[0][2]) > maxY) {
             maxY = walls[i].attrs.path[0][2];
+        }
 
-        if ((walls[i].attrs.path[1][2]) > maxY)
+        if ((walls[i].attrs.path[1][2]) > maxY) {
             maxY = walls[i].attrs.path[1][2];
+        }
 
-        if ((walls[i].attrs.path[0][2]) < minY)
+        if ((walls[i].attrs.path[0][2]) < minY) {
             minY = walls[i].attrs.path[0][2];
+        }
 
-        if ((walls[i].attrs.path[1][2]) < minY)
+        if ((walls[i].attrs.path[1][2]) < minY) {
             minY = walls[i].attrs.path[1][2];
+        }
     } 
 
     offsetX = minX - 99.5;
@@ -358,11 +306,11 @@ Grid.prototype.moveRoom = function () {
     xstart = (walls[0].attrs.path[0][1] - offsetX);
     ystart = (walls[0].attrs.path[0][2] - offsetY);
 
-    pathString = new String("M " + xstart + ", " + ystart);
+    pathString = new String('M '+xstart+', '+ystart);
     
     // Move all the walls to new coordinates (this updates the paths of the real walls)    
-    for (var i = 0; i < numberOfWalls; ++i) {
-        path = walls[i].attr("path");
+    for (i = 0; i < numberOfWalls; ++i) {
+        path = walls[i].attr('path');
 
         path[0][1] = (walls[i].attrs.path[0][1] - offsetX); 
         path[0][2] = (walls[i].attrs.path[0][2] - offsetY);
@@ -372,91 +320,70 @@ Grid.prototype.moveRoom = function () {
 
         walls[i].attr({path: path});
 
-        tempString = " L" + path[0][1] + ", " + path[0][2];
+        tempString = ' L'+path[0][1]+', '+path[0][2];
         pathString += tempString;
     }
 
     //Refresh the measurement-stuff after moving the walls, then hide the angles and remove handlers.
-    measurement.refreshMeasurements();
-    measurement.angMeasurements.hide();
-    finishedRoom.removeHandlers();
+    measures.refreshMeasurements();
+    measures.angMeasurements.hide();
+    ns.finishedRoom.removeHandlers();
 
-    tempString = " Z";
+    tempString = ' Z';
     pathString += tempString;
-    // Returns the path of our room as ONE string.
+
     return pathString;
-}
+};
 
-/**
- *  sets up the paper for svg convertion, converts and returns svg.
- *  adding 201 which represents the 1 meter offset + the 1 pixel offset that shows the grid outlines.
-**/
-Grid.prototype.setupPaper = function() {
-
-    this.gridSet.hide();
-
-    var paper = this.paper,
-        viewW = (this.resWidth + 201),
-        viewH = (this.resHeight + 201);
-
-    // Sets width and height of the svg so that the export is the appropriate size.
-    paper.width = viewW;
-    paper.height = viewH;
-
-    /**
-     *  Seems like we dont need the shit beneath
-     *  Functinoality added to the generate button in options
-    **/
-    // Removing angle measurements
-    //measurement.angMeasurements.remove();
-
-    // Rearranging / showing title rect and text.
-    //options.setupTitle();
-
-    return paper.toSVG();
-}
-
-/**
+/** TODO: Check the i, ii stuff, when saving as pdf. (Set to 0, because they was undefined unless)
  * Function to save our svg-drawing as a .png file.
  * Using libraries published at 'https://code.google.com/p/canvg/' under MIT-license.
- *
- * Gathers information regarding the mats chosen, then creates and inserts it into a table.
- * The table is together with the svg and note sent to the PHP script that creates html page for convertion to PDF.
+ * @param callback - 
 **/
 Grid.prototype.save = function (callback) {
-    var paper = this.paper,
-        svg = this.setupPaper();
-        chosenMats = resultGrid.chosenMats,
-        matTypes = options.validMat.products,
-        matTable = null,
-        // Store note and desc related to the valid mat.
-        note = options.validMat.note,
-        desc = options.validMat.desc;
 
-    this.gridSet.show();
+    var ns = TFplanner,
+        doc = document,
+        chosenMats = ns.resultGrid.chosenMats,
+        matTypes = ns.options.validMat.products,
+        mats = [],
+        tmp = null,
+        name = null,
+        chosenMat = null,
 
-    // store generated svg to footmenu variable.
+        /**
+         * Sets up the paper for svg convertion, converts and returns svg.
+         * Adding 201 which represents the 1 meter offset + the 1 pixel offset that shows the grid outlines.
+         * @param theGrid - The Grid object, refered to as 'this' in save().
+         * @return - Calls function to generate SVG of our paper-elements.
+        **/
+        setupPaper = function(theGrid) {
+            // Sets width and height of the svg so to appropriate size for export.
+            theGrid.paper.width = (theGrid.resWidth + 201);
+            theGrid.paper.height = (theGrid.resHeight + 201);
+            return theGrid.paper.toSVG();
+        },
+        svg = setupPaper(this);
+
+    // Store generated svg to footmenu variable.
     footmenu.svg = svg;
 
-    // create table of chosen mats and attributes.
-    // decide mat amounts and info by going through chosen mats.
-    var mats = [],
-        tmp = null;
-    for (var i = 0; i < chosenMats.length; i++) {
+    // Create table of chosen mats and attributes.
+    // Decide mat amounts and info by going through chosen mats.
+    for (var i = 0, ii = chosenMats.length; i < ii; i++) {
+        // Store mat (productnumber).
+        chosenMat = chosenMats[i];
 
-        // store the mat EL-NUMMER (number)
-        var chosenMat = chosenMats[i];
-
-        // if mat already counted, add to amount
+        // If mat already counted
         if (chosenMat == tmp) {
-            mats[(mats.length - 1)][2]++;
 
-        // else mat needs to be counted/ sat.
+            mats[(mats.length - 1)][2]++;
+        // Else mat needs to be counted/ sat.
         } else {
 
-            // getting PRODUKTNAVN (name)
-            var name;
-            for (var j = 0; j < matTypes.length; j++) {
+            // Getting productname
+            for (var j = 0, jj = matTypes.length; j < jj; j++) {
+
                 if (matTypes[j].number == chosenMat) {
                     name = matTypes[j].name;
                 }
@@ -467,66 +394,54 @@ Grid.prototype.save = function (callback) {
         tmp = chosenMat;
     }
 
-    // element variables. tableEle will be sent to saveSVG.php.
-    var tableEle = document.createElement('table'),
+    // Element variables. tableEle will be sent to saveSVG.php.
+    var tableEle = doc.createElement('table'),
         trEle,
         thEle,
         tdEle,
         tableString;
 
-    // setting id to table element
+    // Setting id to table element
     tableEle.id = 'matTable';
 
+    trEle = doc.createElement('tr');
 
-    trEle = document.createElement('tr');
-
-    // create and add header 'ELNUMMER'  (number)
-    thEle = document.createElement('th');
-    thEle.innerHTML = 'EL-NUMMMER';
+    // Create and add header 'productnumber'
+    thEle = doc.createElement('th');
+    thEle.innerHTML = 'Produktnummer';
     trEle.appendChild(thEle);
 
-    // create and add header 'PRODUKTEBSKRIVELSE' (desc)
-    thEle = document.createElement('th');
-    thEle.innerHTML = 'PRODUKTBESKRIVELSE';
+    // Create and add header 'name'
+    thEle = doc.createElement('th');
+    thEle.innerHTML = 'Beskrivelse';
     trEle.appendChild(thEle);
 
-    // create and add header 'PRODUKT' (name)
-    thEle = document.createElement('th');
-    thEle.innerHTML = 'PRODUKT';
+    // Create and add header 'amount'
+    thEle = doc.createElement('th');
+    thEle.innerHTML = 'Antall';
     trEle.appendChild(thEle);
 
-    // create and add header 'ANTALL' (amount)
-    thEle = document.createElement('th');
-    thEle.innerHTML = 'ANTALL';
-    trEle.appendChild(thEle);
-
-    // add header row to table
+    // Add header row to table
     tableEle.appendChild(trEle);
 
-
     // Going through mats array creating rows and columns.
-    for (var i = 0; i < mats.length; i++) {
+    for (var i = 0, ii = mats.length; i < ii; i++) {
 
         // Create row
-        trEle = document.createElement('tr');
+        trEle = doc.createElement('tr');
         
-        // Add column 'ELNUMMER' to row
-        tdEle = document.createElement('td');
+        // Add column 'productnumber' to row
+        tdEle = doc.createElement('td');
         tdEle.innerHTML = mats[i][0];
         trEle.appendChild(tdEle);
 
-        // Add column 'desc' to row
-        tdEle = document.createElement('td');
-        tdEle.innerHTML = desc;
-        trEle.appendChild(tdEle);
-
         // Add column 'name' to row
-        tdEle = document.createElement('td');
+        tdEle = doc.createElement('td');
         tdEle.innerHTML = mats[i][1];
         trEle.appendChild(tdEle);
 
         // Add column 'amount' to row
-        tdEle = document.createElement('td');
+        tdEle = doc.createElement('td');
         tdEle.innerHTML = mats[i][2];
         trEle.appendChild(tdEle);
 
@@ -534,26 +449,24 @@ Grid.prototype.save = function (callback) {
         tableEle.appendChild(trEle);
     }
 
-    // converting dom element to string.
+    // Converting dom element to string.
     // This is needed for the post beneath as pure dom elements can not be passed.
-    var tmp = document.createElement('div');
+    tmp = doc.createElement('div');
     tmp.appendChild(tableEle);
     tableString = tmp.innerHTML;
 
     /**
-     *  Post svg and table html to php script that creates a page to be exported as pdf.
-     *
+     * Post svg and table html to php script that creates a page to be exported as pdf.
     **/
     $.post(
         'export/saveSVG.php', 
         {
             'svg': svg,
-            'mats': tableString,
-            'note': note
+            'mats': tableString
         }, 
         function (data) {
             footmenu.drawId = data;
             callback();
-        });
-
-}
+        }
+    );
+};

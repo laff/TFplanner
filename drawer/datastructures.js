@@ -23,8 +23,8 @@ function HeatingMat(matLength, timeoutLength, color) {
     this.textPlaced = false;
 
 
-    this.matId = mattur.matIndex;
-    mattur.matIndex++;
+    this.matId = TFplanner.mattur.matIndex;
+    TFplanner.mattur.matIndex++;
 }
 
 /**
@@ -151,7 +151,7 @@ Square.prototype.drawMatline = function(from) {
             var texX = (x + 25),
                 texY = (y + 25),
                 tex = paper.text(x+25, y+25, this.productNr).attr({
-                    'font-size': measurement.fontsize
+                    'font-size': TFplanner.measurement.fontsize
                 }),
                 
                 // Dynamic size of the rectangle surrounding the text.
@@ -264,7 +264,7 @@ Square.prototype.setArrow = function(dir, mat, squareNo) {
     this.productNr = mat.productNr;
 
     if (dir < 5 && dir >= 0) {
-        mattur.addSquare(mat.matId, squareNo);
+        TFplanner.mattur.addSquare(mat.matId, squareNo);
     }
 
     this.rect.attr({'fill': mat.matColor});
