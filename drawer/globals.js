@@ -44,7 +44,6 @@ $(document).ready(function() {
     (function () {
 
         TFplanner.grid = new Grid();
-        console.log(window);
         TFplanner.scrollBox = new ScrollBox();
         TFplanner.measurement = new Measurement();
         TFplanner.ourRoom = new DrawRoom(20);
@@ -52,7 +51,6 @@ $(document).ready(function() {
         TFplanner.footmenu = new FootMenu();
         TFplanner.options = new Options();
         TFplanner.obstacles = new Obstacles();
-        TFplanner.mattur = new Mats();
         TFplanner.resultGrid = null;
         TFplanner.finishedRoom = null;
         

@@ -377,7 +377,7 @@ ResultGrid.prototype.placeMat = function (squareNo, validPeriod, arr1, arr2) {
 
         if (c <= this.unusedArea) {
             mat = new HeatingMat(length, validPeriod);
-            mat.productNr = options.validMat.products[l.length].number;
+            mat.productNr = opts.validMat.products[l.length].number;
 
             //placeSquare is where the placement of the mat begins
             if ( !arr1 && !arr2 && this.placeSquare(squareNo, 0, mat, 0, -1) ) {

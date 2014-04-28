@@ -1,6 +1,5 @@
 
 function Measurement () {
-    console.log(TFplanner);
     this.paper = TFplanner.grid.paper;
     this.measurements = this.paper.set();
     this.measurementValues = [];

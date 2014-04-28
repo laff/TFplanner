@@ -5,7 +5,7 @@ function FootMenu() {
 	this.footPaper = Raphael(document.getElementById('footmenu'));
 	this.initFooter();
     this.svg = null;
-    this.drawId = 'fuckall';
+    this.drawId = '';
 }
 
 /**
