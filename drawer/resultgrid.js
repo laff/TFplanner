@@ -18,7 +18,7 @@ function ResultGrid(pathString) {
     this.squarewidth = 0;
     this.squareheight= 0;
     this.path = pathString;
-    this.chosenMats = null;
+    this.chosenMats = [];
     // Color palette
     this.colorIndex = 0;
     this.matColors = [
@@ -46,10 +46,10 @@ ResultGrid.prototype.calculateGuide = function () {
     this.timestamp = Date.now();
 
     //Starts to populate the data structure
-    if ( !this.findStart() ) {
-        options.updateProgress(true, null, true);
+    if ( this.findStart() ) {
+        options.updateProgress(true, true);
     } else {
-        options.updateProgress(true, null, false);
+        options.updateProgress(true, false);
     }
 
 
@@ -57,7 +57,7 @@ ResultGrid.prototype.calculateGuide = function () {
 
 /**
  *  Drawing mats by calling fancy functions on all the squares.
-**/
+*
 ResultGrid.prototype.displayMats = function () {
 
     var mats = mattur.list,     // FIX THESE NAMES
@@ -167,8 +167,9 @@ ResultGrid.prototype.displayMats = function () {
     this.chosenMats = products;
 
     // Removes the progress
-    options.updateProgress(true, null, true);
+    options.updateProgress(true, true);
 }
+*/
 
 /**
  * Function creates a square/data structure
@@ -199,7 +200,7 @@ ResultGrid.prototype.addSquares = function() {
         }
     }
 
-    options.updateProgress(false, this);
+    options.updateProgress(false);
 }
 
 /**
@@ -347,9 +348,13 @@ ResultGrid.prototype.placeMat = function (squareNo, validPeriod, arr1, arr2) {
                 options.prefMat.shift();
                 // PlaceSquare is where the placement of the mat begins
                 if ( !arr1 && !arr2 && this.placeSquare(squareNo, 0, mat, 0, -1) ) {
+                    mat.draw(this.paper);
+                    this.chosenMats.push(mat.productNr);
                     return true;
                 } else if ( (arr1 && this.placeStrip(squareNo, arr1, mat, 0) ) || 
                             (arr2 && this.placeStrip(squareNo, arr2, mat, 0) ) ) {
+                    mat.draw(this.paper);
+                    this.chosenMats.push(mat.productNr);
                 return true;
                 }
                 delete mat;
@@ -373,10 +378,12 @@ ResultGrid.prototype.placeMat = function (squareNo, validPeriod, arr1, arr2) {
             //placeSquare is where the placement of the mat begins
             if ( !arr1 && !arr2 && this.placeSquare(squareNo, 0, mat, 0, -1) ) {
                 mat.draw(this.paper);
+                this.chosenMats.push(mat.productNr);
                 return true;
             } else if ( (arr1 && this.placeStrip(squareNo, arr1, mat, 0) ) || 
                         (arr2 && this.placeStrip(squareNo, arr2, mat, 0) ) ) {
                 mat.draw(this.paper);
+                this.chosenMats.push(mat.productNr);
                 return true;
             }
             delete mat;
@@ -473,7 +480,6 @@ ResultGrid.prototype.placeSquare = function (squareNo, subsquareNo, mat, lastSqu
                 this.currentColor = this.pickColor();
                 this.colorIndex++;
                 mat.matColor = this.currentColor;
-                square.setArrow(5, mat, squareNo);
 
                 if ( dir > 1 ) {
                     direction = 0;
@@ -484,7 +490,6 @@ ResultGrid.prototype.placeSquare = function (squareNo, subsquareNo, mat, lastSqu
                 } else {
                     direction = 3;
                 }
-                this.squares[squareNo].setArrow(direction, mat, squareNo);
                 this.squares[squareNo].setPath(mat);
 
                 return true;
@@ -494,7 +499,6 @@ ResultGrid.prototype.placeSquare = function (squareNo, subsquareNo, mat, lastSqu
                 square.arrows.remove();
                 this.squares[squareNo].populated = false;
                 mat.removeSquare();
-                square.setArrow(6, mat, squareNo);
                 return false;
             }
         }
@@ -516,7 +520,6 @@ ResultGrid.prototype.placeSquare = function (squareNo, subsquareNo, mat, lastSqu
         //If function comes to this point, attempt has failed.
         //Reset and revert to previous square
         this.unusedArea += area;
-        //square.setArrow(6, mat, squareNo);
         this.squares[squareNo].populated = false;
         mat.removeSquare();
     } 

@@ -446,6 +446,7 @@ Grid.prototype.save = function (callback) {
     // decide mat amounts and info by going through chosen mats.
     var mats = [],
         tmp = null;
+        console.log(chosenMats);
     for (var i = 0; i < chosenMats.length; i++) {
 
         // store the mat EL-NUMMER (number)

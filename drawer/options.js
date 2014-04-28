@@ -571,7 +571,7 @@ Options.prototype.generateButton = function (form) {
  *  Function that either removes progress or updates it.
  *
 **/
-Options.prototype.updateProgress = function (remove, resultgrid, success) {
+Options.prototype.updateProgress = function (remove, success) {
 
     // removing the progress visual
     if (remove) {
@@ -585,7 +585,7 @@ Options.prototype.updateProgress = function (remove, resultgrid, success) {
         document.getElementById('infoprogress').innerHTML = 'Kalkulerer leggeanvisning';
 
         // give the javascript breathingroom for gui updates
-        setTimeout(function() { resultgrid.calculateGuide(); }, 1);
+        setTimeout(function() { resultGrid.calculateGuide(); }, 1);
     }
 }
 
