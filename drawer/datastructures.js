@@ -95,7 +95,7 @@ HeatingMat.prototype.draw = function(paper) {
         } else if (i == len-3 ) {
 
             text = paper.text(x, y, this.productNr).attr({
-                    'font-size': measurement.fontsize
+                    'font-size': TFplanner.measurement.fontsize
                 });
 
             // Dynamic size of the rectangle surrounding the text.
@@ -202,8 +202,7 @@ function Square (x, y, path, paper, nr) {
     //End of populateSquare()
 }
 
-
-/**
+/*
 * Function adds the mat color to the square, then creates and stores
 * the coordinates of the centre of the square. THis is later
 * used for drawing connecting red line through the mat.

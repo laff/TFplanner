@@ -4,7 +4,7 @@
 function DrawRoom(radius) {
     this.radius = radius;   // Custom wall-end-force-field
     this.lastPoint = null;
-    this.walls = grid.paper.set();
+    this.walls = TFplanner.grid.paper.set();
     this.tmpWall = null;
     this.tmpLen = null;
     this.tmpRect = null;
@@ -18,7 +18,6 @@ function DrawRoom(radius) {
     this.maxAngle = 330.05; 
     this.minLength = 50;
     this.selfDrawn = true;
-    finishedRoom = null;
 }
 
 /**
@@ -73,6 +72,7 @@ DrawRoom.prototype.tmpLength = function(tmpWall) {
 
     var tmpLen = this.tmpLen,
         tmpRect = this.tmpRect,
+        theGrid = TFplanner.grid,
         textPoint = tmpWall.getPointAtLength((tmpWall.getTotalLength()/2)),
         len = new Number(tmpWall.getTotalLength())/100;
 
@@ -80,9 +80,9 @@ DrawRoom.prototype.tmpLength = function(tmpWall) {
 
     // Draws a rectangle, where the length can be displayed.
     if (tmpRect == null) {
-        this.tmpRect = grid.paper.rect(textPoint.x-25, textPoint.y-10, 50, 20, 5, 5).attr({
+        this.tmpRect = theGrid.paper.rect(textPoint.x-25, textPoint.y-10, 50, 20, 5, 5).attr({
             opacity: 1,
-            fill: "white"
+            fill: 'white'
         });
     // If the rectangle already exists, we only update its position.
     } else {
@@ -94,11 +94,11 @@ DrawRoom.prototype.tmpLength = function(tmpWall) {
 
     // The text-element that show the length of the wall.
     if (tmpLen == null) {
-        this.tmpLen = grid.paper.text(textPoint.x, textPoint.y, len + " m").attr({
+        this.tmpLen = theGrid.paper.text(textPoint.x, textPoint.y, len + ' m').attr({
             opacity: 1,
             'font-size': 12,
-            'font-family': "verdana",
-            'font-style': "oblique"
+            'font-family': 'verdana',
+            'font-style': 'oblique'
         });
 
     // If the text-element already exist, we just update the position and the text that is shown.
@@ -106,7 +106,7 @@ DrawRoom.prototype.tmpLength = function(tmpWall) {
         tmpLen.attr({
             x: textPoint.x,
             y: textPoint.y,
-            text: len + " m" 
+            text: len + ' m' 
        });
     }
 }
@@ -148,11 +148,11 @@ DrawRoom.prototype.finishRoom = function () {
     $('#canvas_container').unbind('click');
     $('#canvas_container').unbind('mousemove');
 
-    if (finishedRoom == null) {
-        finishedRoom = new FinishedRoom(this.radius);
+    if (TFplanner.finishedRoom == null) {
+        TFplanner.finishedRoom = new FinishedRoom(this.radius);
     }
 
-    finishedRoom.addWalls();
+    TFplanner.finishedRoom.addWalls();
 }
 
 /**
@@ -339,7 +339,7 @@ DrawRoom.prototype.drawWall = function (point1, point2) {
         this.clearTmp();
     }
 
-    wall = grid.paper.path("M"+point1.x+","+point1.y+"L"+point2.x+","+point2.y).attr({ 
+    wall = TFplanner.grid.paper.path("M"+point1.x+","+point1.y+"L"+point2.x+","+point2.y).attr({ 
         stroke: "#2F4F4F",
         'stroke-width': 5,
         'stroke-linecap': "round"
@@ -347,7 +347,7 @@ DrawRoom.prototype.drawWall = function (point1, point2) {
 
     this.walls.push(wall);
 
-    measurement.refreshMeasurements();
+    TFplanner.measurement.refreshMeasurements();
 
     if (this.finished) {
         this.finishRoom();
@@ -365,6 +365,8 @@ DrawRoom.prototype.drawTempLine = function (point2, point1, callback) {
         tmpWall = this.tmpWall,
         tmpRect = this.tmpRect,
         tmpLen,
+        theGrid = TFplanner.grid,
+        measures = TFplanner.measurement,
         diffX, 
         diffY,
         tmpMultiplier = 0.05,
@@ -455,7 +457,7 @@ DrawRoom.prototype.drawTempLine = function (point2, point1, callback) {
     if (crossed && !(x1 == p2.x && y1 == p2.y)) {
 
         if (tmpWall == null) {
-            this.tmpWall = grid.paper.path("M"+p1.x+","+p1.y+"L"+p2.x+","+p2.y).attr({
+            this.tmpWall = theGrid.paper.path("M"+p1.x+","+p1.y+"L"+p2.x+","+p2.y).attr({
                 stroke: '#ff0000'
             });
 
@@ -467,7 +469,7 @@ DrawRoom.prototype.drawTempLine = function (point2, point1, callback) {
         }
 
     } else if (tmpWall == null) {
-        this.tmpWall = grid.paper.path("M"+p1.x+","+p1.y+"L"+p2.x+","+p2.y);
+        this.tmpWall = theGrid.paper.path("M"+p1.x+","+p1.y+"L"+p2.x+","+p2.y);
 
     } else {
 
@@ -483,7 +485,7 @@ DrawRoom.prototype.drawTempLine = function (point2, point1, callback) {
 
 
         // Store temporary angle.
-        var tmpAngle = measurement.angleMeasurement(null, this.tmpWall),
+        var tmpAngle = measures.angleMeasurement(null, this.tmpWall),
             tmpBool = false;
 
         // Check if angle is smaller than 30 and larger than 330 ellen degenerees, and if the wall is < 50cm.
@@ -501,9 +503,9 @@ DrawRoom.prototype.drawTempLine = function (point2, point1, callback) {
         this.invalid = (crossed) ? crossed : tmpBool;
 
 
-    } else if (measurement.tmpMeasurements != null) {
-        measurement.tmpMeasurements.remove();
-        measurement.tmpMeasurements.clear();
+    } else if (measures.tmpMeasurements != null) {
+        measures.tmpMeasurements.remove();
+        measures.tmpMeasurements.clear();
     }
 
     return tmpWall;
@@ -521,7 +523,7 @@ DrawRoom.prototype.visualizeRoomEnd = function (point) {
         doCircle = (tmpCircle == null) ? true : (tmpCircle[0] == null);
 
     if (doCircle) {
-        this.tmpCircle = grid.paper.circle(point[0], point[1], this.radius, 0, 2 * Math.PI, false).attr({
+        this.tmpCircle = TFplanner.grid.paper.circle(point[0], point[1], this.radius, 0, 2 * Math.PI, false).attr({
             fill: "#008000",
             'fill-opacity': 0.5,
             'stroke-opacity': 0.5
@@ -541,20 +543,31 @@ DrawRoom.prototype.crossBrowserXY = function(e) {
 
     var point,
         room = this,
+        theGrid = TFplanner.grid,
         e = e || window.event,
         x = e.offsetX, 
         y = e.offsetY,
-        vB = grid.paper._viewBox;
+        vB = theGrid.paper._viewBox,
+
+        /**
+         * Makes sure that the user can`t draw in the left corner, where the 'scale' is placed.
+        **/
+        getRestriction = function(xy) {
+
+            var x = xy[0],
+                y = xy[1];
+
+            return (!(x < 100 && y < 100)) ? new Point(x, y) : new Point(-1, -1);
+        };
 
      // FF FIX        
-
     if (e.offsetX == undefined) { 
         x = e.screenX;
         y = e.screenY;
     }
 
     // I used to use offsetX and Y, I still do, but i used to too.
-    point = grid.getRestriction(grid.getZoomedXY(x, y));
+    point = getRestriction(theGrid.getZoomedXY(x, y));
 
     // Preventing a bug that makes you draw outside the viewbox.
     if ((point.x < vB[0] || point.y < vB[1]) || (point.x < 0 || point.y < 0)) {
@@ -588,12 +601,12 @@ DrawRoom.prototype.createRoom = function(ang) {
         p2tmp,
         tmpAng;
     
-        options.preDefArr = ang;
+        TFplanner.options.preDefArr = ang;
         this.clearRoom();
         this.initRoom();
 
         // The selfDrawn-flag is set as false, since we now have created a predefined room. 
-        ourRoom.selfDrawn = false;
+        TFplanner.ourRoom.selfDrawn = false;
         
     // Looping through the number of walls in the room.
     for (var i = 0; i < ang[0].length; i++) {
@@ -654,7 +667,7 @@ DrawRoom.prototype.clearRoom = function() {
         this.clearTmp();
     }
 
-    obstacles.clearSets();
+    TFplanner.obstacles.clearSets();
     
     this.lastPoint = null;
     this.proximity = false;
@@ -667,17 +680,18 @@ DrawRoom.prototype.clearRoom = function() {
     $('#canvas_container').unbind('mousemove');
     $(document).unbind('keydown');
 
-    if (finishedRoom != null) {
-        finishedRoom.nullify();
+    if (TFplanner.finishedRoom != null) {
+        TFplanner.finishedRoom.nullify();
     }
 
-    measurement.refreshMeasurements();
+    TFplanner.measurement.refreshMeasurements();
 }
 
 /**
  * Function that deletes and nullifies all of the temp-stuff.
 **/
 DrawRoom.prototype.clearTmp = function () {
+    var measures = TFplanner.measurement;
 
     this.tmpWall.remove();
     this.tmpWall = null;
@@ -687,6 +701,6 @@ DrawRoom.prototype.clearTmp = function () {
     this.tmpLen = null;
 
     // Clean up the temp-stuff in case some lengths or lines are hanging around.
-    measurement.tmpMeasurements.remove();
-    measurement.tmpMeasurements.clear();
+    measures.tmpMeasurements.remove();
+    measures.tmpMeasurements.clear();
 }
