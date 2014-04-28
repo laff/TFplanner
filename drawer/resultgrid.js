@@ -170,11 +170,7 @@ ResultGrid.prototype.displayMats = function () {
     this.chosenMats = products;
 
     // Removes the progress
-<<<<<<< HEAD
     TFplanner.options.updateProgress(true);
-=======
-    options.updateProgress(true, true);
->>>>>>> b516fb81813a569c2a84284ea08d313380851b38
 }
 */
 
@@ -272,7 +268,7 @@ ResultGrid.prototype.findStart = function() {
         if (square.reallyInside && !square.populated) {
             if ( square.subsquares.length == 0 ) {
                 if ( this.adjacentWall(squareList, -1) && 
-                     this.placeMat(index, 100, false, false)  ) {
+                     this.placeMat(index, 1000, false, false)  ) {
                      return true; 
                 } 
             } else {
@@ -294,7 +290,7 @@ ResultGrid.prototype.findStart = function() {
                         arr1 = this.arrFree(index, arr1) ? arr1 : false;
                         arr2 = this.arrFree(index, arr2) ? arr2 : false;
 
-                        if ( this.placeMat(index, 50, arr1, arr2) ) {
+                        if ( this.placeMat(index, 1000, arr1, arr2) ) {
                             return true;
                         }
                     }          
@@ -349,7 +345,7 @@ ResultGrid.prototype.placeMat = function (squareNo, validPeriod, arr1, arr2) {
                 c = length * 50;
 
             if (c <= this.unusedArea) {
-                mat = new HeatingMat(length, validPeriod, this.currentColor);
+                mat = new HeatingMat(length, validPeriod);
                 mat.productNr = num;
                 // Take the mat out of the array, if it doesn`t fit in the room, we don`t
                 // want to put it out anyway.
@@ -380,7 +376,7 @@ ResultGrid.prototype.placeMat = function (squareNo, validPeriod, arr1, arr2) {
             c = length * 50;
 
         if (c <= this.unusedArea) {
-            mat = new HeatingMat(length, validPeriod, this.currentColor);
+            mat = new HeatingMat(length, validPeriod);
             mat.productNr = opts.validMat.products[l.length].number;
 
             //placeSquare is where the placement of the mat begins
