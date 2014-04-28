@@ -30,9 +30,7 @@ $(document).ready(function() {
     options = new Options();
 
     obstacles = new Obstacles();
-
-    mattur = new Mats();
-
+    
     // initiates the options_container
     //options.initDraw();
 });

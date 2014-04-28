@@ -12,7 +12,7 @@
  *  instead.
  * @param color - The color of the mat
 **/
-function HeatingMat(matLength, timeoutLength, color) {
+function HeatingMat(matLength, timeoutLength) {
 
 	this.totalArea = (matLength * 50);
 	this.unusedArea = this.totalArea;
@@ -22,10 +22,6 @@ function HeatingMat(matLength, timeoutLength, color) {
     this.productNr;
     this.textPlaced = false;
     this.path = [];
-
-
-    this.matId = mattur.matIndex;
-    mattur.matIndex++;
 }
 
 /**
@@ -59,6 +55,7 @@ HeatingMat.prototype.removeSubsquare = function() {
 /**
 * Function draws the visualization line, as well as start and end
 * points, onto the paper.
+* @param paper - The paper the line is drawn onto
 */
 HeatingMat.prototype.draw = function(paper) {
     var path = this.path,
@@ -131,6 +128,8 @@ HeatingMat.prototype.draw = function(paper) {
     });
     textBox.toFront();
     text.toFront();
+
+    //End of draw()
 }
 
 /**
@@ -373,112 +372,4 @@ Subsquare.prototype.setColor = function(mat) {
 Subsquare.prototype.setPath = function(mat) {
     var path = [this.x+5, this.y+5];
     mat.path.push(path); 
-}
-
-/**
- * OBS: The if-check after the switch may not need to check all those values, Anders?
-**/
-Subsquare.prototype.setArrow = function(dir, mat) {
-    var paper = this.paper,
-        x = this.x,
-        y = this.y;
-
-    this.rect = paper.rect(x, y, 10, 10);
-
-    this.rect.attr({
-        'stroke-width': 0,
-        'fill': mat.matColor
-    });
-
-    this.arrows.remove();
-
-    switch (dir) {
-        //up
-        case 0: 
-            this.direction = 'up';
-            //this.arrows = (paper.path("M"+(x+2.5)+", "+(y+4)+", L"+ (x+2.5)+", "+(y+ 2)));
-            break;
-        //right
-        case 1:
-            this.direction = 'right';
-            //this.arrows = (paper.path("M"+(x+2)+", "+(y+2.5)+", L"+ (x+4)+", "+(y+2.5)));
-            break;
-        //left
-        case 2: 
-            this.direction = 'left';
-            //this.arrows = (paper.path("M"+(x+4)+", "+(y+2.5)+", L"+ (x+2)+", "+(y+ 2.5)));
-            break;
-        //down
-        case 3:
-            this.direction = 'down';
-            //this.arrow = (paper.path("M"+(x+2.5)+", "+(y+2)+", L"+ (x+2.5)+", "+(y+4)));
-            break;
-
-        case 4:
-            this.rect.attr({
-                'fill': "white",
-                'fill-opacity': 1,
-                'stroke-width': 0
-            });
-            this.rect.remove();
-            this.direction = null;
-            break;
-
-        default:
-            break;   
-    }
-
-    if (dir < 4 && dir >= 0 && this.insideRoom == true && this.squareNo != undefined) {
-        mattur.addSubsquare(mat.matId, this);
-    }
-}
-
-
-/**
- *  Ninja constructor for our heatingmats
- *  Basically containing number of mats and what squares they are placed in / order.
- *
-**/
-function Mats () {
-    this.list = [];
-    this.subList = [];
-    this.subObj = [];
-    this.matIndex = 0;
-}
-
-
-/**
- * Function that adds squares to the mats they "belong" to.
- * @param mati - 
- * @param squareNo - Index of the square to be added
-*/
-Mats.prototype.addSquare = function(mati, squareNo) {
-
-    if (this.list[mati] == null) {
-        this.list[mati] = [];
-    } 
-
-    if (($.inArray(squareNo, this.list[mati])) < 0) {
-        this.list[mati].push(squareNo);
-    }
-}
-
-
-
-/**
- * Subsquares are re-drawn, so they ALWAYS get different ID`s, need to come 
- * up with a clever solution.
- */
-Mats.prototype.addSubsquare = function (mati, subsquare) {
-    var num = subsquare.squareNo;
-
-    if (this.subList[num] == null) {
-        this.subList[num] = [];
-    }
-
-    if (($.inArray(subsquare.subNo, this.subList[num])) < 0)  {
-        // Adds subsquares to arrays, these arrays is traversed and 'cleaned' in resultgrid.
-        this.subList[num].push(subsquare.subNo);
-        this.subObj.push(subsquare);
-    }
 }
