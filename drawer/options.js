@@ -475,10 +475,10 @@ Options.prototype.casting = function (form) {
     form.appendChild(castDiv);
     $(container).append(form);
     // Set as blanc on initialization, to force the user to select an !default item.
-    document.getElementById('casting').selectedIndex = -1;
+    cast.selectedIndex = -1;
 
     // When the user have selected an item in this list, the 'generate'-button is created.
-    $('#casting').change( function () {
+    $(cast).change( function () {
 
         $('#inputDiv').remove();
         $('#lengthDiv').remove();
