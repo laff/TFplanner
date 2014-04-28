@@ -243,6 +243,7 @@ FinishedRoom.prototype.setHandlers = function() {
 FinishedRoom.prototype.undo = function () {
 
     var theRoom = TFplanner.ourRoom,
+        measures = TFplanner.measurement,
         undoSet = this.undoSet,
         walls = this.walls;
 
@@ -255,7 +256,7 @@ FinishedRoom.prototype.undo = function () {
                theRoom.walls[i-1].attr({path: undoSet[0].attrs.path});
                theRoom.walls[i].attr({path: undoSet[1].attrs.path});
                theRoom.walls[i+1].attr({path: undoSet[2].attrs.path});
-               measurement.refreshMeasurements();
+               measures.refreshMeasurements();
                undoSet.clear();
                return;
             // Wall number 'zero' was dragged:
@@ -263,7 +264,7 @@ FinishedRoom.prototype.undo = function () {
                theRoom.walls[walls.length-1].attr({path: undoSet[0].attrs.path});
                theRoom.walls[i].attr({path: undoSet[1].attrs.path});
                theRoom.walls[i+1].attr({path: undoSet[2].attrs.path});
-               measurement.refreshMeasurements();
+               measures.refreshMeasurements();
                undoSet.clear();
                return;
             // The 'last wall' in the array was dragged.
@@ -271,7 +272,7 @@ FinishedRoom.prototype.undo = function () {
                theRoom.walls[walls.length-2].attr({path: undoSet[0].attrs.path});
                theRoom.walls[i].attr({path: undoSet[1].attrs.path});
                theRoom.walls[0].attr({path: undoSet[2].attrs.path});
-               measurement.refreshMeasurements();
+               measures.refreshMeasurements();
                undoSet.clear();
                return;
             }
@@ -287,7 +288,7 @@ FinishedRoom.prototype.undo = function () {
                 theRoom.walls[i].attr({path: undoSet[1].attrs.path});
             }
         }
-        measurement.refreshMeasurements();
+        measures.refreshMeasurements();
         undoSet.clear();
     }
 }
