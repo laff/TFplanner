@@ -225,7 +225,7 @@ DrawRoom.prototype.drawWall = function(point1, point2) {
             $('#canvas_container').unbind('mousemove');
 
             if (ns.finishedRoom === null) {
-                ns.finishedRoom = new FinishedRoom(this.radius);
+                ns.finishedRoom = new FinishedRoom();
             }
 
             ns.finishedRoom.addWalls();
