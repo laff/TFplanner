@@ -1,4 +1,7 @@
-// Create the tabs displayed on the page
+/**
+ * Create the tabs that is displayed on the lefthand-side
+ * of the webpage. 
+**/
 function Tabs () {
 	this.tabPaper = Raphael(document.getElementById('menu'));
 	this.room = this.tabPaper.set();
@@ -13,83 +16,78 @@ function Tabs () {
 
 /**
  * Creating SVG-paths for the three vertical tabs, and adding text to them.
- * 
 **/
-Tabs.prototype.initTabs = function () {
-	var paper = this.tabPaper,					
-		room = this.room,			// Sets for the different tabs
-		obst = this.obst,
-		spec = this.spec,
-		height = paper.height/3,	//Make the tabs fit the size of the paper.
-		width = paper.width,
+Tabs.prototype.initTabs = function() {
+
+	var height = this.tabPaper.height/3,
+		width = this.tabPaper.width,
 		diffHeight = 35,
 
-	rooms = paper.path('M 0 0 L '+width+' 0 L '+width+' '+(height)+' L 0 '+(height+diffHeight)+' L 0 0').attr({
+	rooms = this.tabPaper.path('M 0 0 L '+width+' 0 L'+width+' '+(height)+' L 0 '+(height+diffHeight)+' L 0 0').attr({
         fill: this.roomColor,
         stroke: this.roomColor,
         'stroke-width': 0,
-        title: "Klikk for rom-tegning"
+        title: 'Klikk for rom-tegning'
 	}),
 
-	obstacles = paper.path('M 0 '+(height-diffHeight)+' L '+width+' '+height+' L '+width+' '+height*2+' L 0 '+((height*2)+diffHeight)+' L 0 '+height).attr({
+	obstacles = this.tabPaper.path('M 0 '+(height-diffHeight)+' L'+width+' '+height+' L'+width+' '+height*2+' L 0 '+((height*2)+diffHeight)+' L 0 '+height).attr({
         fill: this.obstColor,
         stroke: this.obstColor,
         'stroke-width': 0,
-        title: "Klikk for innsetting av hindringer"
+        title: 'Klikk for innsetting av hindringer'
 	}),
 
-	specs = paper.path('M 0 '+((height*2)-diffHeight)+' L '+width+' '+height*2+' L '+width+' '+height*3+' L 0 '+height*3+' L 0 '+height*2).attr({
+	specs = this.tabPaper.path('M 0 '+((height*2)-diffHeight)+' L'+width+' '+height*2+' L'+width+' '+height*3+' L 0 '+height*3+' L 0 '+height*2).attr({
         fill: this.specColor,
         stroke: this.specColor,
         'stroke-width': 0,
-        title: "Klikk for valg av spesifikasjoner"
+        title: 'Klikk for valg av spesifikasjoner'
 	}),
 
-	roomTxt = paper.text(width/2, height/2, "Tegne rom"),
-	obstTxt = paper.text(width/2, paper.height/2, "Hindringer"),
-	specTxt = paper.text(width/2, (paper.height/2)+height, "Spesifikasjoner");
+	roomTxt = this.tabPaper.text(width/2, height/2, 'Tegne rom'),
+	obstTxt = this.tabPaper.text(width/2, this.tabPaper.height/2, 'Hindringer'),
+	specTxt = this.tabPaper.text(width/2, (this.tabPaper.height/2)+height, 'Spesifikasjoner'),
+
+	/**
+	 * Function for setting handlers and color-stuff for the tabs.
+	 * @param coll - A set of elements that we set the handlers for.
+	 * @param val - The tab-number.
+	**/
+	createHandlers = function(coll, val) {
+
+		coll[1].attr({
+			'font-size': 24,
+			'fill': 'black',
+			'font-weight': 'bold'
+		});
+
+		coll.attr({
+			cursor: 'pointer'
+		}).mouseup(function () {
+			TFplanner.tabs.select(val);
+			TFplanner.options.showOptions(val);
+		});
+	};
 
 	roomTxt.rotate(90);
 	obstTxt.rotate(90);
 	specTxt.rotate(90);
 
-	this.createHandlers(this.room.push(rooms, roomTxt), 1, this.roomColor);
-	this.createHandlers(this.obst.push(obstacles, obstTxt), 2, this.obstColor);
-	this.createHandlers(this.spec.push(specs, specTxt), 3, this.specColor);
+	createHandlers(this.room.push(rooms, roomTxt), 1);
+	createHandlers(this.obst.push(obstacles, obstTxt), 2);
+	createHandlers(this.spec.push(specs, specTxt), 3);
 
 	// Default select.
 	this.select(1);
-}
-
-/**
- * Function that set handlers and color-stuff for the tabs.
- * @param coll - A set of elements that we set the handlers for.
- * @param val - The tab-number.
- * @param color - The color for the incoming collection, defined in class.
-**/
-Tabs.prototype.createHandlers = function (coll, val, color) {
-
-	coll[1].attr({
-		'font-size': 24,
-		'fill': 'black',
-		'font-weight': 'bold'
-	});
-
-    coll.attr({
-        cursor: 'pointer'
-    }).mouseup(function () {
-    	TFplanner.tabs.select(val);
-    	TFplanner.options.showOptions(val);
-    });
-}
+};
 
 /**
  * Functionality that does visual changes on tab select.
- *
+ * @param index - Index of the tab to set in 'focus'
 **/
-Tabs.prototype.select = function (index) {
+Tabs.prototype.select = function(index) {
 
-	// default to front
+	// Default tab to the front
 	this.spec.toFront();
 	this.obst.toFront();
 
@@ -117,5 +115,5 @@ Tabs.prototype.select = function (index) {
 			this.obst[1].attr('fill', 'black');
 			break;
 	}
-}
+};
 
