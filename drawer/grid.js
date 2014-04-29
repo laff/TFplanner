@@ -352,11 +352,14 @@ Grid.prototype.save = function(callback) {
     var ns = TFplanner,
         doc = document,
         chosenMats = ns.resultGrid.chosenMats,
+        footM = ns.footmenu,
         matTypes = ns.options.validMat.products,
         mats = [],
         tmp = null,
         name = null,
         chosenMat = null,
+        desc = ns.options.validMat.desc,
+        note = ns.options.validMat.note,
 
         /**
          * Sets up the paper for svg convertion, converts and returns svg.
@@ -373,7 +376,7 @@ Grid.prototype.save = function(callback) {
         svg = setupPaper(this);
 
     // Store generated svg to footmenu variable.
-    footmenu.svg = svg;
+    footM.svg = svg;
 
     // Create table of chosen mats and attributes.
     // Decide mat amounts and info by going through chosen mats.
@@ -413,30 +416,28 @@ Grid.prototype.save = function(callback) {
 
     trEle = doc.createElement('tr');
 
-    trEle = document.createElement('tr');
-
     // create and add header 'ELNUMMER'  (number)
-    thEle = document.createElement('th');
+    thEle = doc.createElement('th');
     thEle.innerHTML = 'EL-NUMMER';
     trEle.appendChild(thEle);
 
     // create and add header 'PRODUKTEBSKRIVELSE' (desc)
-    thEle = document.createElement('th');
+    thEle = doc.createElement('th');
     thEle.innerHTML = 'PRODUKTBESKRIVELSE';
-
     trEle.appendChild(thEle);
 
-    // Create and add header 'name'
+
+    // Create and add header 'PRODUKT' (name)
     thEle = doc.createElement('th');
-    thEle.innerHTML = 'Beskrivelse';
+    thEle.innerHTML = 'PRODUKT';
     trEle.appendChild(thEle);
 
     // create and add header 'ANTALL' (amount)
-    thEle = document.createElement('th');
+    thEle = doc.createElement('th');
     thEle.className = 'amount';
     thEle.innerHTML = 'ANTALL';
-
     trEle.appendChild(thEle);
+
 
     // Add header row to table
     tableEle.appendChild(trEle);
@@ -447,18 +448,23 @@ Grid.prototype.save = function(callback) {
         // Create row
         trEle = doc.createElement('tr');
         
-        // Add column 'productnumber' to row
+        // Add column 'ELNUMMER' to row
         tdEle = doc.createElement('td');
         tdEle.innerHTML = mats[i][0];
         trEle.appendChild(tdEle);
 
-        // Add column 'name' to row
+        // Add column 'PRODUKTBESKRIVELSE' to row
+        tdEle = doc.createElement('td');
+        tdEle.innerHTML = desc;
+        trEle.appendChild(tdEle);
+
+        // Add column 'PRODUKT' to row
         tdEle = doc.createElement('td');
         tdEle.innerHTML = mats[i][1];
         trEle.appendChild(tdEle);
 
-        // Add column 'amount' to row
-        tdEle = document.createElement('td');
+        // Add column 'ANTALL' to row
+        tdEle = doc.createElement('td');
         tdEle.className = 'amount';
         tdEle.innerHTML = mats[i][2];
         trEle.appendChild(tdEle);
@@ -480,10 +486,11 @@ Grid.prototype.save = function(callback) {
         'export/saveSVG.php', 
         {
             'svg': svg,
-            'mats': tableString
+            'mats': tableString, 
+            'note': note
         }, 
         function (data) {
-            footmenu.drawId = data;
+            footM.drawId = data;
             callback();
         }
     );

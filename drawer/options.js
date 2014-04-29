@@ -568,6 +568,10 @@ Options.prototype.generateButton = function (form) {
 **/
 Options.prototype.updateProgress = function (remove, success) {
 
+    var theRoom = TFplanner.ourRoom,
+        measures = TFplanner.measurement,
+        grid = TFplanner.grid;
+
     // removing the progress visual
     if (remove) {
         if (success) {
@@ -577,8 +581,8 @@ Options.prototype.updateProgress = function (remove, success) {
         document.getElementById('infoprogress').remove();
 
 
-        ourRoom.walls.toFront();
-        measurement.wallText.toFront();
+        theRoom.walls.toFront();
+        measures.wallText.toFront();
         grid.boxSet.toFront();
 
     } else {
