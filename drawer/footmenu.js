@@ -274,5 +274,4 @@ FootMenu.prototype.clearAll = function() {
     ns.ourRoom = new DrawRoom(20);
     ns.options = new Options();
     ns.obstacles = new Obstacles();
-    ns.mattur = new Mats();
 };
