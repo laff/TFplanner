@@ -340,7 +340,7 @@ Grid.prototype.moveRoom = function() {
 
     // Returns the path of our room as ONE string.
     return pathString;
-}
+};
 
 /** TODO: Check the i, ii stuff, when saving as pdf. (Set to 0, because they was undefined unless)
  * Function to save our svg-drawing as a .png file.
