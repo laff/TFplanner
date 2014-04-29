@@ -1,5 +1,6 @@
-
 // Global variables.
+/*
+
 var grid,
     measurement,
     ourRoom,
@@ -9,12 +10,15 @@ var grid,
     scrollBox,
     footmenu,
     tabs,
-    finishedRoom = null,
     resultGrid = null,
     mattur;
+    */
+
+var TFplanner =  TFplanner || {};
 
 $(document).ready(function() {  
 
+/*
     //Creates the grid on our page!
     grid = new Grid();
 
@@ -30,11 +34,27 @@ $(document).ready(function() {
     options = new Options();
 
     obstacles = new Obstacles();
-
-    mattur = new Mats();
-
+    
     // initiates the options_container
     //options.initDraw();
+
+*/
+
+
+    (function () {
+
+        TFplanner.grid = new Grid();
+        TFplanner.scrollBox = new ScrollBox();
+        TFplanner.measurement = new Measurement();
+        TFplanner.ourRoom = new DrawRoom(20);
+        TFplanner.tabs = new Tabs();
+        TFplanner.footmenu = new FootMenu();
+        TFplanner.options = new Options();
+        TFplanner.obstacles = new Obstacles();
+        TFplanner.resultGrid = null;
+        TFplanner.finishedRoom = null;
+        
+    })();
 });
 
 

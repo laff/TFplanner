@@ -3,6 +3,7 @@ function ScrollBox () {
 	var paper = this.paper, 
 		frame = paper.rect(0, 0, 100, 100, 0),
 		innerFrame = paper.rect(26, 26, 48, 48, 0),
+		theGrid = TFplanner.grid,
 		up, 
 		down,
 		right,
@@ -68,27 +69,27 @@ function ScrollBox () {
 	});
 	up.mousedown(function (e) {
         e.preventDefault();
-		grid.pan(38);
+		theGrid.pan(38);
 	});
 	down.mousedown(function (e) {
 		e.preventDefault();
-		grid.pan(40);
+		theGrid.pan(40);
 	});
 	left.mousedown(function (e) {
 		e.preventDefault();
-		grid.pan(37);
+		theGrid.pan(37);
 	});
 	right.mousedown(function (e) {
 		e.preventDefault();
-		grid.pan(39);
+		theGrid.pan(39);
 	});
 	zoom.mousedown(function (e) {
 		e.preventDefault();
-		grid.handle(1);
+		theGrid.handle(1);
 	});
 	out.mousedown(function (e) {
 		e.preventDefault();
-		grid.handle(-1);
+		theGrid.handle(-1);
 	});
 }
 

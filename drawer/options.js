@@ -45,7 +45,7 @@ function Options (tab) {
 Options.prototype.areaUtilization = function() {
         // decides weither to remove decimals or not.
     var availArea = ((this.availableArea % 1) != 0) ? this.availableArea.toFixed(2) : this.availableArea,
-        chosenMats = resultGrid.chosenMats,
+        chosenMats = TFplanner.resultGrid.chosenMats,
         matInfo = this.validMat.products,
         squareMetres = 0,
         areaUtilPercentage = null;
@@ -85,9 +85,9 @@ Options.prototype.showOptions = function (tab) {
     }
 
     // remove selected wall if any.
-    if (finishedRoom != null) {
-        if (finishedRoom.selectedWall != null) {
-            finishedRoom.selectedWall.remove();
+    if (TFplanner.finishedRoom != null) {
+        if (TFplanner.finishedRoom.selectedWall != null) {
+            TFplanner.finishedRoom.selectedWall.remove();
         }
     }
 
@@ -150,7 +150,7 @@ Options.prototype.initSpecs = function () {
     $(container).removeClass('roomTab');
 
 
-    if (ourRoom.finished ==  true) {
+    if (TFplanner.ourRoom.finished ==  true) {
         // Variables used for setting up elements.
         var header = document.createElement('h3'),
             inOutDiv = document.createElement('div'),
@@ -498,6 +498,9 @@ Options.prototype.casting = function (form) {
 Options.prototype.generateButton = function (form) {
 
     var container = this.container,
+        ns = TFplanner,
+        theRoom = ns.ourRoom,
+        theGrid = ns.grid,
         opts = this,
         input = document.createElement('input'),
         inputDiv = document.createElement('div'),
@@ -541,16 +544,15 @@ Options.prototype.generateButton = function (form) {
     $('#genButton').click( function () {
         
         // If we have a finished room, we can call the algorithm and generate a drawing!
-        if (ourRoom.finished == true) {
+        if (theRoom.finished == true) {
 
             createProgresswindow(
                 function() {
-                    
                     // Moving room incase user did not visit "obstacles", also saves the new path.
-                    path = grid.moveRoom();
+                    path = theGrid.moveRoom();
 
                     // Sending
-                    resultGrid = new ResultGrid(path);
+                    ns.resultGrid = new ResultGrid(path);
                 });
         }
     });
@@ -583,7 +585,7 @@ Options.prototype.updateProgress = function (remove, success) {
         document.getElementById('infoprogress').innerHTML = 'Kalkulerer leggeanvisning';
 
         // give the javascript breathingroom for gui updates
-        setTimeout(function() { resultGrid.calculateGuide(); }, 1);
+        setTimeout(function() { TFplanner.resultGrid.calculateGuide(); }, 1);
     }
 }
 
@@ -656,6 +658,7 @@ Options.prototype.preferredMats = function (form) {
 Options.prototype.initObstacles = function () {
 
     var container = this.container,
+        obst = TFplanner.obstacles,
         html = "",
         crossO = this.crossO;
 
@@ -666,11 +669,11 @@ Options.prototype.initObstacles = function () {
     $(container).addClass('obstacleTab');
     $(container).removeClass('specTab');
 
-    if (ourRoom.finished ==  true) {
+    if (TFplanner.ourRoom.finished ==  true) {
         // Move the room to coordinates (99, 99), but only if obstacles has not been loaded.
-        if (obstacles.supplyPoint == null) {
-            grid.moveRoom();
-            obstacles.createObstacle("5", "Startpunkt");
+        if (obst.supplyPoint == null) {
+            TFplanner.grid.moveRoom();
+            obst.createObstacle("5", "Startpunkt");
         }
 
         // Add inputfield and button to add a 'projectname'.
@@ -724,7 +727,8 @@ Options.prototype.initObstacles = function () {
 **/
 Options.prototype.obstacleList = function (obstacle) {
 
-    var obstacleArr = obstacles.obstacleSet,
+    var ns = TFplanner,
+        obstacleArr = ns.obstacles.obstacleSet,
         obstacleLength = obstacleArr.length,
         change = 'Endre',
         save = 'Lagre',
@@ -786,7 +790,7 @@ Options.prototype.obstacleList = function (obstacle) {
     $(container).html(html);
 
     // Sets the focus on the 'project-name'-field the first time 'obstacles'-tab is selected
-    if (ourRoom.finished ==  true && this.titleText == null) {
+    if (TFplanner.ourRoom.finished ==  true && this.titleText == null) {
         this.setTitle();
         var input = document.getElementById('titleText');
             input.focus();
@@ -802,7 +806,8 @@ Options.prototype.obstacleList = function (obstacle) {
 **/
 Options.prototype.actionListeners = function () {
 
-    var opts = this;
+    var opts = this,
+        obst = TFplanner.obstacles;
 
     // If the 8th option is selected. aka "Egendefinert"
     $('#obstacleType').change(function() {
@@ -843,7 +848,7 @@ Options.prototype.actionListeners = function () {
                         text = document.getElementById('customObstTxt').value;
 
                     // Create the obstacle, and update the tab.
-                    obstacles.createObstacle(value, text);
+                    obst.createObstacle(value, text);
                     opts.initObstacles();
                     opts.obstacleList();
                 }
@@ -859,11 +864,11 @@ Options.prototype.actionListeners = function () {
     // Add click action for the "submit button".
     $('.change').click(function() {
         opts.obstacleList(this.id);
-        obstacles.selectObstacle(this.id);
+        obst.selectObstacle(this.id);
     });
 
     $('.delete').click(function () {
-        obstacles.deleteObstacle(this.parentNode.firstChild.nextSibling.id);
+        obst.deleteObstacle(this.parentNode.firstChild.nextSibling.id);
         opts.obstacleList();
     });
 
@@ -875,7 +880,7 @@ Options.prototype.actionListeners = function () {
             customTxt = $('#customObstTxt').val(),
             text = (customTxt != null) ? customTxt : $('#obstacleType option[value='+value+']').text();
 
-        obstacles.createObstacle(value, text);
+        obst.createObstacle(value, text);
 
         // Creating / refreshing list of obstacles.
         opts.initObstacles();
@@ -894,14 +899,14 @@ Options.prototype.actionListeners = function () {
 
         // stores the users choice on the matter of ending the mats at the supplywall or not.
         if (supply) {
-            obstacles.supplyEnd = !supply.checked;
+            obst.supplyEnd = !supply.checked;
         }
         
 
         $('#posx').val((roundX - 100));
         $('#posy').val((roundY - 100));
 
-        obstacles.adjustSize(
+        obst.adjustSize(
             this.name, 
             roundW,
             roundH,
@@ -911,7 +916,7 @@ Options.prototype.actionListeners = function () {
 
         opts.obstacleList();
 
-        obstacles.selectObstacle(null);
+        obst.selectObstacle(null);
     });
 
     // Action for the plus and minus buttons
@@ -958,7 +963,8 @@ Options.prototype.setTitle = function () {
     // Get the text from the html-element, and update it.
     var titleEle = document.getElementById('titleText'),
         title = (titleEle != null) ? titleEle.value : this.projectName,
-        utilizeString = this.utilizeString;
+        utilizeString = this.utilizeString,
+        grid = TFplanner.grid;
 
 
     this.projectName = title;
@@ -1084,8 +1090,8 @@ Options.prototype.initDefine = function () {
             preDefArr[1][i] = $('#wall'+i).val();
         }
 
-        finishedRoom.selectWall();
-        ourRoom.createRoom(preDefArr);
+        TFplanner.finishedRoom.selectWall();
+        TFplanner.ourRoom.createRoom(preDefArr);
     });
 
 
@@ -1102,7 +1108,7 @@ Options.prototype.initDefine = function () {
         id = id.slice(-1);
 
         // If the last wall-index is targeted we unselect.
-        id != wallsLength ? finishedRoom.selectWall(id) : finishedRoom.selectWall(null);
+        id != wallsLength ? TFplanner.finishedRoom.selectWall(id) : TFplanner.finishedRoom.selectWall(null);
     });
 
     
@@ -1120,7 +1126,7 @@ Options.prototype.initDefine = function () {
             id++;
 
             // If the last wall-index is targeted when tab is pressed, we unselect.
-            id != wallsLength ? finishedRoom.selectWall(id) : finishedRoom.selectWall(null);
+            id != wallsLength ? TFplanner.finishedRoom.selectWall(id) : TFplanner.finishedRoom.selectWall(null);
         } 
     });
 }
@@ -1361,7 +1367,8 @@ Options.prototype.initDraw = function () {
  * @param toolTip - A string, that is used to set the tooltip(title) of each button.
 **/
 Options.prototype.createHandlers = function(coll, val, toolTip) {
-    var defColor = this.defColor,
+    var theRoom = TFplanner.ourRoom,
+        defColor = this.defColor,
         inColor = this.inColor;
 
     coll.attr({
@@ -1376,10 +1383,10 @@ Options.prototype.createHandlers = function(coll, val, toolTip) {
     }).mouseup(function () {
 
         if (val != null) {
-            ourRoom.createRoom(options.preDefRoom(val));
+            theRoom.createRoom(TFplanner.options.preDefRoom(val));
         } else {
-            if (finishedRoom == null) {
-                ourRoom.initRoom();
+            if (TFplanner.finishedRoom == null) {
+                theRoom.initRoom();
             }
         }
     });

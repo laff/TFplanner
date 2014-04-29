@@ -1,36 +1,34 @@
 /**
  * Holds the buttons/icons at the 'footer' of our GUI.
 **/
-function FootMenu () {
+function FootMenu() {
 	this.footPaper = Raphael(document.getElementById('footmenu'));
 	this.initFooter();
-    this.svg;
-    this.drawId = 'fuckall';
+    this.svg = null;
+    this.drawId = '';
 }
 
 /**
  * Iniates and positions all the icons and functionality for the footer-menu, including mouse-actions.
 **/
-FootMenu.prototype.initFooter = function () {
-	var paper = this.footPaper,
-        that = this,
-    	height = paper.height,
-    	width = paper.width,
-    	ld = paper.set(),
-    	sv = paper.set(),
-    	clr = paper.set(),
-    	load,
-    	loadTxt,
-    	save,
-    	saveTxt,
-    	clear,
-    	clearTxt,
-        saveAs = function() {
-            var svg = footmenu.svg,
-                drawId = footmenu.drawId,
+FootMenu.prototype.initFooter = function() {
 
-                // Creating "popup" elements
-                popupDiv = document.createElement('div'),
+	var that = this,
+        paper = that.footPaper,
+        height = paper.height,
+        width = paper.width,
+        ld = paper.set(),
+        sv = paper.set(),
+        clr = paper.set(),
+        load,
+        loadTxt,
+        save,
+        saveTxt,
+        clear,
+        clearTxt,
+        saveAs = function() {
+            // Creating "popup" elements
+            var popupDiv = document.createElement('div'),
                 qText = document.createElement('p'),
                 buttonPNG = document.createElement('button'),
                 buttonPDF = document.createElement('button'),
@@ -106,7 +104,7 @@ FootMenu.prototype.initFooter = function () {
                     var a = document.createElement('a');
                     // if exporting use export prefix
                     a.href = (exporting) ? 'export/'+url : url;
-                    a.download = options.projectName+type;
+                    a.download = TFplanner.options.projectName+type;
                     a.click();
                 };
 
@@ -118,9 +116,9 @@ FootMenu.prototype.initFooter = function () {
                 canvg(document.getElementById('myCanvas'), svg);
 
                 // Used so we are sure that the canvas is fully loaded before .png is generated.
-                setTimeout(function () {
+                setTimeout(function() {
                     // Fetch the dataURL from the 'myCanvas', then force a download of the picture, with a defined filename.
-                    var dataURL = document.getElementById('myCanvas').toDataURL("image/png");
+                    var dataURL = document.getElementById('myCanvas').toDataURL('image/png');
 
                     download(dataURL);
 
@@ -143,6 +141,30 @@ FootMenu.prototype.initFooter = function () {
                 removePopup();
             });
 
+        },
+
+        /**
+         * Set handlers for the three footer-buttons.
+         * @param coll - Collection of a button(path) and the text on it.
+        **/
+        setHandlers = function (coll) {
+
+            coll.attr({
+                cursor: 'pointer',
+            }).hover( function() {
+            // Set attributes on hover.
+            coll[0].attr({
+                fill: 'white',
+                'fill-opacity': 0.6
+            });
+
+            }, function() {
+                coll[0].attr({
+                    opacity: 1,
+                    fill: ''
+                });
+            });
+
         };
 
     paper.canvas.style.backgroundColor = '#A59C94';
@@ -152,10 +174,10 @@ FootMenu.prototype.initFooter = function () {
 
 	// Positions the icon ~center of the paper + scales it up a bit.
     load.transform('t'+((width/6)-17)+','+((height/2)-15)+',s1.3');
-    loadTxt = paper.text(width/6-1, height/2+2, "Hjelp");
+    loadTxt = paper.text(width/6-1, height/2+2, 'Hjelp');
 
     // Add items to a set, then add mousehandlers, and set a tooltip.
-    this.setHandlers(ld.push(load, loadTxt));
+    setHandlers(ld.push(load, loadTxt));
     ld.attr({
         title: 'Last inn fra fil'
     });
@@ -163,9 +185,9 @@ FootMenu.prototype.initFooter = function () {
     // Mostly adding the same layout for the save button, but som changes on the positioning.
     save = paper.path('M28.625,26.75h-26.5V8.375h1.124c1.751,0,0.748-3.125,3-3.125c3.215,0,1.912,0,5.126,0c2.251,0,1.251,3.125,3.001,3.125h14.25V26.75z');
     save.transform('t'+((width/2)-17)+','+((height/2)-15)+',s1.3');
-    saveTxt = paper.text(width/2-1, height/2+2, "Lagre");
+    saveTxt = paper.text(width/2-1, height/2+2, 'Lagre');
 
-    this.setHandlers(sv.push(save, saveTxt));
+    setHandlers(sv.push(save, saveTxt));
     sv.attr({
         title: 'Lagre til fil'
     });
@@ -178,64 +200,42 @@ FootMenu.prototype.initFooter = function () {
 
     // Positions the icon and scales it up to same size as the other icons.
     clear.transform('t'+(((width/6)*5)-17)+','+(height/2-15)+',s2.05,1.154');
-    clearTxt = paper.text((width*(5/6)-1), height/2+2, "Ny");
+    clearTxt = paper.text((width*(5/6)-1), height/2+2, 'Ny');
 
-    this.setHandlers(clr.push(clear, clearTxt));
+    setHandlers(clr.push(clear, clearTxt));
     clr.attr({
         title: 'Nytt rom'
     });
 
     // Mouseclick-actions must be added separately to each collection since they vary.
     // Actions for the 'Help'-button.
-    ld.mouseup( function () {
+    ld.mouseup( function() {
     
         // This button will be reb0rn as a "HELP"-button (?)
         $.ajax({
             url: 'export/export.php',
             success: function() {
-                console.log("file saved to server, now let the user download!");
+                console.log('file saved to server, now let the user download!');
             }
         });
 
     });
 
     // Actions for the 'Save'-button.
-    sv.mouseup( function () {
+    sv.mouseup( function() {
 
         // save svg and entry ID (drawid).
-        grid.save(saveAs);
+        TFplanner.grid.save(saveAs);
 
     });
 
     // Clear Room and re-iniate so the user can draw a new room.
-   clr.mouseup( function () {
+   clr.mouseup( function() {
 
         that.clearAll();
         
     });
-}
-
-/**
- * Set handlers for the three footer-buttons.
- * @param coll - Collection of a button(path) and the text on it.
-**/
-FootMenu.prototype.setHandlers = function (coll) {
-
-    coll.attr({
-        cursor: 'pointer',
-    }).hover( function () {
-        // Set attributes on hover.
-        coll[0].attr({
-            fill: 'white',
-            'fill-opacity': 0.6
-        });
-    }, function () {
-        coll[0].attr({
-            opacity: 1,
-            fill: ""
-        });
-    });
-}
+};
 
 /**
  * Function to clear ALL stuff and create new instances of them, so that the
@@ -248,7 +248,7 @@ FootMenu.prototype.setHandlers = function (coll) {
  * Obstacles
  * Mats
 **/
-FootMenu.prototype.clearAll = function () {
+FootMenu.prototype.clearAll = function() {
 
 /* INFO: I think this is a "safe" way to do this, first clear the resultGrid (in reality this is
  * the same grid as 'grid')
@@ -259,18 +259,19 @@ FootMenu.prototype.clearAll = function () {
  *
  */
 
+    var ns = TFplanner;
+
     // Remove any visuals
-    (resultGrid != null) ? resultGrid.clear() : null; 
-    (options.roomTitle != null) ? options.roomTitle.remove() : null;
-    scrollBox.paper.clear();
-    ourRoom.clearRoom();
+    (ns.resultGrid !== null) ? ns.resultGrid.clear() : null; 
+    (ns.options.roomTitle !== undefined) ? ns.options.roomTitle.remove() : null;
+    ns.scrollBox.paper.clear();
+    ns.ourRoom.clearRoom();
 
     // Create new objects
-    grid = new Grid();
-    scrollBox = new ScrollBox();
-    measurement = new Measurement();
-    ourRoom = new DrawRoom(20);
-    options = new Options();
-    obstacles = new Obstacles();
-    mattur = new Mats();
-}
+    ns.grid = new Grid();
+    ns.scrollBox = new ScrollBox();
+    ns.measurement = new Measurement();
+    ns.ourRoom = new DrawRoom(20);
+    ns.options = new Options();
+    ns.obstacles = new Obstacles();
+};

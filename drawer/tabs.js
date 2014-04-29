@@ -1,7 +1,6 @@
 // Create the tabs displayed on the page
 function Tabs () {
 	this.tabPaper = Raphael(document.getElementById('menu'));
-	
 	this.room = this.tabPaper.set();
 	this.obst = this.tabPaper.set();
 	this.spec = this.tabPaper.set();
@@ -79,8 +78,8 @@ Tabs.prototype.createHandlers = function (coll, val, color) {
     coll.attr({
         cursor: 'pointer'
     }).mouseup(function () {
-    	tabs.select(val);
-    	options.showOptions(val);
+    	TFplanner.tabs.select(val);
+    	TFplanner.options.showOptions(val);
     });
 }
 

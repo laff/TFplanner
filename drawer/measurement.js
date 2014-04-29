@@ -1,11 +1,11 @@
 
 function Measurement () {
-    this.paper = grid.paper;
-    this.measurements = grid.paper.set();
+    this.paper = TFplanner.grid.paper;
+    this.measurements = this.paper.set();
     this.measurementValues = [];
-    this.tmpMeasurements = grid.paper.set();
-    this.angMeasurements = grid.paper.set();
-    this.wallText = grid.paper.set();
+    this.tmpMeasurements = this.paper.set();
+    this.angMeasurements = this.paper.set();
+    this.wallText = this.paper.set();
     
     this.inverted = null;
 
@@ -23,8 +23,9 @@ function Measurement () {
 **/
 Measurement.prototype.refreshMeasurements = function () {
 
-    var walls = ourRoom.walls,
-        finished = ourRoom.finished,
+    var theRoom = TFplanner.ourRoom,
+        walls = theRoom.walls,
+        finished = theRoom.finished,
         len = walls.length,
         measurementValues = this.measurementValues,
         longestWall = null,
@@ -88,7 +89,8 @@ Measurement.prototype.refreshMeasurements = function () {
 **/
 Measurement.prototype.angleMeasurement = function (index, overload) {
 
-    var circleRad = (ourRoom.radius * 2),
+    var theRoom = TFplanner.ourRoom,
+        circleRad = (theRoom.radius * 2),
         angle,
         tPoint = [],
         startAngle, 
@@ -120,7 +122,7 @@ Measurement.prototype.angleMeasurement = function (index, overload) {
             this.tmpMeasurements.clear();
         }
         
-        var walls = ourRoom.walls,
+        var walls = theRoom.walls,
             index = (walls.length - 1);
 
         p1 = walls[index].attrs.path[0];
@@ -223,10 +225,11 @@ Measurement.prototype.angleMeasurement = function (index, overload) {
 **/
 Measurement.prototype.lengthMeasurement = function (wall) {
 
-    var startP1 = wall.attrs.path[0],
-        endP1 = wall.getPointAtLength(ourRoom.radius),
+    var theRoom = TFplanner.ourRoom,
+        startP1 = wall.attrs.path[0],
+        endP1 = wall.getPointAtLength(theRoom.radius),
         startP2 = wall.attrs.path[1],
-        endP2 = wall.getPointAtLength((wall.getTotalLength() - ourRoom.radius)),
+        endP2 = wall.getPointAtLength((wall.getTotalLength() - theRoom.radius)),
         paper = this.paper,
 
 
@@ -343,7 +346,8 @@ Measurement.prototype.sector = function (centerX, centerY, p1, p2, angle, r) {
         x2 = p2.x, 
         y1 = p1.y,
         y2 = p2.y,
-        strokeColor = ((angle < ourRoom.minAngle || angle > ourRoom.maxAngle) && !ourRoom.finished) ? "ff0000" : "2F4F4F";
+        theRoom = TFplanner.ourRoom,
+        strokeColor = ((angle < theRoom.minAngle || angle > theRoom.maxAngle) && !theRoom.finished) ? "ff0000" : "2F4F4F";
 
     return this.paper.path(["M", centerX, centerY, "L", x1, y1, "A", r, r, 0, big, 0, x2, y2, "z"]).attr(            
         {
@@ -360,11 +364,12 @@ Measurement.prototype.sector = function (centerX, centerY, p1, p2, angle, r) {
 **/
 Measurement.prototype.returnConnectingPaths = function (index) {
 
-    var walls = ourRoom.walls,
+    var theRoom = TFplanner.ourRoom,
+        walls = theRoom.walls,
         prevWall,
         thisWall;
 
-        if (ourRoom.finished) {
+        if (theRoom.finished) {
             prevWall = walls[index];
             thisWall = (walls[index+1] != null) ? walls[index+1] : walls[0];
         } else {

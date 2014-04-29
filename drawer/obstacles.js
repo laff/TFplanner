@@ -4,7 +4,7 @@
 **/
 function Obstacles () {
 
-	this.paper = grid.paper;
+	this.paper = TFplanner.grid.paper;
 	this.xPos = 0;
 	this.yPos = 0;
 	this.obstacleSet = this.paper.set();
@@ -36,6 +36,7 @@ Obstacles.prototype.createObstacle = function (num, txt) {
 		h,
 		x = 100,
 		y = 100,
+		ns = TFplanner,
 		paper = this.paper,
 		obst = this,
 		
@@ -45,7 +46,7 @@ Obstacles.prototype.createObstacle = function (num, txt) {
 		**/
 		westernWall = function() {
 
-			var walls = ourRoom.walls,
+			var walls = TFplanner.ourRoom.walls,
 				west = null;
 
 			for (var i = 0; i < walls.length; i++) {
@@ -172,14 +173,14 @@ Obstacles.prototype.createObstacle = function (num, txt) {
 
 		move = function (dx, dy) {
 
-			var xy = grid.getZoomedXY(dx, dy, true),
+			var xy = ns.grid.getZoomedXY(dx, dy, true),
 				newx = this.ox + xy[0],
 				newy = this.oy + xy[1];
 
 
 			// Updates obstacle list :)
 			if (this.rectID != null) {
-				options.obstacleList(this.rectID);
+				ns.options.obstacleList(this.rectID);
 			}
 			
 
@@ -306,7 +307,7 @@ Obstacles.prototype.nearestWalls = function (id, obst) {
 	var obstacle = (id != null) ? this.obstacleSet[id] : obst,
 		cx = (obstacle.attr("x") + (obstacle.attr("width") / 2)),
 		cy = (obstacle.attr("y") + (obstacle.attr("height") / 2)),
-		walls = ourRoom.walls,
+		walls = TFplanner.ourRoom.walls,
 		maxX = 0,
 		maxY = 0,
 		// variable with three options, 1, 2 or 3.
@@ -369,7 +370,7 @@ Obstacles.prototype.lengthLine = function (obstacle, cx, cy, tri) {
 			});
 
 			// calculating length of
-			length = ourRoom.vectorLength(P1[0], P1[1], P2[0], P2[1]);
+			length = TFplanner.ourRoom.vectorLength(P1[0], P1[1], P2[0], P2[1]);
 			textPoint = line.getPointAtLength((length / 2));
 
 			length = (new Number(length) / 100);
