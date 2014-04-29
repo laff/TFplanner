@@ -87,8 +87,8 @@ HeatingMat.prototype.draw = function(paper) {
                 start = paper.path('M'+(x-5)+','+y+'L'+x+','+(y+5)+'L'+(x+5)+','+y+'Z');
             }
             start.attr({
-                'fill': 'red',
-                'stroke': 'red'
+                'fill': '#CB2C30',
+                'stroke': '#CB2C30'
             });
             pathString += ('M'+x+','+y);
         } else if (i == len-3 ) {
@@ -112,8 +112,8 @@ HeatingMat.prototype.draw = function(paper) {
         } else if ( i == 0) {
             end = paper.path('M'+(x-5)+','+y+'L'+x+','+(y-5)+'L'+(x+5)+','+y+'L'+x+','+(y+5)+'Z');
             end.attr({
-                'fill': 'red',
-                'stroke': 'red'
+                'fill': '#CB2C30',
+                'stroke': '#CB2C30'
             });
             pathString += ('L'+x+','+y);
         } else {
@@ -122,7 +122,7 @@ HeatingMat.prototype.draw = function(paper) {
     }
     //Draws the actual line
     paper.path(pathString).attr({
-        'stroke': 'red',
+        'stroke': '#CB2C30',
         'stroke-width': 1
     });
     textBox.toFront();
