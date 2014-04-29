@@ -34,6 +34,7 @@ Measurement.prototype.refreshMeasurements = function () {
     measurementValues.length = 0;
     this.measurements.remove();
     this.wallText.remove();
+    this.wallText.clear();
     this.angMeasurements.remove();
 
     this.inverted = null;
@@ -291,6 +292,33 @@ Measurement.prototype.startLine = function(x, y) {
     this.startY = y;
 }
 
+/**
+ *  Function that updates the length of a wall.
+ *
+ * Goes through the wall and lengthmeasurement arrays with corresponding keys.
+**/
+Measurement.prototype.refreshLength = function() {
+
+    var walls = TFplanner.ourRoom.walls;
+
+        for (var i = 0, ii = walls.length; i < ii; i++) {
+
+            var length = (walls[i].getTotalLength() / 100).toFixed(2)+' m',
+                j = (i == 0) ? 0 : (i * 2),
+                k = (j + 1);
+
+            this.wallText[k].attr({
+                text: length
+            });
+
+        }
+}
+
+
+/**
+ *  Functionality that calculates the length of a wall and displayes it within a rect.
+ *
+**/
 Measurement.prototype.endLine = function(x, y) {
 
     var x1 = this.startX,

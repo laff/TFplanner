@@ -170,11 +170,15 @@ FinishedRoom.prototype.clickableWall = function(prev, current, next) {
         nextWall.attr({path: pathArray3});
         this.attr({path: pathArray2});
 
-        measures.refreshMeasurements();
+        measures.refreshLength();
+        //
     },
 
     up = function() {
         // Clear variables and delete the handler on mouseup.
+
+        measures.refreshMeasurements();
+
         this.lastdx = this.lastdy = 0;
         this.remove();
         room.nullify(); 
@@ -475,15 +479,18 @@ FinishedRoom.prototype.drag = function(indexArr, match) {
         path2.attr({path: pathArray2});
 
         // Updating measurements for each move.
-        measures.refreshMeasurements();
+        measures.refreshLength();
+        //
     },
 
     // Do some cleaning and nullifying on mouseUp.
     up = function() {
 
-       this.dx = this.dy = 0;
-       this.remove();
-       room.nullify();           
+        measures.refreshMeasurements();
+
+        this.dx = this.dy = 0;
+        this.remove();
+        room.nullify();           
     };
 
     this.handle.drag(move, start, up);

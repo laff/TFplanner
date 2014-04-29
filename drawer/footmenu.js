@@ -95,11 +95,12 @@ FootMenu.prototype.initFooter = function() {
                 **/
                 download = function(url, exporting) {
                     console.log(url);
-                    var a = document.createElement('a');
+                    var a = document.createElement('a'),
                     // if exporting use export prefix
-                    a.href = (exporting) ? 'export/'+url : url;
-                    a.download = TFplanner.options.projectName+type;
-                    a.click();
+                    location = (exporting) ? 'export/'+url : url;
+                    
+                    window.open(location, '_blank');
+
                 };
 
             $('#pngchosen').click(function() {

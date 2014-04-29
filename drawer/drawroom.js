@@ -27,56 +27,7 @@ function DrawRoom(radius) {
 DrawRoom.prototype.initRoom = function() {
 
     var room = this,
-        point,
-        tmp,
-
-        /**
-         * Function that display the length of a wall that is being drawn
-         * at all times when the mouse is moved around.
-         * @param tmpWall - The drawn temporary-wall, to show the length of.
-        **/
-        tmpLength = function (tmpWall) {
-
-            var theGrid = TFplanner.grid,
-                theRoom = TFplanner.ourRoom,
-                textPoint = tmpWall.getPointAtLength((tmpWall.getTotalLength()/2)),
-                len = new Number(tmpWall.getTotalLength())/100;
-
-                len = len.toFixed(2);
-
-            // Draws a rectangle, where the length can be displayed.
-            if (theRoom.tmpRect === null) {
-                theRoom.tmpRect = theGrid.paper.rect(textPoint.x-25, textPoint.y-10, 50, 20, 5, 5).attr({
-                    opacity: 1,
-                    fill: 'white'
-                });
-
-            // If the rectangle already exists, we only update its position.
-            } else {
-                theRoom.tmpRect.attr({
-                    x: textPoint.x-25,
-                    y: textPoint.y-10,
-                });
-            }
-
-            // Create the text-element that show the length of the wall.
-            if (theRoom.tmpLen === null) {
-                theRoom.tmpLen = theGrid.paper.text(textPoint.x, textPoint.y, len + ' m').attr({
-                    opacity: 1,
-                    'font-size': 12,
-                    'font-family': 'verdana',
-                    'font-style': 'oblique'
-                });
-
-            // If the text-element already exist, we just update the position and the text.
-            } else {
-                theRoom.tmpLen.attr({
-                    x: textPoint.x,
-                    y: textPoint.y,
-                    text: len + ' m' 
-               });
-            }
-        };
+        point;
 
     // Binds action for mousedown.
     $('#canvas_container').click(room, function(e) {
@@ -104,11 +55,9 @@ DrawRoom.prototype.initRoom = function() {
         } 
         // Draws the templine and shows the length of it.
         if (room.lastPoint !== null && point !== null && room.lastPoint != point) {
-            tmp = room.drawTempLine(point);
-
-            if (tmp) {
-                tmpLength(tmp);
-            }
+            
+            room.drawTempLine(point);
+            
         }
     });
 };
@@ -366,6 +315,70 @@ DrawRoom.prototype.drawTempLine = function(point) {
                 }
             }
             return crossed;
+        },
+
+        /**
+         * Function that display the length of a wall that is being drawn
+         * at all times when the mouse is moved around.
+         * @param tmpWall - The drawn temporary-wall, to show the length of.
+        **/
+        tmpLength = function (tmpWall) {
+
+            var theGrid = TFplanner.grid,
+                theRoom = TFplanner.ourRoom,
+                /**
+                 *  Funcitonality replacing "tmpWall.getPointAtLength((tmpWall.getTotalLength()/2))".
+                 *  Using the previous functionality drastically slowed down performance in FF.
+                **/
+                middle = function(line) {
+
+                    var x1 = line.attrs.path[0][1],
+                        y1 = line.attrs.path[0][2],
+                        x2 = line.attrs.path[1][1], 
+                        y2 = line.attrs.path[1][2],
+
+                        x = ((x1 + x2) / 2),
+                        y = ((y1 + y2) / 2);
+
+                    return new Point(x, y);
+                },
+                textPoint = middle(tmpWall),//tmpWall.getPointAtLength((tmpWall.getTotalLength()/2)),
+                len = new Number(tmpWall.getTotalLength())/100;
+
+                len = len.toFixed(2);
+
+            // Draws a rectangle, where the length can be displayed.
+            if (theRoom.tmpRect === null) {
+                theRoom.tmpRect = theGrid.paper.rect(textPoint.x-25, textPoint.y-10, 50, 20, 5, 5).attr({
+                    opacity: 1,
+                    fill: 'white'
+                });
+
+            // If the rectangle already exists, we only update its position.
+            } else {
+                theRoom.tmpRect.attr({
+                    x: textPoint.x-25,
+                    y: textPoint.y-10,
+                });
+            }
+
+            // Create the text-element that show the length of the wall.
+            if (theRoom.tmpLen === null) {
+                theRoom.tmpLen = theGrid.paper.text(textPoint.x, textPoint.y, len + ' m').attr({
+                    opacity: 1,
+                    'font-size': 12,
+                    'font-family': 'verdana',
+                    'font-style': 'oblique'
+                });
+
+            // If the text-element already exist, we just update the position and the text.
+            } else {
+                theRoom.tmpLen.attr({
+                    x: textPoint.x,
+                    y: textPoint.y,
+                    text: len + ' m' 
+               });
+            }
         };
 
 
@@ -446,7 +459,7 @@ DrawRoom.prototype.drawTempLine = function(point) {
     }
 
     // Show the angle of the temporary wall (angle to previous drawn wall).
-    if (this.walls.length >= 1 && this.tmpWall.getTotalLength() > (this.radius * 2)) {
+    if (this.walls.length >= 1 && this.tmpWall.getTotalLength() > (this.radius * 2) && false) {
         // Store temporary angle in measurements
         tmpAngle = measures.angleMeasurement(null, this.tmpWall);
         tmpBool = false;
@@ -467,7 +480,7 @@ DrawRoom.prototype.drawTempLine = function(point) {
         measures.tmpMeasurements.clear();
     }
 
-    return this.tmpWall;
+    tmpLength(this.tmpWall);
 };
 
 
@@ -521,7 +534,7 @@ DrawRoom.prototype.crossBrowserXY = function(e) {
         },
 
         // In FF offsetX is undefined, so then we need to handle the coordinates in a different way.
-        x = (e.offsetX !== undefined) ? e.offsetX : (e.screenX - e.currentTarget.offsetLeft),
+        x = (e.offsetX !== undefined) ? e.offsetX : (e.pageX - e.currentTarget.offsetLeft),
         y = (e.offsetY !== undefined) ? e.offsetY : e.clientY,
 
         // If zoom is activated, we must get the zoomed coordinates, 'zoomed' in our Grid is TRUE if
