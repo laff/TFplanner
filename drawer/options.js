@@ -548,19 +548,11 @@ Options.prototype.generateButton = function (form) {
 
             createProgresswindow(
                 function() {
-                    // The functionality beneath is invoked in such an order that the final drawing is display correctly
+                    // Moving room incase user did not visit "obstacles", also saves the new path.
                     path = theGrid.moveRoom();
+
+                    // Sending
                     ns.resultGrid = new ResultGrid(path);
-
-                    //scrollBox.paper.clear();
-
-                    //grid.gridSet.toFront(); 
-                    //resultGrid.displayMats();
-                    
-                    theRoom.walls.toFront();
-
-                    ns.measurement.wallText.toFront();
-                    theGrid.boxSet.toFront();
                 });
         }
     });
@@ -583,6 +575,11 @@ Options.prototype.updateProgress = function (remove, success) {
         }
         document.getElementById('progress').remove();
         document.getElementById('infoprogress').remove();
+
+
+        ourRoom.walls.toFront();
+        measurement.wallText.toFront();
+        grid.boxSet.toFront();
 
     } else {
         document.getElementById('infoprogress').innerHTML = 'Kalkulerer leggeanvisning';
@@ -974,12 +971,12 @@ Options.prototype.setTitle = function () {
     
     var drawWidth = (grid.resWidth + 201),
         rectX = null,
-        rectY = 30,
+        rectY = 12,
         areaY = null;
         rectLen = null,
         rectH = 30,
         textX = (drawWidth / 2),
-        textY = 42;
+        textY = 25;
 
 
     // Clear the title-element if it already exist.
@@ -1546,9 +1543,9 @@ Options.prototype.tfProducts = function () {
                 undefined: true
             },  
 
-            note: 'Husk '+dotA+' bestille styringssystem som passer anlegget. Sp'+crossO+'r Thermo-Floor om r'+dotA+'d hvis du er usikker p'+dotA+' hva som kan brukes.',
+            note: 'Husk '+dotA+' bestille styringssystem som passer anlegget.<br> Sp'+crossO+'r Thermo-Floor om r'+dotA+'d hvis du er usikker p'+dotA+' hva som kan brukes.',
 
-            desc: 'Utend'+dotA+'rs varmekabelmatte',
+            desc: 'Utend'+crossO+'rs varmekabelmatte',
 
             products: [
                 {
@@ -1620,7 +1617,7 @@ Options.prototype.tfProducts = function () {
                 undefined: true
             },
 
-            note: 'Husk '+dotA+' bestille styringssystem som passer anlegget. Sp'+crossO+'r Thermo-Floor om r'+dotA+'d hvis du er usikker p'+dotA+' hva som kan brukes.',
+            note: 'Husk '+dotA+' bestille styringssystem som passer anlegget.<br> Sp'+crossO+'r Thermo-Floor om r'+dotA+'d hvis du er usikker p'+dotA+' hva som kan brukes.',
 
             desc: 'Utend'+dotA+'rs varmekabelmatte',
 
