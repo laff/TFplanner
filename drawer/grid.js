@@ -352,11 +352,13 @@ Grid.prototype.save = function(callback) {
     var ns = TFplanner,
         doc = document,
         chosenMats = ns.resultGrid.chosenMats,
+        footM = ns.footmenu,
         matTypes = ns.options.validMat.products,
         mats = [],
         tmp = null,
         name = null,
         chosenMat = null,
+        note = ns.options.validMat.note,
 
         /**
          * Sets up the paper for svg convertion, converts and returns svg.
@@ -373,7 +375,7 @@ Grid.prototype.save = function(callback) {
         svg = setupPaper(this);
 
     // Store generated svg to footmenu variable.
-    footmenu.svg = svg;
+    footM.svg = svg;
 
     // Create table of chosen mats and attributes.
     // Decide mat amounts and info by going through chosen mats.
@@ -413,7 +415,6 @@ Grid.prototype.save = function(callback) {
 
     trEle = doc.createElement('tr');
 
-<<<<<<< HEAD
     trEle = document.createElement('tr');
 
     // create and add header 'ELNUMMER'  (number)
@@ -424,29 +425,17 @@ Grid.prototype.save = function(callback) {
     // create and add header 'PRODUKTEBSKRIVELSE' (desc)
     thEle = document.createElement('th');
     thEle.innerHTML = 'PRODUKTBESKRIVELSE';
-=======
-    // Create and add header 'productnumber'
-    thEle = doc.createElement('th');
-    thEle.innerHTML = 'Produktnummer';
->>>>>>> 8c799e2b48f716a45b8deaf4bceb529831839439
-    trEle.appendChild(thEle);
+
 
     // Create and add header 'name'
     thEle = doc.createElement('th');
     thEle.innerHTML = 'Beskrivelse';
     trEle.appendChild(thEle);
 
-<<<<<<< HEAD
     // create and add header 'ANTALL' (amount)
     thEle = document.createElement('th');
     thEle.className = 'amount';
     thEle.innerHTML = 'ANTALL';
-=======
-    // Create and add header 'amount'
-    thEle = doc.createElement('th');
-    thEle.innerHTML = 'Antall';
->>>>>>> 8c799e2b48f716a45b8deaf4bceb529831839439
-    trEle.appendChild(thEle);
 
     // Add header row to table
     tableEle.appendChild(trEle);
@@ -468,12 +457,8 @@ Grid.prototype.save = function(callback) {
         trEle.appendChild(tdEle);
 
         // Add column 'amount' to row
-<<<<<<< HEAD
         tdEle = document.createElement('td');
         tdEle.className = 'amount';
-=======
-        tdEle = doc.createElement('td');
->>>>>>> 8c799e2b48f716a45b8deaf4bceb529831839439
         tdEle.innerHTML = mats[i][2];
         trEle.appendChild(tdEle);
 
@@ -494,10 +479,11 @@ Grid.prototype.save = function(callback) {
         'export/saveSVG.php', 
         {
             'svg': svg,
-            'mats': tableString
+            'mats': tableString, 
+            'note': note
         }, 
         function (data) {
-            footmenu.drawId = data;
+            footM.drawId = data;
             callback();
         }
     );

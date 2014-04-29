@@ -5,7 +5,7 @@ function FootMenu() {
 	this.footPaper = Raphael(document.getElementById('footmenu'));
 	this.initFooter();
     this.svg = null;
-    this.drawId = '';
+    this.drawId = 'null';
 }
 
 /**
@@ -58,39 +58,28 @@ FootMenu.prototype.initFooter = function() {
             // call function that adds action listeners
             addAction();
 
-            // THE FUNCITONALITY BENEATH IS MENT FOR DOWNLOADING IMAGE (PNG).
-
-            /*
-
-                //Use canvg-package to draw on a 'not-shown' canvas-element.
-                canvg(document.getElementById('myCanvas'), svg);
-
-                // Used so we are sure that the canvas is fully loaded before .png is generated.
-                setTimeout(function () {
-                    // Fetch the dataURL from the 'myCanvas', then force a download of the picture, with a defined filename.
-                    var dataURL = document.getElementById('myCanvas').toDataURL("image/png"),
-                        a = document.createElement('a');
-                        a.href = dataURL;
-                        a.download = options.projectName+'.png';
-                        a.click();
-
-                    return svg;
-                }, 100);
-            */
-
         },
         /**
-         *  
-         *
+         *  Functionality that mainly adds functionality for the buttons "PNG", "PDF" and "Cancel".
+         *  In addition it contains functions and callbacks that are invoked to obtain
+         *  the functionality that allows for downloads and interaction with the server (calls to PHP).
         **/
         addAction = function() {
 
-            var svg = footmenu.svg,
-                drawId = footmenu.drawId,
+            var svg = that.svg,
+                drawId = that.drawId,
                 type = null,
+                /**
+                 *  Simply removes the popup element, it is called when any choice is made.
+                **/
                 removePopup = function() {
                     document.getElementById('saveaspopup').remove();
                 },
+                /**
+                 *  Function that posts the drawId created by saveSVG which in turn was called upon when clicking the "Save" button.
+                 *  After posting to export.php the return on success are being used as a parameter for the callback.
+                 * @param : callback. The callback used is download, see below.
+                **/
                 postExport = function(callback) {
                     $.post(
                         'export/export.php', 
@@ -99,6 +88,11 @@ FootMenu.prototype.initFooter = function() {
                             callback(data, true);
                         });
                 },
+                /**
+                 * Download function that depending on parameters given lets the user save from a dataUrl (to png) or a proper url (pdf).
+                 * @param: url.
+                 * @param: exporting. boolean that on true adds a prefix to the url for PDF download.
+                **/
                 download = function(url, exporting) {
                     console.log(url);
                     var a = document.createElement('a');
@@ -122,12 +116,6 @@ FootMenu.prototype.initFooter = function() {
 
                     download(dataURL);
 
-                    /*
-                        a = document.createElement('a');
-                    a.href = dataURL;
-                    a.download = options.projectName+'.png';
-                    a.click();
-                    */
                 }, 100);
             });
 

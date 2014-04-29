@@ -46,8 +46,6 @@ function saveSVG($svg, $matTable, $note) {
 	}
 	$entryId = (str_replace('.', '', microtime(true)).$count);
 
-	echo $entryId;
-
 	$bodystart = '<body';
 
 	$head = '<head>
@@ -200,6 +198,9 @@ $css = '<style>
 			</div>';
 
 	$bodyend = '</body>';
+
+	// gives the javascript Post a string containing the id on success.
+	echo $entryId;
 
 	file_put_contents($dir.'\entry_'.$entryId.'.html', $bodystart.$head.$css.$background.$header.$image.$table.$AdditionalNote.$foot.$bodyend);		
 
