@@ -14,6 +14,7 @@ function Grid() {
     this.viewBoxHeight = this.paper.height;
     this.resWidth = (this.viewBoxWidth / 2);
     this.resHeight = null;
+    this.zoomed = false;
 }
 
 /**
@@ -86,6 +87,8 @@ Grid.prototype.zoom = function() {
     function wheel(event) {
 
         var delta = 0;
+        // Indicates that zoom has been 'activated'.
+        TFplanner.grid.zoomed = true;
 
         /* For IE. */
         if (!event) {

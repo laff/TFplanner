@@ -237,7 +237,7 @@ DrawRoom.prototype.drawWall = function(point1, point2) {
     point2.y = (this.yAligned && !this.proximity) ? point1.y : point2.y;
 
     // We might need to clean up some of the temporary-stuff.
-    if (this.tmpWall !== null) {
+    if (this.tmpWall) {
         this.clearTmp();
     }
     // Push the new wall to the walls-array.
@@ -426,6 +426,10 @@ DrawRoom.prototype.drawTempLine = function(point) {
     // 3: assigning "this.crossed" to false/true based on the above. used in endWall().
     if (crossed && !(x1 == p2.x && y1 == p2.y)) {
 
+        if (this.tmpWall === null) {
+            this.tmpWall = theGrid.paper.path('M'+p1.x+','+p1.y+' L'+p2.x+','+p2.y);
+        }
+
         this.tmpWall.attr({
             path: ['M'+p1.x+','+p1.y+' L'+p2.x+','+p2.y],
             stroke: '#ff0000'
@@ -495,18 +499,18 @@ DrawRoom.prototype.visualizeRoomEnd = function(p) {
  * Some browser does not set the offsetX and offsetY variables on mouseclicks,
  * so a workaround is needed.
  * @param e - The MouseEvent that occured in the browser
+ * @return - Coordinate in the grid, null if pointer is outside the viewbox.
 **/
 DrawRoom.prototype.crossBrowserXY = function(e) {
 
-    var point,
-        theGrid = TFplanner.grid,
+    var theGrid = TFplanner.grid,
         e = e || window.event,
-        x = e.offsetX, 
-        y = e.offsetY,
         vB = theGrid.paper._viewBox,
 
         /**
          * Makes sure that the user can`t draw in the left corner, where the 'scale' is placed.
+         * @param xy - The position of the mouse, that holds an x- and y-value.
+         * @return - If the coordinate is in the area of the 'scale' in left corner, return (-1, -1)
         **/
         getRestriction = function(xy) {
 
@@ -514,20 +518,20 @@ DrawRoom.prototype.crossBrowserXY = function(e) {
                 y = xy[1];
 
             return (!(x < 100 && y < 100)) ? new Point(x, y) : new Point(-1, -1);
-        };
+        },
 
-     // FF FIX        
-    if (e.offsetX === undefined) { 
-        x = e.screenX;
-        y = e.screenY;
-    }
+        // In FF offsetX is undefined, so then we need to handle the coordinates in a different way.
+        x = (e.offsetX !== undefined) ? e.offsetX : (e.screenX - e.currentTarget.offsetLeft),
+        y = (e.offsetY !== undefined) ? e.offsetY : e.clientY,
 
-    // Get the coordinates based on the canvas, not the screen.
-    point = getRestriction(theGrid.getZoomedXY(x, y));
+        // If zoom is activated, we must get the zoomed coordinates, 'zoomed' in our Grid is TRUE if
+        // zoom has been used.
+        point = (!theGrid.zoomed) ? getRestriction([x, y]) : getRestriction(theGrid.getZoomedXY(x, y))
 
     // Preventing a bug that makes you draw outside the viewbox.
     if ((point.x < vB[0] || point.y < vB[1]) || (point.x < 0 || point.y < 0)) {
         return null;
+        
     } else {
         return point;
     }
@@ -622,7 +626,7 @@ DrawRoom.prototype.clearRoom = function() {
     this.walls.remove();
     this.walls.clear();
 
-    if (this.tmpWall !== null) {
+    if (this.tmpWall) {
         this.clearTmp();
     }
 

@@ -65,8 +65,8 @@ FinishedRoom.prototype.clickableWalls = function(wMatch) {
 **/
 FinishedRoom.prototype.selectWall = function(index) {
 
-    // Remove old selelectedwall if any.
-    if (this.selectedWall != null) {
+    // Remove old selelectedwall if it exists.
+    if (this.selectedWall) {
         this.selectedWall.remove();
     }
 
@@ -82,7 +82,7 @@ FinishedRoom.prototype.selectWall = function(index) {
 
 /**
  * Function that adds drag and drop functionality to the targeted
- * wall and its two neighbours.
+ * wall and its two neighbour-walls.
  * @param prev - The wall "before" the targeted in the array.
  * @param current - The targeted wall.
  * @param next - The "next" wall of the targeted.
@@ -112,7 +112,6 @@ FinishedRoom.prototype.clickableWall = function(prev, current, next) {
     // Push copies of the targeted walls to the undo-set.
     this.undoSet.push(w1, w2, w3);
 
-
     // Handler used so we easily can target and drag a wall.
     this.pathHandle = theGrid.paper.path(thisWall.attrs.path).attr({
         stroke: '#3366FF',
@@ -125,7 +124,7 @@ FinishedRoom.prototype.clickableWall = function(prev, current, next) {
    
     var start = function() {
 
-        // Figure out if the wall is horizontalish or verticalish
+        // Figure out if the wall is horizontal or vertical
         var wall = thisWall.attrs.path,
             p1x = wall[0][1],
             p1y = wall[0][2], 
@@ -299,7 +298,7 @@ FinishedRoom.prototype.removeHandlers = function() {
     this.walls.forEach(function(element) {
         element.unmousedown();
         element.unhover();
-    })
+    });
     // And removing handlers for the corner-dragging.
     $('#canvas_container').unbind('mousedown');
     $('#canvas_container').unbind('mousemove');
@@ -309,15 +308,28 @@ FinishedRoom.prototype.removeHandlers = function() {
 };
 
 /**
- * Binds action listeners to mouseclick and movement, especially for moving corners and walls.
+ * Binds action listeners to mouseclick and movement, 
+ * especially for moving corners and walls.
 **/
 FinishedRoom.prototype.clickableCorners = function() {
 
     var room = this,
-        theRoom = TFplanner.ourRoom;
+        theRoom = TFplanner.ourRoom,
+        match,
+
+        /**
+         * Checks if two walls is connected nearby the mousecoordinate.
+         * @param e - The mouseevent to check out.
+         * @return a point where to walls is connected, or null
+        **/
+        checkMatch = function(e) {
+            var point = theRoom.crossBrowserXY(e);
+
+            return ((point !== null) ? theRoom.findCorner(point) : null);
+        };
 
     $('#canvas_container').mousedown(function(e) {
-        if ((match = room.checkMatch(e)) !== null) {
+        if ((match = checkMatch(e)) !== null) {
             room.dragCorner(match);
         }
     });
@@ -325,10 +337,10 @@ FinishedRoom.prototype.clickableCorners = function() {
     // Binds action for mouseover, specifically for showing temp shit
     $('#canvas_container').mousemove(function(e) {
         // No need to draw the circle if a corner or a wall already is targeted.
-        if ((match = room.checkMatch(e)) !== null && room.handle === null && room.pathHandle === null && room.hoverWall === null) {
+        if ((match = checkMatch(e)) !== null && room.handle === null && room.pathHandle === null && room.hoverWall === null) {
             theRoom.visualizeRoomEnd(match);
 
-        } else if (theRoom.tmpCircle !== null) {
+        } else if (theRoom.tmpCircle) {
             theRoom.tmpCircle.remove();
             theRoom.tmpCircle = null;
         } 
@@ -336,19 +348,8 @@ FinishedRoom.prototype.clickableCorners = function() {
 };
 
 /**
- * Checks if two walls is connected nearby the mousecoordinate.
- * @param e - The mouseevent to check out.
- * @return a point where to walls is connected
-**/
-FinishedRoom.prototype.checkMatch = function(e) {
-    var theRoom = TFplanner.ourRoom, 
-        point = theRoom.crossBrowserXY(e);
-
-    return (match = (point !== null) ? theRoom.findCorner(point) : null);
-};
-
-/**
- * Functionality that adds drag action to the tmpCircle.
+ * Functionality that finds which walls that should be
+ * moved when a corner is mouseovered.
  * @param point - The corner where the mouse was clicked
 **/
 FinishedRoom.prototype.dragCorner = function(point) {
@@ -385,17 +386,25 @@ FinishedRoom.prototype.dragCorner = function(point) {
     }
 };
 
+/**
+ * Function for adding drag-functionality to a corner (point where two
+ * walls is connected in a finished room).
+ * If the path1Order is 0, this means that the startpoint of the wall is about
+ * to be changed. If it is 1, the endpoint of the wall will be changed.
+ * The same applies to path2Order.
+ * @param match - The coordinate of the mouseposition, used when
+ * visualizing the circle.
+ * @param indexArr - Index of which walls that should have their
+ * path updated.
+**/
 FinishedRoom.prototype.drag = function(indexArr, match) {
 
-    var walls = this.walls,
-        path1 = walls[indexArr[0][0]],
-        path2 = walls[indexArr[1][0]],
-        path1Order = indexArr[0][1],    // if path1Order = 0 : startpunktet skal endres. om det er = 1, endpunktet skal endres.
+    var path1 = this.walls[indexArr[0][0]],
+        path2 = this.walls[indexArr[1][0]],
+        path1Order = indexArr[0][1],
         path2Order = indexArr[1][1],    
         pathArray1 = path1.attr('path'),
         pathArray2 = path2.attr('path'),
-        mx = match[0],
-        my = match[1],
         dotA = this.dotA,
         crossO = this.crossO,
         theGrid = TFplanner.grid,
@@ -408,10 +417,11 @@ FinishedRoom.prototype.drag = function(indexArr, match) {
     if (this.undoSet.length > 0) {
         this.undoSet.clear();
     }
-
+    // The pushed walls are copies, not the actual ones.
     this.undoSet.push(w1, w2);
 
-    room.handle = theGrid.paper.circle(mx, my, this.radius).attr({
+    // Draw the circle that can be targeted.
+    this.handle = theGrid.paper.circle(match[0], match[1], this.radius).attr({
         fill: '#3366FF',
         'fill-opacity': 0.5,
         'stroke-opacity': 0.5,
@@ -420,16 +430,17 @@ FinishedRoom.prototype.drag = function(indexArr, match) {
     });
 
     var start = function() {
-     // this.cx = this.attr("cx");
-     // this.cy = this.attr("cy");
+
+        this.cx = 0;
+        this.cy = 0;
     },
 
     move = function(dx, dy) {
-        var xy = theGrid.getZoomedXY(dx, dy), 
 
+        var xy = theGrid.getZoomedXY(dx, dy), 
             // Calculating the difference from last mouse position.
-            diffx = (this.lastx != null) ? (this.lastx - xy[0]) : 0,
-            diffy = (this.lasty != null) ? (this.lasty - xy[1]) : 0,
+            diffx = (this.lastx !== undefined) ? (this.lastx - xy[0]) : 0,
+            diffy = (this.lasty !== undefined) ? (this.lasty - xy[1]) : 0,
 
             // Calculating the new handle coordinates.
             X = this.attr('cx') - diffx,
@@ -443,7 +454,7 @@ FinishedRoom.prototype.drag = function(indexArr, match) {
         this.attr({cx: X, cy: Y});
 
         // Updating the connecting path arrays.
-        if (path1Order == 0) {
+        if (path1Order === 0) {
            pathArray1[0][1] -= diffx;
            pathArray1[0][2] -= diffy;
         } else {
@@ -451,7 +462,7 @@ FinishedRoom.prototype.drag = function(indexArr, match) {
            pathArray1[1][2] -= diffy;
         }
 
-        if (path2Order == 0) {
+        if (path2Order === 0) {
            pathArray2[0][1] -= diffx;
            pathArray2[0][2] -= diffy;
         } else {
@@ -467,30 +478,29 @@ FinishedRoom.prototype.drag = function(indexArr, match) {
         measures.refreshMeasurements();
     },
 
+    // Do some cleaning and nullifying on mouseUp.
     up = function() {
+
        this.dx = this.dy = 0;
-       this.animate({'fill-opacity': 1}, 500);
        this.remove();
        room.nullify();           
     };
 
-    room.handle.drag(move, start, up);
+    this.handle.drag(move, start, up);
 };
 
 /**
- * Function to make sure our handlers are cleared, and nullified.
+ * Function to makes sure our handlers and draggables
+ * are cleared, and nullified.
 **/
 FinishedRoom.prototype.nullify = function() {
 
-    if (this.handle != null) {
+    if (this.handle) {
         this.handle.remove();
         this.handle = null;
-    } else if (this.pathHandle != null) {
+
+    } else if (this.pathHandle) {
         this.pathHandle.remove();
         this.pathHandle = null;
     }
 };
-
-
-
-
