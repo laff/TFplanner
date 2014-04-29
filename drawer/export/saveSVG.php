@@ -54,17 +54,7 @@ function saveSVG($svg, $matTable, $note) {
 				<meta charset="UTF-8">
 			</head>';
 
-	$background = '<div id="background"></div>';
-
-	$header = '<div id="headleft">
-					<img id="headlogo" src="varmesystemer_logo.jpg">
-				</div>
-
-				<div id="headright">
-					<img id="headdots" src="dots.png">
-				</div>';
-
-	$css = '<style>
+$css = '<style>
 
 				body {
 					font-family: Verdana;
@@ -75,10 +65,10 @@ function saveSVG($svg, $matTable, $note) {
 					height: 80%;
 					top: 10%;
 					position: fixed;
-					z-index: -1; 
-					background-image: url("tflogo.png");
-					background-repeat: repeat;
-					background-size: 35%;
+					z-index: -2; 
+					background-image: url("vannmerke.png");
+					background-repeat: repeat-y;
+					background-size: 100%;
 					-khtml-opacity:.50; 
 					-moz-opacity:.50; 
 					-ms-filter:"alpha(opacity=50)";
@@ -104,17 +94,18 @@ function saveSVG($svg, $matTable, $note) {
 
 				#headlogo {
 					display: inline-block;
-					width: 80%;
+					width: 70%;
 				}
 
 				#headright {
-					left: 70%;
-					z-index: 0;
+					left: 71%;
+					z-index: -1;
 					position: absolute;
 				}
 
 				#headdots {
 					float: right;
+					width: 100%;
 				}
 
 				#imagecontainer {
@@ -124,6 +115,7 @@ function saveSVG($svg, $matTable, $note) {
 				}
 
 				#image {
+					margin-top: 5%;
 					display: inline-block;
 				}
 
@@ -140,9 +132,13 @@ function saveSVG($svg, $matTable, $note) {
 					border: 2px solid black;
 				}
 
+				.amount {
+					text-align: center;
+				}
+
 				#note {
 					width: 100%;
-					text-align: center;
+					text-align: left;
 				}
 
 				#footer {
@@ -153,19 +149,8 @@ function saveSVG($svg, $matTable, $note) {
 					text-align: center;
 				}
 
-				#footleft {
-					float: left;
-					width: 50%;
-				}
-
-				#footlogo {
-					padding-top: 4%;
-					display: inline-block;
-					width: 50%;
-				}
-
 				#footright {
-					float: left;
+					float: right;
 					width: 50%;
 				}
 
@@ -181,6 +166,18 @@ function saveSVG($svg, $matTable, $note) {
 
 			</style>';
 
+	$background = '<div id="background"></div>';
+
+	$header = '<div id="headleft">
+					<img id="headlogo" src="varmesystemer_logo.jpg">
+				</div>
+
+				<div id="headright">
+					<img id="headdots" src="dots.png">
+				</div>';
+
+	
+
 	// Image of the calculated schema.
 	$image = '<div id="imagecontainer"><div id="image">'.$svg.'</div></div>';
 	
@@ -192,9 +189,6 @@ function saveSVG($svg, $matTable, $note) {
 
 	// Footnote
 	$foot = '<div id="footer">
-				<div id="footleft">
-					<img id="footlogo" src="varmesystemer_logo.jpg">
-				</div>
 				<div id="footright">
 					<p id="footinfo">
 						<span class="bold"> Thermo-Floor AS </span> <br>
@@ -207,7 +201,7 @@ function saveSVG($svg, $matTable, $note) {
 
 	$bodyend = '</body>';
 
-	file_put_contents($dir.'\entry_'.$entryId.'.html', $bodystart.$head.$background.$header.$css.$image.$table.$AdditionalNote.$foot.$bodyend);		
+	file_put_contents($dir.'\entry_'.$entryId.'.html', $bodystart.$head.$css.$background.$header.$image.$table.$AdditionalNote.$foot.$bodyend);		
 
 }
 

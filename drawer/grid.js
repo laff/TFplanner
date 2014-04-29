@@ -487,7 +487,7 @@ Grid.prototype.save = function (callback) {
 
     // create and add header 'ELNUMMER'  (number)
     thEle = document.createElement('th');
-    thEle.innerHTML = 'EL-NUMMMER';
+    thEle.innerHTML = 'EL-NUMMER';
     trEle.appendChild(thEle);
 
     // create and add header 'PRODUKTEBSKRIVELSE' (desc)
@@ -502,6 +502,7 @@ Grid.prototype.save = function (callback) {
 
     // create and add header 'ANTALL' (amount)
     thEle = document.createElement('th');
+    thEle.className = 'amount';
     thEle.innerHTML = 'ANTALL';
     trEle.appendChild(thEle);
 
@@ -532,6 +533,7 @@ Grid.prototype.save = function (callback) {
 
         // Add column 'amount' to row
         tdEle = document.createElement('td');
+        tdEle.className = 'amount';
         tdEle.innerHTML = mats[i][2];
         trEle.appendChild(tdEle);
 

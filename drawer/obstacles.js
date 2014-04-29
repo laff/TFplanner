@@ -53,10 +53,10 @@ Obstacles.prototype.createObstacle = function (num, txt) {
 				var wall = walls[i];
 
 				if (west == null) {
-					west = wall.getPointAtLength((wall.getTotalLength() / 2));
+					west = wall.getPointAtLength((wall.getTotalLength() / 1.75));
 
 				} else {
-					var newWall = wall.getPointAtLength((wall.getTotalLength() / 2));
+					var newWall = wall.getPointAtLength((wall.getTotalLength() / 1.75));
 
 					if (newWall.x < west.x) {
 						west = newWall;
