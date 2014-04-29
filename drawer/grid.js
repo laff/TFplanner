@@ -340,7 +340,7 @@ Grid.prototype.moveRoom = function() {
 
     // Returns the path of our room as ONE string.
     return pathString;
-}
+};
 
 /** TODO: Check the i, ii stuff, when saving as pdf. (Set to 0, because they was undefined unless)
  * Function to save our svg-drawing as a .png file.
@@ -358,6 +358,7 @@ Grid.prototype.save = function(callback) {
         tmp = null,
         name = null,
         chosenMat = null,
+        desc = ns.options.validMat.desc,
         note = ns.options.validMat.note,
 
         /**
@@ -415,27 +416,28 @@ Grid.prototype.save = function(callback) {
 
     trEle = doc.createElement('tr');
 
-    trEle = document.createElement('tr');
-
     // create and add header 'ELNUMMER'  (number)
-    thEle = document.createElement('th');
+    thEle = doc.createElement('th');
     thEle.innerHTML = 'EL-NUMMER';
     trEle.appendChild(thEle);
 
     // create and add header 'PRODUKTEBSKRIVELSE' (desc)
-    thEle = document.createElement('th');
-    thEle.innerHTML = 'PRODUKTBESKRIVELSE';
-
-
-    // Create and add header 'name'
     thEle = doc.createElement('th');
-    thEle.innerHTML = 'Beskrivelse';
+    thEle.innerHTML = 'PRODUKTBESKRIVELSE';
+    trEle.appendChild(thEle);
+
+
+    // Create and add header 'PRODUKT' (name)
+    thEle = doc.createElement('th');
+    thEle.innerHTML = 'PRODUKT';
     trEle.appendChild(thEle);
 
     // create and add header 'ANTALL' (amount)
-    thEle = document.createElement('th');
+    thEle = doc.createElement('th');
     thEle.className = 'amount';
     thEle.innerHTML = 'ANTALL';
+    trEle.appendChild(thEle);
+
 
     // Add header row to table
     tableEle.appendChild(trEle);
@@ -446,18 +448,23 @@ Grid.prototype.save = function(callback) {
         // Create row
         trEle = doc.createElement('tr');
         
-        // Add column 'productnumber' to row
+        // Add column 'ELNUMMER' to row
         tdEle = doc.createElement('td');
         tdEle.innerHTML = mats[i][0];
         trEle.appendChild(tdEle);
 
-        // Add column 'name' to row
+        // Add column 'PRODUKTBESKRIVELSE' to row
+        tdEle = doc.createElement('td');
+        tdEle.innerHTML = desc;
+        trEle.appendChild(tdEle);
+
+        // Add column 'PRODUKT' to row
         tdEle = doc.createElement('td');
         tdEle.innerHTML = mats[i][1];
         trEle.appendChild(tdEle);
 
-        // Add column 'amount' to row
-        tdEle = document.createElement('td');
+        // Add column 'ANTALL' to row
+        tdEle = doc.createElement('td');
         tdEle.className = 'amount';
         tdEle.innerHTML = mats[i][2];
         trEle.appendChild(tdEle);
