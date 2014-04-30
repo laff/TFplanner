@@ -171,7 +171,6 @@ FinishedRoom.prototype.clickableWall = function(prev, current, next) {
         this.attr({path: pathArray2});
 
         measures.refreshLength();
-        //
     },
 
     up = function() {
@@ -450,7 +449,7 @@ FinishedRoom.prototype.drag = function(indexArr, match) {
             X = this.attr('cx') - diffx,
             Y = this.attr('cy') - diffy;
 
-        // Storiung the last mouse position.
+        // Storing the last mouse position.
         this.lastx = xy[0];
         this.lasty = xy[1];
 
@@ -480,7 +479,6 @@ FinishedRoom.prototype.drag = function(indexArr, match) {
 
         // Updating measurements for each move.
         measures.refreshLength();
-        //
     },
 
     // Do some cleaning and nullifying on mouseUp.
