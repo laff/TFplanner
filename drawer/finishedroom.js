@@ -133,6 +133,8 @@ FinishedRoom.prototype.clickableWall = function(prev, current, next) {
             diffpx = (p1x - p2x),
             diffpy = (p1y - p2y);
 
+            this.startTime = Date.now();
+
         diffpx = (diffpx < 0) ? (diffpx * -1) : diffpx;
         diffpy = (diffpy < 0) ? (diffpy * -1) : diffpy;
 
@@ -146,6 +148,9 @@ FinishedRoom.prototype.clickableWall = function(prev, current, next) {
             // Setting diffx or diffy to 0 based on the horizontal bool or if lastdx/y is null.
             diffx = (this.lastdx != null) ? (this.horizontally) ? (this.lastdx - xy[0]) : 0 : 0,
             diffy = (this.lastdy != null) ? (!this.horizontally) ? (this.lastdy - xy[1]) : 0 : 0;
+
+        // add cAONT
+        this.count++;
 
         this.lastdx = xy[0];
         this.lastdy = xy[1];
@@ -170,14 +175,21 @@ FinishedRoom.prototype.clickableWall = function(prev, current, next) {
         nextWall.attr({path: pathArray3});
         this.attr({path: pathArray2});
 
-        measures.refreshLength();
-        //
+        // Updating measurements every 50 ms
+        var nowTime = Date.now(),
+            timeDiff = (nowTime - this.startTime);
+
+        if (timeDiff > 50) {
+            measures.refreshMeasurements();
+            this.startTime = nowTime;
+        }
+        
     },
 
     up = function() {
         // Clear variables and delete the handler on mouseup.
-
         measures.refreshMeasurements();
+
 
         this.lastdx = this.lastdy = 0;
         this.remove();
@@ -437,6 +449,7 @@ FinishedRoom.prototype.drag = function(indexArr, match) {
 
         this.cx = 0;
         this.cy = 0;
+        this.startTime = Date.now();
     },
 
     move = function(dx, dy) {
@@ -478,9 +491,15 @@ FinishedRoom.prototype.drag = function(indexArr, match) {
         path1.attr({path: pathArray1});
         path2.attr({path: pathArray2});
 
-        // Updating measurements for each move.
-        measures.refreshLength();
-        //
+        // Updating measurements every 50 ms
+        var nowTime = Date.now(),
+            timeDiff = (nowTime - this.startTime);
+
+        if (timeDiff > 50) {
+            measures.refreshMeasurements();
+            this.startTime = nowTime;
+        }
+
     },
 
     // Do some cleaning and nullifying on mouseUp.

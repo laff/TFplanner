@@ -340,7 +340,7 @@ DrawRoom.prototype.drawTempLine = function(point) {
                         x = ((x1 + x2) / 2),
                         y = ((y1 + y2) / 2);
 
-                    return new Point(x, y);
+                    return {x: x, y: y};
                 },
                 textPoint = middle(tmpWall),//tmpWall.getPointAtLength((tmpWall.getTotalLength()/2)),
                 len = new Number(tmpWall.getTotalLength())/100;
@@ -530,7 +530,7 @@ DrawRoom.prototype.crossBrowserXY = function(e) {
             var x = xy[0],
                 y = xy[1];
 
-            return (!(x < 100 && y < 100)) ? new Point(x, y) : new Point(-1, -1);
+            return (!(x < 100 && y < 100)) ? {x: x, y: y} : {x: -1, y: -1};
         },
 
         // In FF offsetX is undefined, so then we need to handle the coordinates in a different way.

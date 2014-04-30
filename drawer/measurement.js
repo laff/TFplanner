@@ -2,14 +2,35 @@
 function Measurement () {
     this.paper = TFplanner.grid.paper;
     this.measurements = this.paper.set();
-    this.measurementValues = [];
     this.tmpMeasurements = this.paper.set();
     this.angMeasurements = this.paper.set();
     this.wallText = this.paper.set();
-    
-    this.inverted = null;
+}
 
-    this.fontsize;
+/**
+ *  Measurement variables.
+**/
+Measurement.prototype.measurementValues = [];
+Measurement.prototype.inverted = null;
+Measurement.prototype.fontsize = null;
+/**
+ *  This array stores elements for length measurement. DO REMEMBER TO EMPTY IT BEFORE NEW ROOM
+**/
+Measurement.prototype.lengthAid = [];
+
+/**
+ *  "Deconstructor" for the lengthAid array, removing all the Raphael elements / entries.
+**/
+Measurement.prototype.deconstructLengthAid = function () {
+
+    var i = this.lengthAid.length;
+    while (i--) {
+
+        this.lengthAid[i][1].remove();
+        this.lengthAid[i][2].remove();
+
+        this.lengthAid.pop();
+    }
 }
 
 /**
@@ -41,6 +62,7 @@ Measurement.prototype.refreshMeasurements = function () {
 
     // Calculate text size of the measurements
     this.fontsize = 12;
+    /*
     for (var i = 0; i < len; i++) {
         var currentWall = walls[i].getTotalLength();
 
@@ -69,6 +91,8 @@ Measurement.prototype.refreshMeasurements = function () {
         fontsize = 18;
     }
 
+    */
+
     this.fontsize = (fontsize > this.fontsize) ? fontsize : this.fontsize;
     
     for (var i = 0; i < len; i++) {
@@ -76,7 +100,8 @@ Measurement.prototype.refreshMeasurements = function () {
         measurementValues.push([]);
         
         if (finished || i >= 1) {
-            measurementValues[i].push(this.angleMeasurement(i));
+            // Commented out for testing purposes.
+            //measurementValues[i].push(this.angleMeasurement(i));
         }
 
         measurementValues[i].push(this.lengthMeasurement(walls[i]));   
@@ -232,26 +257,200 @@ Measurement.prototype.lengthMeasurement = function (wall) {
         startP2 = wall.attrs.path[1],
         endP2 = wall.getPointAtLength((wall.getTotalLength() - theRoom.radius)),
         paper = this.paper,
-
-
-        m1 = paper.path("M"+startP1[1]+","+startP1[2]+"L"+endP1.x+","+endP1.y).attr(
-        {
-            fill: "#00000", 
-            stroke: "#2F4F4F",
-            'stroke-width': 1,
-            'stroke-linecap': "round"
-        }),
-
-        m2 = paper.path("M"+startP2[1]+","+startP2[2]+"L"+endP2.x+","+endP2.y).attr(
-        {
-            fill: "#00000", 
-            stroke: "#2F4F4F",
-            'stroke-width': 1,
-            'stroke-linecap': "round"
-        }),
+        m1,
+        m2,
+        m3,
+        m3r,
+        m3t,
+        // Coordinates of m3
+        m31x,
+        m31y,
+        m32x,
+        m32y,
         angle1,
-        angle2;
+        angle2,
+        fontsize = this.fontsize,
+        wallId = wall.id,
+        lengthAid = this.lengthAid,
+        currentAid = null;
+        /**
+         *  Check if there are measures stored for this wall.
+         *  Goes through lengthAid set and looks for an entry with an id value equals to the current wall id.
+         *  @param: id of the wall in question.
+        **/
+        hasMeasures = function(id) {
 
+            for (var i = 0, ii = lengthAid.length; i < ii; i++) {
+
+                if (lengthAid[i][0] == id) {
+                    return lengthAid[i];
+                }
+            }
+            return false;
+        },
+        /**
+         *  Step one is creating or moving the supporting lines m1 and m2.
+         *  @param: move boolean that tells to move or create.
+        **/
+        measuresStep1 = function (move) {
+
+            // moving the lines
+            if (move != false) {
+
+                // Getting the lines in question for movement.
+                m1 = move[1];
+                m2 = move[2];
+
+                //console.log('moving supportline 1 and 2');
+
+
+                var pathArray1 = m1.attr('path'),
+                    pathArray2 = m2.attr('path');
+
+                // Changing coordinates of the paths
+                pathArray1[0][1] = startP1[1];
+                pathArray1[0][2] = startP1[2];
+                pathArray1[1][1] = endP1.x;
+                pathArray1[1][2] = endP1.y;
+
+                pathArray2[0][1] = startP2[1];
+                pathArray2[0][2] = startP2[2];
+                pathArray2[1][1] = endP2.x;
+                pathArray2[1][2] = endP2.y;
+
+                m1.attr({path: pathArray1});
+                m2.attr({path: pathArray2});
+
+
+            // Creating lines when there is none.
+            } else {
+
+               // console.log('creating supportline 1 and 2');
+
+                    m1 = paper.path("M"+startP1[1]+","+startP1[2]+"L"+endP1.x+","+endP1.y).attr(
+                        {
+                            fill: "#00000", 
+                            stroke: "#2F4F4F",
+                            'stroke-width': 1,
+                            'stroke-linecap': "round"
+                        });
+
+                    m2 = paper.path("M"+startP2[1]+","+startP2[2]+"L"+endP2.x+","+endP2.y).attr(
+                        {
+                            fill: "#00000", 
+                            stroke: "#2F4F4F",
+                            'stroke-width': 1,
+                            'stroke-linecap': "round"
+                        });
+            }
+        },
+        /**
+         *  Step 2 is creating the third supporting line and adding a text and rect.
+         *  If this line, rect and text already exists - only move it.
+        **/
+        measuresStep2 = function (move) {
+
+                // Creating the length text by converting the wall length to metres and adding a postfix "m".
+            var len = (wall.getTotalLength() / 100).toFixed(2)+ " m",
+                // Calculating the middle of the path by using similar functinality as the middle function of drawRoom.
+                textPointx = ((m31x + m32x) / 2),
+                textPointy = ((m31y + m32y) / 2),
+                rectLen,
+                rectHeight, 
+                rectY,
+                rectX;
+
+            if (move != false) {
+
+                // Setting the elements regarding the third supportline, text and rect.
+                m3 = move[3];
+                m3r = move[4];
+                m3t = move[5];
+
+                // Storing path array of m3 supportline
+                var pathArray = m3.attr('path');
+
+                // Changing coordinates of the path
+                pathArray[0][1] = m31x;
+                pathArray[0][2] = m31y;
+                pathArray[1][1] = m32x;
+                pathArray[1][2] = m32y;
+
+                // updating path position
+                m3.attr({path: pathArray});
+
+                // updating text position and text.
+                m3t.attr({
+                    text: len,
+                    x: textPointx,
+                    y: textPointy
+                });
+               
+                
+                // Dynamic size of the rectangle surrounding the text.
+                rectLen = (m3t.getBBox().width + 20);
+                rectHeight = (m3t.getBBox().height);
+                rectX = (textPointx - (rectLen / 2));
+                rectY = (textPointy - (rectHeight / 2));
+
+                // updating rect position
+                m3r.attr({
+                    x: rectX,
+                    y: rectY,
+                    width: rectLen,
+                    height: rectHeight
+                });
+
+
+
+            } else {
+
+                //console.log('creating supportline 3');
+
+                // Drawing the line paralell to the wall.        
+                m3 = paper.path("M"+m31x+","+m31y+"L"+m32x+","+m32y).attr({
+                        fill: "#00000", 
+                        stroke: "#2F4F4F",
+                        'stroke-width': 1,
+                        'stroke-linecap': "round"
+                    });
+
+                // Functionality that shows length and stuff
+
+
+                // Adds text on top of the rectangle, to display the length of the wall.
+                m3t = paper.text(textPointx, textPointy, len).attr({
+                    opacity: 1,
+                    'font-size': fontsize,
+                    'font-family': "verdana",
+                    'font-style': "oblique"
+                });
+
+                // Dynamic size of the rectangle surrounding the text.
+                rectLen = (m3t.getBBox().width + 20);
+                rectHeight = (m3t.getBBox().height);
+                rectX = (textPointx - (rectLen / 2));
+                rectY = (textPointy - (rectHeight / 2));
+
+                // Draws a rectangle at the middle of the line
+                m3r = paper.rect(rectX, rectY , rectLen, rectHeight, 5, 5).attr({
+                    opacity: 1,
+                    fill: "white"
+                });
+
+                m3t.toFront();
+
+            }
+        };
+
+    // Check if there is measureAids present
+    currentAid = hasMeasures(wallId);
+
+    // STEP 1 : creating the supporting lines.
+    measuresStep1(currentAid);
+
+
+    // Determening the angle of which the supporting lines will be transformed.
     if (this.inverted) {
         angle1 = 270;
         angle2 = 90;
@@ -260,13 +459,17 @@ Measurement.prototype.lengthMeasurement = function (wall) {
         angle2 = 270;
     }
 
-    var transform1 = "r"+angle1+","+startP1[1]+","+startP1[2],
-        transformedPath = Raphael.transformPath(m1.attr('path'), transform1);
+    var transform = "r"+angle1+","+startP1[1]+","+startP1[2],
+        transformedPath = Raphael.transformPath(m1.attr('path'), transform);
 
-    this.startLine(transformedPath[1][3], transformedPath[1][4]);
+    // Storing the starting point of supportline 3
+    m31x = transformedPath[1][3];
+    m31y = transformedPath[1][4];
 
-    transform1 = "r"+angle2+","+startP2[1]+","+startP2[2];
-    transformedPath = Raphael.transformPath(m2.attr('path'), transform1);
+    //this.startLine(transformedPath[1][3], transformedPath[1][4]);
+
+    transform = "r"+angle2+","+startP2[1]+","+startP2[2];
+    transformedPath = Raphael.transformPath(m2.attr('path'), transform);
 
     // failsafe when corners are too close to each other (m2 being too short).
     if (typeof transformedPath[1] == 'undefined') {
@@ -275,25 +478,25 @@ Measurement.prototype.lengthMeasurement = function (wall) {
         return wall.getTotalLength();
     }
 
-    this.endLine(transformedPath[1][3], transformedPath[1][4]);
+    // Storing the ending point of supportline 3 and finally having it drawn together with its length
+    m32x = transformedPath[1][3];
+    m32y = transformedPath[1][4];
+    //this.endLine(transformedPath[1][3], transformedPath[1][4]);
+    measuresStep2(currentAid);
 
     m1.transform("r"+angle1+","+startP1[1]+","+startP1[2]);
     m2.transform("r"+angle2+","+startP2[1]+","+startP2[2]);
 
     // Adds to measurements set.
-    this.measurements.push(m1, m2);
+    this.lengthAid.push([wallId, m1, m2, m3, m3r, m3t]);
 
     // return length for our measurementValues array.
     return wall.getTotalLength();
 }
 
-Measurement.prototype.startLine = function(x, y) {
-    this.startX = x;
-    this.startY = y;
-}
 
 /**
- *  Function that updates the length of a wall.
+ *  Function that updates the text that displays length of wall - does not move the measurement graphics.
  *
  * Goes through the wall and lengthmeasurement arrays with corresponding keys.
 **/
@@ -312,56 +515,6 @@ Measurement.prototype.refreshLength = function() {
             });
 
         }
-}
-
-
-/**
- *  Functionality that calculates the length of a wall and displayes it within a rect.
- *
-**/
-Measurement.prototype.endLine = function(x, y) {
-
-    var x1 = this.startX,
-        y1 = this.startY,
-        paper = this.paper,
-
-    // Drawing the line paralell to the wall.        
-    m = paper.path("M"+x1+","+y1+"L"+x+","+y).attr({
-            fill: "#00000", 
-            stroke: "#2F4F4F",
-            'stroke-width': 1,
-            'stroke-linecap': "round"
-        }),
-
-    // Functionality that shows length and stuff
-    textPoint = m.getPointAtLength((m.getTotalLength()/2)),
-    len = new Number(m.getTotalLength())/100,
-    len = len.toFixed(2),
-
-    // Adds text on top of the rectangle, to display the length of the wall.
-    t = paper.text(textPoint.x, textPoint.y, len + " m").attr({
-        opacity: 1,
-        'font-size': this.fontsize,
-        'font-family': "verdana",
-        'font-style': "oblique"
-    }),
-
-    // Dynamic size of the rectangle surrounding the text.
-    rectLen = (t.getBBox().width + 20),
-    rectHeight = (t.getBBox().height),
-    rectX = (textPoint.x - (rectLen / 2)),
-    rectY = (textPoint.y - (rectHeight / 2)),
-
-    // Draws a rectangle at the middle of the line
-    r = paper.rect(rectX, rectY , rectLen, rectHeight, 5, 5).attr({
-        opacity: 1,
-        fill: "white"
-    });
-
-    t.toFront();
-
-    this.measurements.push(m);
-    this.wallText.push(r, t); 
 }
 
 /**
