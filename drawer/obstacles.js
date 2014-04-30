@@ -1,8 +1,8 @@
 /**
- *	Constructor for the obstacles class
- *
+ * Constructor for the obstacles class.
+ * Used when the user choose to add obstacles in the room.
 **/
-function Obstacles () {
+function Obstacles() {
 
 	this.paper = TFplanner.grid.paper;
 	this.xPos = 0;
@@ -12,25 +12,17 @@ function Obstacles () {
 	this.lineSet = this.paper.set();
 	this.supplyPoint = null;
 	// True means that the mat needs to both start and end at the supplypoint/wall.
-	// false means that it will start at the supplypoint/wall but 
+	// false means that it will start at the supplypoint/wall but not end there.
 	this.supplyEnd = true;
 }
 
 /**
- *	Function that updates the X and Y coordinates for the obstacle default position.
- *
+ * Function that draws obstacles on the grid paper, 
+ * based on the size defined here.
+ * @param num - The internal value of the added obstacle
+ * @param txt - The text to be set on the obstacle
 **/
-Obstacles.prototype.updateXY = function () {
-
-	this.xPos = this.paper._viewBox[0];
-	this.yPos = this.paper._viewBox[1];
-}
-
-/**
- *	Function that draws obstacles on the grid paper, based on the size defined here.
- *
-**/
-Obstacles.prototype.createObstacle = function (num, txt) {
+Obstacles.prototype.createObstacle = function(num, txt) {
 
 	var w, 
 		h,
@@ -39,25 +31,30 @@ Obstacles.prototype.createObstacle = function (num, txt) {
 		ns = TFplanner,
 		paper = this.paper,
 		obst = this,
+		obstacle,
+		txtPoint,
+		txtField,
 		
 		/**
 		 *	Function that finds the wall that is most western.
-		 *	Returns it middlepoint.
+		 *	Returns its middlepoint.
 		**/
 		westernWall = function() {
 
 			var walls = TFplanner.ourRoom.walls,
+				wall,
+				newWall,
 				west = null;
 
-			for (var i = 0; i < walls.length; i++) {
+			for (var i = 0, ii = walls.length; i < ii; i++) {
 
-				var wall = walls[i];
+				wall = walls[i];
 
-				if (west == null) {
+				if (west === null) {
 					west = wall.getPointAtLength((wall.getTotalLength() / 1.75));
 
 				} else {
-					var newWall = wall.getPointAtLength((wall.getTotalLength() / 1.75));
+					newWall = wall.getPointAtLength((wall.getTotalLength() / 1.75));
 
 					if (newWall.x < west.x) {
 						west = newWall;
@@ -69,33 +66,28 @@ Obstacles.prototype.createObstacle = function (num, txt) {
 			y = west.y;
 		};
 
-	// Setting w and h values based on input
+	// Setting width and height values based on input
 	switch (num) {
-
 		// drain
 		case '1':
 			w = 40;
 			h = 40;
 			break;
-
 		// toilet
 		case '2': 
 			w = 40;
 			h = 80;
 			break;
-
 		// shower
 		case '3':
 			w = 90;
 			h = 90;
 			break;
-
 		// bathtub
 		case '4':
 			w = 170;
 			h = 80;
 			break;
-
 		// Connection-point
 		case '5':
 			w = 10;
@@ -122,39 +114,37 @@ Obstacles.prototype.createObstacle = function (num, txt) {
 			return;
 	}
 
-	// obstacle declared
-	var obstacle = paper.rect(x, y, w, h).attr({
-			fill: '#E73029',
-			'fill-opacity': 0.4,
-	        'stroke-opacity': 0.4
-		});
+	// Obstacle created
+	obstacle = paper.rect(x, y, w, h).attr({
+		fill: '#E73029',
+		'fill-opacity': 0.4,
+		'stroke-opacity': 0.4
+	});
 
 	// Define the id of the preferred supplypoint, added by the user.
 	// If multiple supplypoints, the first one will be used!
-	if (this.supplyPoint == null && num == 5) {
+	if (this.supplyPoint === null && num == 5) {
 		this.supplyPoint = obstacle.id;
 	}
 
 	// Storing custom data.
 	obstacle.data('obstacleType', txt);
 
-	// obstacle text related variables.
-	var txtPoint = new Point((x + (w / 2)), (y + (h / 2))),
-		txtField = paper.text(txtPoint.x, txtPoint.y, txt).attr({
+	// Obstacle text related variables.
+	txtPoint = new Point((x + (w / 2)), (y + (h / 2)));
+	txtField = paper.text(txtPoint.x, txtPoint.y, txt).attr({
 			opacity: 1,
 			'font-size': 12,
 			'font-family': 'verdena',
 			'font-style': 'oblique'
-		});
+	}).toBack();
 
-	txtField.toBack();
+	var start = function() {
 
-
-	var start = function () {
-			this.ox = this.attr("x");
-			this.oy = this.attr("y");
-			w = this.attr("width");
-			h = this.attr("height");
+			this.ox = this.attr('x');
+			this.oy = this.attr('y');
+			w = this.attr('width');
+			h = this.attr('height');
 			
 			obst.selectObstacle();
 
@@ -162,265 +152,256 @@ Obstacles.prototype.createObstacle = function (num, txt) {
 
 			obst.nearestWalls(null, this);
 
-			for (var i = 0; i < obst.obstacleSet.length; i++) {
+			for (var i = 0, ii = obst.obstacleSet.length; i < ii; i++) {
+
 				if (this == obst.obstacleSet[i]) {
 					this.rectID = i;
 					break;
 				}
 			}
-
 		},
 
-		move = function (dx, dy) {
+		move = function(dx, dy) {
 
 			var xy = ns.grid.getZoomedXY(dx, dy, true),
 				newx = this.ox + xy[0],
-				newy = this.oy + xy[1];
-
+				newy = this.oy + xy[1],
+				obstx,
+				obsty;
 
 			// Updates obstacle list :)
-			if (this.rectID != null) {
+			if (this.rectID) {
 				ns.options.obstacleList(this.rectID);
 			}
 			
-
 			newx = (Math.round((newx / 10)) * 10);
 			newy = (Math.round((newy / 10)) * 10);
 
-	        this.attr({
-	        	x: newx,
-	        	y: newy
-	        });
+			this.attr({
+				x: newx,
+				y: newy
+			});
 
-	        // obstacle text related action
-	        var obstx = (newx + (w / 2)),
-	        	obsty = (newy + (h / 2));
+			// Obstacle text related action
+			obstx = (newx + (w / 2));
+			obsty = (newy + (h / 2));
 
-	        txtField.attr({
-	        	x: obstx,
-	        	y: obsty
-	        });
+			txtField.attr({
+				x: obstx,
+				y: obsty
+			});
 
-
-	        obst.nearestWalls(null, this);
+			obst.nearestWalls(null, this);
 		},
 
-		up = function () {
+		up = function() {
 
 			this.attr({fill: '#E73029'});
 
 			obst.lineSet.remove();
 			obst.lineSet.clear();
-
 		};
 
 	obstacle.drag(move, start, up);
 
 	this.obstacleSet.push(obstacle);
 	this.txtSet.push(txtField);
-}
+};
 
-Obstacles.prototype.adjustSize = function (i, w, h, x, y) {
+/**
+ * Action related to the placement of obstacle-text.
+ * @param i - Index of the targeted obstacle
+ * @param w - The width of the obstacle
+ * @param h - The height of the obstacle
+ * @param x - X-coordinate of the obstacle
+ * @param y - Y-coordinate of the obstacle
+**/
+Obstacles.prototype.adjustSize = function(i, w, h, x, y) {
 
-	var obstacle = this.obstacleSet[i],
-		text = this.txtSet[i],
-		// obstacle text related action
-		obstx = (x + (w / 2)),
+	var obstx = (x + (w / 2)),
 		obsty = (y + (h / 2));
 
-	obstacle.attr({
+	this.obstacleSet[i].attr({
 		'width': w, 
 		'height': h,
 		x : parseInt(x),
 		y : parseInt(y)
 	});
 
-	text.attr({
+	this.txtSet[i].attr({
 		x : obstx,
 		y : obsty
 	});
 
-	// update lenght line
-	this.nearestWalls(null, obstacle);
-}
+	// Update the lenght line
+	this.nearestWalls(null, this.obstacleSet[i]);
+};
 
 
 /**
- *	Function that visually selects an obstacle by changing its fill color.
- *
+ * Function that visually selects an obstacle by changing its fill color.
+ * @param id - Id of the targeted obstacle
 **/
-Obstacles.prototype.selectObstacle = function (id) {
+Obstacles.prototype.selectObstacle = function(id) {
 
-	var obstacleArr = this.obstacleSet,
-		obstacleLength = obstacleArr.length;
-
-	for (var i = 0; i < obstacleLength; i++) {
+	for (var i = 0, ii = this.obstacleSet.length; i < ii; i++) {
 
 		if (i == id) {
-			obstacleArr[i].attr({fill: '#3366FF'});
-		} else {
-			obstacleArr[i].attr({fill: '#E73029'});
-		}
+			this.obstacleSet[i].attr({fill: '#3366FF'});
 
+		} else {
+			this.obstacleSet[i].attr({fill: '#E73029'});
+		}
 	}
 
 	if (id != null) {
 		this.nearestWalls(id);
+
 	} else {
 		this.lineSet.remove();
 		this.lineSet.clear();
 	}
-}
+};
 
 /**
  * Remove the obstacle, based on which remove-button that was pushed.
+ * @param id(string) - Id of targeted obstacle for deletion
 **/
-Obstacles.prototype.deleteObstacle = function (id) {
+Obstacles.prototype.deleteObstacle = function(id) {
 
-	var obstacleArr = this.obstacleSet,
-		obstacleLength = obstacleArr.length,
-		txtSet = this.txtSet;
+	for (var i = 0, ii = this.obstacleSet.length; i < ii; i++) { 
 
-	for (var i = 0; i < obstacleLength; i++) { 
-
+		// Match on the ID, clean text and obstacle, and return
 		if (i == id) {
-			var tmp = obstacleArr.splice(i, 1);
-			tmp.remove();
-			tmp = txtSet.splice(i, 1);
-			tmp.remove();
+			this.obstacleSet.splice(i, 1).remove();
+			this.txtSet.splice(i, 1).remove();
 			this.lineSet.remove();
 			this.lineSet.clear();
 			return;
 		}
 	}
-}
+};
 
 /**
- *	Function that visualizes the the nearest horizontal and vertical wall of an object.
- *
- *
+ * Function that visualizes the the nearest horizontal
+ * and vertical wall of the targeted obstacle.
+ * @param id - Id of the obstacle
+ * @param obst - Current targeted obstacle
 **/
-Obstacles.prototype.nearestWalls = function (id, obst) {
-
+Obstacles.prototype.nearestWalls = function(id, obst) {
 
 	// Declaring obstacle center coordinates
 	var obstacle = (id != null) ? this.obstacleSet[id] : obst,
-		cx = (obstacle.attr("x") + (obstacle.attr("width") / 2)),
-		cy = (obstacle.attr("y") + (obstacle.attr("height") / 2)),
+		cx = (obstacle.attr('x') + (obstacle.attr('width') / 2)),
+		cy = (obstacle.attr('y') + (obstacle.attr('height') / 2)),
 		walls = TFplanner.ourRoom.walls,
 		maxX = 0,
 		maxY = 0,
-		// variable with three options, 1, 2 or 3.
-		// This variable tells the lengthline function to draw either or both lines.
-		tri;
+		tmp1x, tmp1y, tmp2x, tmp2y,
+		tri,
+		that = this,
 
-	// removing past lines.
+		/**
+		 * Function that draw lines that show length from obstacle to nearest walls.
+		**/
+		lengthLine = function() {
+
+			var rad, 
+				P1, 
+				P2,
+				/**
+				 * Calculates length from the obstacle to the nearest wall
+				**/
+				measurementO = function() {
+
+					var textRect,
+						textPoint,
+						text,
+						line = that.paper.path('M'+P1[0]+','+P1[1]+' L'+P2[0]+','+P2[1]).attr( {
+							stroke: '#3366FF'
+						}),
+						length = (TFplanner.ourRoom.vectorLength(P1[0], P1[1], P2[0], P2[1]) / 100);
+
+					// Do not show the length-stuff unless it is >= 10cm.
+					if (length > 0) {
+						textPoint = line.getPointAtLength((length / 2));
+						textRect = that.paper.rect(textPoint.x-25, textPoint.y-10, 50, 20, 5, 5).attr({
+							opacity: 1,
+							fill: 'white'
+						});
+
+						text = that.paper.text(textPoint.x, textPoint.y, length + ' m').attr({
+							opacity: 1,
+							'font-size': 12,
+							'font-family': 'verdana',
+							'font-style': 'oblique'
+						});
+					}
+
+					that.lineSet.push(line, textRect, text);
+				};
+
+			// Create the horizontal line
+			if (tri === 1 || tri === 3) {
+
+				rad = ((obstacle.attr('width') / 2) * (-1));
+				P1 = [100, cy];
+				P2 = [(cx + rad), cy];
+				measurementO();
+			} 
+			// Creating vertical line
+			if (tri === 2 || tri === 3) {
+				
+				rad = ((obstacle.attr('height') / 2) * (-1));
+				P1 = [cx, 100];
+				P2 = [cx, (cy + rad)];
+				measurementO();
+			}
+		};
+
+	// Removing past lines.
 	this.lineSet.remove();
 	this.lineSet.clear();
 
-
-	// returning if the obstacle is outside room (to the left or top).
+	// Returning if the obstacle is outside room (to the left or top).
 	if (cx < 100 || cy < 100) {
 		return;
 	}
 
-	// check if the cx or cy is out of bounds in regards to the room
-	for (var i = 0; i < walls.length; i++) {
+	// Check if the cx or cy is out of bounds in regards to the room
+	for (var i = 0, ii = walls.length; i < ii; i++) {
 
-		var tmp1x = walls[i].attrs.path[0][1],
-			tmp1y = walls[i].attrs.path[0][2],
-			tmp2x = walls[i].attrs.path[1][1], 
-			tmp2y = walls[i].attrs.path[1][2];
+		tmp1x = walls[i].attrs.path[0][1];
+		tmp1y = walls[i].attrs.path[0][2];
+		tmp2x = walls[i].attrs.path[1][1];
+		tmp2y = walls[i].attrs.path[1][2];
 
-		// chained ternaries
+		// Chained ternaries
 		maxX = (tmp1x > maxX) ? (tmp2x > tmp1x) ? tmp2x : tmp1x : maxX;
 		maxY = (tmp1y > maxY) ? (tmp2y > tmp1y) ? tmp2y : tmp1y : maxY;
 	}
 
-
-	// 1: draw the horizontal line
-	// 2: draw the vertical line
-	// 3: draw both
-	// chained ternaries.
+    /**
+     * This variable tells the lengthline function to draw either one or both lines.
+	 * 1: Draw the horizontal line
+	 * 2: Draw the vertical line
+	 * 3: Draw both
+	**/
 	tri = (cx < maxX) ? (cy < maxY) ? 3 : 2 : (cy < maxY) ? 1 : null;
 
-	this.lengthLine(obstacle, cx, cy, tri);
-}
-
-/**
- *	Function that draws lines that show length from obstacle to nearest walls.
- *
-**/
-Obstacles.prototype.lengthLine = function (obstacle, cx, cy, tri) {
-
-	var rad, 
-		P1, 
-		P2,
-		that = this,
-		measurementO = function(p1, p2) {
-
-			var line,
-				textPoint,
-				textRect,
-				text,
-				length;
-
-			line = that.paper.path("M"+P1[0]+","+P1[1]+"L"+P2[0]+","+P2[1]).attr( {
-				stroke: '#3366FF'
-			});
-
-			// calculating length of
-			length = TFplanner.ourRoom.vectorLength(P1[0], P1[1], P2[0], P2[1]);
-			textPoint = line.getPointAtLength((length / 2));
-
-			length = (new Number(length) / 100);
-
-			// Do not show the length-stuff unless it is > 10cm.
-			if (length > 0) {
-				textRect = that.paper.rect(textPoint.x-25, textPoint.y-10, 50, 20, 5, 5).attr({
-		            opacity: 1,
-		            fill: "white"
-		        });
-
-				text = that.paper.text(textPoint.x, textPoint.y, length + " m").attr({
-		            opacity: 1,
-		            'font-size': 12,
-		            'font-family': "verdana",
-		            'font-style': "oblique"
-		        });
-			}
-
-	        that.lineSet.push(line, textRect, text);
-		};
-
-	// Create the horizontal line
-	if (tri == 1 || tri == 3) {
-
-		rad = ((obstacle.attr("width") / 2) * (-1));
-		P1 = [100, cy];
-		P2 = [(cx + rad), cy];
-		measurementO(P1, P2);
-	// Creating vertical line
-	} 
-
-	if (tri == 2 || tri == 3) {
-		
-		rad = ((obstacle.attr("height") / 2) * (-1));
-		P1 = [cx, 100];
-		P2 = [cx, (cy + rad)];
-		measurementO(P1, P2);
-	}
-}
+	lengthLine();
+};
 
 /**
  * Used for clearing the sets that show the obstacles and length-stuff.
  * Called when we are pushing the 'new' button.
 **/
-Obstacles.prototype.clearSets = function () {
+Obstacles.prototype.clearSets = function() {
+
 	this.obstacleSet.remove();
 	this.obstacleSet.clear();
 	this.txtSet.remove();
 	this.txtSet.clear();
 	this.lineSet.remove();
 	this.lineSet.clear();
-}
+};

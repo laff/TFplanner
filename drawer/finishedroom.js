@@ -463,7 +463,7 @@ FinishedRoom.prototype.drag = function(indexArr, match) {
             X = this.attr('cx') - diffx,
             Y = this.attr('cy') - diffy;
 
-        // Storiung the last mouse position.
+        // Storing the last mouse position.
         this.lastx = xy[0];
         this.lasty = xy[1];
 

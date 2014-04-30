@@ -342,7 +342,7 @@ DrawRoom.prototype.drawTempLine = function(point) {
 
                     return {x: x, y: y};
                 },
-                textPoint = middle(tmpWall),//tmpWall.getPointAtLength((tmpWall.getTotalLength()/2)),
+                textPoint = middle(tmpWall),
                 len = new Number(tmpWall.getTotalLength())/100;
 
                 len = len.toFixed(2);
