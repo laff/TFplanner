@@ -340,7 +340,7 @@ DrawRoom.prototype.drawTempLine = function(point) {
                         x = ((x1 + x2) / 2),
                         y = ((y1 + y2) / 2);
 
-                    return new Point(x, y);
+                    return {x: x, y: y};
                 },
                 textPoint = middle(tmpWall),
                 len = new Number(tmpWall.getTotalLength())/100;
@@ -459,6 +459,7 @@ DrawRoom.prototype.drawTempLine = function(point) {
     }
 
     // Show the angle of the temporary wall (angle to previous drawn wall).
+    // TODO: REMEMBER TO REMOVE THE && FALSE IN THIS STATEMENT!!!
     if (this.walls.length >= 1 && this.tmpWall.getTotalLength() > (this.radius * 2) && false) {
         // Store temporary angle in measurements
         tmpAngle = measures.angleMeasurement(null, this.tmpWall);
@@ -530,7 +531,7 @@ DrawRoom.prototype.crossBrowserXY = function(e) {
             var x = xy[0],
                 y = xy[1];
 
-            return (!(x < 100 && y < 100)) ? new Point(x, y) : new Point(-1, -1);
+            return (!(x < 100 && y < 100)) ? {x: x, y: y} : {x: -1, y: -1};
         },
 
         // In FF offsetX is undefined, so then we need to handle the coordinates in a different way.
