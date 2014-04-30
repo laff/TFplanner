@@ -3,21 +3,23 @@ function Measurement () {
     this.paper = TFplanner.grid.paper;
     this.measurements = this.paper.set();
     this.tmpMeasurements = this.paper.set();
-    this.angMeasurements = this.paper.set();
     this.wallText = this.paper.set();
 }
 
 /**
  *  Measurement variables.
 **/
-Measurement.prototype.measurementValues = [];
 Measurement.prototype.inverted = null;
 Measurement.prototype.fontsize = null;
 /**
- *  This array stores elements for length measurement. DO REMEMBER TO EMPTY IT BEFORE NEW ROOM
+ *  This array stores elements for length measurement. DO REMEMBER TO EMPTY IT BEFORE NEW ROOM, also make it available for toFront() ?!
 **/
 Measurement.prototype.lengthAid = [];
 
+/**
+ *  This array stores the elements showing the angle measurement. have it do the same as the array above regarding toFront().
+**/
+Measurement.prototype.angleAid = [];
 /**
  *  "Deconstructor" for the lengthAid array, removing all the Raphael elements / entries.
 **/
@@ -48,21 +50,18 @@ Measurement.prototype.refreshMeasurements = function () {
         walls = theRoom.walls,
         finished = theRoom.finished,
         len = walls.length,
-        measurementValues = this.measurementValues,
         longestWall = null,
         fontsize;
 
-    measurementValues.length = 0;
     this.measurements.remove();
     this.wallText.remove();
     this.wallText.clear();
-    this.angMeasurements.remove();
 
     this.inverted = null;
 
     // Calculate text size of the measurements
     this.fontsize = 12;
-    /*
+    
     for (var i = 0; i < len; i++) {
         var currentWall = walls[i].getTotalLength();
 
@@ -91,20 +90,18 @@ Measurement.prototype.refreshMeasurements = function () {
         fontsize = 18;
     }
 
-    */
+    
 
     this.fontsize = (fontsize > this.fontsize) ? fontsize : this.fontsize;
     
     for (var i = 0; i < len; i++) {
-
-        measurementValues.push([]);
         
         if (finished || i >= 1) {
             // Commented out for testing purposes.
-            //measurementValues[i].push(this.angleMeasurement(i));
+            this.angleMeasurement(i);
         }
 
-        measurementValues[i].push(this.lengthMeasurement(walls[i]));   
+        this.lengthMeasurement(walls[i]);   
     }      
 }
 
@@ -128,116 +125,236 @@ Measurement.prototype.angleMeasurement = function (index, overload) {
         halfCircle,
         p1, 
         p2, 
-        p3 = [];
+        p3 = [],
+        angleAid = this.angleAid,
+        // making "this" available for the internal functions.
+        that = this,
+        hc,
+        // Getting the connectin paths. using this variable in both hasmeasures and angleStep1
+        connected = this.returnConnectingPaths(index),
+        wallId = connected[0].id,
+        createSector = function (centerX, centerY, p1, p2, angle, r) {
+            var big = (angle >= 180) ? 1 : 0,
+                x1 = p1.x, 
+                x2 = p2.x, 
+                y1 = p1.y,
+                y2 = p2.y,
+                theRoom = TFplanner.ourRoom,
+                strokeColor = ((angle < theRoom.minAngle || angle > theRoom.maxAngle) && !theRoom.finished) ? "ff0000" : "2F4F4F";
 
-    if (overload == null) {
-        var connected = this.returnConnectingPaths(index);
+            return TFplanner.grid.paper.path(["M", centerX, centerY, "L", x1, y1, "A", r, r, 0, big, 0, x2, y2, "z"]).attr(            
+                {
+                    fill: "#00000", 
+                    stroke: strokeColor,
+                    'stroke-width': 1,
+                    'stroke-linecap': "round"
+                });
+        },
+        /**
+         *  Check if there are measures stored for this wall.
+         *  Goes through lengthAid set and looks for an entry with an id value equal to the ('previous') wall id.
+        **/
+        hasMeasures = function() {
 
-        p1 = connected[0].attrs.path[0];
-        p2 = connected[0].attrs.path[1];
-        p3 = connected[1].attrs.path[1];  
+            for (var i = 0, ii = angleAid.length; i < ii; i++) {
 
-        // finding the points used for positioning the halfcircle.
-        halfCircleP1 = connected[0].getPointAtLength((connected[0].getTotalLength() - circleRad));
-        halfCircleP2 = connected[1].getPointAtLength(circleRad);
-
-    } else {
-
-        if (this.tmpMeasurements !=  null) {
-            this.tmpMeasurements.remove();
-            this.tmpMeasurements.clear();
-        }
-        
-        var walls = theRoom.walls,
-            index = (walls.length - 1);
-
-        p1 = walls[index].attrs.path[0];
-        p2 = walls[index].attrs.path[1];
-        p3 = overload.attrs.path[1];
-
-        halfCircleP1 = walls[index].getPointAtLength((walls[index].getTotalLength() - circleRad));
-        halfCircleP2 = overload.getPointAtLength(circleRad);
-    }
-
-
-
-
-        // Calculating the angle.
-        angle = Raphael.angle(p1[1], p1[2], p3[1], p3[2], p2[1], p2[2]);
-
-        // Need the start and ending angles between paths/points are needed for checking.
-        startAngle = Raphael.angle(p1[1], p1[2], p2[1], p2[2]);
-        endAngle = Raphael.angle(p2[1], p2[2], p3[1], p3[2]);
-
-        diffAngle = endAngle - startAngle;
-
-
-
-        // decides if the drawing is inverted or not
-        if (this.inverted == null && overload == null) {
-            this.inverted = (angle > 0 && angle < 180);
-        }
-        inverted = this.inverted; 
-
-        // if inverted, always draw from the right.
-        if (inverted) {
-
-            if (angle < 0) {
-                angle = 360 + angle;
-            }
-
-            halfCircle = this.sector(p2[1], p2[2], halfCircleP1, halfCircleP2, angle, circleRad);
-        
-        } else {
-
-
-            // Ensure that angle is positive.
-            if (angle < 0) {
-                angle = angle * (-1);   
-            }
-          
-            // angles that have an endangle larger and startangle larger than 180.
-            if (endAngle >= 180) {
-
-                if (startAngle >= 180) {
-                    angle = 360 - angle;
-
-                } else if (diffAngle < 180) {
-                    angle = 360 - angle;
+                if (angleAid[i][0] == wallId) {
+                    return angleAid[i];
                 }
+            }
+            return false;
+        },
+        angleStep1 = function(index) {
+            /** Logic that determines the points used for creating the angle measurements.
+             *
+             *  START!
+            **/
+            if (overload == null) {
 
+                p1 = connected[0].attrs.path[0];
+                p2 = connected[0].attrs.path[1];
+                p3 = connected[1].attrs.path[1];  
 
-            // All angles that have endangles and startangles thar are smaller than 180, 
-            // and also have a difference (diffangle) lower than -180.
+                // finding the points used for positioning the halfcircle.
+                halfCircleP1 = connected[0].getPointAtLength((connected[0].getTotalLength() - circleRad));
+                halfCircleP2 = connected[1].getPointAtLength(circleRad);
+
             } else {
 
-                if (startAngle >= 180 && diffAngle < - 180) {
-                    angle = 360 - angle;
+                if (that.tmpMeasurements !=  null) {
+                    that.tmpMeasurements.remove();
+                    that.tmpMeasurements.clear();
+                }
+                
+                var walls = theRoom.walls,
+                    index = (walls.length - 1);
+
+                p1 = walls[index].attrs.path[0];
+                p2 = walls[index].attrs.path[1];
+                p3 = overload.attrs.path[1];
+
+                halfCircleP1 = walls[index].getPointAtLength((walls[index].getTotalLength() - circleRad));
+                halfCircleP2 = overload.getPointAtLength(circleRad);
+            }
+
+
+
+
+            // Calculating the angle.
+            angle = Raphael.angle(p1[1], p1[2], p3[1], p3[2], p2[1], p2[2]);
+
+            // Need the start and ending angles between paths/points are needed for checking.
+            startAngle = Raphael.angle(p1[1], p1[2], p2[1], p2[2]);
+            endAngle = Raphael.angle(p2[1], p2[2], p3[1], p3[2]);
+
+            diffAngle = endAngle - startAngle;
+
+
+
+            // decides if the drawing is inverted or not
+            if (that.inverted == null && overload == null) {
+                that.inverted = (angle > 0 && angle < 180);
+            }
+            inverted = that.inverted; 
+            /** Logic that determines the points used for creating the angle measurements.
+             *
+             *  END.
+            **/
+        },
+        angleStep2 = function(move) {
+
+            /**
+             *  Logic for calculating the  real angle
+            **/
+            if (inverted) {
+
+                if (angle < 0) {
+                    angle = 360 + angle;
+                }
+            
+            } else {
+
+
+                // Ensure that angle is positive.
+                if (angle < 0) {
+                    angle = angle * (-1);   
+                }
+              
+                // angles that have an endangle larger and startangle larger than 180.
+                if (endAngle >= 180) {
+
+                    if (startAngle >= 180) {
+                        angle = 360 - angle;
+
+                    } else if (diffAngle < 180) {
+                        angle = 360 - angle;
+                    }
+
+
+                // All angles that have endangles and startangles thar are smaller than 180, 
+                // and also have a difference (diffangle) lower than -180.
+                } else {
+
+                    if (startAngle >= 180 && diffAngle < - 180) {
+                        angle = 360 - angle;
+                    }
                 }
             }
 
-            var tmp = halfCircleP2;
-            halfCircleP2 = halfCircleP1;
-            halfCircleP1 = tmp;
+            // Creating a new variable containing only two decimals and the degree char representing the angle in a string.
+            var newAngle = angle.toFixed(1) + String.fromCharCode(176);
 
-            halfCircle = this.sector(p2[1], p2[2], halfCircleP1, halfCircleP2, angle, circleRad);
+            /**
+             *  real angle calculating done
+            **/
 
-        }
+            /**
+             *  MOVE START!
+            **/
+            if (move != false) {
+                    
+                // Storing the halfcircle and text for readability.
+                halfCircle = move[1];
+                hc = move[2];
+                textPoint = halfCircle.getPointAtLength((halfCircle.getTotalLength()/2));
+                textPoint = that.midPoint(textPoint, p2);
 
-        if (halfCircle != null) {
-            var textPoint = halfCircle.getPointAtLength((halfCircle.getTotalLength()/2)),
-                newAngle = angle.toFixed(1),
-                hc,
-                textPoint = this.midPoint(textPoint, p2);
 
-            hc = this.paper.text(textPoint[0], textPoint[1], newAngle + String.fromCharCode(176));
-        }
+                // move halfCircle
+                var pathArray = halfCircle.attr('path'),
+                    big = (angle >= 180) ? 1 : 0,
+                    strokeColor = ((angle < theRoom.minAngle || angle > theRoom.maxAngle) && !theRoom.finished) ? "ff0000" : "2F4F4F";
 
+                // center coordinates
+                pathArray[0][1] = p2[1];
+                pathArray[0][2] = p2[2];
+
+                // circle coordinates (basically where they start/end)
+                // incase angle is inverted, swap places for P1 and P2.
+                pathArray[1][1] = (inverted) ? halfCircleP1.x : halfCircleP2.x;
+                pathArray[1][2] = (inverted) ? halfCircleP1.y : halfCircleP2.y;
+                pathArray[2][6] = (inverted) ? halfCircleP2.x : halfCircleP1.x;
+                pathArray[2][7] = (inverted) ? halfCircleP2.y : halfCircleP1.y;
+
+                // big variable
+                pathArray[2][4] = big;
+
+                // updating the path array and setting the stroke color
+                halfCircle.attr({
+                    path: pathArray, 
+                    stroke: strokeColor
+                });
+            
+                // update hc text and position
+                hc.attr({
+                    text: newAngle,
+                    x: textPoint.x,
+                    y: textPoint.y
+                });
+
+
+            /**
+             *  MOVE END.
+            **/
+            /**
+             *  CREATE START!
+            **/
+            } else {
+
+                    if (!inverted) {
+                        var tmp = halfCircleP2;
+                        halfCircleP2 = halfCircleP1;
+                        halfCircleP1 = tmp;
+                    }
+
+
+                    halfCircle = createSector(p2[1], p2[2], halfCircleP1, halfCircleP2, angle, circleRad);
+
+                // only create the angle text if the halfcircle exists.
+                if (halfCircle != null) {
+
+                    textPoint = halfCircle.getPointAtLength((halfCircle.getTotalLength()/2));
+                    textPoint = that.midPoint(textPoint, p2);
+
+                    hc = that.paper.text(textPoint.x, textPoint.y, newAngle);
+                }
+
+            }
+            /**
+             *  CREATE END.
+            **/
+        };
+
+    angleStep1(index);
+
+    angleStep2(hasMeasures());
+
+    
 
     if (overload != null) {
         this.tmpMeasurements.push(halfCircle, hc);
     } else {
-        this.angMeasurements.push(halfCircle, hc);
+        this.angleAid.push([wallId, halfCircle, hc]);
     }
 
     // return angle for our measurementValues array.
@@ -272,7 +389,7 @@ Measurement.prototype.lengthMeasurement = function (wall) {
         fontsize = this.fontsize,
         wallId = wall.id,
         lengthAid = this.lengthAid,
-        currentAid = null;
+        currentAid = null,
         /**
          *  Check if there are measures stored for this wall.
          *  Goes through lengthAid set and looks for an entry with an id value equals to the current wall id.
@@ -481,9 +598,10 @@ Measurement.prototype.lengthMeasurement = function (wall) {
     // Storing the ending point of supportline 3 and finally having it drawn together with its length
     m32x = transformedPath[1][3];
     m32y = transformedPath[1][4];
-    //this.endLine(transformedPath[1][3], transformedPath[1][4]);
+    // STEP 2
     measuresStep2(currentAid);
 
+    // Transforming the supportlines 1 and 2 visually.
     m1.transform("r"+angle1+","+startP1[1]+","+startP1[2]);
     m2.transform("r"+angle2+","+startP2[1]+","+startP2[2]);
 
@@ -517,27 +635,6 @@ Measurement.prototype.refreshLength = function() {
         }
 }
 
-/**
- * Function that creates a "circle" from point1 to point2.
- * 
-**/
-Measurement.prototype.sector = function (centerX, centerY, p1, p2, angle, r) {
-    var big = (angle >= 180) ? 1 : 0,
-        x1 = p1.x, 
-        x2 = p2.x, 
-        y1 = p1.y,
-        y2 = p2.y,
-        theRoom = TFplanner.ourRoom,
-        strokeColor = ((angle < theRoom.minAngle || angle > theRoom.maxAngle) && !theRoom.finished) ? "ff0000" : "2F4F4F";
-
-    return this.paper.path(["M", centerX, centerY, "L", x1, y1, "A", r, r, 0, big, 0, x2, y2, "z"]).attr(            
-        {
-            fill: "#00000", 
-            stroke: strokeColor,
-            'stroke-width': 1,
-            'stroke-linecap': "round"
-        });
-}
 
 /**
  * Function that gets the connecting walls.
@@ -572,5 +669,5 @@ Measurement.prototype.midPoint = function(p1, p2) {
         x = ( (x1 + x2) / 2),
         y = ( (y1 + y2) / 2);
 
-    return ([x, y]);
+    return ({x: x, y: y});
 }
