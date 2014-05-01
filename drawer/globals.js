@@ -53,15 +53,7 @@ $(document).ready(function() {
         TFplanner.obstacles = new Obstacles();
         TFplanner.resultGrid = null;
         TFplanner.finishedRoom = null;
+        TFplanner.latency = 50;
         
     })();
 });
-
-
-/**
- * Point constructor
-**/
-function Point (x, y) {
-    this.x = x;
-    this.y = y;
-}

@@ -577,7 +577,7 @@ Options.prototype.updateProgress = function(remove, success) {
 
 
 		theRoom.walls.toFront();
-		measures.wallText.toFront();
+		measures.finalMeasurements();
 		grid.boxSet.toFront();
 
 	} else {

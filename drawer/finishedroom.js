@@ -134,6 +134,7 @@ FinishedRoom.prototype.clickableWall = function(prev, current, next) {
             diffpy = (p1y - p2y);
 
             this.startTime = Date.now();
+            this.latency = TFplanner.latency;
 
         diffpx = (diffpx < 0) ? (diffpx * -1) : diffpx;
         diffpy = (diffpy < 0) ? (diffpy * -1) : diffpy;
@@ -142,44 +143,44 @@ FinishedRoom.prototype.clickableWall = function(prev, current, next) {
 
     },
 
+    /**
+     *  Only moves the walls every 50ms, to ensure that the browser is not overloaded with mousemovements.
+    **/
     move = function(dx, dy) {
 
-        var xy = theGrid.getZoomedXY(dx, dy),
-            // Setting diffx or diffy to 0 based on the horizontal bool or if lastdx/y is null.
-            diffx = (this.lastdx != null) ? (this.horizontally) ? (this.lastdx - xy[0]) : 0 : 0,
-            diffy = (this.lastdy != null) ? (!this.horizontally) ? (this.lastdy - xy[1]) : 0 : 0;
-
-        // add cAONT
-        this.count++;
-
-        this.lastdx = xy[0];
-        this.lastdy = xy[1];
-
-        // Changing values of the end of the wall 'before' the target-wall.
-        pathArray1[1][1] -= diffx;
-        pathArray1[1][2] -= diffy;
-
-        // Changing values of both ends of our dragged target.
-        pathArray2[0][1] -= diffx;
-        pathArray2[0][2] -= diffy;
-        pathArray2[1][1] -= diffx;
-        pathArray2[1][2] -= diffy;
-
-        // Changing values of the wall 'after' our target-wall.
-        pathArray3[0][1] -= diffx;
-        pathArray3[0][2] -= diffy;
-        
-        // Updating the attributes of the three walls, so they are redrawn as they are dragged.
-        prevWall.attr({path: pathArray1});
-        thisWall.attr({path: pathArray2});
-        nextWall.attr({path: pathArray3});
-        this.attr({path: pathArray2});
-
-        // Updating measurements every 50 ms
         var nowTime = Date.now(),
             timeDiff = (nowTime - this.startTime);
 
-        if (timeDiff > 50) {
+        if (timeDiff > this.latency) {
+
+            var xy = theGrid.getZoomedXY(dx, dy),
+                // Setting diffx or diffy to 0 based on the horizontal bool or if lastdx/y is null.
+                diffx = (this.lastdx != null) ? (this.horizontally) ? (this.lastdx - xy[0]) : 0 : 0,
+                diffy = (this.lastdy != null) ? (!this.horizontally) ? (this.lastdy - xy[1]) : 0 : 0;
+
+            this.lastdx = xy[0];
+            this.lastdy = xy[1];
+
+            // Changing values of the end of the wall 'before' the target-wall.
+            pathArray1[1][1] -= diffx;
+            pathArray1[1][2] -= diffy;
+
+            // Changing values of both ends of our dragged target.
+            pathArray2[0][1] -= diffx;
+            pathArray2[0][2] -= diffy;
+            pathArray2[1][1] -= diffx;
+            pathArray2[1][2] -= diffy;
+
+            // Changing values of the wall 'after' our target-wall.
+            pathArray3[0][1] -= diffx;
+            pathArray3[0][2] -= diffy;
+            
+            // Updating the attributes of the three walls, so they are redrawn as they are dragged.
+            prevWall.attr({path: pathArray1});
+            thisWall.attr({path: pathArray2});
+            nextWall.attr({path: pathArray3});
+            this.attr({path: pathArray2});
+
             measures.refreshMeasurements();
             this.startTime = nowTime;
         }
@@ -450,52 +451,54 @@ FinishedRoom.prototype.drag = function(indexArr, match) {
         this.cx = 0;
         this.cy = 0;
         this.startTime = Date.now();
+        this.latency = TFplanner.latency;
     },
 
     move = function(dx, dy) {
-
-        var xy = theGrid.getZoomedXY(dx, dy), 
-            // Calculating the difference from last mouse position.
-            diffx = (this.lastx !== undefined) ? (this.lastx - xy[0]) : 0,
-            diffy = (this.lasty !== undefined) ? (this.lasty - xy[1]) : 0,
-
-            // Calculating the new handle coordinates.
-            X = this.attr('cx') - diffx,
-            Y = this.attr('cy') - diffy;
-
-        // Storing the last mouse position.
-        this.lastx = xy[0];
-        this.lasty = xy[1];
-
-        // Updating the handle position
-        this.attr({cx: X, cy: Y});
-
-        // Updating the connecting path arrays.
-        if (path1Order === 0) {
-           pathArray1[0][1] -= diffx;
-           pathArray1[0][2] -= diffy;
-        } else {
-           pathArray1[1][1] -= diffx;
-           pathArray1[1][2] -= diffy;
-        }
-
-        if (path2Order === 0) {
-           pathArray2[0][1] -= diffx;
-           pathArray2[0][2] -= diffy;
-        } else {
-           pathArray2[1][1] -= diffx;
-           pathArray2[1][2] -= diffy;
-        }
-
-        // Setting the new path arrays.
-        path1.attr({path: pathArray1});
-        path2.attr({path: pathArray2});
 
         // Updating measurements every 50 ms
         var nowTime = Date.now(),
             timeDiff = (nowTime - this.startTime);
 
-        if (timeDiff > 50) {
+        if (timeDiff > this.latency) {
+
+            var xy = theGrid.getZoomedXY(dx, dy), 
+                // Calculating the difference from last mouse position.
+                diffx = (this.lastx !== undefined) ? (this.lastx - xy[0]) : 0,
+                diffy = (this.lasty !== undefined) ? (this.lasty - xy[1]) : 0,
+
+                // Calculating the new handle coordinates.
+                X = this.attr('cx') - diffx,
+                Y = this.attr('cy') - diffy;
+
+            // Storing the last mouse position.
+            this.lastx = xy[0];
+            this.lasty = xy[1];
+
+            // Updating the handle position
+            this.attr({cx: X, cy: Y});
+
+            // Updating the connecting path arrays.
+            if (path1Order === 0) {
+               pathArray1[0][1] -= diffx;
+               pathArray1[0][2] -= diffy;
+            } else {
+               pathArray1[1][1] -= diffx;
+               pathArray1[1][2] -= diffy;
+            }
+
+            if (path2Order === 0) {
+               pathArray2[0][1] -= diffx;
+               pathArray2[0][2] -= diffy;
+            } else {
+               pathArray2[1][1] -= diffx;
+               pathArray2[1][2] -= diffy;
+            }
+
+            // Setting the new path arrays.
+            path1.attr({path: pathArray1});
+            path2.attr({path: pathArray2});
+
             measures.refreshMeasurements();
             this.startTime = nowTime;
         }

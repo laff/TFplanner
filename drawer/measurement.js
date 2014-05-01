@@ -2,15 +2,18 @@
 function Measurement () {
     this.paper = TFplanner.grid.paper;
     this.measurements = this.paper.set();
-    this.tmpMeasurements = this.paper.set();
-    this.wallText = this.paper.set();
-}
+};
 
 /**
  *  Measurement variables.
 **/
 Measurement.prototype.inverted = null;
 Measurement.prototype.fontsize = null;
+
+/**
+ *  array storing temporary angle measurements used while drawing, and the wallid related
+**/
+Measurement.prototype.tmpAngle = null;
 /**
  *  This array stores elements for length measurement. DO REMEMBER TO EMPTY IT BEFORE NEW ROOM, also make it available for toFront() ?!
 **/
@@ -21,19 +24,37 @@ Measurement.prototype.lengthAid = [];
 **/
 Measurement.prototype.angleAid = [];
 /**
- *  "Deconstructor" for the lengthAid array, removing all the Raphael elements / entries.
+ *  "Deconstructor" for the aids, reseting their length to 0.
 **/
-Measurement.prototype.deconstructLengthAid = function () {
+Measurement.prototype.deconstructAid = function () {
 
-    var i = this.lengthAid.length;
-    while (i--) {
+    this.lengthAid.length = 0;
+    this.lengthAid.length = 0;
+};
+    
 
-        this.lengthAid[i][1].remove();
-        this.lengthAid[i][2].remove();
+/**
+ *  Function that removes angles and its text visually and inside the array
+**/
+Measurement.prototype.finalMeasurements = function () {
 
-        this.lengthAid.pop();
+    var i = this.lengthAid.length,
+        angles = (this.angleAid.length > 0);
+
+    while(i--) {
+        this.lengthAid[i][1].toFront();
+        this.lengthAid[i][2].toFront();
+        this.lengthAid[i][3].toFront();
+        this.lengthAid[i][4].toFront();
+        this.lengthAid[i][5].toFront();
+
+        if (angles) {
+            this.angleAid[i][1].remove();
+            this.angleAid[i][2].remove();
+            this.angleAid.pop();
+        }
     }
-}
+},
 
 /**
  * Function that renews the measurements visualized.
@@ -54,8 +75,6 @@ Measurement.prototype.refreshMeasurements = function () {
         fontsize;
 
     this.measurements.remove();
-    this.wallText.remove();
-    this.wallText.clear();
 
     this.inverted = null;
 
@@ -97,13 +116,12 @@ Measurement.prototype.refreshMeasurements = function () {
     for (var i = 0; i < len; i++) {
         
         if (finished || i >= 1) {
-            // Commented out for testing purposes.
             this.angleMeasurement(i);
         }
 
         this.lengthMeasurement(walls[i]);   
     }      
-}
+};
 
 
 /**
@@ -126,13 +144,43 @@ Measurement.prototype.angleMeasurement = function (index, overload) {
         p1, 
         p2, 
         p3 = [],
-        angleAid = this.angleAid,
         // making "this" available for the internal functions.
         that = this,
         hc,
         // Getting the connectin paths. using this variable in both hasmeasures and angleStep1
         connected = this.returnConnectingPaths(index),
-        wallId = connected[0].id,
+        midPoint = function(point1, point2) {
+            var x1 = point1.x,
+                x2 = point2[1],
+                y1 = point1.y,
+                y2 = point2[2],
+                x = ((x1 + x2) / 2),
+                y = ((y1 + y2) / 2);
+
+            return ({x: x, y: y});
+        },
+        idFailsafe = function () {
+
+            if (typeof connected[0] === 'undefined') {
+
+                var wlen = theRoom.walls.length;
+
+                return theRoom.walls[wlen - 1].id;
+            
+            }
+
+            return connected[0].id;
+        },
+        wallId = idFailsafe(),
+        /**
+         *  Function that creates a sector that will represent the angle of a corner.
+         *  @param: centerX - center of the sector ("halfcircle")
+         *  @param: centerY - center of the sector ("halfcircle")
+         *  @param: p1 - outer edges of the sector
+         *  @param: p2 - outer edges of the sector
+         *  @param: angle
+         *  @param: r - radius
+        **/
         createSector = function (centerX, centerY, p1, p2, angle, r) {
             var big = (angle >= 180) ? 1 : 0,
                 x1 = p1.x, 
@@ -155,15 +203,32 @@ Measurement.prototype.angleMeasurement = function (index, overload) {
          *  Goes through lengthAid set and looks for an entry with an id value equal to the ('previous') wall id.
         **/
         hasMeasures = function() {
+            
 
-            for (var i = 0, ii = angleAid.length; i < ii; i++) {
+            if (overload != null) {
 
-                if (angleAid[i][0] == wallId) {
-                    return angleAid[i];
+                if (that.tmpAngle != null) {
+                    return that.tmpAngle;
+                } else {
+                    return false;
                 }
+
+            } else {
+                var i = that.angleAid.length;
+                while (i--) {
+                    if (that.angleAid[i][0] == wallId) {
+                        return that.angleAid[i];
+                    }
+                }
+                return false;
             }
-            return false;
+
+
+
         },
+        /**
+         *
+        **/
         angleStep1 = function(index) {
             /** Logic that determines the points used for creating the angle measurements.
              *
@@ -272,12 +337,12 @@ Measurement.prototype.angleMeasurement = function (index, overload) {
              *  MOVE START!
             **/
             if (move != false) {
-                    
+
                 // Storing the halfcircle and text for readability.
                 halfCircle = move[1];
                 hc = move[2];
                 textPoint = halfCircle.getPointAtLength((halfCircle.getTotalLength()/2));
-                textPoint = that.midPoint(textPoint, p2);
+                textPoint = midPoint(textPoint, p2);
 
 
                 // move halfCircle
@@ -321,20 +386,20 @@ Measurement.prototype.angleMeasurement = function (index, overload) {
             **/
             } else {
 
-                    if (!inverted) {
-                        var tmp = halfCircleP2;
-                        halfCircleP2 = halfCircleP1;
-                        halfCircleP1 = tmp;
-                    }
+                if (!inverted) {
+                    var tmp = halfCircleP2;
+                    halfCircleP2 = halfCircleP1;
+                    halfCircleP1 = tmp;
+                }
 
 
-                    halfCircle = createSector(p2[1], p2[2], halfCircleP1, halfCircleP2, angle, circleRad);
+                halfCircle = createSector(p2[1], p2[2], halfCircleP1, halfCircleP2, angle, circleRad);
 
                 // only create the angle text if the halfcircle exists.
                 if (halfCircle != null) {
 
                     textPoint = halfCircle.getPointAtLength((halfCircle.getTotalLength()/2));
-                    textPoint = that.midPoint(textPoint, p2);
+                    textPoint = midPoint(textPoint, p2);
 
                     hc = that.paper.text(textPoint.x, textPoint.y, newAngle);
                 }
@@ -347,19 +412,25 @@ Measurement.prototype.angleMeasurement = function (index, overload) {
 
     angleStep1(index);
 
-    angleStep2(hasMeasures());
+    var moved = hasMeasures();
 
+    angleStep2(moved);
     
-
+    // either store as temporary measurements or proper ones.
     if (overload != null) {
-        this.tmpMeasurements.push(halfCircle, hc);
-    } else {
+
+        if (moved == false) {
+
+            this.tmpAngle = [wallId, halfCircle, hc];
+        }
+
+    } else if (moved == false) {
         this.angleAid.push([wallId, halfCircle, hc]);
     }
 
     // return angle for our measurementValues array.
     return angle;
-}
+};
 
 
 /**
@@ -598,42 +669,22 @@ Measurement.prototype.lengthMeasurement = function (wall) {
     // Storing the ending point of supportline 3 and finally having it drawn together with its length
     m32x = transformedPath[1][3];
     m32y = transformedPath[1][4];
-    // STEP 2
+
+    // STEP 2: Calling the function that creates the paralell supportline and length text.
     measuresStep2(currentAid);
 
     // Transforming the supportlines 1 and 2 visually.
     m1.transform("r"+angle1+","+startP1[1]+","+startP1[2]);
     m2.transform("r"+angle2+","+startP2[1]+","+startP2[2]);
 
-    // Adds to measurements set.
-    this.lengthAid.push([wallId, m1, m2, m3, m3r, m3t]);
+    // Adds to measurements set, but only if it was created (not moved).
+    if (currentAid == false) {
+        this.lengthAid.push([wallId, m1, m2, m3, m3r, m3t]);
+    }
 
     // return length for our measurementValues array.
     return wall.getTotalLength();
-}
-
-
-/**
- *  Function that updates the text that displays length of wall - does not move the measurement graphics.
- *
- * Goes through the wall and lengthmeasurement arrays with corresponding keys.
-**/
-Measurement.prototype.refreshLength = function() {
-
-    var walls = TFplanner.ourRoom.walls;
-
-        for (var i = 0, ii = walls.length; i < ii; i++) {
-
-            var length = (walls[i].getTotalLength() / 100).toFixed(2)+' m',
-                j = (i == 0) ? 0 : (i * 2),
-                k = (j + 1);
-
-            this.wallText[k].attr({
-                text: length
-            });
-
-        }
-}
+};
 
 
 /**
@@ -656,18 +707,4 @@ Measurement.prototype.returnConnectingPaths = function (index) {
         }
 
     return [prevWall, thisWall];
-}
-
-/**
- * midpoint formula
-**/
-Measurement.prototype.midPoint = function(p1, p2) {
-    var x1 = p1.x,
-        x2 = p2[1],
-        y1 = p1.y,
-        y2 = p2[2],
-        x = ( (x1 + x2) / 2),
-        y = ( (y1 + y2) / 2);
-
-    return ({x: x, y: y});
-}
+};
