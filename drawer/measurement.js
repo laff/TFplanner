@@ -2,14 +2,18 @@
 function Measurement () {
     this.paper = TFplanner.grid.paper;
     this.measurements = this.paper.set();
-    this.tmpMeasurements = this.paper.set();
-}
+};
 
 /**
  *  Measurement variables.
 **/
 Measurement.prototype.inverted = null;
 Measurement.prototype.fontsize = null;
+
+/**
+ *  array storing temporary angle measurements used while drawing, and the wallid related
+**/
+Measurement.prototype.tmpAngle = null;
 /**
  *  This array stores elements for length measurement. DO REMEMBER TO EMPTY IT BEFORE NEW ROOM, also make it available for toFront() ?!
 **/
@@ -26,7 +30,8 @@ Measurement.prototype.deconstructAid = function () {
 
     this.lengthAid.length = 0;
     this.lengthAid.length = 0;
-}
+};
+    
 
 /**
  *  Function that removes angles and its text visually and inside the array
@@ -49,7 +54,7 @@ Measurement.prototype.finalMeasurements = function () {
             this.angleAid.pop();
         }
     }
-}
+},
 
 /**
  * Function that renews the measurements visualized.
@@ -116,7 +121,7 @@ Measurement.prototype.refreshMeasurements = function () {
 
         this.lengthMeasurement(walls[i]);   
     }      
-}
+};
 
 
 /**
@@ -139,12 +144,21 @@ Measurement.prototype.angleMeasurement = function (index, overload) {
         p1, 
         p2, 
         p3 = [],
-        angleAid = this.angleAid,
         // making "this" available for the internal functions.
         that = this,
         hc,
         // Getting the connectin paths. using this variable in both hasmeasures and angleStep1
         connected = this.returnConnectingPaths(index),
+        midPoint = function(point1, point2) {
+            var x1 = point1.x,
+                x2 = point2[1],
+                y1 = point1.y,
+                y2 = point2[2],
+                x = ((x1 + x2) / 2),
+                y = ((y1 + y2) / 2);
+
+            return ({x: x, y: y});
+        },
         idFailsafe = function () {
 
             if (typeof connected[0] === 'undefined') {
@@ -190,14 +204,27 @@ Measurement.prototype.angleMeasurement = function (index, overload) {
         **/
         hasMeasures = function() {
             
-            var i = angleAid.length;
-            while (i--) {
-                if (angleAid[i][0] == wallId) {
-                    return angleAid[i];
+
+            if (overload != null) {
+
+                if (that.tmpAngle != null) {
+                    return that.tmpAngle;
+                } else {
+                    return false;
                 }
+
+            } else {
+                var i = that.angleAid.length;
+                while (i--) {
+                    if (that.angleAid[i][0] == wallId) {
+                        return that.angleAid[i];
+                    }
+                }
+                return false;
             }
 
-            return false;
+
+
         },
         /**
          *
@@ -310,12 +337,12 @@ Measurement.prototype.angleMeasurement = function (index, overload) {
              *  MOVE START!
             **/
             if (move != false) {
-                    
+
                 // Storing the halfcircle and text for readability.
                 halfCircle = move[1];
                 hc = move[2];
                 textPoint = halfCircle.getPointAtLength((halfCircle.getTotalLength()/2));
-                textPoint = that.midPoint(textPoint, p2);
+                textPoint = midPoint(textPoint, p2);
 
 
                 // move halfCircle
@@ -359,20 +386,20 @@ Measurement.prototype.angleMeasurement = function (index, overload) {
             **/
             } else {
 
-                    if (!inverted) {
-                        var tmp = halfCircleP2;
-                        halfCircleP2 = halfCircleP1;
-                        halfCircleP1 = tmp;
-                    }
+                if (!inverted) {
+                    var tmp = halfCircleP2;
+                    halfCircleP2 = halfCircleP1;
+                    halfCircleP1 = tmp;
+                }
 
 
-                    halfCircle = createSector(p2[1], p2[2], halfCircleP1, halfCircleP2, angle, circleRad);
+                halfCircle = createSector(p2[1], p2[2], halfCircleP1, halfCircleP2, angle, circleRad);
 
                 // only create the angle text if the halfcircle exists.
                 if (halfCircle != null) {
 
                     textPoint = halfCircle.getPointAtLength((halfCircle.getTotalLength()/2));
-                    textPoint = that.midPoint(textPoint, p2);
+                    textPoint = midPoint(textPoint, p2);
 
                     hc = that.paper.text(textPoint.x, textPoint.y, newAngle);
                 }
@@ -391,7 +418,11 @@ Measurement.prototype.angleMeasurement = function (index, overload) {
     
     // either store as temporary measurements or proper ones.
     if (overload != null) {
-        this.tmpMeasurements.push(halfCircle, hc);
+
+        if (moved == false) {
+
+            this.tmpAngle = [wallId, halfCircle, hc];
+        }
 
     } else if (moved == false) {
         this.angleAid.push([wallId, halfCircle, hc]);
@@ -399,7 +430,7 @@ Measurement.prototype.angleMeasurement = function (index, overload) {
 
     // return angle for our measurementValues array.
     return angle;
-}
+};
 
 
 /**
@@ -653,7 +684,7 @@ Measurement.prototype.lengthMeasurement = function (wall) {
 
     // return length for our measurementValues array.
     return wall.getTotalLength();
-}
+};
 
 
 /**
@@ -676,18 +707,4 @@ Measurement.prototype.returnConnectingPaths = function (index) {
         }
 
     return [prevWall, thisWall];
-}
-
-/**
- * midpoint formula
-**/
-Measurement.prototype.midPoint = function(p1, p2) {
-    var x1 = p1.x,
-        x2 = p2[1],
-        y1 = p1.y,
-        y2 = p2[2],
-        x = ( (x1 + x2) / 2),
-        y = ( (y1 + y2) / 2);
-
-    return ({x: x, y: y});
-}
+};

@@ -475,9 +475,11 @@ DrawRoom.prototype.drawTempLine = function(point) {
 
         // Update variable that indicates if a wall is crossed/angle is to small.
         this.invalid = (crossed) ? crossed : tmpBool;
-    } else if (measures.tmpMeasurements !== null) {
-        measures.tmpMeasurements.remove();
-        measures.tmpMeasurements.clear();
+
+    } else if (measures.tmpAngle != null) {
+        measures.tmpAngle[1].remove();
+        measures.tmpAngle[2].remove();
+        measures.tmpAngle = null;
     }
 
     tmpLength(this.tmpWall);
@@ -677,7 +679,10 @@ DrawRoom.prototype.clearTmp = function() {
     this.tmpLen.remove();
     this.tmpLen = null;
 
-    // Clean up the temp-stuff in case some lengths or lines are hanging around.
-    measures.tmpMeasurements.remove();
-    measures.tmpMeasurements.clear();
+    // tmpangle visual are removed and set to null.
+    if (measures.tmpAngle != null) {
+        measures.tmpAngle[1].remove();
+        measures.tmpAngle[2].remove();
+        measures.tmpAngle = null;
+    }
 };
