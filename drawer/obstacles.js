@@ -131,7 +131,7 @@ Obstacles.prototype.createObstacle = function(num, txt) {
 	obstacle.data('obstacleType', txt);
 
 	// Obstacle text related variables.
-	txtPoint = new Point((x + (w / 2)), (y + (h / 2)));
+	txtPoint = {x: (x + (w / 2)), y: (y + (h / 2))};
 	txtField = paper.text(txtPoint.x, txtPoint.y, txt).attr({
 			opacity: 1,
 			'font-size': 12,

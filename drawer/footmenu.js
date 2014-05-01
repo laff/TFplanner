@@ -256,7 +256,7 @@ FootMenu.prototype.clearAll = function() {
     ns.scrollBox.paper.clear();
     ns.ourRoom.clearRoom();
 
-    ns.measurement.deconstructLengthAid();
+    ns.measurement.deconstructAid();
 
     // Create new objects
     ns.grid = new Grid();

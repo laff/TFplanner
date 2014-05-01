@@ -56,12 +56,3 @@ $(document).ready(function() {
         
     })();
 });
-
-
-/**
- * Point constructor
-**/
-function Point (x, y) {
-    this.x = x;
-    this.y = y;
-}
