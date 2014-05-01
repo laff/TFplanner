@@ -70,7 +70,7 @@ FinishedRoom.prototype.selectWall = function(index) {
         this.selectedWall.remove();
     }
 
-    if (index !== null) {
+    if (index != null) {
         this.selectedWall = TFplanner.grid.paper.path(this.walls[index].attrs.path).attr({
             stroke: '#3366FF',
             'stroke-width': this.radius,
