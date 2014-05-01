@@ -270,7 +270,6 @@ Obstacles.prototype.selectObstacle = function(id) {
 Obstacles.prototype.deleteObstacle = function(id) {
 
 	for (var i = 0, ii = this.obstacleSet.length; i < ii; i++) { 
-
 		// Match on the ID, clean text and obstacle, and return
 		if (i == id) {
 			this.obstacleSet.splice(i, 1).remove();

@@ -4,9 +4,9 @@
 **/
 function DrawRoom(radius) {
     this.radius = radius;
-    this.lastPoint = null;
+ //   this.lastPoint = null;
     this.walls = TFplanner.grid.paper.set();
-    this.tmpWall = null;
+ /*   this.tmpWall = null;
     this.tmpLen = null;
     this.tmpRect = null;
     this.tmpCircle = null;
@@ -19,7 +19,24 @@ function DrawRoom(radius) {
     this.maxAngle = 330.05; 
     this.minLength = 50;
     this.selfDrawn = true;
+*/
 }
+
+DrawRoom.prototype.lastPoint = null;
+DrawRoom.prototype.tmpWall = null;
+DrawRoom.prototype.tmpLen = null;
+DrawRoom.prototype.tmpRect = null;
+DrawRoom.prototype.tmpCircle = null;
+DrawRoom.prototype.proximity = false;
+DrawRoom.prototype.invalid = false;
+DrawRoom.prototype.finished = false;
+DrawRoom.prototype.xAligned = false;
+DrawRoom.prototype.yAligned = false;
+DrawRoom.prototype.minAngle = 29.95;
+DrawRoom.prototype.maxAngle = 330.05;
+DrawRoom.prototype.minLength = 50;
+DrawRoom.prototype.selfDrawn = true;
+
 
 /**
  * Function that initiates drawing of a room.
