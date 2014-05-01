@@ -54,7 +54,7 @@ Measurement.prototype.finalMeasurements = function () {
             this.angleAid.pop();
         }
     }
-},
+};
 
 /**
  * Function that renews the measurements visualized.

@@ -4,13 +4,13 @@
  * lefthand-side of the page.
  * @param tab
 **/
-function Options(tab) {
+function Options() {
 	this.optPaper;
 	// Default show.
 	this.showOptions(1);
 	// Showing title once options is loaded.
 	this.setTitle();
-};
+}
 
 Options.prototype.preDefArr = null;
 Options.prototype.optionTab = 1;
@@ -118,7 +118,7 @@ Options.prototype.showOptions = function(tab) {
 **/
 Options.prototype.initSpecs = function() {
 
-	// set title position
+	// Set title position
 	this.setTitle();
 
 	var html,
@@ -151,17 +151,17 @@ Options.prototype.initSpecs = function() {
 		option2 = doc.createElement('option');
 		span = doc.createElement('span');
 		
-		header.innerHTML = 'Velg spesifikasjoner';
-		span.innerHTML = 'Velg utend'+this.crossO+'rs/innend'+this.crossO+'rs: ';
+		header.textContent = 'Velg spesifikasjoner';
+		span.textContent = 'Velg utend'+this.crossO+'rs/innend'+this.crossO+'rs: ';
 
 		inOutDiv.id = 'inOutDiv';
 		inOut.id = 'inOutType';
 		form.setAttribute('class', 'forms');
 		
 		option1.value = 'inside';
-		option1.text = 'Inne';
+		option1.textContent = 'Inne';
 		option2.value = 'outside';
-		option2.text = 'Ute';
+		option2.textContent = 'Ute';
 
 		inOut.add(option1, null);
 		inOut.add(option2, null);
@@ -207,8 +207,7 @@ Options.prototype.initSpecs = function() {
 **/
 Options.prototype.inOrOut = function(form) {
 
-	var container = this.container,     
-		selected = $('#inOutType').val(),
+	var selected = $('#inOutType').val(),
 		opts = this,
 		doc = document,
 		dryWetDiv,
@@ -228,23 +227,21 @@ Options.prototype.inOrOut = function(form) {
 		dryWetDiv.id = 'dryWetDiv';
 		dryWet.id = 'climateType';
 
-		span.innerHTML = 'Velg v'+this.dotA+'trom/t'+this.crossO+'rrom: ';
+		span.textContent = 'Velg v'+this.dotA+'trom/t'+this.crossO+'rrom: ';
 		option1.value = 'dry';
-		option1.text = 'T'+this.crossO+'rrom';
+		option1.textContent = 'T'+this.crossO+'rrom';
 		option2.value = 'wet';
-		option2.text = 'V'+this.dotA+'trom';
+		option2.textContent = 'V'+this.dotA+'trom';
 
 		dryWet.add(option1, null);
 		dryWet.add(option2, null);
 
-		dryWetDiv.appendChild(span);
-		dryWetDiv.appendChild(dryWet);
-		$(dryWetDiv).append('<br>');
-
-		form.appendChild(dryWetDiv);
+		$(dryWetDiv).append(span, dryWet, '<br>');
+		$(form).append(dryWetDiv);
 		// Append the form to the container.
-		$(container).append(form); 
-		doc.getElementById('climateType').selectedIndex = -1;
+		$(this.container).append(form); 
+		// Set default selected to 'none'
+		$('#climateType').val(-1);
 
 	} else {
 		// 'Outside' is chosen, so we jump directly to the associated options.
@@ -255,7 +252,6 @@ Options.prototype.inOrOut = function(form) {
 	$('#climateType').change( function() {
 
 		//If this one changes, we want to remove all the divs following it:
-
 		$('#deckDiv').remove();
 		$('#wattDiv').remove();
 		$('#castDiv').remove();
@@ -273,8 +269,7 @@ Options.prototype.inOrOut = function(form) {
 **/
 Options.prototype.chooseDeck = function(form) {
 
-	var container = this.container,
-		opts = this,
+	var opts = this,
 		selected = $('#inOutType').val(),
 		selectedClim = $('#climateType').val(),
 		doc = document,
@@ -292,28 +287,28 @@ Options.prototype.chooseDeck = function(form) {
 	deckDiv.id = 'deckDiv';
 	deck.id = 'deckType';
 
-	span.innerHTML = 'Velg dekke i rommet: ';
+	span.textContent = 'Velg dekke i rommet: ';
 
 	// Do stuff for an indoor-room.
 	if (selected === 'inside') {
 		// Tiles and scale can occur both in dry-rooms and wet-rooms.
 		option1.value = 'tile';
-		option1.text = 'Flis';
+		option1.textContent = 'Flis';
 		option5.value = 'scale';
-		option5.text = 'Belegg';
+		option5.textContent = 'Belegg';
 		// 'Dry-room'
 		if (selectedClim === 'dry') {
 			// List options for 'dry'-rooms.
 			option2.value = 'carpet';
-			option2.text = 'Teppe';
+			option2.textContent = 'Teppe';
 			option3.value = 'parquet';
-			option3.text = 'Parkett';
+			option3.textContent = 'Parkett';
 			option4.value = 'laminat';
-			option4.text = 'Laminat';
+			option4.textContent = 'Laminat';
 			option6.value = 'concrete';
-			option6.text = 'Betong';
+			option6.textContent = 'Betong';
 			option7.value = 'cork';
-			option7.text = 'Kork';
+			option7.textContent = 'Kork';
 
 			deck.add(option1, null);
 			deck.add(option2, null);
@@ -324,18 +319,18 @@ Options.prototype.chooseDeck = function(form) {
 			deck.add(option7, null);
 
 		// This should obviously be a 'wet'-room.
-		} else if (selectedClim == 'wet') {
+		} else if (selectedClim === 'wet') {
 			deck.add(option1, null);
 			deck.add(option5, null);
 		}
 	// The area is chosen as 'outside' 
 	} else if (selected === 'outside') {
 		option1.value = 'asphalt';
-		option1.text = 'Asfalt';
+		option1.textContent = 'Asfalt';
 		option2.value = 'pavblock';
-		option2.text = 'Belegningsstein';
+		option2.textContent = 'Belegningsstein';
 		option3.value = 'concrete';
-		option3.text = 'St'+this.crossO+'p';
+		option3.textContent = 'St'+this.crossO+'p';
 
 		deck.add(option1, null);
 		deck.add(option2, null);
@@ -343,15 +338,12 @@ Options.prototype.chooseDeck = function(form) {
 	}
 
 	// Append the element to our form, then add the form to the container.
-	deckDiv.appendChild(span);
-	deckDiv.appendChild(deck);
-	$(deckDiv).append('<br>');
-
-	form.appendChild(deckDiv);
-	$(container).append(form);
+	$(deckDiv).append(span, deck, '<br>');
+	$(form).append(deckDiv);
+	$(this.container).append(form);
 
 	// Set as blanc on initialization, to force the user to select an !default item.
-	doc.getElementById('deckType').selectedIndex = -1;
+	$('#deckType').val(-1);
 
 	// When the user have selected an item in this list, the 'generate'-button is created,
 	// unless 'wattage' also has to be selected.
@@ -388,15 +380,15 @@ Options.prototype.wattage = function(form) {
 	wattDiv.id = 'wattDiv';
 	watt.id = 'wattage';
 
-	span.innerHTML = 'Velg mattens effekt: ';
+	span.textContent = 'Velg mattens effekt: ';
 	option1.value = 60;
-	option1.text = '60W';
+	option1.textContent = '60W';
 	option2.value = 100;
-	option2.text = '100W';
+	option2.textContent = '100W';
 	option3.value = 130;
-	option3.text = '130W';
+	option3.textContent = '130W';
 	option4.value = 160;
-	option4.text = '160W';
+	option4.textContent = '160W';
 
 	watt.add(option1, null);
 	watt.add(option2, null);
@@ -404,18 +396,15 @@ Options.prototype.wattage = function(form) {
 	watt.add(option4, null);
 
 	// Append the element to our form, then add the form to the container.
-	wattDiv.appendChild(span);
-	wattDiv.appendChild(watt);
-	$(wattDiv).append('<br>');
-
-	form.appendChild(wattDiv);
+	$(wattDiv).append(span, watt, '<br>');
+	$(form).append(wattDiv);
 	$(this.container).append(form);
 
 	// Set as blanc on initialization, to force the user to select an !default item.
-	doc.getElementById('wattage').selectedIndex = -1;
+	$('#wattage').val(-1);
 
 	// When the user have selected an item in this list, the 'generate'-button is created.
-	$('#wattage').change( function () {
+	$('#wattage').change( function() {
 
 		var deck = $('#deckType').val(),
 			watt = $('#wattage').val();
@@ -442,35 +431,32 @@ Options.prototype.wattage = function(form) {
 **/
 Options.prototype.casting = function(form) {
 
-	var container = this.container,
-		opts = this,
-		castDiv = document.createElement('div'),
-		span = document.createElement('span'),
-		cast = document.createElement('select'),
-		option1 = document.createElement('option'),
-		option2 = document.createElement('option');
+	var opts = this,
+		doc = document,
+		castDiv = doc.createElement('div'),
+		span = doc.createElement('span'),
+		cast = doc.createElement('select'),
+		option1 = doc.createElement('option'),
+		option2 = doc.createElement('option');
 
 	cast.id = 'casting';
-	span.id = 'cast';
 	castDiv.id = 'castDiv';
 
-	span.innerHTML = 'Skal gulvet avrettes?';
+	span.textContent = 'Skal gulvet avrettes?';
 	option1.value = 'nocast';
-	option1.text = 'Nei';
+	option1.textContent = 'Nei';
 	option2.value = 'cast';
-	option2.text = 'Ja';
+	option2.textContent = 'Ja';
 
 	cast.add(option1, null);
 	cast.add(option2, null);
 
-	castDiv.appendChild(span);
-	castDiv.appendChild(cast);
-
+	$(castDiv).append(span, cast);
 	// Append the element to our form, then add the form to the container.
-	form.appendChild(castDiv);
-	$(container).append(form);
+	$(form).append(castDiv);
+	$(this.container).append(form);
 	// Set as blanc on initialization, to force the user to select an !default item.
-	cast.selectedIndex = -1;
+	$(cast).val(-1);
 
 	// When the user have selected an item in this list, the 'generate'-button is created.
 	$(cast).change( function () {
@@ -483,7 +469,6 @@ Options.prototype.casting = function(form) {
 	});
 };
 
-
 /**
  * Creation of a button to generate our solution for putting out a heatingmat.
  * Will be created when an item is chosen in all the dropdowns.
@@ -492,49 +477,49 @@ Options.prototype.casting = function(form) {
 **/
 Options.prototype.generateButton = function(form) {
 
-	var container = this.container,
-		ns = TFplanner,
+	var ns = TFplanner,
 		theRoom = ns.ourRoom,
 		theGrid = ns.grid,
 		opts = this,
-		input = document.createElement('input'),
-		inputDiv = document.createElement('div'),
+		doc = document,
+		input = doc.createElement('input'),
+		inputDiv = doc.createElement('div'),
 		path,
 		createProgresswindow = function(callback) {
 
-			var grayDiv = document.createElement('div'),
-				infoDiv = document.createElement('div'),
-				information = document.createElement('p');
+			var grayDiv = doc.createElement('div'),
+				infoDiv = doc.createElement('div'),
+				information = doc.createElement('p');
 
 			grayDiv.id = 'progress';
 			infoDiv.id = 'infoprogress';
 			information.id = 'progressinformation';
 
-			information.innerHTML = 'Kalkulerer areal';
+			information.textContent = 'Kalkulerer areal';
 
-			infoDiv.appendChild(information);
+			//infoDiv.appendChild(information);
 			
-
-			
-			$('#container').append(grayDiv);
-			$('#container').append(infoDiv);
+			$(infoDiv).append(information);
+			$('#container').append(grayDiv, infoDiv);
+			//$('#container').append(infoDiv);
 
 			setTimeout(function() {
 				callback();
 			}, 10);
-
 		};
+
 	inputDiv.id = 'inputDiv';
 	input.id = 'genButton';
 	input.type = 'button';
 	input.title = 'Klikk for '+this.dotA+' generere leggeanvisning';
 	input.value = 'Generer leggeanvisning';
 
-	inputDiv.appendChild(input);
-	$(inputDiv).append('<br><br><br>');
+	//inputDiv.appendChild(input);
+	$(inputDiv).append(input, '<br><br><br>');
 
-	form.appendChild(inputDiv);
-	$(container).append(form);
+	//form.appendChild(inputDiv);
+	$(form).append(inputDiv);
+	$(this.container).append(form);
 
 	$('#genButton').click( function () {
 		
@@ -565,23 +550,23 @@ Options.prototype.updateProgress = function(remove, success) {
 
 	var theRoom = TFplanner.ourRoom,
 		measures = TFplanner.measurement,
-		grid = TFplanner.grid;
+		grid = TFplanner.grid,
+		doc = document;
 
 	// removing the progress visual
 	if (remove) {
 		if (success) {
 			this.areaUtilization();
 		}
-		document.getElementById('progress').remove();
-		document.getElementById('infoprogress').remove();
-
+		doc.getElementById('progress').remove();
+		doc.getElementById('infoprogress').remove();
 
 		theRoom.walls.toFront();
 		measures.finalMeasurements();
 		grid.boxSet.toFront();
 
 	} else {
-		document.getElementById('infoprogress').innerHTML = 'Kalkulerer leggeanvisning';
+		doc.getElementById('infoprogress').textContent = 'Kalkulerer leggeanvisning';
 
 		// give the javascript breathingroom for gui updates
 		setTimeout(function() { TFplanner.resultGrid.calculateGuide(); }, 1);
@@ -597,48 +582,41 @@ Options.prototype.updateProgress = function(remove, success) {
 Options.prototype.preferredMats = function(form) {
 
 	var opts = this,
-		container = opts.container,
-		header = document.createElement('h3'),
-		span = document.createElement('span'),
-		lengths = document.createElement('select'),
-		add = document.createElement('input'),
-		lengthDiv = document.createElement('div'),
-		matDiv = document.createElement('div'),
-		ol = document.createElement('ol'),
+		doc = document,
+		span = doc.createElement('span'),
+		lengths = doc.createElement('select'),
+		add = doc.createElement('input'),
+		lengthDiv = doc.createElement('div'),
+		matDiv = doc.createElement('div'),
+		ol = doc.createElement('ol'),
 		text,
 		availLengths = [];
 
 	//Finds the correct heatingmat based on specs chosen by the user.
-	opts.tfProducts();
-	opts.prefMat = [];
+	this.tfProducts();
+	this.prefMat = [];
 
 	// Setting up the html-stuff.
-	span.id = 'length';
-	span.innerHTML = 'Legg til selvvalgte lengder';
+	span.textContent = 'Legg til selvvalgte lengder';
 	matDiv.id = 'matDiv';
 	lengthDiv.id = 'lengthDiv';
-
 	lengths.id = 'lengths';
 	add.id = 'addLength';
 	add.type = 'button';
 	add.title = 'Legg til foretrukken mattelengde';
 	add.value = 'Legg til matte';
 
-	lengthDiv.appendChild(span);
-	lengthDiv.appendChild(lengths);
-	lengthDiv.appendChild(add);
-	matDiv.appendChild(ol);
-
-	form.appendChild(lengthDiv);
-	form.appendChild(matDiv);
+	$(lengthDiv).append(span, lengths, add);
+	$(matDiv).append(ol);
+	$(form).append(lengthDiv, matDiv);
 
 	// Add all the available lengths of this mat to the dropdown.
-	for (var i = 0; i < opts.validMat.products.length; i++) {
-		availLengths[i] = opts.validMat.products[i].length;
+	for (var i = 0, ii = this.validMat.products.length; i < ii; i++) {
+		availLengths[i] = this.validMat.products[i].length;
 		$('#lengths').append('<option value='+i+'>'+availLengths[i]+'m</option>'); 
 	}
 
-	$(container).append(form);
+	$(this.container).append(form);
 
 	// This click-action add the chosen mat-length to array, so that
 	// the algorithm will use this mat first.
@@ -656,16 +634,15 @@ Options.prototype.preferredMats = function(form) {
 **/
 Options.prototype.initObstacles = function() {
 
-	var container = this.container,
-		obst = TFplanner.obstacles,
-		html = "";
+	var obst = TFplanner.obstacles,
+		html = '';
 
 	// clear current html
-	$(container).html(html);
+	$(this.container).html(html);
 
 	// adding class css.
-	$(container).addClass('obstacleTab');
-	$(container).removeClass('specTab');
+	$(this.container).addClass('obstacleTab');
+	$(this.container).removeClass('specTab');
 
 	if (TFplanner.ourRoom.finished === true) {
 		// Move the room to coordinates (99, 99), but only if obstacles has not been loaded.
@@ -726,8 +703,6 @@ Options.prototype.obstacleList = function(obstacle) {
 		change = 'Endre',
 		save = 'Lagre',
 		del = 'Slett',
-		container = this.container,
-		crossO = this.crossO,
 		html = this.obstHtml;
 
 	for (var i = 0; i < obstacleLength; i++) {
@@ -757,7 +732,7 @@ Options.prototype.obstacleList = function(obstacle) {
 			html += "<br>";
 			html += "<div id=change class='roomTab'>";
 			// Height
-			html += "<div class='inputfield'><div class='inputtext'>H"+crossO+"yde: </div>"+decrease+"<input  type='number' id='height' value="+height+">"+increase+"<br></div>";
+			html += "<div class='inputfield'><div class='inputtext'>H"+this.crossO+"yde: </div>"+decrease+"<input  type='number' id='height' value="+height+">"+increase+"<br></div>";
 			// Width
 			html += "<div class='inputfield'><div class='inputtext'>Bredde: </div>"+decrease+"<input  type='number' id='width' value="+width+">"+increase+"<br></div>";
 			// position x
@@ -779,11 +754,11 @@ Options.prototype.obstacleList = function(obstacle) {
 		}
 	}
 
-	$(container).html("");
-	$(container).html(html);
+	$(this.container).html("");
+	$(this.container).html(html);
 
 	// Sets the focus on the 'project-name'-field the first time 'obstacles'-tab is selected
-	if (TFplanner.ourRoom.finished ==  true && this.titleText == null) {
+	if (TFplanner.ourRoom.finished === true && this.titleText == null) {
 		this.setTitle();
 		var input = document.getElementById('titleText');
 			input.focus();
@@ -800,7 +775,8 @@ Options.prototype.obstacleList = function(obstacle) {
 Options.prototype.actionListeners = function() {
 
 	var opts = this,
-		obst = TFplanner.obstacles;
+		obst = TFplanner.obstacles,
+		doc = document;
 
 	// If the 8th option is selected. aka "Egendefinert"
 	$('#obstacleType').change(function() {
@@ -808,23 +784,24 @@ Options.prototype.actionListeners = function() {
 		if (this.value == 8) {
 
 			// Creating elements.
-			var parentDiv = document.createElement('div'),
-				textDiv = document.createElement('div'),
-				input = document.createElement('input');
+			var parentDiv = doc.createElement('div'),
+				textDiv = doc.createElement('div'),
+				input = doc.createElement('input');
 			
 			// Setting properties.
 			parentDiv.setAttribute('class', 'inputfield');
 			parentDiv.id = 'inputfieldSelf';
 			textDiv.setAttribute('class', 'inputtext');
-			textDiv.innerHTML = 'Skriv inn navn: ';
+			textDiv.textContent = 'Skriv inn navn: ';
 			input.type = 'text';
 			input.setAttribute('class', 'inputwidth');
 			input.setAttribute('id', 'customObstTxt');
 			input.setAttribute('autocomplete', 'off');
 
 			// Adding the elements to its parentnode
-			parentDiv.appendChild(textDiv);
-			parentDiv.appendChild(input);
+			$(parentDiv).append(textDiv, input);
+			//parentDiv.appendChild(textDiv);
+			//parentDiv.appendChild(input);
 
 			// Using Jquery to add the parentDiv after the dropdown list
 			$(this.parentNode.firstChild).after(parentDiv);
@@ -832,13 +809,13 @@ Options.prototype.actionListeners = function() {
 			input.focus();
 			input.select();
 
-			$('#customObstTxt').keypress(function (e) {
+			$('#customObstTxt').keypress(function(e) {
 				// If 'enter' is pressed in the inputfield:
 				if (e.which == 13) {
 					e.preventDefault();
 
-					var value = document.getElementById('obstacleType').value,
-						text = document.getElementById('customObstTxt').value;
+					var value = $('#obstacleType').val(), //doc.getElementById('obstacleType').value,
+						text = $('#customObstTxt').val(); //doc.getElementById('customObstTxt').value;
 
 					// Create the obstacle, and update the tab.
 					obst.createObstacle(value, text);
@@ -848,9 +825,9 @@ Options.prototype.actionListeners = function() {
 			});
 		// We might get some issues if 'egendefinert' is chosen, followed by that the user choose an other
 		// obstacle without pushing 'add' between. This will delete the <div> if it exists.
-		} else if (document.getElementById('inputfieldSelf') != null) {
-
-			document.getElementById('inputfieldSelf').remove();
+		} else if ($('#inputfieldSelf').val() != null) {
+			$('#inputfieldSelf').remove();
+			//doc.getElementById('inputfieldSelf').remove();
 		}
 	});
 
@@ -860,7 +837,7 @@ Options.prototype.actionListeners = function() {
 		obst.selectObstacle(this.id);
 	});
 
-	$('.delete').click(function () {
+	$('.delete').click(function() {
 		obst.deleteObstacle(this.parentNode.firstChild.nextSibling.id);
 		opts.obstacleList();
 	});
@@ -888,7 +865,7 @@ Options.prototype.actionListeners = function() {
 			roundY = (Math.round((($('#posy').val())/ 10)) * 10) + 100,
 			roundW = (Math.round((($('#width').val())/ 10)) * 10),
 			roundH = (Math.round((($('#height').val())/ 10)) * 10),
-			supply = document.getElementById('supplyend');
+			supply = $('#supplyend').val(); //document.getElementById('supplyend');
 
 		// stores the users choice on the matter of ending the mats at the supplywall or not.
 		if (supply) {
@@ -918,7 +895,7 @@ Options.prototype.actionListeners = function() {
 		var inputEle = this.parentNode.firstChild.nextSibling.nextSibling,
 			inputVal = parseInt(inputEle.value),
 			intention = this.value,
-			changed = matIt[intention](inputVal, 10),
+			changed = matIt[intention](inputVal, 10);
 			changed = (changed < 0) ? 0 : changed;
 
 		inputEle.value = changed;
@@ -957,20 +934,18 @@ Options.prototype.setTitle = function() {
 	var titleEle = document.getElementById('titleText'),
 		title = (titleEle != null) ? titleEle.value : this.projectName,
 		utilizeString = this.utilizeString,
-		grid = TFplanner.grid;
-
-
-	this.projectName = title;
-	
-	var drawWidth = (grid.resWidth + 201),
+		grid = TFplanner.grid,
+		drawWidth = (grid.resWidth + 201),
 		rectX = null,
 		rectY = 12,
-		areaY = null;
+		areaY = null,
 		rectLen = null,
 		rectH = 30,
 		textX = (drawWidth / 2),
 		textY = 25;
 
+
+	this.projectName = title;
 
 	// Clear the title-element if it already exist.
 	this.titleText != null ? this.titleText.remove() : null;
@@ -1033,7 +1008,6 @@ Options.prototype.setupTitle = function() {
 Options.prototype.initDefine = function() {
 	
 	var preDefArr = this.preDefArr,
-		container = this.container,
 		defSubmit = 'defSubmit',
 		wallsLength = (preDefArr != null) ? (preDefArr[1].length - 1) : null,
 		// Starting with a clean slate @ the html variable.
@@ -1042,8 +1016,8 @@ Options.prototype.initDefine = function() {
 	// Removing the svg paper and adding room class for background color
 	this.optPaper.remove();
 
-	$(container).addClass('roomTab');
-	$(container).removeClass('obstacleTab');
+	$(this.container).addClass('roomTab');
+	$(this.container).removeClass('obstacleTab');
 
 	html += '<h3> Egendefiner m'+this.dotA+'l </h3>';
 
@@ -1071,7 +1045,7 @@ Options.prototype.initDefine = function() {
 	}
 
 	// Add html to container.
-	$(container).html(html);
+	$(this.container).html(html);
 
 
 	// Add click action for the "submit button".
@@ -1129,7 +1103,9 @@ Options.prototype.initDefine = function() {
  * OBS: The order of pushing elements to collections is important! (The button must be pushed as first element)
 **/
 Options.prototype.initDraw = function() {
+
 	var paper = this.optPaper,
+		opts = this,
 		width = paper.width,
 		height = paper.height,
 		drawColl = paper.set(),        
@@ -1143,7 +1119,6 @@ Options.prototype.initDraw = function() {
 		tRot180Coll = paper.set(),
 		tRot270Coll = paper.set(),
 		uColl = paper.set(),
-		helpColl = paper.set(),
 		rectAttr = {                // Attributes for the "background-square" of buttons.
 			fill: this.defColor, 
 			stroke: this.defColor, 
@@ -1161,8 +1136,8 @@ Options.prototype.initDraw = function() {
 
 
 	/**
-	 *  All buttons is created the same way, with a square behind a illustration of the room-shape.
-	 *  here are some common variables for positioning:
+	 * All buttons is created the same way, with a square behind a illustration of the room-shape.
+	 * Here are some common variables for positioning:
 	**/ 
 
 	// each "column" has its own x variable.
@@ -1197,7 +1172,7 @@ Options.prototype.initDraw = function() {
 
 	// CUSTOM DRAW
 	// Header
-	drawTxt = paper.text(x3, y0, "Tegn selv").attr(txtAttr),
+	drawTxt = paper.text(x3, y0, 'Tegn selv').attr(txtAttr),
 
 	// Button
 	drawRect = paper.rect(x0, y1, w, w).attr(rectAttr),
@@ -1210,7 +1185,7 @@ Options.prototype.initDraw = function() {
 
 	// PREDEFINED DRAW
 	// Header
-	tabTxt = paper.text(x3, y2, "Ferdiglagde rom").attr(txtAttr),
+	tabTxt = paper.text(x3, y2, 'Ferdiglagde rom').attr(txtAttr),
 
 	// FIRST ROW of buttons
 	buttonRect = paper.rect(x1, y3, w, w).attr(rectAttr),
@@ -1332,59 +1307,58 @@ Options.prototype.initDraw = function() {
 				' L'+(p2+offset2)+' '+(y7+(w*offset3))+
 				' L'+p2+' '+(y7+(w*offset3))+
 				' L'+p2+' '+(y7+offset1)
-			).attr(imgAttr);
+			).attr(imgAttr),
+
+	/**
+	 * This function add the mouse-handlers for all the 'premade-room'-buttons.
+	 * @param Coll - A set, containing the rectangular button and the image upon it.
+	 * @param val - An int, that says what roomtype to be sent to the 'createRoom' function.
+	 * @param toolTip - A string, that is used to set the tooltip(title) of each button.
+	**/
+	createHandlers = function(coll, val, toolTip) {
+
+		var theRoom = TFplanner.ourRoom,
+			defColor = opts.defColor,
+			inColor = opts.inColor;
+
+		coll.attr({
+			cursor: 'pointer',
+			title: toolTip
+		}).hover(function () {
+			// Set attributes on hover.
+			coll[0].attr('fill', inColor);
+		}, function () {
+			coll[0].attr('fill', defColor);
+
+		}).mouseup(function () {
+
+			if (val != null) {
+				theRoom.createRoom(TFplanner.options.preDefRoom(val));
+			} else {
+				if (TFplanner.finishedRoom == null) {
+					theRoom.initRoom();
+				}
+			}
+		});
+	};
 
 	// Set backgroundcolor of the options-container canvas.
 	paper.canvas.style.backgroundColor = '#CBC4BC';
 
 	// Create handlers and stuff for all the 'buttons'.
-	this.createHandlers(drawColl.push(drawRect, drawImg), null, "Tegn selv!");
-	this.createHandlers(rectColl.push(buttonRect, rectImg), 0, "Ferdiglaget kvadratisk rom");
-	this.createHandlers(tColl.push(buttonT, tImg), 2, "Ferdiglaget T-formet rom");
-	this.createHandlers(lColl.push(buttonL, lImg), 1,"Ferdiglaget L-formet rom");
-	this.createHandlers(lInvColl.push(lInv, lInvImg), 5, "Ferdiglaget invertert L-rom");
-	this.createHandlers(lRot180Coll.push(lRot180, lRot180Img), 4, "Ferdiglaget L-rom");
-	this.createHandlers(lRot270Coll.push(lRot270, lRot270Img), 3, "Ferdiglaget L-rom");
-	this.createHandlers(tRot90Coll.push(tRot90, tRot90Img), 6, "Ferdiglaget T-rom");
-	this.createHandlers(tRot180Coll.push(tRot180, tRot180Img), 7, "Ferdiglaget T-rom");
-	this.createHandlers(tRot270Coll.push(tRot270, tRot270Img), 8, "Ferdiglaget T-rom");
-	this.createHandlers(uColl.push(buttonU, uImg), 9, "Ferdiglaget U-rom");
+	createHandlers(drawColl.push(drawRect, drawImg), null, 'Tegn selv!');
+	createHandlers(rectColl.push(buttonRect, rectImg), 0, 'Ferdiglaget kvadratisk rom');
+	createHandlers(tColl.push(buttonT, tImg), 2, 'Ferdiglaget T-formet rom');
+	createHandlers(lColl.push(buttonL, lImg), 1, 'Ferdiglaget L-formet rom');
+	createHandlers(lInvColl.push(lInv, lInvImg), 5, 'Ferdiglaget invertert L-rom');
+	createHandlers(lRot180Coll.push(lRot180, lRot180Img), 4, 'Ferdiglaget L-rom');
+	createHandlers(lRot270Coll.push(lRot270, lRot270Img), 3, 'Ferdiglaget L-rom');
+	createHandlers(tRot90Coll.push(tRot90, tRot90Img), 6, 'Ferdiglaget T-rom');
+	createHandlers(tRot180Coll.push(tRot180, tRot180Img), 7, 'Ferdiglaget T-rom');
+	createHandlers(tRot270Coll.push(tRot270, tRot270Img), 8, 'Ferdiglaget T-rom');
+	createHandlers(uColl.push(buttonU, uImg), 9, 'Ferdiglaget U-rom');
 
 };
-
-/**
- * This function add the mouse-handlers for all the 'premade-room'-buttons.
- * @param Coll - A set, containing the rectangular button and the image upon it.
- * @param val - An int, that says what roomtype to be sent to the 'createRoom' function.
- * @param toolTip - A string, that is used to set the tooltip(title) of each button.
-**/
-Options.prototype.createHandlers = function(coll, val, toolTip) {
-
-	var theRoom = TFplanner.ourRoom,
-		defColor = this.defColor,
-		inColor = this.inColor;
-
-	coll.attr({
-		cursor: 'pointer',
-		title: toolTip
-	}).hover(function () {
-		// Set attributes on hover.
-		coll[0].attr('fill', inColor);
-	}, function () {
-		coll[0].attr('fill', defColor);
-
-	}).mouseup(function () {
-
-		if (val != null) {
-			theRoom.createRoom(TFplanner.options.preDefRoom(val));
-		} else {
-			if (TFplanner.finishedRoom == null) {
-				theRoom.initRoom();
-			}
-		}
-	});
-};
-
 
 /**
  * Function that holds the shapes and wall-lengths of 'predefined' rooms.
@@ -1396,26 +1370,26 @@ Options.prototype.createHandlers = function(coll, val, toolTip) {
 Options.prototype.preDefRoom = function(value) {
 
 	switch(value) {
-		case 0:
-			return rectArr = [[180, 270, 360, 90],[600, 400, 600, 400]];                                            //Rectangle-shaped
-		case 1:
-			return lArr = [[180, 270, 180, 270, 360, 90],[200, 200, 200, 150, 400, 350]];                           //L-shaped
-		case 2:
-			return tArr = [[180, 270, 360, 270, 360, 90, 360, 90],[450, 150, 150, 250, 150, 250, 150, 150]];        //T-shaped
-		case 3:
-			return lRot270 = [[180, 270, 360, 270, 360, 90],[400, 150, 200, 200, 200, 350]];                        //L-shape rotated 270 degrees.
-		case 4:
-			return lRot180 = [[180, 270, 360, 90, 360, 90], [400, 350, 200, 200, 200, 150]];                        //L-shape rotated 180 degrees.
-		case 5:
-			return lRot90 = [[180, 270, 360, 90, 180, 90],[200, 350, 400, 150, 200, 200]];                          //L-shape rotated 90 degrees.
-		case 6:
-			return tRot90 = [[180, 270, 360, 90, 360, 90, 180, 90], [150, 450, 150, 150, 250, 150, 250, 150,]];     //T-shape rotated 90 degrees.
-		case 7:
-			return tRot180 = [[180, 270, 180, 270, 360, 90, 180, 90], [150, 250, 150, 150, 450, 150, 150, 250]];    //T-shape rotated 180 degrees.
-		case 8:
-			return tRot270 = [[180, 270, 180, 270, 360, 270, 360, 90], [150, 150, 250, 150, 250, 150, 150, 450]];   //T-shape rotated 270 degrees.
-		case 9:
-			return u = [[180, 270, 180, 90, 180, 270, 360, 90],[150, 200, 200, 200, 150, 350, 500, 350]];           //U-shaped room
+		case 0:  //Rectangle-shaped
+			return [[180, 270, 360, 90],[600, 400, 600, 400]];                                           
+		case 1: //L-shaped
+			return [[180, 270, 180, 270, 360, 90],[200, 200, 200, 150, 400, 350]];                           
+		case 2: //T-shaped
+			return [[180, 270, 360, 270, 360, 90, 360, 90],[450, 150, 150, 250, 150, 250, 150, 150]];        
+		case 3: //L-shape rotated 270 degrees.
+			return [[180, 270, 360, 270, 360, 90],[400, 150, 200, 200, 200, 350]];                        
+		case 4: //L-shape rotated 180 degrees.
+			return [[180, 270, 360, 90, 360, 90], [400, 350, 200, 200, 200, 150]];                        
+		case 5: //L-shape rotated 90 degrees.
+			return [[180, 270, 360, 90, 180, 90],[200, 350, 400, 150, 200, 200]];                          
+		case 6: //T-shape rotated 90 degrees.
+			return [[180, 270, 360, 90, 360, 90, 180, 90], [150, 450, 150, 150, 250, 150, 250, 150,]];     
+		case 7: //T-shape rotated 180 degrees.
+			return [[180, 270, 180, 270, 360, 90, 180, 90], [150, 250, 150, 150, 450, 150, 150, 250]];    
+		case 8: //T-shape rotated 270 degrees.
+			return [[180, 270, 180, 270, 360, 270, 360, 90], [150, 150, 250, 150, 250, 150, 150, 450]];   
+		case 9: //U-shaped room
+			return [[180, 270, 180, 90, 180, 270, 360, 90],[150, 200, 200, 200, 150, 350, 500, 350]];		
 	}
 };
 
@@ -1458,7 +1432,7 @@ Options.prototype.tfProducts = function() {
 				nocast: true
 			},
 
-			note: 'Husk '+dotA+' bestille nok TFP underlagsmatte, tape og termostat med gulvf'+crossO+'ler',
+			note: 'Husk '+this.dotA+' bestille nok TFP underlagsmatte, tape og termostat med gulvf'+this.crossO+'ler',
 
 			desc: 'Varmekabelmatte som parkettunderlag',
 
@@ -1536,7 +1510,7 @@ Options.prototype.tfProducts = function() {
 				undefined: true
 			},  
 
-			note: 'Husk '+dotA+' bestille styringssystem som passer anlegget.<br> Sp'+crossO+'r Thermo-Floor om r'+dotA+'d hvis du er usikker p'+dotA+' hva som kan brukes.',
+			note: 'Husk '+dotA+' bestille styringssystem som passer anlegget.<br> Sp'+this.crossO+'r Thermo-Floor om r'+this.dotA+'d hvis du er usikker p'+this.dotA+' hva som kan brukes.',
 
 			desc: 'Utend'+crossO+'rs varmekabelmatte',
 
@@ -1610,9 +1584,9 @@ Options.prototype.tfProducts = function() {
 				undefined: true
 			},
 
-			note: 'Husk '+dotA+' bestille styringssystem som passer anlegget.<br> Sp'+crossO+'r Thermo-Floor om r'+dotA+'d hvis du er usikker p'+dotA+' hva som kan brukes.',
+			note: 'Husk '+this.dotA+' bestille styringssystem som passer anlegget.<br> Sp'+this.crossO+'r Thermo-Floor om r'+this.dotA+'d hvis du er usikker p'+this.dotA+' hva som kan brukes.',
 
-			desc: 'Utend'+dotA+'rs varmekabelmatte',
+			desc: 'Utend'+this.dotA+'rs varmekabelmatte',
 
 			products: [
 				{
@@ -1688,7 +1662,7 @@ Options.prototype.tfProducts = function() {
 				undefined: true
 			},
 
-			note: 'Husk '+dotA+' bestille primer, st'+dotA+'lnett og termostat med gulvf'+crossO+'ler.',
+			note: 'Husk '+this.dotA+' bestille primer, st'+this.dotA+'lnett og termostat med gulvf'+this.crossO+'ler.',
 
 			desc: 'TF Sticky selvklebende varmekabelmatte',
 
@@ -1761,7 +1735,7 @@ Options.prototype.tfProducts = function() {
 				undefined: true
 			},
 
-			note: 'Husk '+dotA+' bestille primer, st'+dotA+'lnett og termostat med gulvf'+crossO+'ler.',
+			note: 'Husk '+this.dotA+' bestille primer, st'+this.dotA+'lnett og termostat med gulvf'+this.crossO+'ler.',
 
 			desc: 'TF Sticky selvklebende varmekabelmatte',
 
@@ -1834,7 +1808,7 @@ Options.prototype.tfProducts = function() {
 				undefined: true
 			},
 
-			note: 'Husk '+dotA+' bestille primer, st'+dotA+'lnett og termostat med gulvf'+crossO+'ler.',
+			note: 'Husk '+this.dotA+' bestille primer, st'+this.dotA+'lnett og termostat med gulvf'+this.crossO+'ler.',
 
 			desc: 'TF Sticky selvklebende varmekabelmatte',
 
@@ -1907,7 +1881,7 @@ Options.prototype.tfProducts = function() {
 				undefined: true
 			},
 
-			note: 'Husk '+dotA+' bestille primer, st'+dotA+'lnett og termostat med gulvf'+crossO+'ler.',
+			note: 'Husk '+this.dotA+' bestille primer, st'+this.dotA+'lnett og termostat med gulvf'+this.crossO+'ler.',
 
 			desc: 'TF Sticky selvklebende varmekabelmatte',
 
