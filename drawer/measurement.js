@@ -145,7 +145,19 @@ Measurement.prototype.angleMeasurement = function (index, overload) {
         hc,
         // Getting the connectin paths. using this variable in both hasmeasures and angleStep1
         connected = this.returnConnectingPaths(index),
-        wallId = connected[0].id,
+        idFailsafe = function () {
+
+            if (typeof connected[0] === 'undefined') {
+
+                var wlen = theRoom.walls.length;
+
+                return theRoom.walls[wlen - 1].id;
+            
+            }
+
+            return connected[0].id;
+        },
+        wallId = idFailsafe(),
         /**
          *  Function that creates a sector that will represent the angle of a corner.
          *  @param: centerX - center of the sector ("halfcircle")

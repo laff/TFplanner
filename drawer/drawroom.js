@@ -459,8 +459,7 @@ DrawRoom.prototype.drawTempLine = function(point) {
     }
 
     // Show the angle of the temporary wall (angle to previous drawn wall).
-    // TODO: REMEMBER TO REMOVE THE && FALSE IN THIS STATEMENT!!!
-    if (this.walls.length >= 1 && this.tmpWall.getTotalLength() > (this.radius * 2) && false) {
+    if (this.walls.length >= 1 && this.tmpWall.getTotalLength() > (this.radius * 2)) {
         // Store temporary angle in measurements
         tmpAngle = measures.angleMeasurement(null, this.tmpWall);
         tmpBool = false;

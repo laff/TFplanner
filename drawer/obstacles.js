@@ -146,6 +146,8 @@ Obstacles.prototype.createObstacle = function(num, txt) {
 			w = this.attr('width');
 			h = this.attr('height');
 			
+			this.startTime = Date.now();
+
 			obst.selectObstacle();
 
 			this.attr({fill: '#3366FF'});
@@ -169,13 +171,21 @@ Obstacles.prototype.createObstacle = function(num, txt) {
 				obstx,
 				obsty;
 
+			newx = (Math.round((newx / 10)) * 10);
+			newy = (Math.round((newy / 10)) * 10);
+
+
 			// Updates obstacle list :)
 			if (this.rectID) {
 				ns.options.obstacleList(this.rectID);
 			}
-			
-			newx = (Math.round((newx / 10)) * 10);
-			newy = (Math.round((newy / 10)) * 10);
+
+
+        // Updating measurements every 50 ms
+        var nowTime = Date.now(),
+            timeDiff = (nowTime - this.startTime);
+
+        if (timeDiff > 50) {
 
 			this.attr({
 				x: newx,
@@ -191,7 +201,11 @@ Obstacles.prototype.createObstacle = function(num, txt) {
 				y: obsty
 			});
 
-			obst.nearestWalls(null, this);
+            obst.nearestWalls(null, this);
+            this.startTime = nowTime;
+        }
+
+			
 		},
 
 		up = function() {
