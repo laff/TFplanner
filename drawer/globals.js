@@ -53,6 +53,7 @@ $(document).ready(function() {
         TFplanner.obstacles = new Obstacles();
         TFplanner.resultGrid = null;
         TFplanner.finishedRoom = null;
+        TFplanner.latency = 50;
         
     })();
 });

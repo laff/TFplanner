@@ -148,6 +148,8 @@ Obstacles.prototype.createObstacle = function(num, txt) {
 			
 			this.startTime = Date.now();
 
+			this.latency = TFplanner.latency;
+
 			obst.selectObstacle();
 
 			this.attr({fill: '#3366FF'});
@@ -181,31 +183,29 @@ Obstacles.prototype.createObstacle = function(num, txt) {
 			}
 
 
-        // Updating measurements every 50 ms
-        var nowTime = Date.now(),
-            timeDiff = (nowTime - this.startTime);
+	        // Updating measurements every 50 ms
+	        var nowTime = Date.now(),
+	            timeDiff = (nowTime - this.startTime);
 
-        if (timeDiff > 50) {
+	        if (timeDiff > this.latency) {
 
-			this.attr({
-				x: newx,
-				y: newy
-			});
+				this.attr({
+					x: newx,
+					y: newy
+				});
 
-			// Obstacle text related action
-			obstx = (newx + (w / 2));
-			obsty = (newy + (h / 2));
+				// Obstacle text related action
+				obstx = (newx + (w / 2));
+				obsty = (newy + (h / 2));
 
-			txtField.attr({
-				x: obstx,
-				y: obsty
-			});
+				txtField.attr({
+					x: obstx,
+					y: obsty
+				});
 
-            obst.nearestWalls(null, this);
-            this.startTime = nowTime;
-        }
-
-			
+	            obst.nearestWalls(null, this);
+	            this.startTime = nowTime;
+	        }
 		},
 
 		up = function() {
