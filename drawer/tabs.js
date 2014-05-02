@@ -7,12 +7,12 @@ function Tabs () {
 	this.room = this.tabPaper.set();
 	this.obst = this.tabPaper.set();
 	this.spec = this.tabPaper.set();
-	this.roomColor = '#CBC4BC';
-	this.obstColor = '#B6ADA5';
-	this.specColor = '#A59C94';
-
 	this.initTabs();
 }
+// Thermo-Floors selected colors for the tabs
+Tabs.prototype.roomColor = '#CBC4BC';
+Tabs.prototype.obstColor = '#B6ADA5';
+Tabs.prototype.specColor = '#A59C94';
 
 /**
  * Creating SVG-paths for the three vertical tabs, and adding text to them.

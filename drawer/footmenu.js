@@ -4,9 +4,10 @@
 function FootMenu() {
 	this.footPaper = Raphael(document.getElementById('footmenu'));
 	this.initFooter();
-    this.svg = null;
-    this.drawId = 'null';
 }
+// The variable where the svg generated for saving is stored.
+FootMenu.prototype.svg = null;
+FootMenu.prototype.drawId = 'null';
 
 /**
  * Iniates and positions all the icons and functionality for the footer-menu, including mouse-actions.
