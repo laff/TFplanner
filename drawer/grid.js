@@ -332,7 +332,8 @@ Grid.prototype.moveRoom = function() {
     // Refresh the measurement-stuff after moving the walls, 
     //then hide the angles and remove handlers.
     measures.refreshMeasurements();
-    measures.angMeasurements.hide();
+    measures.finalMeasurements();
+
     ns.finishedRoom.removeHandlers();
 
     tempString = ' Z';

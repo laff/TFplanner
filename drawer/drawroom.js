@@ -4,9 +4,9 @@
 **/
 function DrawRoom(radius) {
     this.radius = radius;
-    this.lastPoint = null;
+ //   this.lastPoint = null;
     this.walls = TFplanner.grid.paper.set();
-    this.tmpWall = null;
+ /*   this.tmpWall = null;
     this.tmpLen = null;
     this.tmpRect = null;
     this.tmpCircle = null;
@@ -19,7 +19,24 @@ function DrawRoom(radius) {
     this.maxAngle = 330.05; 
     this.minLength = 50;
     this.selfDrawn = true;
+*/
 }
+
+DrawRoom.prototype.lastPoint = null;
+DrawRoom.prototype.tmpWall = null;
+DrawRoom.prototype.tmpLen = null;
+DrawRoom.prototype.tmpRect = null;
+DrawRoom.prototype.tmpCircle = null;
+DrawRoom.prototype.proximity = false;
+DrawRoom.prototype.invalid = false;
+DrawRoom.prototype.finished = false;
+DrawRoom.prototype.xAligned = false;
+DrawRoom.prototype.yAligned = false;
+DrawRoom.prototype.minAngle = 29.95;
+DrawRoom.prototype.maxAngle = 330.05;
+DrawRoom.prototype.minLength = 50;
+DrawRoom.prototype.selfDrawn = true;
+
 
 /**
  * Function that initiates drawing of a room.
@@ -340,10 +357,10 @@ DrawRoom.prototype.drawTempLine = function(point) {
                         x = ((x1 + x2) / 2),
                         y = ((y1 + y2) / 2);
 
-                    return new Point(x, y);
+                    return {x: x, y: y};
                 },
                 textPoint = middle(tmpWall),
-                len = new Number(tmpWall.getTotalLength())/100;
+                len = (tmpWall.getTotalLength() / 100);
 
                 len = len.toFixed(2);
 
@@ -459,7 +476,7 @@ DrawRoom.prototype.drawTempLine = function(point) {
     }
 
     // Show the angle of the temporary wall (angle to previous drawn wall).
-    if (this.walls.length >= 1 && this.tmpWall.getTotalLength() > (this.radius * 2) && false) {
+    if (this.walls.length >= 1 && this.tmpWall.getTotalLength() > (this.radius * 2)) {
         // Store temporary angle in measurements
         tmpAngle = measures.angleMeasurement(null, this.tmpWall);
         tmpBool = false;
@@ -475,9 +492,11 @@ DrawRoom.prototype.drawTempLine = function(point) {
 
         // Update variable that indicates if a wall is crossed/angle is to small.
         this.invalid = (crossed) ? crossed : tmpBool;
-    } else if (measures.tmpMeasurements !== null) {
-        measures.tmpMeasurements.remove();
-        measures.tmpMeasurements.clear();
+
+    } else if (measures.tmpAngle != null) {
+        measures.tmpAngle[1].remove();
+        measures.tmpAngle[2].remove();
+        measures.tmpAngle = null;
     }
 
     tmpLength(this.tmpWall);
@@ -530,7 +549,7 @@ DrawRoom.prototype.crossBrowserXY = function(e) {
             var x = xy[0],
                 y = xy[1];
 
-            return (!(x < 100 && y < 100)) ? new Point(x, y) : new Point(-1, -1);
+            return (!(x < 100 && y < 100)) ? {x: x, y: y} : {x: -1, y: -1};
         },
 
         // In FF offsetX is undefined, so then we need to handle the coordinates in a different way.
@@ -593,9 +612,9 @@ DrawRoom.prototype.createRoom = function(ang) {
         // The first wall is a horizontal wall, starting in point (150, 150).
         // The wall is ending in p2, which is the length of the wall, added to p1.
         if (i === 0) {
-            p1 = new Point(350, 150);
+            p1 = {x: 350, y: 150};
             p2tmp = parseInt(ang[1][i]);
-            p2 = new Point(p2tmp+p1.x, p1.y);
+            p2 = {x: (p2tmp + p1.x), y: p1.y};
             initPoint = p1;
 
             // A special case for the first wall, used inn 'wallEnd'-function.
@@ -610,16 +629,16 @@ DrawRoom.prototype.createRoom = function(ang) {
             p2tmp = parseInt(ang[1][i]);
 
             if (tmpAng == 270) {
-                p2 = new Point(p1.x, p1.y+p2tmp);
+                p2 = {x: p1.x, y: (p1.y + p2tmp)};
 
             } else if (tmpAng == 180) {
-                p2 = new Point(p1.x+p2tmp, p1.y);
+                p2 = {x: (p1.x + p2tmp), y: p1.y};
 
             } else if (tmpAng == 360) {
-                p2 = new Point(p1.x-p2tmp, p1.y);
+                p2 = {x: (p1.x - p2tmp), y: p1.y};
 
             } else if (tmpAng == 90 && i != ang[0].length-1) {
-                p2 = new Point(p1.x, p1.y-p2tmp);
+                p2 = {x: p1.x, y: (p1.y - p2tmp)};
             // This means 'finish the room'
             } else if (i == ang[0].length-1 && tmpAng == 90) {
                 p2 = initPoint;
@@ -677,7 +696,10 @@ DrawRoom.prototype.clearTmp = function() {
     this.tmpLen.remove();
     this.tmpLen = null;
 
-    // Clean up the temp-stuff in case some lengths or lines are hanging around.
-    measures.tmpMeasurements.remove();
-    measures.tmpMeasurements.clear();
+    // tmpangle visual are removed and set to null.
+    if (measures.tmpAngle != null) {
+        measures.tmpAngle[1].remove();
+        measures.tmpAngle[2].remove();
+        measures.tmpAngle = null;
+    }
 };

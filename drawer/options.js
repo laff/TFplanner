@@ -1,493 +1,473 @@
+// TODO: Parameter not used
 /**
- * Structonator
+ * Constructor for content of the tabs on the 
+ * lefthand-side of the page.
+ * @param tab
 **/
-function Options (tab) {
-    this.optPaper;
-    this.preDefArr = null;
-    this.optionTab = 1;
-    this.defColor = '#707061';       // Default color.
-    this.inColor = '#d8d8d8';        // Color for mouseover
-    this.imgColor = 'white';         // Color for the button-icons.
-    this.titleText = null;           // Raphael-element
-    this.areaText = null;
-    this.titleRect = null;
-    this.projectName ='Prosjektnavn/tittel'; // String in html input-field
-
-    // Default show.
-    this.showOptions(1);
-
-    // Set containing gui elements we want to clear/store?
-    this.guiElements = null;
-
-    this.container = '#content_container';
-    this.obstHtml = null;
-    this.crossO = String.fromCharCode(248);
-    this.dotA = String.fromCharCode(229);
-
-    // mat object based on specificatins selected
-    this.validMat = null;
-    // Will contain mat-lengths the user prefer to start with.
-    this.prefMat = null;
-
-    // Variable saved after resultgrid has calculated available area.
-    this.availableArea = null;
-
-    // String storing arae and utilized percentage of area.
-    this.utilizeString = null;
-
-    // Showing title once options is loaded.
-    this.setTitle();
+function Options() {
+	this.optPaper;
+	// Default show.
+	this.showOptions(1);
+	// Showing title once options is loaded.
+	this.setTitle();
 }
+
+Options.prototype.preDefArr = null;
+Options.prototype.optionTab = 1;
+// Default color
+Options.prototype.defColor = '#707061';
+// Color for mouseover
+Options.prototype.inColor = '#d8d8d8';
+// Color for the button-icons
+Options.prototype.imgColor = 'white';
+// Raphael-element for displaying title
+Options.prototype.titleText = null; 
+Options.prototype.areaText = null;
+Options.prototype.titleRect = null;
+Options.prototype.projectName ='Prosjektnavn/tittel';
+Options.prototype.container = '#content_container';
+Options.prototype.obstHtml = null;
+Options.prototype.crossO = String.fromCharCode(248);
+Options.prototype.dotA = String.fromCharCode(229);
+// Mat-object based on specifications selected
+Options.prototype.validMat = null;
+// Will contain mat-lengths the user prefer to start with
+Options.prototype.prefMat = null;
+// Variable saved after resultgrid has calculated available area
+Options.prototype.availableArea = null;
+// String storing area and utilized percentage of area
+Options.prototype.utilizeString = null;
+
+
 /**
  *  Function that calculates the percentage of which the mats utilize the available area.
  *  Adds the values 'availableArea' and 'areaUtilPercentage' as a string to the projectname.
 **/
 Options.prototype.areaUtilization = function() {
-        // decides weither to remove decimals or not.
-    var availArea = ((this.availableArea % 1) != 0) ? this.availableArea.toFixed(2) : this.availableArea,
-        chosenMats = TFplanner.resultGrid.chosenMats,
-        matInfo = this.validMat.products,
-        squareMetres = 0,
-        areaUtilPercentage = null;
+	// Decides wether to remove decimals or not.
+	var availArea = ((this.availableArea % 1) != 0) ? this.availableArea.toFixed(2) : this.availableArea,
+		chosenMats = TFplanner.resultGrid.chosenMats,
+		matInfo = this.validMat.products,
+		squareMetres = 0,
+		areaUtilPercentage = null;
 
-    // goes through mats used and the product info for matching values.
-    // adds the meters of the chosen mats.
-    for (var j = 0; j < chosenMats.length; j++) {
-        
-        for (var i = 0; i < matInfo.length; i++) {
+	// Goes through mats used and the product info for matching values.
+	// Adds the meters of the chosen mats.
+	for (var j = 0, jj = chosenMats.length; j < jj; j++) {
+		
+		for (var i = 0, ii = matInfo.length; i < ii; i++) {
 
-            if (chosenMats[j] == matInfo[i].number) {
-                squareMetres += (matInfo[i].length / 2);
-            }
-        }
-    }
-    
-    areaUtilPercentage = ((100 / availArea) * squareMetres).toFixed(1);
-
-    this.utilizeString = availArea+'m2 ('+areaUtilPercentage+'% utnyttelse)';
-
-    this.setTitle();
-}
+			if (chosenMats[j] == matInfo[i].number) {
+				squareMetres += (matInfo[i].length / 2);
+			}
+		}
+	}
+	
+	areaUtilPercentage = ((100 / availArea) * squareMetres).toFixed(1);
+	this.utilizeString = availArea+'m2 ('+areaUtilPercentage+'% utnyttelse)';
+	this.setTitle();
+};
 
 /**
- *  Function that controlls what options to show based on selected tab.
- *
+ * Function that control what options to show based on selected tab.
+ * @param tab - What tab to show/select
 **/
-Options.prototype.showOptions = function (tab) {
+Options.prototype.showOptions = function(tab) {
 
-    var paper = (this.optPaper != null) ? this.optPaper : null,
-        container = this.container;
+	var finRoom = TFplanner.finishedRoom;
 
-    this.optionTab = tab;
+	this.optionTab = tab;
 
-    if (paper != null) {
-        paper.remove();
-    }
+	// Remove selected wall if any.
+	if (finRoom != null && finRoom.selectedWall != null) {
+		finRoom.selectedWall.remove();
+	}
 
-    // remove selected wall if any.
-    if (TFplanner.finishedRoom != null) {
-        if (TFplanner.finishedRoom.selectedWall != null) {
-            TFplanner.finishedRoom.selectedWall.remove();
-        }
-    }
+	$(this.container).empty();
 
-    $(container).empty();
+	this.optPaper = (this.optPaper != null) ? this.optPaper.remove() : null;
+	this.optPaper = Raphael(document.getElementById('content_container'));
 
-    this.optPaper = Raphael(document.getElementById('content_container'));
+	// Decide which tab to display
+	switch (tab) {
+		
+		case 1:
+			this.initDraw();
+			break;
 
-    // Setting up the guiElement set.
-    if (this.guiElements != null) {
-        this.guiElements.remove();
-        this.guiElements = null;
-    }
-    this.guiElements = this.optPaper.set();
+		case 2:
+			this.initObstacles();
+			break;
 
-    switch (tab) {
-        
-        case 1:
-            this.initDraw();
-            break;
+		case 3: 
+			this.initSpecs();
+			break;
 
-        case 2:
-            this.initObstacles();
-            break;
+		// Case 4 is actually "sub options".
+		case 4:
+			this.initDefine();
+			break;
 
-        case 3: 
-            this.initSpecs();
-            break;
-
-        // case 4 and above is actually "sub options".
-        case 4:
-            this.initDefine();
-            break;
-
-        default:
-            return;
-    }
-}
+		default:
+			return;
+	}
+};
 
 /**
  *  Set up the specifications-tab.
 **/
-Options.prototype.initSpecs = function () {
+Options.prototype.initSpecs = function() {
 
-    // set title position
-    this.setTitle();
+	// Set title position
+	this.setTitle();
 
-    var paper = this.optPaper,
-        container = this.container,
-        specSubmit = 'specSubmit',
-        crossO = this.crossO,
-        html,
-        opts = this;
+	var html,
+		opts = this,
+		doc = document,
+		header,
+		inOutDiv,
+		inOut,
+		form,
+		option1,
+		option2,
+		span;
 
-    // Clear current html
-    $(container).html("");
+	// Clear current html
+	$(this.container).html("");
 
-    // Adding class css, and remove the old ones.
-    $(container).addClass('specTab');
-    $(container).removeClass('obstacleTab');
-    $(container).removeClass('roomTab');
+	// Adding class css, and remove the old ones.
+	$(this.container).addClass('specTab');
+	$(this.container).removeClass('obstacleTab');
+	$(this.container).removeClass('roomTab');
 
 
-    if (TFplanner.ourRoom.finished ==  true) {
-        // Variables used for setting up elements.
-        var header = document.createElement('h3'),
-            inOutDiv = document.createElement('div'),
-            inOut = document.createElement('select'),
-            form = document.createElement('form'),
-            option1 = document.createElement('option'),
-            option2 = document.createElement('option'),
-            span = document.createElement('span');
-        
-        header.innerHTML = 'Velg spesifikasjoner';
-        span.innerHTML = 'Velg utend'+crossO+'rs/innend'+crossO+'rs: ';
+	if (TFplanner.ourRoom.finished === true) {
+		// Variables used for setting up elements.
+		header = doc.createElement('h3');
+		inOutDiv = doc.createElement('div');
+		inOut = doc.createElement('select');
+		form = doc.createElement('form');
+		option1 = doc.createElement('option');
+		option2 = doc.createElement('option');
+		span = doc.createElement('span');
+		
+		header.textContent = 'Velg spesifikasjoner';
+		span.textContent = 'Velg utend'+this.crossO+'rs/innend'+this.crossO+'rs: ';
 
-        inOutDiv.id = 'inOutDiv';
-        span.id = 'inOrOut';
-        form.setAttribute('class', 'forms');
-        form.id = 'form1';
-        inOut.id = 'inOutType';
+		inOutDiv.id = 'inOutDiv';
+		inOut.id = 'inOutType';
+		form.setAttribute('class', 'forms');
+		
+		option1.value = 'inside';
+		option1.textContent = 'Inne';
+		option2.value = 'outside';
+		option2.textContent = 'Ute';
 
-        option1.value = 'inside';
-        option1.text = 'Inne';
-        option2.value = 'outside';
-        option2.text = 'Ute';
+		inOut.add(option1, null);
+		inOut.add(option2, null);
 
-        inOut.add(option1, null);
-        inOut.add(option2, null);
+		//inOutDiv.appendChild(span);
+		//inOutDiv.appendChild(inOut);
+		$(inOutDiv).append(span, inOut, '<br');
+		//form.appendChild(inOutDiv);
+		$(form).append(inOutDiv);
+		
+		$(this.container).append(header, form);
 
-        inOutDiv.appendChild(span);
-        inOutDiv.appendChild(inOut);
-        $(inOutDiv).append('<br>');
+		// Default selected is 'none', so a value MUST be chosen by the user.  
 
-        form.appendChild(inOutDiv);
+		//doc.getElementById('inOutType').selectedIndex = -1;
+		$('#inOutType').val(-1);
 
-        $(container).append(header);
-        $(container).append(form);
+	} else {
+		// Error if the room is not 'finished' (closed area)
+		html = '<p class="error"> Du m'+this.dotA+' tegne et rom f'+this.crossO+'rst! <br></p>';
+		$(this.container).html(html);
+	}
 
-        // Default selected is 'none', so a value MUST be chosen by the user.        
-        document.getElementById('inOutType').selectedIndex = -1;
-    } else {
-        html = '<p class="error"> Du m'+this.dotA+' tegne et rom f'+crossO+'rst! <br></p>';
-        $(container).html(html);
-    }
+	$('#inOutType').change( function() {
 
-    $('#inOutType').change( function () {
-
-        // If #inOutType-id changes, we want to clear ALL the DIVs following it:
-
-        $('#dryWetDiv').remove();
-        $('#deckDiv').remove();
-        $('#wattDiv').remove();
-        $('#castDiv').remove();
-        $('#inputDiv').remove();
-        $('#lengthDiv').remove();
-        $('#matDiv').remove();
-        
-        opts.inOrOut(form);
-    });
-}
+		// If #inOutType-id changes, we want to clear ALL the DIVs following it:
+		$('#dryWetDiv').remove();
+		$('#deckDiv').remove();
+		$('#wattDiv').remove();
+		$('#castDiv').remove();
+		$('#inputDiv').remove();
+		$('#lengthDiv').remove();
+		$('#matDiv').remove();
+		
+		opts.inOrOut(form);
+	});
+};
 
 /**
  * Functionality for showing dropdown-menu for chosing 'dry- or wet-area'.
  * Will only show this option if 'inside' is chosen on the first dropdown.
+ * @param form - Form of the page, passed to all follwing functions.
 **/
-Options.prototype.inOrOut = function (form) {
+Options.prototype.inOrOut = function(form) {
 
-    var container = this.container,     
-        selected = $('#inOutType').val(),
-        opts = this,
-        crossO = this.crossO,
-        dotA = this.dotA;
+	var selected = $('#inOutType').val(),
+		opts = this,
+		doc = document,
+		dryWetDiv,
+		dryWet,
+		option1,
+		option2,
+		span;
 
-     //Inside is selected
-    if (selected == "inside") {
-        var dryWetDiv = document.createElement('div'),
-            dryWet = document.createElement('select'),
-            option1 = document.createElement('option'),
-            option2 = document.createElement('option'),
-            span = document.createElement('span');
+	//Inside is selected
+	if (selected === 'inside') {
+		dryWetDiv = doc.createElement('div');
+		dryWet = doc.createElement('select');
+		option1 = doc.createElement('option');
+		option2 = doc.createElement('option');
+		span = doc.createElement('span');
 
-        dryWetDiv.id = 'dryWetDiv';
-        dryWet.id = 'climateType';
-        span.id = 'dryOrWet';
+		dryWetDiv.id = 'dryWetDiv';
+		dryWet.id = 'climateType';
 
-        span.innerHTML = "Velg v"+dotA+"trom/t"+crossO+"rrom: ";
-        option1.value = "dry";
-        option1.text = "T"+crossO+"rrom";
-        option2.value = "wet";
-        option2.text = "V"+dotA+"trom";
+		span.textContent = 'Velg v'+this.dotA+'trom/t'+this.crossO+'rrom: ';
+		option1.value = 'dry';
+		option1.textContent = 'T'+this.crossO+'rrom';
+		option2.value = 'wet';
+		option2.textContent = 'V'+this.dotA+'trom';
 
-        dryWet.add(option1, null);
-        dryWet.add(option2, null);
+		dryWet.add(option1, null);
+		dryWet.add(option2, null);
 
-        dryWetDiv.appendChild(span);
-        dryWetDiv.appendChild(dryWet);
-        $(dryWetDiv).append('<br>');
+		$(dryWetDiv).append(span, dryWet, '<br>');
+		$(form).append(dryWetDiv);
+		// Append the form to the container.
+		$(this.container).append(form); 
+		// Set default selected to 'none'
+		$('#climateType').val(-1);
 
-        form.appendChild(dryWetDiv);
-        // Append the form to the container.
-        $(container).append(form); 
-        document.getElementById('climateType').selectedIndex = -1;
+	} else {
+		// 'Outside' is chosen, so we jump directly to the associated options.
+		opts.chooseDeck(form);
+	}
 
-    } else {
-        // 'Outside' is chosen, so we jump directly to the options associated with this option.
-        opts.chooseDeck(form);
-    }
+	// Call new function to set up the 'deck'-dropdown on change.
+	$('#climateType').change( function() {
 
-    // Call new function to set up the 'deck'-dropdown on change.
-    $('#climateType').change( function () {
+		//If this one changes, we want to remove all the divs following it:
+		$('#deckDiv').remove();
+		$('#wattDiv').remove();
+		$('#castDiv').remove();
+		$('#inputDiv').remove();
+		$('#lengthDiv').remove();
+		$('#matDiv').remove();
 
-        //If this one changes, we want to remove all the divs following it:
-
-        $('#deckDiv').remove();
-        $('#wattDiv').remove();
-        $('#castDiv').remove();
-        $('#inputDiv').remove();
-        $('#lengthDiv').remove();
-        $('#matDiv').remove();
-
-        opts.chooseDeck(form);
-    });
-}
+		opts.chooseDeck(form);
+	});
+};
 
 /**
  * The third dropdown-menu, where the user must choose type of deck for the area.
+ * @param form - Form of the page, passed to all follwing functions.
 **/
-Options.prototype.chooseDeck = function (form) {
+Options.prototype.chooseDeck = function(form) {
 
-    var container = this.container,
-        opts = this,
-        selected = $('#inOutType').val(),
-        selectedClim = $('#climateType').val(),
-        deckDiv = document.createElement('div'),
-        span = document.createElement('span'),
-        deck = document.createElement('select'),
-        option1 = document.createElement('option'),
-        option2 = document.createElement('option'),
-        option3 = document.createElement('option'),
-        option4 = document.createElement('option'),
-        option5 = document.createElement('option'),
-        option6 = document.createElement('option'),
-        option7 = document.createElement('option');
+	var opts = this,
+		selected = $('#inOutType').val(),
+		selectedClim = $('#climateType').val(),
+		doc = document,
+		deckDiv = doc.createElement('div'),
+		span = doc.createElement('span'),
+		deck = doc.createElement('select'),
+		option1 = doc.createElement('option'),
+		option2 = doc.createElement('option'),
+		option3 = doc.createElement('option'),
+		option4 = doc.createElement('option'),
+		option5 = doc.createElement('option'),
+		option6 = doc.createElement('option'),
+		option7 = doc.createElement('option');
 
-    deckDiv.id = 'deckDiv';
-    deck.id = 'deckType';
-    span.id = 'decks';
+	deckDiv.id = 'deckDiv';
+	deck.id = 'deckType';
 
-    span.innerHTML = "Velg dekke i rommet: ";
+	span.textContent = 'Velg dekke i rommet: ';
 
-    // Do stuff for an indoor-room.
-    if (selected == "inside") {
-        // Tiles and scale can occur both in dry-rooms and wet-rooms.
-        option1.value = "tile";
-        option1.text = "Flis";
-        option5.value = "scale";
-        option5.text = "Belegg";
-        // 'Dry-room'
-        if (selectedClim == "dry") {
-            // List options for 'dry'-rooms.
-            option2.value = "carpet";
-            option2.text = "Teppe";
-            option3.value = "parquet";
-            option3.text = "Parkett";
-            option4.value = "laminat";
-            option4.text = "Laminat";
-            option6.value = "concrete";
-            option6.text = "Betong";
-            option7.value = "cork";
-            option7.text = "Kork";
+	// Do stuff for an indoor-room.
+	if (selected === 'inside') {
+		// Tiles and scale can occur both in dry-rooms and wet-rooms.
+		option1.value = 'tile';
+		option1.textContent = 'Flis';
+		option5.value = 'scale';
+		option5.textContent = 'Belegg';
+		// 'Dry-room'
+		if (selectedClim === 'dry') {
+			// List options for 'dry'-rooms.
+			option2.value = 'carpet';
+			option2.textContent = 'Teppe';
+			option3.value = 'parquet';
+			option3.textContent = 'Parkett';
+			option4.value = 'laminat';
+			option4.textContent = 'Laminat';
+			option6.value = 'concrete';
+			option6.textContent = 'Betong';
+			option7.value = 'cork';
+			option7.textContent = 'Kork';
 
-            deck.add(option1, null);
-            deck.add(option2, null);
-            deck.add(option3, null);
-            deck.add(option4, null);
-            deck.add(option5, null);
-            deck.add(option6, null);
-            deck.add(option7, null);
+			deck.add(option1, null);
+			deck.add(option2, null);
+			deck.add(option3, null);
+			deck.add(option4, null);
+			deck.add(option5, null);
+			deck.add(option6, null);
+			deck.add(option7, null);
 
-        // This should obviously be a 'wet'-room.
-        } else if (selectedClim == "wet") {
-            deck.add(option1, null);
-            deck.add(option5, null);
-        }
-    // The area is chosen as 'outside' 
-    } else if (selected == "outside") {
-        option1.value = "asphalt";
-        option1.text = "Asfalt"
-        option2.value = "pavblock";
-        option2.text = "Belegningsstein";
-        option3.value = "concrete";
-        option3.text = "St"+this.crossO+"p";
+		// This should obviously be a 'wet'-room.
+		} else if (selectedClim === 'wet') {
+			deck.add(option1, null);
+			deck.add(option5, null);
+		}
+	// The area is chosen as 'outside' 
+	} else if (selected === 'outside') {
+		option1.value = 'asphalt';
+		option1.textContent = 'Asfalt';
+		option2.value = 'pavblock';
+		option2.textContent = 'Belegningsstein';
+		option3.value = 'concrete';
+		option3.textContent = 'St'+this.crossO+'p';
 
-        deck.add(option1, null);
-        deck.add(option2, null);
-        deck.add(option3, null);
-    }
+		deck.add(option1, null);
+		deck.add(option2, null);
+		deck.add(option3, null);
+	}
 
-    // Append the element to our form, then add the form to the container.
-    deckDiv.appendChild(span);
-    deckDiv.appendChild(deck);
-    $(deckDiv).append('<br>');
+	// Append the element to our form, then add the form to the container.
+	$(deckDiv).append(span, deck, '<br>');
+	$(form).append(deckDiv);
+	$(this.container).append(form);
 
-    form.appendChild(deckDiv);
-    $(container).append(form);
+	// Set as blanc on initialization, to force the user to select an !default item.
+	$('#deckType').val(-1);
 
-    // Set as blanc on initialization, to force the user to select an !default item.
-    document.getElementById('deckType').selectedIndex = -1;
+	// When the user have selected an item in this list, the 'generate'-button is created,
+	// unless 'wattage' also has to be selected.
+	$('#deckType').change( function() {
 
-    // When the user have selected an item in this list, the 'generate'-button is created,
-    // unless 'wattage' also has to be selected.
-    $('#deckType').change( function () {
-
-        // Cleaning up some html-elements, if they exist:
-        $('#wattDiv').remove();
-        $('#castDiv').remove();
-        $('#inputDiv').remove();
-        $('#lengthDiv').remove();
-        $('#matDiv').remove();
-        
-        // Calling next function, based on selected value.
-        (selected == 'inside') ? opts.wattage(form) : opts.generateButton(form);
-    });
-}
+		// Cleaning up some html-elements, if they exist:
+		$('#wattDiv').remove();
+		$('#castDiv').remove();
+		$('#inputDiv').remove();
+		$('#lengthDiv').remove();
+		$('#matDiv').remove();
+		
+		// Calling next function, based on selected value.
+		(selected === 'inside') ? opts.wattage(form) : opts.generateButton(form);
+	});
+};
 
 /**
- *  Function that adds a wattage dropdown select list button chooser.
- *
+ * Function that adds a wattage dropdown select list button chooser.
+ * @param form - Form of the page, passed to all follwing functions.
 **/
-Options.prototype.wattage = function (form) {
+Options.prototype.wattage = function(form) {
 
-    var container = this.container,
-        opts = this,
-        span = document.createElement('span'),
-        watt = document.createElement('select'),
-        wattDiv = document.createElement('div'),
-        option1 = document.createElement('option'),
-        option2 = document.createElement('option'),
-        option3 = document.createElement('option'),
-        option4 = document.createElement('option');
+	var opts = this,
+		doc = document,
+		span = doc.createElement('span'),
+		watt = doc.createElement('select'),
+		wattDiv = doc.createElement('div'),
+		option1 = doc.createElement('option'),
+		option2 = doc.createElement('option'),
+		option3 = doc.createElement('option'),
+		option4 = doc.createElement('option');
 
-    wattDiv.id = 'wattDiv';
-    watt.id = 'wattage';
-    span.id = 'watt';
+	wattDiv.id = 'wattDiv';
+	watt.id = 'wattage';
 
-    span.innerHTML = 'Velg mattens effekt: ';
-    option1.value = 60;
-    option1.text = '60W';
-    option2.value = 100;
-    option2.text = '100W';
-    option3.value = 130;
-    option3.text = '130W';
-    option4.value = 160;
-    option4.text = '160W';
+	span.textContent = 'Velg mattens effekt: ';
+	option1.value = 60;
+	option1.textContent = '60W';
+	option2.value = 100;
+	option2.textContent = '100W';
+	option3.value = 130;
+	option3.textContent = '130W';
+	option4.value = 160;
+	option4.textContent = '160W';
 
-    watt.add(option1, null);
-    watt.add(option2, null);
-    watt.add(option3, null);
-    watt.add(option4, null);
+	watt.add(option1, null);
+	watt.add(option2, null);
+	watt.add(option3, null);
+	watt.add(option4, null);
 
-    // Append the element to our form, then add the form to the container.
-    wattDiv.appendChild(span);
-    wattDiv.appendChild(watt);
-    $(wattDiv).append('<br>');
+	// Append the element to our form, then add the form to the container.
+	$(wattDiv).append(span, watt, '<br>');
+	$(form).append(wattDiv);
+	$(this.container).append(form);
 
-    form.appendChild(wattDiv);
-    $(container).append(form);
+	// Set as blanc on initialization, to force the user to select an !default item.
+	$('#wattage').val(-1);
 
-    // Set as blanc on initialization, to force the user to select an !default item.
-    document.getElementById('wattage').selectedIndex = -1;
+	// When the user have selected an item in this list, the 'generate'-button is created.
+	$('#wattage').change( function() {
 
-    // When the user have selected an item in this list, the 'generate'-button is created.
-    $('#wattage').change( function () {
+		var deck = $('#deckType').val(),
+			watt = $('#wattage').val();
 
-        var deck = $('#deckType').val(),
-            watt = $('#wattage').val();
+		// The elements that follow #wattage will be removed, before they are added again.
+		$('#castDiv').remove();
+		$('#inputDiv').remove();
+		$('#lengthDiv').remove();
+		$('#matDiv').remove();
 
-        // The elements that follow #wattage will be removed, before they are added again.
-        $('#castDiv').remove();
-        $('#inputDiv').remove();
-        $('#lengthDiv').remove();
-        $('#matDiv').remove();
-
-        // For one specific option, casting/not casting must be made available.
-        if ((deck == 'parquet' || deck == 'laminat') && watt == '60') {
-            opts.casting(form);
-        } else {
-            opts.generateButton(form);
-        }
-    });
-}
+		// For one specific option, casting/not casting must be made available.
+		if ((deck === 'parquet' || deck === 'laminat') && watt === '60') {
+			opts.casting(form);
+		} else {
+			opts.generateButton(form);
+		}
+	});
+};
 
 /**
  * Functionality that asks the user if casting is to be done for the floor
  * @param form - form of the tab, passed through all the connected functions, 
  * holds the html-structure.
 **/
-Options.prototype.casting = function (form) {
+Options.prototype.casting = function(form) {
 
-    var container = this.container,
-        opts = this,
-        castDiv = document.createElement('div'),
-        span = document.createElement('span'),
-        cast = document.createElement('select'),
-        option1 = document.createElement('option'),
-        option2 = document.createElement('option');
+	var opts = this,
+		doc = document,
+		castDiv = doc.createElement('div'),
+		span = doc.createElement('span'),
+		cast = doc.createElement('select'),
+		option1 = doc.createElement('option'),
+		option2 = doc.createElement('option');
 
-    cast.id = 'casting';
-    span.id = 'cast';
-    castDiv.id = 'castDiv';
+	cast.id = 'casting';
+	castDiv.id = 'castDiv';
 
-    span.innerHTML = 'Skal gulvet avrettes?';
-    option1.value = 'nocast';
-    option1.text = 'Nei';
-    option2.value = 'cast';
-    option2.text = 'Ja';
+	span.textContent = 'Skal gulvet avrettes?';
+	option1.value = 'nocast';
+	option1.textContent = 'Nei';
+	option2.value = 'cast';
+	option2.textContent = 'Ja';
 
-    cast.add(option1, null);
-    cast.add(option2, null);
+	cast.add(option1, null);
+	cast.add(option2, null);
 
-    castDiv.appendChild(span);
-    castDiv.appendChild(cast);
+	$(castDiv).append(span, cast);
+	// Append the element to our form, then add the form to the container.
+	$(form).append(castDiv);
+	$(this.container).append(form);
+	// Set as blanc on initialization, to force the user to select an !default item.
+	$(cast).val(-1);
 
-    // Append the element to our form, then add the form to the container.
-    form.appendChild(castDiv);
-    $(container).append(form);
-    // Set as blanc on initialization, to force the user to select an !default item.
-    cast.selectedIndex = -1;
+	// When the user have selected an item in this list, the 'generate'-button is created.
+	$(cast).change( function () {
 
-    // When the user have selected an item in this list, the 'generate'-button is created.
-    $(cast).change( function () {
+		$('#inputDiv').remove();
+		$('#lengthDiv').remove();
+		$('#matDiv').remove();
 
-        $('#inputDiv').remove();
-        $('#lengthDiv').remove();
-        $('#matDiv').remove();
-
-        opts.generateButton(form);
-    });
-}
-
+		opts.generateButton(form);
+	});
+};
 
 /**
  * Creation of a button to generate our solution for putting out a heatingmat.
@@ -495,103 +475,103 @@ Options.prototype.casting = function (form) {
  * @param form - The form is passed "all the way" through the 'specs'-functionality and
  * stuff is appended to it.
 **/
-Options.prototype.generateButton = function (form) {
+Options.prototype.generateButton = function(form) {
 
-    var container = this.container,
-        ns = TFplanner,
-        theRoom = ns.ourRoom,
-        theGrid = ns.grid,
-        opts = this,
-        input = document.createElement('input'),
-        inputDiv = document.createElement('div'),
-        path,
-        createProgresswindow = function(callback) {
+	var ns = TFplanner,
+		theRoom = ns.ourRoom,
+		theGrid = ns.grid,
+		opts = this,
+		doc = document,
+		input = doc.createElement('input'),
+		inputDiv = doc.createElement('div'),
+		path,
+		createProgresswindow = function(callback) {
 
-            var grayDiv = document.createElement('div'),
-                infoDiv = document.createElement('div'),
-                information = document.createElement('p');
+			var grayDiv = doc.createElement('div'),
+				infoDiv = doc.createElement('div'),
+				information = doc.createElement('p');
 
-            grayDiv.id = 'progress';
-            infoDiv.id = 'infoprogress';
-            information.id = 'progressinformation';
+			grayDiv.id = 'progress';
+			infoDiv.id = 'infoprogress';
+			information.id = 'progressinformation';
 
-            information.innerHTML = 'Kalkulerer areal';
+			information.textContent = 'Kalkulerer areal';
 
-            infoDiv.appendChild(information);
-            
+			//infoDiv.appendChild(information);
+			
+			$(infoDiv).append(information);
+			$('#container').append(grayDiv, infoDiv);
+			//$('#container').append(infoDiv);
 
-            
-            $('#container').append(grayDiv);
-            $('#container').append(infoDiv);
+			setTimeout(function() {
+				callback();
+			}, 10);
+		};
 
-            setTimeout(function() {
-                callback();
-            }, 10);
+	inputDiv.id = 'inputDiv';
+	input.id = 'genButton';
+	input.type = 'button';
+	input.title = 'Klikk for '+this.dotA+' generere leggeanvisning';
+	input.value = 'Generer leggeanvisning';
 
-        };
-    inputDiv.id = 'inputDiv';
-    input.id = 'genButton';
-    input.type = 'button';
-    input.title = 'Klikk for '+this.dotA+' generere leggeanvisning';
-    input.value = 'Generer leggeanvisning';
+	//inputDiv.appendChild(input);
+	$(inputDiv).append(input, '<br><br><br>');
 
-    inputDiv.appendChild(input);
-    $(inputDiv).append('<br><br><br>');
+	//form.appendChild(inputDiv);
+	$(form).append(inputDiv);
+	$(this.container).append(form);
 
-    form.appendChild(inputDiv);
-    $(container).append(form);
+	$('#genButton').click( function () {
+		
+		// If we have a finished room, we can call the algorithm and generate a drawing!
+		if (theRoom.finished === true) {
 
-    $('#genButton').click( function () {
-        
-        // If we have a finished room, we can call the algorithm and generate a drawing!
-        if (theRoom.finished == true) {
+			createProgresswindow(
+				function() {
+					// Moving room incase user did not visit "obstacles", also saves the new path.
+					path = theGrid.moveRoom();
 
-            createProgresswindow(
-                function() {
-                    // Moving room incase user did not visit "obstacles", also saves the new path.
-                    path = theGrid.moveRoom();
+					// Sending
+					ns.resultGrid = new ResultGrid(path);
+				});
+		}
+	});
 
-                    // Sending
-                    ns.resultGrid = new ResultGrid(path);
-                });
-        }
-    });
-
-    // When we have chosen all steps and the 'generate-button' is created, we also want
-    // to display the possible mats the user prefer to use.
-    opts.preferredMats(form);
-}
+	// When we have chosen all steps and the 'generate-button' is created, we also want
+	// to display the possible mats the user prefer to use.
+	opts.preferredMats(form);
+};
 
 /**
  *  Function that either removes progress or updates it.
  *
 **/
-Options.prototype.updateProgress = function (remove, success) {
+Options.prototype.updateProgress = function(remove, success) {
 
-    var theRoom = TFplanner.ourRoom,
-        measures = TFplanner.measurement,
-        grid = TFplanner.grid;
+	var theRoom = TFplanner.ourRoom,
+		measures = TFplanner.measurement,
+		grid = TFplanner.grid,
+		doc = document;
 
-    // removing the progress visual
-    if (remove) {
-        if (success) {
-            this.areaUtilization();
-        }
-        document.getElementById('progress').remove();
-        document.getElementById('infoprogress').remove();
+	// removing the progress visual
+	if (remove) {
+		if (success) {
+			this.areaUtilization();
+		}
+		doc.getElementById('progress').remove();
+		doc.getElementById('infoprogress').remove();
 
+		theRoom.walls.toFront();
+		measures.finalMeasurements();
+		grid.boxSet.toFront();
 
-        theRoom.walls.toFront();
-        measures.wallText.toFront();
-        grid.boxSet.toFront();
+	} else {
+		doc.getElementById('infoprogress').textContent = 'Kalkulerer leggeanvisning';
 
-    } else {
-        document.getElementById('infoprogress').innerHTML = 'Kalkulerer leggeanvisning';
-
-        // give the javascript breathingroom for gui updates
-        setTimeout(function() { TFplanner.resultGrid.calculateGuide(); }, 1);
-    }
-}
+		// give the javascript breathingroom for gui updates
+		setTimeout(function() { TFplanner.resultGrid.calculateGuide(); }, 1);
+	}
+};
 
 /**
  * This function makes it possible for the user to specify mat-length(s) to start with
@@ -599,425 +579,409 @@ Options.prototype.updateProgress = function (remove, success) {
  * @param form - The form is passed "all the way" through the 'specs'-functionality and
  * stuff is appended to it.
 **/
-Options.prototype.preferredMats = function (form) {
+Options.prototype.preferredMats = function(form) {
 
-    var opts = this,
-        container = opts.container,
-        header = document.createElement('h3'),
-        span = document.createElement('span'),
-        lengths = document.createElement('select'),
-        add = document.createElement('input'),
-        lengthDiv = document.createElement('div'),
-        matDiv = document.createElement('div'),
-        ol = document.createElement('ol'),
-        text,
-        availLengths = [];
+	var opts = this,
+		doc = document,
+		span = doc.createElement('span'),
+		lengths = doc.createElement('select'),
+		add = doc.createElement('input'),
+		lengthDiv = doc.createElement('div'),
+		matDiv = doc.createElement('div'),
+		ol = doc.createElement('ol'),
+		text,
+		availLengths = [];
 
-    //Finds the correct heatingmat based on specs chosen by the user.
-    opts.tfProducts();
-    opts.prefMat = [];
+	//Finds the correct heatingmat based on specs chosen by the user.
+	this.tfProducts();
+	this.prefMat = [];
 
-    // Setting up the html-stuff.
-    span.id = 'length';
-    span.innerHTML = 'Legg til selvvalgte lengder';
-    matDiv.id = 'matDiv';
-    lengthDiv.id = 'lengthDiv';
+	// Setting up the html-stuff.
+	span.textContent = 'Legg til selvvalgte lengder';
+	matDiv.id = 'matDiv';
+	lengthDiv.id = 'lengthDiv';
+	lengths.id = 'lengths';
+	add.id = 'addLength';
+	add.type = 'button';
+	add.title = 'Legg til foretrukken mattelengde';
+	add.value = 'Legg til matte';
 
-    lengths.id = 'lengths';
-    add.id = 'addLength';
-    add.type = 'button';
-    add.title = 'Legg til foretrukken mattelengde';
-    add.value = 'Legg til matte';
+	$(lengthDiv).append(span, lengths, add);
+	$(matDiv).append(ol);
+	$(form).append(lengthDiv, matDiv);
 
-    lengthDiv.appendChild(span);
-    lengthDiv.appendChild(lengths);
-    lengthDiv.appendChild(add);
-    matDiv.appendChild(ol);
+	// Add all the available lengths of this mat to the dropdown.
+	for (var i = 0, ii = this.validMat.products.length; i < ii; i++) {
+		availLengths[i] = this.validMat.products[i].length;
+		$('#lengths').append('<option value='+i+'>'+availLengths[i]+'m</option>'); 
+	}
 
-    form.appendChild(lengthDiv);
-    form.appendChild(matDiv);
+	$(this.container).append(form);
 
-    // Add all the available lengths of this mat to the dropdown.
-    for (var i = 0; i < opts.validMat.products.length; i++) {
-        availLengths[i] = opts.validMat.products[i].length;
-        $('#lengths').append("<option value="+i+">"+availLengths[i]+"m</option>"); 
-    }
+	// This click-action add the chosen mat-length to array, so that
+	// the algorithm will use this mat first.
+	$('#addLength').click( function () {
 
-    $(container).append(form);
-
-    // This click-action add the chosen mat-length to array, so that
-    // the algorithm will use this mat first.
-    $('#addLength').click( function () {
-
-        opts.prefMat.push(opts.validMat.products[$('#lengths').val()]);
-        text = opts.prefMat[opts.prefMat.length-1].name;
-        $(ol).append('<li>'+text+'</li>');
-    });
-}
+		opts.prefMat.push(opts.validMat.products[$('#lengths').val()]);
+		text = opts.prefMat[opts.prefMat.length-1].name;
+		$(ol).append('<li>'+text+'</li>');
+	});
+};
 
 
 /**
  * Set up 'Obstacles'-tab. This includes possibility to define Projectname and adding obstacles.
 **/
-Options.prototype.initObstacles = function () {
+Options.prototype.initObstacles = function() {
 
-    var container = this.container,
-        obst = TFplanner.obstacles,
-        html = "",
-        crossO = this.crossO;
+	var obst = TFplanner.obstacles,
+		html = '';
 
-    // clear current html
-    $(container).html(html);
+	// clear current html
+	$(this.container).html(html);
 
-    // adding class css.
-    $(container).addClass('obstacleTab');
-    $(container).removeClass('specTab');
+	// adding class css.
+	$(this.container).addClass('obstacleTab');
+	$(this.container).removeClass('specTab');
 
-    if (TFplanner.ourRoom.finished ==  true) {
-        // Move the room to coordinates (99, 99), but only if obstacles has not been loaded.
-        if (obst.supplyPoint == null) {
-            TFplanner.grid.moveRoom();
-            obst.createObstacle("5", "Startpunkt");
-        }
+	if (TFplanner.ourRoom.finished === true) {
+		// Move the room to coordinates (99, 99), but only if obstacles has not been loaded.
+		if (obst.supplyPoint == null) {
+			TFplanner.grid.moveRoom();
+			obst.createObstacle('5', 'Startpunkt');
+		}
 
-        // Add inputfield and button to add a 'projectname'.
-        html += '<h3> Sett prosjektnavn </h3>';
-        html += '<form class=forms>';
-        html += "<div class='inputfield'><input type='text' id='titleText' value="+this.projectName+" autocomplete='off'><br></div>";
-        html += "<input id='titleSubmit' type='button' value='Endre prosjektnavn'>";
-        html += '</form>';
-        /*
-        html += '<h3> Sett tilf'+crossO+'rselspunkt </h3>';
-        html += '<form class=forms>';
-        html += "<input id='supplySubmit' type='button' value='Sett tilf"+crossO+"rselspunkt'>";
-        html += '</form>';
-        */
-        // Header
-        html += '<h3> Legg til hindring </h3>';
+		// Add inputfield and button to add a 'projectname'.
+		html += '<h3> Sett prosjektnavn </h3>';
+		html += '<form class=forms>';
+		html += '<div class="inputfield"><input type="text" id="titleText" value='+this.projectName+' autocomplete="off"><br></div>';
+		html += '<input id="titleSubmit" type="button" value="Endre prosjektnavn">';
+		html += '</form>';
 
-        // Form start
-        html += '<form class=forms>';
+		// Header
+		html += '<h3> Legg til hindring </h3>';
 
-        // Select (5 is missing, because same functionality is used for supplyPoint)
-        html += "<select id ='obstacleType'><option value=1> Avl"+crossO+"p </option>";
-        html += "<option value=2> Toalett </option>";
-        html += "<option value=3> Dusj </option>";
-        html += "<option value=4> Badekar </option>";
-        html += "<option value=6> Benk </option>";
-        html += "<option value=7> Pipe </option>";
-        html += "<option value=8> Egendefinert </option></select>";
+		// Form start
+		html += '<form class=forms>';
 
-        // input button
-        html += "<input id='defSubmit' type='button' value='legg til'>";
+		// Select (5 is missing, because same functionality is used for supplyPoint)
+		html += "<select id ='obstacleType'><option value=1> Avl"+this.crossO+"p </option>";
+		html += "<option value=2> Toalett </option>";
+		html += "<option value=3> Dusj </option>";
+		html += "<option value=4> Badekar </option>";
+		html += "<option value=6> Benk </option>";
+		html += "<option value=7> Pipe </option>";
+		html += "<option value=8> Egendefinert </option></select>";
 
-        // Form end
-        html += '</form>';
+		// input button
+		html += '<input id="defSubmit" type="button" value="legg til">';
 
-        this.obstHtml = html;
-    } else {
-        html = '<p class="error"> Du m'+this.dotA+' tegne et rom f'+crossO+'rst! <br></p>';
-        this.obstHtml = html;
-    }
+		// Form end
+		html += '</form>';
 
-    this.obstacleList();
+		this.obstHtml = html;
+	} else {
+		html = '<p class="error"> Du m'+this.dotA+' tegne et rom f'+this.crossO+'rst! <br></p>';
+		this.obstHtml = html;
+	}
 
-    // set title position
-    this.setTitle();
-}
+	this.obstacleList();
+
+	// set title position
+	this.setTitle();
+};
 
 /**
  *  Function that either refreshes or creates a list of obstacles.
  *  Gets the html set in initObstacles (passed through function).
 **/
-Options.prototype.obstacleList = function (obstacle) {
+Options.prototype.obstacleList = function(obstacle) {
 
-    var ns = TFplanner,
-        obstacleArr = ns.obstacles.obstacleSet,
-        obstacleLength = obstacleArr.length,
-        change = 'Endre',
-        save = 'Lagre',
-        del = 'Slett',
-        container = this.container,
-        crossO = this.crossO,
-        html = this.obstHtml;
+	var ns = TFplanner,
+		obstacleArr = ns.obstacles.obstacleSet,
+		obstacleLength = obstacleArr.length,
+		change = 'Endre',
+		save = 'Lagre',
+		del = 'Slett',
+		html = this.obstHtml;
 
-    for (var i = 0; i < obstacleLength; i++) {
+	for (var i = 0; i < obstacleLength; i++) {
 
-        // Displaying "hindring" as name of the obstacle if no name is set (only in the html)
-        if (obstacleArr[i].data('obstacleType') != "") {
+		// Displaying "hindring" as name of the obstacle if no name is set (only in the html)
+		if (obstacleArr[i].data('obstacleType') != "") {
 
-            html += "<div class=obst><div class=obsttxt>"+obstacleArr[i].data('obstacleType')+": </div><input id="+i+" class='change' type='button' value="+change+">"+ 
-            "<input class='delete' type='button' value="+del+"></div>";
-            html += "<br>";
+			html += "<div class=obst><div class=obsttxt>"+obstacleArr[i].data('obstacleType')+": </div><input id="+i+" class='change' type='button' value="+change+">"+ 
+			"<input class='delete' type='button' value="+del+"></div>";
+			html += "<br>";
 
-        } else {
-            html += "<div class=obst><div class=obsttxt>Hindring:</div><input id="+i+" class='change' type='button' value="+change+">"+ 
-            "<input class='delete' type='button' value="+del+"></div>";
-            html += "<br>";
-        }
+		} else {
+			html += "<div class=obst><div class=obsttxt>Hindring:</div><input id="+i+" class='change' type='button' value="+change+">"+ 
+			"<input class='delete' type='button' value="+del+"></div>";
+			html += "<br>";
+		}
 
-        if (obstacle == i) {
-            var width = obstacleArr[i].attrs.width,
-                height = obstacleArr[i].attrs.height,
-                x = obstacleArr[i].attrs.x,
-                y = obstacleArr[i].attrs.y,
-                increase = "<input class='plusminus' type='button' name='increase' value='+' />",
-                decrease = "<input class='plusminus' type='button' name='decrease' value='-' />";
+		if (obstacle == i) {
+			var width = obstacleArr[i].attrs.width,
+				height = obstacleArr[i].attrs.height,
+				x = obstacleArr[i].attrs.x,
+				y = obstacleArr[i].attrs.y,
+				increase = "<input class='plusminus' type='button' name='increase' value='+' />",
+				decrease = "<input class='plusminus' type='button' name='decrease' value='-' />";
 
-            // Div start by a line break
-            html += "<br>";
-            html += "<div id=change class='roomTab'>";
-            // Height
-            html += "<div class='inputfield'><div class='inputtext'>H"+crossO+"yde: </div>"+decrease+"<input  type='number' id='height' value="+height+">"+increase+"<br></div>";
-            // Width
-            html += "<div class='inputfield'><div class='inputtext'>Bredde: </div>"+decrease+"<input  type='number' id='width' value="+width+">"+increase+"<br></div>";
-            // position x
-            html += "<div class='inputfield'><div class='inputtext'>X avstand: </div>"+decrease+"<input type='number' id='posx' value="+(x - 100)+">"+increase+"<br></div>";
-            // position y
-            html += "<div class='inputfield'><div class='inputtext'>Y avstand: </div>"+decrease+"<input type='number' id='posy' value="+(y - 100)+">"+increase+"</div>";
-            
-            // Checks if the obstacletType stored equals "Startpunkt" which translates to "supplypoint" in english.
-            // Creates checkbox
-            if (obstacleArr[i].data('obstacleType') == 'Startpunkt') {
-                html += "Kan slutte mot startvegg: <input type='checkbox' id='supplyend'>";
-            }
+			// Div start by a line break
+			html += "<br>";
+			html += "<div id=change class='roomTab'>";
+			// Height
+			html += "<div class='inputfield'><div class='inputtext'>H"+this.crossO+"yde: </div>"+decrease+"<input  type='number' id='height' value="+height+">"+increase+"<br></div>";
+			// Width
+			html += "<div class='inputfield'><div class='inputtext'>Bredde: </div>"+decrease+"<input  type='number' id='width' value="+width+">"+increase+"<br></div>";
+			// position x
+			html += "<div class='inputfield'><div class='inputtext'>X avstand: </div>"+decrease+"<input type='number' id='posx' value="+(x - 100)+">"+increase+"<br></div>";
+			// position y
+			html += "<div class='inputfield'><div class='inputtext'>Y avstand: </div>"+decrease+"<input type='number' id='posy' value="+(y - 100)+">"+increase+"</div>";
+			
+			// Checks if the obstacletType stored equals "Startpunkt" which translates to "supplypoint" in english.
+			// Creates checkbox
+			if (obstacleArr[i].data('obstacleType') == 'Startpunkt') {
+				html += "Kan slutte mot startvegg: <input type='checkbox' id='supplyend'>";
+			}
 
-            // Button element.
-            html += "<input id=changeObst name="+i+" type='button' value="+save+">";
+			// Button element.
+			html += "<input id=changeObst name="+i+" type='button' value="+save+">";
 
-            // Div end.
-            html += "</div>";
-        }
-    }
+			// Div end.
+			html += "</div>";
+		}
+	}
 
-    $(container).html("");
-    $(container).html(html);
+	$(this.container).html("");
+	$(this.container).html(html);
 
-    // Sets the focus on the 'project-name'-field the first time 'obstacles'-tab is selected
-    if (TFplanner.ourRoom.finished ==  true && this.titleText == null) {
-        this.setTitle();
-        var input = document.getElementById('titleText');
-            input.focus();
-            input.select();
-    }
+	// Sets the focus on the 'project-name'-field the first time 'obstacles'-tab is selected
+	if (TFplanner.ourRoom.finished === true && this.titleText == null) {
+		this.setTitle();
+		var input = document.getElementById('titleText');
+			input.focus();
+			input.select();
+	}
 
-    this.actionListeners();
-}
+	this.actionListeners();
+};
 
 /**
  *  Function that initiates action listeners!
  *
 **/
-Options.prototype.actionListeners = function () {
+Options.prototype.actionListeners = function() {
 
-    var opts = this,
-        obst = TFplanner.obstacles;
+	var opts = this,
+		obst = TFplanner.obstacles,
+		doc = document;
 
-    // If the 8th option is selected. aka "Egendefinert"
-    $('#obstacleType').change(function() {
-        
-        if (this.value == 8) {
+	// If the 8th option is selected. aka "Egendefinert"
+	$('#obstacleType').change(function() {
+		
+		if (this.value == 8) {
 
-            // Creating elements.
-            var parentDiv = document.createElement('div'),
-                textDiv = document.createElement('div'),
-                input = document.createElement('input');
-            
-            // Setting properties.
-            parentDiv.setAttribute('class', 'inputfield');
-            parentDiv.id = 'inputfieldSelf';
-            textDiv.setAttribute('class', 'inputtext');
-            textDiv.innerHTML = 'Skriv inn navn: ';
-            input.type = 'text';
-            input.setAttribute('class', 'inputwidth');
-            input.setAttribute('id', 'customObstTxt');
-            input.setAttribute('autocomplete', 'off');
+			// Creating elements.
+			var parentDiv = doc.createElement('div'),
+				textDiv = doc.createElement('div'),
+				input = doc.createElement('input');
+			
+			// Setting properties.
+			parentDiv.setAttribute('class', 'inputfield');
+			parentDiv.id = 'inputfieldSelf';
+			textDiv.setAttribute('class', 'inputtext');
+			textDiv.textContent = 'Skriv inn navn: ';
+			input.type = 'text';
+			input.setAttribute('class', 'inputwidth');
+			input.setAttribute('id', 'customObstTxt');
+			input.setAttribute('autocomplete', 'off');
 
-            // Adding the elements to its parentnode
-            parentDiv.appendChild(textDiv);
-            parentDiv.appendChild(input);
+			// Adding the elements to its parentnode
+			$(parentDiv).append(textDiv, input);
+			//parentDiv.appendChild(textDiv);
+			//parentDiv.appendChild(input);
 
-            // Using Jquery to add the parentDiv after the dropdown list
-            $(this.parentNode.firstChild).after(parentDiv);
-            // Put focus on, and selects the inputfield for adding a obstacle-name
-            input.focus();
-            input.select();
+			// Using Jquery to add the parentDiv after the dropdown list
+			$(this.parentNode.firstChild).after(parentDiv);
+			// Put focus on, and selects the inputfield for adding a obstacle-name
+			input.focus();
+			input.select();
 
-            $('#customObstTxt').keypress(function (e) {
-                // If 'enter' is pressed in the inputfield:
-                if (e.which == 13) {
-                    e.preventDefault();
+			$('#customObstTxt').keypress(function(e) {
+				// If 'enter' is pressed in the inputfield:
+				if (e.which == 13) {
+					e.preventDefault();
 
-                    var value = document.getElementById('obstacleType').value,
-                        text = document.getElementById('customObstTxt').value;
+					var value = $('#obstacleType').val(), //doc.getElementById('obstacleType').value,
+						text = $('#customObstTxt').val(); //doc.getElementById('customObstTxt').value;
 
-                    // Create the obstacle, and update the tab.
-                    obst.createObstacle(value, text);
-                    opts.initObstacles();
-                    opts.obstacleList();
-                }
-            });
-        // We might get some issues if 'egendefinert' is chosen, followed by that the user choose an other
-        // obstacle without pushing 'add' between. This will delete the <div> if it exists.
-        } else if (document.getElementById('inputfieldSelf') != null) {
+					// Create the obstacle, and update the tab.
+					obst.createObstacle(value, text);
+					opts.initObstacles();
+					opts.obstacleList();
+				}
+			});
+		// We might get some issues if 'egendefinert' is chosen, followed by that the user choose an other
+		// obstacle without pushing 'add' between. This will delete the <div> if it exists.
+		} else if ($('#inputfieldSelf').val() != null) {
+			$('#inputfieldSelf').remove();
+			//doc.getElementById('inputfieldSelf').remove();
+		}
+	});
 
-            document.getElementById('inputfieldSelf').remove();
-        }
-    });
+	// Add click action for the "submit button".
+	$('.change').click(function() {
+		opts.obstacleList(this.id);
+		obst.selectObstacle(this.id);
+	});
 
-    // Add click action for the "submit button".
-    $('.change').click(function() {
-        opts.obstacleList(this.id);
-        obst.selectObstacle(this.id);
-    });
+	$('.delete').click(function() {
+		obst.deleteObstacle(this.parentNode.firstChild.nextSibling.id);
+		opts.obstacleList();
+	});
 
-    $('.delete').click(function () {
-        obst.deleteObstacle(this.parentNode.firstChild.nextSibling.id);
-        opts.obstacleList();
-    });
+	// Add click action for the "submit button".
+	$('#defSubmit').click(function() {
+		
+		// Creating obstacle.
+		var value = $('#obstacleType').val(),
+			customTxt = $('#customObstTxt').val(),
+			text = (customTxt != null) ? customTxt : $('#obstacleType option[value='+value+']').text();
 
-    // Add click action for the "submit button".
-    $('#defSubmit').click(function() {
-        
-        // Creating obstacle.
-        var value = $('#obstacleType').val(),
-            customTxt = $('#customObstTxt').val(),
-            text = (customTxt != null) ? customTxt : $('#obstacleType option[value='+value+']').text();
+		obst.createObstacle(value, text);
 
-        obst.createObstacle(value, text);
-
-        // Creating / refreshing list of obstacles.
-        opts.initObstacles();
-        opts.obstacleList();
-    });
+		// Creating / refreshing list of obstacles.
+		opts.initObstacles();
+		opts.obstacleList();
+	});
 
 
-    // Add click action for the "changeObst-button".
-    $('#changeObst').click(function() {
-        // Rounding the values to nearest 10.
-        var roundX = (Math.round((($('#posx').val())/ 10)) * 10) + 100,
-            roundY = (Math.round((($('#posy').val())/ 10)) * 10) + 100,
-            roundW = (Math.round((($('#width').val())/ 10)) * 10),
-            roundH = (Math.round((($('#height').val())/ 10)) * 10),
-            supply = document.getElementById('supplyend');
+	// Add click action for the "changeObst-button".
+	$('#changeObst').click(function() {
+		// Rounding the values to nearest 10.
+		var roundX = (Math.round((($('#posx').val())/ 10)) * 10) + 100,
+			roundY = (Math.round((($('#posy').val())/ 10)) * 10) + 100,
+			roundW = (Math.round((($('#width').val())/ 10)) * 10),
+			roundH = (Math.round((($('#height').val())/ 10)) * 10),
+			supply = $('#supplyend').val(); //document.getElementById('supplyend');
 
-        // stores the users choice on the matter of ending the mats at the supplywall or not.
-        if (supply) {
-            obst.supplyEnd = !supply.checked;
-        }
-        
+		// stores the users choice on the matter of ending the mats at the supplywall or not.
+		if (supply) {
+			obst.supplyEnd = !supply.checked;
+		}
+		
 
-        $('#posx').val((roundX - 100));
-        $('#posy').val((roundY - 100));
+		$('#posx').val((roundX - 100));
+		$('#posy').val((roundY - 100));
 
-        obst.adjustSize(
-            this.name, 
-            roundW,
-            roundH,
-            roundX, 
-            roundY
-        );
+		obst.adjustSize(
+			this.name, 
+			roundW,
+			roundH,
+			roundX, 
+			roundY
+		);
 
-        opts.obstacleList();
+		opts.obstacleList();
 
-        obst.selectObstacle(null);
-    });
+		obst.selectObstacle(null);
+	});
 
-    // Action for the plus and minus buttons
-    $('.plusminus').click(function () {
+	// Action for the plus and minus buttons
+	$('.plusminus').click(function () {
 
-        var inputEle = this.parentNode.firstChild.nextSibling.nextSibling,
-            inputVal = parseInt(inputEle.value),
-            intention = this.value,
-            changed = matIt[intention](inputVal, 10),
-            changed = (changed < 0) ? 0 : changed;
+		var inputEle = this.parentNode.firstChild.nextSibling.nextSibling,
+			inputVal = parseInt(inputEle.value),
+			intention = this.value,
+			changed = matIt[intention](inputVal, 10);
+			changed = (changed < 0) ? 0 : changed;
 
-        inputEle.value = changed;
-    });
+		inputEle.value = changed;
+	});
 
-    // Action for the button to create a title on the paper.
-    $('#titleSubmit').click(function () {
+	// Action for the button to create a title on the paper.
+	$('#titleSubmit').click(function () {
 
-        opts.setTitle();
-    });
+		opts.setTitle();
+	});
 
-    // Prevent the default 'submit form' when enter-button is pressed(this refreshes the page),
-    // but apply the input-text to the title.
-    $('#titleText').keypress(function (e) {
+	// Prevent the default 'submit form' when enter-button is pressed(this refreshes the page),
+	// but apply the input-text to the title.
+	$('#titleText').keypress(function (e) {
 
-        if (e.which == 13) {
-            e.preventDefault();
-            this.blur();
-            opts.setTitle();
-        }
-    });
+		if (e.which == 13) {
+			e.preventDefault();
+			this.blur();
+			opts.setTitle();
+		}
+	});
 /*
-    $('#supplySubmit').click(function () {
-        obstacles.createObstacle("5", "Startpunkt");
-    });
+	$('#supplySubmit').click(function () {
+		obstacles.createObstacle("5", "Startpunkt");
+	});
 */
-}
+};
 
 /**
  * Functionality that displays the 'projectname' that the user has entered on our paper.
  * Since it`s added as an svg-element, this will also be visible when the image is saved.
 **/
-Options.prototype.setTitle = function () {
+Options.prototype.setTitle = function() {
 
-    // Get the text from the html-element, and update it.
-    var titleEle = document.getElementById('titleText'),
-        title = (titleEle != null) ? titleEle.value : this.projectName,
-        utilizeString = this.utilizeString,
-        grid = TFplanner.grid;
-
-
-    this.projectName = title;
-    
-    var drawWidth = (grid.resWidth + 201),
-        rectX = null,
-        rectY = 12,
-        areaY = null;
-        rectLen = null,
-        rectH = 30,
-        textX = (drawWidth / 2),
-        textY = 25;
+	// Get the text from the html-element, and update it.
+	var titleEle = document.getElementById('titleText'),
+		title = (titleEle != null) ? titleEle.value : this.projectName,
+		utilizeString = this.utilizeString,
+		grid = TFplanner.grid,
+		drawWidth = (grid.resWidth + 201),
+		rectX = null,
+		rectY = 12,
+		areaY = null,
+		rectLen = null,
+		rectH = 30,
+		textX = (drawWidth / 2),
+		textY = 25;
 
 
-    // Clear the title-element if it already exist.
-    this.titleText != null ? this.titleText.remove() : null;
-    this.areaText != null ?  this.titleText.remove() : null;
-    this.titleRect != null ? this.titleRect.remove() : null;           
+	this.projectName = title;
+
+	// Clear the title-element if it already exist.
+	this.titleText != null ? this.titleText.remove() : null;
+	this.areaText != null ?  this.titleText.remove() : null;
+	this.titleRect != null ? this.titleRect.remove() : null;           
 
 
-    this.titleText = grid.paper.text(textX, textY, title).attr({
-        'font-size': 20,
-        'font-family': 'verdana',
-        'font-style': 'oblique'
-    });
+	this.titleText = grid.paper.text(textX, textY, title).attr({
+		'font-size': 20,
+		'font-family': 'verdana',
+		'font-style': 'oblique'
+	});
 
-    areaY = ((this.titleText.getBBox().height / 2) + 10 + textY);
+	areaY = ((this.titleText.getBBox().height / 2) + 10 + textY);
 
-    if (utilizeString != null) {
-        this.areaText = grid.paper.text(textX, areaY, utilizeString).attr({
-            'font-size': 14,
-            'font-family': 'verdana',
-            'font-style': 'oblique'
-        });
+	if (utilizeString != null) {
+		this.areaText = grid.paper.text(textX, areaY, utilizeString).attr({
+			'font-size': 14,
+			'font-family': 'verdana',
+			'font-style': 'oblique'
+		});
 
-        rectH += (this.areaText.getBBox().height); 
-    }
+		rectH += (this.areaText.getBBox().height); 
+	}
 
-    // Dynamic size of the rectangle surrounding the text.
-    rectLen = (this.titleText.getBBox().width + 30);
-    rectX = (textX - (rectLen / 2));
+	// Dynamic size of the rectangle surrounding the text.
+	rectLen = (this.titleText.getBBox().width + 30);
+	rectX = (textX - (rectLen / 2));
 
-    this.titleRect = grid.paper.rect(rectX, rectY, rectLen, rectH, 5, 5).attr({
-        opacity: 1,
-        fill: "white"
-    });
+	this.titleRect = grid.paper.rect(rectX, rectY, rectLen, rectH, 5, 5).attr({
+		opacity: 1,
+		fill: "white"
+	});
 
-    this.setupTitle();
-}
+	this.setupTitle();
+};
 
 /**
  *  This function shows title and its rectangle in the right order.
@@ -1025,377 +989,378 @@ Options.prototype.setTitle = function () {
 **/
 Options.prototype.setupTitle = function() {
 
-    // if titlerect and titletext exist (should be always).
-    if (this.titleRect != null && this.titleText != null) {
-        this.titleRect.toFront();
-        this.titleText.toFront();
+	// if titlerect and titletext exist (should be always).
+	if (this.titleRect != null && this.titleText != null) {
+		this.titleRect.toFront();
+		this.titleText.toFront();
 
-        // incase areatext also exists
-        if (this.areaText != null) {
-            this.areaText.toFront();
-        }
-
-    }
-}
+		// incase areatext also exists
+		if (this.areaText != null) {
+			this.areaText.toFront();
+		}
+	}
+};
 
 /** 
  *  Function that creates a form that lets the user adjust lengths of his predifined room.
  *
 **/
-Options.prototype.initDefine = function () {
-    
-    var preDefArr = this.preDefArr,
-        container = this.container,
-        defSubmit = 'defSubmit',
-        wallsLength = (preDefArr != null) ? (preDefArr[1].length - 1) : null,
-        // Starting with a clean slate @ the html variable.
-        html = "";
+Options.prototype.initDefine = function() {
+	
+	var preDefArr = this.preDefArr,
+		defSubmit = 'defSubmit',
+		wallsLength = (preDefArr != null) ? (preDefArr[1].length - 1) : null,
+		// Starting with a clean slate @ the html variable.
+		html = "";
 
-    // Removing the svg paper and adding room class for background color
-    this.optPaper.remove();
+	// Removing the svg paper and adding room class for background color
+	this.optPaper.remove();
 
-    $(container).addClass('roomTab');
-    $(container).removeClass('obstacleTab');
+	$(this.container).addClass('roomTab');
+	$(this.container).removeClass('obstacleTab');
 
-    html += '<h3> Egendefiner m'+this.dotA+'l </h3>';
+	html += '<h3> Egendefiner m'+this.dotA+'l </h3>';
 
-    // If preDef is assigned, list the walls and let the user input stuff, YO.
-    if (preDefArr != null) {
+	// If preDef is assigned, list the walls and let the user input stuff, YO.
+	if (preDefArr != null) {
 
-        html += '<form class=forms>';
+		html += '<form class=forms>';
 
-        for (var i = 0; i < wallsLength; i++) {
-            
-            html += "<span>Vegg "+(i+1)+": <input type='number' class='inputt' id=wall"+i+" value="+preDefArr[1][i];
-            html += "></span><br>";
+		for (var i = 0; i < wallsLength; i++) {
+			
+			html += "<span>Vegg "+(i+1)+": <input type='number' class='inputt' id=wall"+i+" value="+preDefArr[1][i];
+			html += "></span><br>";
 
-        }
+		}
 
-        // Add last wall disabled input
-        html += "<span class='inputt'>Vegg "+(wallsLength + 1)+" :";
-        html += "<input type='text' id=wall"+wallsLength+" value='Automatisk' disabled='disabled'></span><br>";
+		// Add last wall disabled input
+		html += "<span class='inputt'>Vegg "+(wallsLength + 1)+" :";
+		html += "<input type='text' id=wall"+wallsLength+" value='Automatisk' disabled='disabled'></span><br>";
 
-        html += "<input id="+defSubmit+" type='button' value='Oppdater'>";
-        html += "</form>";
+		html += "<input id="+defSubmit+" type='button' value='Oppdater'>";
+		html += "</form>";
 
-    } else {
-        html = '<p class="error"> You need to select<br> a predefined room first! </p>';
-    }
+	} else {
+		html = '<p class="error"> You need to select<br> a predefined room first! </p>';
+	}
 
-    // Add html to container.
-    $(container).html(html);
-
-
-    // Add click action for the "submit button".
-    $('#'+defSubmit).click(function() {
-
-        // Goes through the input elements and stores the length
-        for (var i = 0; i < wallsLength; i++) {
-            preDefArr[1][i] = $('#wall'+i).val();
-        }
-
-        TFplanner.finishedRoom.selectWall();
-        TFplanner.ourRoom.createRoom(preDefArr);
-    });
+	// Add html to container.
+	$(this.container).html(html);
 
 
-    /**
-     * Functionality that signals what wall that is selected when typing into the input field.
-    **/
-    $('.inputt').mousedown(function() {
+	// Add click action for the "submit button".
+	$('#'+defSubmit).click(function() {
 
-        var child = $(this).children(),
-            // Sort out id of input field (should be same as wall id).
-            id = (child[0] != null) ? child[0].id : child.context.id;
+		// Goes through the input elements and stores the length
+		for (var i = 0; i < wallsLength; i++) {
+			preDefArr[1][i] = $('#wall'+i).val();
+		}
 
-        // Get wall ID.
-        id = id.slice(-1);
+		// remove previous measurements, remove the selectwall and finally create the new room with specifications.
+		TFplanner.measurement.deconstructAid();
+		TFplanner.finishedRoom.selectWall();
+		TFplanner.ourRoom.createRoom(preDefArr);
+	});
 
-        // If the last wall-index is targeted we unselect.
-        id != wallsLength ? TFplanner.finishedRoom.selectWall(id) : TFplanner.finishedRoom.selectWall(null);
-    });
 
-    
-    // Pretty much the same as previous function, but this one handles 'keydown' in the inputfield
-    $('.inputt').keydown(function (e) {
+	/**
+	 * Functionality that signals what wall that is selected when typing into the input field.
+	**/
+	$('.inputt').mousedown(function() {
 
-        // Handling actions when 'Tab' is pressed in the input-field(s).
-        if (e.keyCode == 9) { 
+		var child = $(this).children(),
+			// Sort out id of input field (should be same as wall id).
+			id = (child[0] != null) ? child[0].id : child.context.id;
 
-            var child = $(this).children(),
-            id = (child[0] != null) ? child[0].id : child.context.id;
+		// Get wall ID.
+		id = id.slice(-1);
 
-            // Get wall ID, and add increment with 1, since we tabbed from the previous wall.
-            id = id.slice(-1);
-            id++;
+		// If the last wall-index is targeted we unselect.
+		id != wallsLength ? TFplanner.finishedRoom.selectWall(id) : TFplanner.finishedRoom.selectWall(null);
+	});
 
-            // If the last wall-index is targeted when tab is pressed, we unselect.
-            id != wallsLength ? TFplanner.finishedRoom.selectWall(id) : TFplanner.finishedRoom.selectWall(null);
-        } 
-    });
-}
+	
+	// Pretty much the same as previous function, but this one handles 'keydown' in the inputfield
+	$('.inputt').keydown(function (e) {
+
+		// Handling actions when 'Tab' is pressed in the input-field(s).
+		if (e.keyCode == 9) { 
+
+			var child = $(this).children(),
+			id = (child[0] != null) ? child[0].id : child.context.id;
+
+			// Get wall ID, and add increment with 1, since we tabbed from the previous wall.
+			id = id.slice(-1);
+			id++;
+
+			// If the last wall-index is targeted when tab is pressed, we unselect.
+			id != wallsLength ? TFplanner.finishedRoom.selectWall(id) : TFplanner.finishedRoom.selectWall(null);
+		} 
+	});
+};
 
 /*
  * Sets up the 'options-container', and create buttons and handlers.
  * Basically the same is done for each button, but the coordinates is different for each one.
  * OBS: The order of pushing elements to collections is important! (The button must be pushed as first element)
 **/
-Options.prototype.initDraw = function () {
-    var paper = this.optPaper,
-        width = paper.width,
-        height = paper.height,
-        drawColl = paper.set(),        
-        rectColl = paper.set(),
-        tColl = paper.set(),
-        lColl = paper.set(),
-        lInvColl = paper.set(),
-        lRot180Coll = paper.set(),
-        lRot270Coll = paper.set(),
-        tRot90Coll = paper.set(),
-        tRot180Coll = paper.set(),
-        tRot270Coll = paper.set(),
-        uColl = paper.set(),
-        helpColl = paper.set(),
-        rectAttr = {                // Attributes for the "background-square" of buttons.
-            fill: this.defColor, 
-            stroke: this.defColor, 
-            'stroke-width': 1, 
-        },
-        imgAttr = {                 // Attributes for the "image" on each button.
-            fill: this.imgColor,
-            stroke: 'black',
-            'stroke-width': 1,
-        },
-        txtAttr = {
-            'font-size': 18,
-            'font-weight': 'bold'
-        },
+Options.prototype.initDraw = function() {
+
+	var paper = this.optPaper,
+		opts = this,
+		width = paper.width,
+		height = paper.height,
+		drawColl = paper.set(),        
+		rectColl = paper.set(),
+		tColl = paper.set(),
+		lColl = paper.set(),
+		lInvColl = paper.set(),
+		lRot180Coll = paper.set(),
+		lRot270Coll = paper.set(),
+		tRot90Coll = paper.set(),
+		tRot180Coll = paper.set(),
+		tRot270Coll = paper.set(),
+		uColl = paper.set(),
+		rectAttr = {                // Attributes for the "background-square" of buttons.
+			fill: this.defColor, 
+			stroke: this.defColor, 
+			'stroke-width': 1, 
+		},
+		imgAttr = {                 // Attributes for the "image" on each button.
+			fill: this.imgColor,
+			stroke: 'black',
+			'stroke-width': 1,
+		},
+		txtAttr = {
+			'font-size': 18,
+			'font-weight': 'bold'
+		},
 
 
-    /**
-     *  All buttons is created the same way, with a square behind a illustration of the room-shape.
-     *  here are some common variables for positioning:
-    **/ 
+	/**
+	 * All buttons is created the same way, with a square behind a illustration of the room-shape.
+	 * Here are some common variables for positioning:
+	**/ 
 
-    // each "column" has its own x variable.
-    x0 = (width / 2.665),
-    x1 = (width / 8),
-    x2 = (width * (5 / 8)),
-    x3 = (width / 2),
+	// each "column" has its own x variable.
+	x0 = (width / 2.665),
+	x1 = (width / 8),
+	x2 = (width * (5 / 8)),
+	x3 = (width / 2),
 
-    // Each row has its own y variable.
-    y0 = (height * (4 / 20)),
-    y1 = (height * (5 / 20)),
-    y2 = (height * (9 / 20)),
-    y3 = (height * (10 / 20)),
-    y4 = (height * (12 / 20)),
-    y5 = (height * (14 / 20)),
-    y6 = (height * (16 / 20)),
-    y7 = (height * (18 / 20)),
-    
-    // Basically different offsets and points
-    w = (width / 4),
-    offset1 = (w / 4),
-    offset2 = (w / 2),
-    offset3 = (3 / 4),
-    offset4 = (w / 3),
-    offset5 = (w / 6),
-    offset6 = (w * (7 / 12)),
-    offset7 = (w * (5 / 12)),
-    offset8 = (w / 2),
-    p0 = (width * (7 / 16)),
-    p1 = (width * (3 / 16)),
-    p2 = (width * (11 / 16)),
+	// Each row has its own y variable.
+	y0 = (height * (4 / 20)),
+	y1 = (height * (5 / 20)),
+	y2 = (height * (9 / 20)),
+	y3 = (height * (10 / 20)),
+	y4 = (height * (12 / 20)),
+	y5 = (height * (14 / 20)),
+	y6 = (height * (16 / 20)),
+	y7 = (height * (18 / 20)),
+	
+	// Basically different offsets and points
+	w = (width / 4),
+	offset1 = (w / 4),
+	offset2 = (w / 2),
+	offset3 = (3 / 4),
+	offset4 = (w / 3),
+	offset5 = (w / 6),
+	offset6 = (w * (7 / 12)),
+	offset7 = (w * (5 / 12)),
+	offset8 = (w / 2),
+	p0 = (width * (7 / 16)),
+	p1 = (width * (3 / 16)),
+	p2 = (width * (11 / 16)),
 
-    // CUSTOM DRAW
-    // Header
-    drawTxt = paper.text(x3, y0, "Tegn selv").attr(txtAttr),
+	// CUSTOM DRAW
+	// Header
+	drawTxt = paper.text(x3, y0, 'Tegn selv').attr(txtAttr),
 
-    // Button
-    drawRect = paper.rect(x0, y1, w, w).attr(rectAttr),
-    drawImg = paper.path(
-                'M'+(p0)+' '+((y1)+offset1)+
-                ' L'+((p0)+offset2)+' '+((y1)+(w*offset3))+
-                ' L'+(p0)+' '+((y1)+(w*offset3))+
-                ' L'+(p0)+' '+((y1)+offset1)
-            ).attr(imgAttr),
+	// Button
+	drawRect = paper.rect(x0, y1, w, w).attr(rectAttr),
+	drawImg = paper.path(
+				'M'+(p0)+' '+((y1)+offset1)+
+				' L'+((p0)+offset2)+' '+((y1)+(w*offset3))+
+				' L'+(p0)+' '+((y1)+(w*offset3))+
+				' L'+(p0)+' '+((y1)+offset1)
+			).attr(imgAttr),
 
-    // PREDEFINED DRAW
-    // Header
-    tabTxt = paper.text(x3, y2, "Ferdiglagde rom").attr(txtAttr),
+	// PREDEFINED DRAW
+	// Header
+	tabTxt = paper.text(x3, y2, 'Ferdiglagde rom').attr(txtAttr),
 
-    // FIRST ROW of buttons
-    buttonRect = paper.rect(x1, y3, w, w).attr(rectAttr),
-    rectImg = paper.rect(p1, (y3+offset1), offset2, offset2).attr(imgAttr),
+	// FIRST ROW of buttons
+	buttonRect = paper.rect(x1, y3, w, w).attr(rectAttr),
+	rectImg = paper.rect(p1, (y3+offset1), offset2, offset2).attr(imgAttr),
 
-    buttonL = paper.rect(x2, y3, w, w).attr(rectAttr),
-    lImg = paper.path(
-                'M'+p2+' '+(y3+offset1)+
-                ' L'+(p2+offset1)+' '+(y3+offset1)+
-                ' L'+(p2+offset1)+' '+(y3+offset2)+
-                ' L'+(p2+offset2)+' '+(y3+offset2)+
-                ' L'+(p2+offset2)+' '+(y3+(w*offset3))+
-                ' L'+p2+' '+(y3+(w*offset3))+
-                ' L'+p2+' '+(y3+offset1)
-            ).attr(imgAttr),
-
-
-    // SECOND ROW
-    buttonT = paper.rect(x1, y4, w, w).attr(rectAttr),
-    tImg = paper.path(
-                'M'+p1+' '+(y4+offset1)+
-                'L'+(p1+offset2)+' '+(y4+offset1)+
-                ' L'+(p1+offset2)+' '+(y4+offset2)+
-                ' L'+(p1+offset4)+' '+(y4+offset2)+
-                ' L'+(p1+offset4)+' '+(y4+(w*offset3))+
-                ' L'+(p1+offset5)+' '+(y4+(w*offset3))+
-                ' L'+(p1+offset5)+' '+(y4+offset2)+
-                ' L'+p1+' '+(y4+offset2)+
-                ' L'+p1+' '+(y4+offset1)
-            ).attr(imgAttr),
-
-    lInv = paper.rect(x2, y4, w, w).attr(rectAttr),
-    lInvImg = paper.path(
-                'M'+(p2+offset1)+' '+(y4+offset1)+
-                ' L'+(p2+offset2)+' '+(y4+offset1)+
-                ' L'+(p2+offset2)+' '+(y4+(w*offset3))+
-                ' L'+p2+' '+(y4+(w*offset3))+
-                ' L'+p2+' '+(y4+offset2)+
-                ' L'+(p2+offset1)+' '+(y4+offset2)+
-                ' L'+(p2+offset1)+' '+(y4+offset1)
-            ).attr(imgAttr),
-
-    // THIRD ROW!
-    tRot90 = paper.rect(x1, y5, w, w).attr(rectAttr),
-    tRot90Img = paper.path(
-                'M'+(p1+offset1)+' '+(y5+offset1)+
-                ' L'+(p1+offset2)+' '+(y5+offset1)+
-                ' L'+(p1+offset2)+' '+(y5+(w*offset3))+
-                ' L'+(p1+offset1)+' '+(y5+(w*offset3))+
-                ' L'+(p1+offset1)+' '+(y5+offset6)+
-                ' L'+p1+' '+(y5+offset6)+
-                ' L'+p1+' '+(y5+offset7)+
-                ' L'+(p1+offset1)+' '+(y5+offset7)+
-                ' L'+(p1+offset1)+' '+(y5+offset1)
-            ).attr(imgAttr),
-
-    lRot180 = paper.rect(x2, y5, w, w).attr(rectAttr),
-    lRot180Img = paper.path(
-                'M'+p2+' '+(y5+offset1)+
-                ' L'+(p2+offset2)+' '+(y5+offset1)+
-                ' L'+(p2+offset2)+' '+(y5+(w*offset3))+
-                ' L'+(p2+offset1)+' '+(y5+(w*offset3))+
-                ' L'+(p2+offset1)+' '+(y5+offset2)+
-                ' L'+p2+' '+(y5+offset2)+
-                ' L'+p2+' '+(y5+offset1)
-            ).attr(imgAttr),
+	buttonL = paper.rect(x2, y3, w, w).attr(rectAttr),
+	lImg = paper.path(
+				'M'+p2+' '+(y3+offset1)+
+				' L'+(p2+offset1)+' '+(y3+offset1)+
+				' L'+(p2+offset1)+' '+(y3+offset2)+
+				' L'+(p2+offset2)+' '+(y3+offset2)+
+				' L'+(p2+offset2)+' '+(y3+(w*offset3))+
+				' L'+p2+' '+(y3+(w*offset3))+
+				' L'+p2+' '+(y3+offset1)
+			).attr(imgAttr),
 
 
-    // FOURTH ROW!
-    lRot270 = paper.rect(x2, y6, w, w).attr(rectAttr),
-    lRot270Img = paper.path(
-                'M'+p2+' '+(y6+offset1)+
-                ' L'+(p2+offset2)+' '+(y6+offset1)+
-                ' L'+(p2+offset2)+' '+(y6+offset2)+
-                ' L'+(p2+offset1)+' '+(y6+offset2)+
-                ' L'+(p2+offset1)+' '+(y6+(w*offset3))+
-                ' L'+p2+' '+(y6+(w*offset3))+
-                ' L'+p2+' '+(y6+offset1)
-            ).attr(imgAttr),
+	// SECOND ROW
+	buttonT = paper.rect(x1, y4, w, w).attr(rectAttr),
+	tImg = paper.path(
+				'M'+p1+' '+(y4+offset1)+
+				'L'+(p1+offset2)+' '+(y4+offset1)+
+				' L'+(p1+offset2)+' '+(y4+offset2)+
+				' L'+(p1+offset4)+' '+(y4+offset2)+
+				' L'+(p1+offset4)+' '+(y4+(w*offset3))+
+				' L'+(p1+offset5)+' '+(y4+(w*offset3))+
+				' L'+(p1+offset5)+' '+(y4+offset2)+
+				' L'+p1+' '+(y4+offset2)+
+				' L'+p1+' '+(y4+offset1)
+			).attr(imgAttr),
 
-    
-    tRot180 =  paper.rect(x1, y6, w, w).attr(rectAttr),
-    tRot180Img = paper.path(
-                'M'+(p1+offset5)+' '+(y6+offset1)+
-                ' L'+(p1+offset4)+' '+(y6+offset1)+
-                ' L'+(p1+offset4)+' '+(y6+offset2)+
-                ' L'+(p1+offset2)+' '+(y6+offset8)+
-                ' L'+(p1+offset2)+' '+(y6+(w*offset3))+
-                ' L'+p1+' '+(y6+(w*offset3))+
-                ' L'+p1+' '+(y6+offset8)+
-                ' L'+(p1+offset5)+' '+(y6+offset8)+
-                ' L'+(p1+offset5)+' '+(y6+offset1)
-            ).attr(imgAttr),
+	lInv = paper.rect(x2, y4, w, w).attr(rectAttr),
+	lInvImg = paper.path(
+				'M'+(p2+offset1)+' '+(y4+offset1)+
+				' L'+(p2+offset2)+' '+(y4+offset1)+
+				' L'+(p2+offset2)+' '+(y4+(w*offset3))+
+				' L'+p2+' '+(y4+(w*offset3))+
+				' L'+p2+' '+(y4+offset2)+
+				' L'+(p2+offset1)+' '+(y4+offset2)+
+				' L'+(p2+offset1)+' '+(y4+offset1)
+			).attr(imgAttr),
+
+	// THIRD ROW!
+	tRot90 = paper.rect(x1, y5, w, w).attr(rectAttr),
+	tRot90Img = paper.path(
+				'M'+(p1+offset1)+' '+(y5+offset1)+
+				' L'+(p1+offset2)+' '+(y5+offset1)+
+				' L'+(p1+offset2)+' '+(y5+(w*offset3))+
+				' L'+(p1+offset1)+' '+(y5+(w*offset3))+
+				' L'+(p1+offset1)+' '+(y5+offset6)+
+				' L'+p1+' '+(y5+offset6)+
+				' L'+p1+' '+(y5+offset7)+
+				' L'+(p1+offset1)+' '+(y5+offset7)+
+				' L'+(p1+offset1)+' '+(y5+offset1)
+			).attr(imgAttr),
+
+	lRot180 = paper.rect(x2, y5, w, w).attr(rectAttr),
+	lRot180Img = paper.path(
+				'M'+p2+' '+(y5+offset1)+
+				' L'+(p2+offset2)+' '+(y5+offset1)+
+				' L'+(p2+offset2)+' '+(y5+(w*offset3))+
+				' L'+(p2+offset1)+' '+(y5+(w*offset3))+
+				' L'+(p2+offset1)+' '+(y5+offset2)+
+				' L'+p2+' '+(y5+offset2)+
+				' L'+p2+' '+(y5+offset1)
+			).attr(imgAttr),
 
 
-    // FIFTH ROW!
-    tRot270 = paper.rect(x1, y7, w, w).attr(rectAttr),
-    tRot270Img = paper.path(
-                'M'+p1+' '+(y7+offset1)+
-                ' L'+(p1+offset1)+' '+(y7+offset1)+
-                ' L'+(p1+offset1)+' '+(y7+offset7)+
-                ' L'+(p1+offset2)+' '+(y7+offset7)+
-                ' L'+(p1+offset2)+' '+(y7+offset6)+
-                ' L'+(p1+offset1)+' '+(y7+offset6)+
-                ' L'+(p1+offset1)+' '+(y7+(w*offset3))+
-                ' L'+p1+' '+(y7+(w*offset3))+
-                ' L'+p1+' '+(y7+offset1)
-            ).attr(imgAttr),
+	// FOURTH ROW!
+	lRot270 = paper.rect(x2, y6, w, w).attr(rectAttr),
+	lRot270Img = paper.path(
+				'M'+p2+' '+(y6+offset1)+
+				' L'+(p2+offset2)+' '+(y6+offset1)+
+				' L'+(p2+offset2)+' '+(y6+offset2)+
+				' L'+(p2+offset1)+' '+(y6+offset2)+
+				' L'+(p2+offset1)+' '+(y6+(w*offset3))+
+				' L'+p2+' '+(y6+(w*offset3))+
+				' L'+p2+' '+(y6+offset1)
+			).attr(imgAttr),
 
-    
-    buttonU = paper.rect(x2, y7, w, w).attr(rectAttr),
-    uImg = paper.path(
-                'M'+p2+' '+(y7+offset1)+
-                ' L'+(p2+offset5)+' '+(y7+offset1)+
-                ' L'+(p2+offset5)+' '+(y7+offset2)+
-                ' L'+(p2+offset4)+' '+(y7+offset2)+
-                ' L'+(p2+offset4)+' '+(y7+offset1)+
-                ' L'+(p2+offset2)+' '+(y7+offset1)+
-                ' L'+(p2+offset2)+' '+(y7+(w*offset3))+
-                ' L'+p2+' '+(y7+(w*offset3))+
-                ' L'+p2+' '+(y7+offset1)
-            ).attr(imgAttr);
+	
+	tRot180 =  paper.rect(x1, y6, w, w).attr(rectAttr),
+	tRot180Img = paper.path(
+				'M'+(p1+offset5)+' '+(y6+offset1)+
+				' L'+(p1+offset4)+' '+(y6+offset1)+
+				' L'+(p1+offset4)+' '+(y6+offset2)+
+				' L'+(p1+offset2)+' '+(y6+offset8)+
+				' L'+(p1+offset2)+' '+(y6+(w*offset3))+
+				' L'+p1+' '+(y6+(w*offset3))+
+				' L'+p1+' '+(y6+offset8)+
+				' L'+(p1+offset5)+' '+(y6+offset8)+
+				' L'+(p1+offset5)+' '+(y6+offset1)
+			).attr(imgAttr),
 
-    // Set backgroundcolor of the options-container canvas.
-    paper.canvas.style.backgroundColor = '#CBC4BC';
 
-    // Create handlers and stuff for all the 'buttons'.
-    this.createHandlers(drawColl.push(drawRect, drawImg), null, "Tegn selv!");
-    this.createHandlers(rectColl.push(buttonRect, rectImg), 0, "Ferdiglaget kvadratisk rom");
-    this.createHandlers(tColl.push(buttonT, tImg), 2, "Ferdiglaget T-formet rom");
-    this.createHandlers(lColl.push(buttonL, lImg), 1,"Ferdiglaget L-formet rom");
-    this.createHandlers(lInvColl.push(lInv, lInvImg), 5, "Ferdiglaget invertert L-rom");
-    this.createHandlers(lRot180Coll.push(lRot180, lRot180Img), 4, "Ferdiglaget L-rom");
-    this.createHandlers(lRot270Coll.push(lRot270, lRot270Img), 3, "Ferdiglaget L-rom");
-    this.createHandlers(tRot90Coll.push(tRot90, tRot90Img), 6, "Ferdiglaget T-rom");
-    this.createHandlers(tRot180Coll.push(tRot180, tRot180Img), 7, "Ferdiglaget T-rom");
-    this.createHandlers(tRot270Coll.push(tRot270, tRot270Img), 8, "Ferdiglaget T-rom");
-    this.createHandlers(uColl.push(buttonU, uImg), 9, "Ferdiglaget U-rom");
+	// FIFTH ROW!
+	tRot270 = paper.rect(x1, y7, w, w).attr(rectAttr),
+	tRot270Img = paper.path(
+				'M'+p1+' '+(y7+offset1)+
+				' L'+(p1+offset1)+' '+(y7+offset1)+
+				' L'+(p1+offset1)+' '+(y7+offset7)+
+				' L'+(p1+offset2)+' '+(y7+offset7)+
+				' L'+(p1+offset2)+' '+(y7+offset6)+
+				' L'+(p1+offset1)+' '+(y7+offset6)+
+				' L'+(p1+offset1)+' '+(y7+(w*offset3))+
+				' L'+p1+' '+(y7+(w*offset3))+
+				' L'+p1+' '+(y7+offset1)
+			).attr(imgAttr),
 
-}
+	
+	buttonU = paper.rect(x2, y7, w, w).attr(rectAttr),
+	uImg = paper.path(
+				'M'+p2+' '+(y7+offset1)+
+				' L'+(p2+offset5)+' '+(y7+offset1)+
+				' L'+(p2+offset5)+' '+(y7+offset2)+
+				' L'+(p2+offset4)+' '+(y7+offset2)+
+				' L'+(p2+offset4)+' '+(y7+offset1)+
+				' L'+(p2+offset2)+' '+(y7+offset1)+
+				' L'+(p2+offset2)+' '+(y7+(w*offset3))+
+				' L'+p2+' '+(y7+(w*offset3))+
+				' L'+p2+' '+(y7+offset1)
+			).attr(imgAttr),
 
-/**
- * This function add the mouse-handlers for all the 'premade-room'-buttons.
- * @param Coll - A set, containing the rectangular button and the image upon it.
- * @param val - An int, that says what roomtype to be sent to the 'createRoom' function.
- * @param toolTip - A string, that is used to set the tooltip(title) of each button.
-**/
-Options.prototype.createHandlers = function(coll, val, toolTip) {
-    var theRoom = TFplanner.ourRoom,
-        defColor = this.defColor,
-        inColor = this.inColor;
+	/**
+	 * This function add the mouse-handlers for all the 'premade-room'-buttons.
+	 * @param Coll - A set, containing the rectangular button and the image upon it.
+	 * @param val - An int, that says what roomtype to be sent to the 'createRoom' function.
+	 * @param toolTip - A string, that is used to set the tooltip(title) of each button.
+	**/
+	createHandlers = function(coll, val, toolTip) {
 
-    coll.attr({
-        cursor: 'pointer',
-        title: toolTip
-    }).hover(function () {
-        // Set attributes on hover.
-        coll[0].attr('fill', inColor);
-    }, function () {
-        coll[0].attr('fill', defColor);
+		var theRoom = TFplanner.ourRoom,
+			defColor = opts.defColor,
+			inColor = opts.inColor;
 
-    }).mouseup(function () {
+		coll.attr({
+			cursor: 'pointer',
+			title: toolTip
+		}).hover(function () {
+			// Set attributes on hover.
+			coll[0].attr('fill', inColor);
+		}, function () {
+			coll[0].attr('fill', defColor);
 
-        if (val != null) {
-            theRoom.createRoom(TFplanner.options.preDefRoom(val));
-        } else {
-            if (TFplanner.finishedRoom == null) {
-                theRoom.initRoom();
-            }
-        }
-    });
-}
+		}).mouseup(function () {
 
+			if (val != null) {
+				theRoom.createRoom(TFplanner.options.preDefRoom(val));
+			} else {
+				if (TFplanner.finishedRoom == null) {
+					theRoom.initRoom();
+				}
+			}
+		});
+	};
+
+	// Set backgroundcolor of the options-container canvas.
+	paper.canvas.style.backgroundColor = '#CBC4BC';
+
+	// Create handlers and stuff for all the 'buttons'.
+	createHandlers(drawColl.push(drawRect, drawImg), null, 'Tegn selv!');
+	createHandlers(rectColl.push(buttonRect, rectImg), 0, 'Ferdiglaget kvadratisk rom');
+	createHandlers(tColl.push(buttonT, tImg), 2, 'Ferdiglaget T-formet rom');
+	createHandlers(lColl.push(buttonL, lImg), 1, 'Ferdiglaget L-formet rom');
+	createHandlers(lInvColl.push(lInv, lInvImg), 5, 'Ferdiglaget invertert L-rom');
+	createHandlers(lRot180Coll.push(lRot180, lRot180Img), 4, 'Ferdiglaget L-rom');
+	createHandlers(lRot270Coll.push(lRot270, lRot270Img), 3, 'Ferdiglaget L-rom');
+	createHandlers(tRot90Coll.push(tRot90, tRot90Img), 6, 'Ferdiglaget T-rom');
+	createHandlers(tRot180Coll.push(tRot180, tRot180Img), 7, 'Ferdiglaget T-rom');
+	createHandlers(tRot270Coll.push(tRot270, tRot270Img), 8, 'Ferdiglaget T-rom');
+	createHandlers(uColl.push(buttonU, uImg), 9, 'Ferdiglaget U-rom');
+
+};
 
 /**
  * Function that holds the shapes and wall-lengths of 'predefined' rooms.
@@ -1404,598 +1369,598 @@ Options.prototype.createHandlers = function(coll, val, toolTip) {
  * The first array contain the angles, and the second array contain the length of the wall.
  * @param value - A number from the function that calls this one, defines what room is to be returned.
 **/
-Options.prototype.preDefRoom = function (value) {
+Options.prototype.preDefRoom = function(value) {
 
-    switch(value) {
-        case 0:
-            return rectArr = [[180, 270, 360, 90],[600, 400, 600, 400]];                                            //Rectangle-shaped
-        case 1:
-            return lArr = [[180, 270, 180, 270, 360, 90],[200, 200, 200, 150, 400, 350]];                           //L-shaped
-        case 2:
-            return tArr = [[180, 270, 360, 270, 360, 90, 360, 90],[450, 150, 150, 250, 150, 250, 150, 150]];        //T-shaped
-        case 3:
-            return lRot270 = [[180, 270, 360, 270, 360, 90],[400, 150, 200, 200, 200, 350]];                        //L-shape rotated 270 degrees.
-        case 4:
-            return lRot180 = [[180, 270, 360, 90, 360, 90], [400, 350, 200, 200, 200, 150]];                        //L-shape rotated 180 degrees.
-        case 5:
-            return lRot90 = [[180, 270, 360, 90, 180, 90],[200, 350, 400, 150, 200, 200]];                          //L-shape rotated 90 degrees.
-        case 6:
-            return tRot90 = [[180, 270, 360, 90, 360, 90, 180, 90], [150, 450, 150, 150, 250, 150, 250, 150,]];     //T-shape rotated 90 degrees.
-        case 7:
-            return tRot180 = [[180, 270, 180, 270, 360, 90, 180, 90], [150, 250, 150, 150, 450, 150, 150, 250]];    //T-shape rotated 180 degrees.
-        case 8:
-            return tRot270 = [[180, 270, 180, 270, 360, 270, 360, 90], [150, 150, 250, 150, 250, 150, 150, 450]];   //T-shape rotated 270 degrees.
-        case 9:
-            return u = [[180, 270, 180, 90, 180, 270, 360, 90],[150, 200, 200, 200, 150, 350, 500, 350]];           //U-shaped room
-    }
-}
+	switch(value) {
+		case 0:  //Rectangle-shaped
+			return [[180, 270, 360, 90],[600, 400, 600, 400]];                                           
+		case 1: //L-shaped
+			return [[180, 270, 180, 270, 360, 90],[200, 200, 200, 150, 400, 350]];                           
+		case 2: //T-shaped
+			return [[180, 270, 360, 270, 360, 90, 360, 90],[450, 150, 150, 250, 150, 250, 150, 150]];        
+		case 3: //L-shape rotated 270 degrees.
+			return [[180, 270, 360, 270, 360, 90],[400, 150, 200, 200, 200, 350]];                        
+		case 4: //L-shape rotated 180 degrees.
+			return [[180, 270, 360, 90, 360, 90], [400, 350, 200, 200, 200, 150]];                        
+		case 5: //L-shape rotated 90 degrees.
+			return [[180, 270, 360, 90, 180, 90],[200, 350, 400, 150, 200, 200]];                          
+		case 6: //T-shape rotated 90 degrees.
+			return [[180, 270, 360, 90, 360, 90, 180, 90], [150, 450, 150, 150, 250, 150, 250, 150,]];     
+		case 7: //T-shape rotated 180 degrees.
+			return [[180, 270, 180, 270, 360, 90, 180, 90], [150, 250, 150, 150, 450, 150, 150, 250]];    
+		case 8: //T-shape rotated 270 degrees.
+			return [[180, 270, 180, 270, 360, 270, 360, 90], [150, 150, 250, 150, 250, 150, 150, 450]];   
+		case 9: //U-shaped room
+			return [[180, 270, 180, 90, 180, 270, 360, 90],[150, 200, 200, 200, 150, 350, 500, 350]];		
+	}
+};
 
 
 /**
  * Function that get the value from all dropdowns in the Specifications-tab
  * and find the corresponding product that fit the chosen values.
 **/
-Options.prototype.tfProducts = function () {
+Options.prototype.tfProducts = function() {
 
-    var area = $('#inOutType').val(),
-        climate = $('#climateType').val(),
-        deck = $('#deckType').val(),
-        watt = $('#wattage').val(),
-        cast = $('#casting').val(),
-        crossO = this.crossO,
-        dotA = this.dotA,
+	var area = $('#inOutType').val(),
+		climate = $('#climateType').val(),
+		deck = $('#deckType').val(),
+		watt = $('#wattage').val(),
+		cast = $('#casting').val(),
+		crossO = this.crossO,
+		dotA = this.dotA,
 
-        mats = [
-        {
-            name: 'TFP',
-            areas: {
-                inside: true
-            },
+		mats = [
+		{
+			name: 'TFP',
+			areas: {
+				inside: true
+			},
 
-            climates: {
-                dry: true
-            },
+			climates: {
+				dry: true
+			},
 
-            decks: {
-                parquet: true,
-                laminat: true
-            },
+			decks: {
+				parquet: true,
+				laminat: true
+			},
 
-            wattage: {
-                '60': true
-            },
+			wattage: {
+				'60': true
+			},
 
-            casting: {
-                nocast: true
-            },
+			casting: {
+				nocast: true
+			},
 
-            note: 'Husk '+dotA+' bestille nok TFP underlagsmatte, tape og termostat med gulvf'+crossO+'ler',
+			note: 'Husk '+this.dotA+' bestille nok TFP underlagsmatte, tape og termostat med gulvf'+this.crossO+'ler',
 
-            desc: 'Varmekabelmatte som parkettunderlag',
+			desc: 'Varmekabelmatte som parkettunderlag',
 
-            products: [
-                {
-                    length: 2,
-                    number: 1001051,
-                    name: 'TFP 60W/1,0m2 0,5x2m 60W',
-                }, {
-                    length: 4, 
-                    number: 1001052,
-                    name: 'TFP 60W/2,0m2 0,5x4m 120W'
-                }, {
-                    length: 6, 
-                    number: 1001053,
-                    name: 'TFP 60W/3,0m2 0,5x6m 180W'
-                }, {
-                    length: 8, 
-                    number: 1001054,
-                    name: 'TFP 60W/4,0m2 0,5x8m 240W'
-                }, {
-                    length: 10, 
-                    number: 1001055,
-                    name: 'TFP 60W/5,0m2 0,5x10m 300W'
-                }, {
-                    length: 12, 
-                    number: 1001056,
-                    name: 'TFP 60W/6,0m2 0,5x12m 360W'
-                }, {
-                    length: 14, 
-                    number: 1001057,
-                    name: 'TFP 60W/7,0m2 0,5x14m 420W'
-                }, {
-                    length: 16, 
-                    number: 1001058,
-                    name: 'TFP 60W/8,0m2 0,5x16m 480W'
-                }, {
-                    length: 18, 
-                    number: 1001059,
-                    name: 'TFP 60W/9,0m2 0,5x18m 540W'
-                }, {
-                    length: 20, 
-                    number: 1001060,
-                    name: 'TFP 60W/10,0m2 0,5x20m 600W'
-                }, {
-                    length: 24, 
-                    number: 1001062,
-                    name: 'TFP 60W/12,0m2 0,5x24m 720W'
-                }, {
-                    length: 30,
-                    number: 1001063,
-                    name: 'TFP 60W/15,0m2 0,5x30m 900W'
-                }
-            ]
-        }, {
-            name: 'TFU',
-            areas: {
-                outside: true
-            },
-            // Might be ugly to set undefined as 'true', but climate will not be defined if area is outside, so
-            // it works.
-            climates: {
-                undefined: true
-            },
+			products: [
+				{
+					length: 2,
+					number: 1001051,
+					name: 'TFP 60W/1,0m2 0,5x2m 60W',
+				}, {
+					length: 4, 
+					number: 1001052,
+					name: 'TFP 60W/2,0m2 0,5x4m 120W'
+				}, {
+					length: 6, 
+					number: 1001053,
+					name: 'TFP 60W/3,0m2 0,5x6m 180W'
+				}, {
+					length: 8, 
+					number: 1001054,
+					name: 'TFP 60W/4,0m2 0,5x8m 240W'
+				}, {
+					length: 10, 
+					number: 1001055,
+					name: 'TFP 60W/5,0m2 0,5x10m 300W'
+				}, {
+					length: 12, 
+					number: 1001056,
+					name: 'TFP 60W/6,0m2 0,5x12m 360W'
+				}, {
+					length: 14, 
+					number: 1001057,
+					name: 'TFP 60W/7,0m2 0,5x14m 420W'
+				}, {
+					length: 16, 
+					number: 1001058,
+					name: 'TFP 60W/8,0m2 0,5x16m 480W'
+				}, {
+					length: 18, 
+					number: 1001059,
+					name: 'TFP 60W/9,0m2 0,5x18m 540W'
+				}, {
+					length: 20, 
+					number: 1001060,
+					name: 'TFP 60W/10,0m2 0,5x20m 600W'
+				}, {
+					length: 24, 
+					number: 1001062,
+					name: 'TFP 60W/12,0m2 0,5x24m 720W'
+				}, {
+					length: 30,
+					number: 1001063,
+					name: 'TFP 60W/15,0m2 0,5x30m 900W'
+				}
+			]
+		}, {
+			name: 'TFU',
+			areas: {
+				outside: true
+			},
+			// Might be ugly to set undefined as 'true', but climate will not be defined if area is outside, so
+			// it works.
+			climates: {
+				undefined: true
+			},
 
-            decks: {
-                asphalt: true
-            },
+			decks: {
+				asphalt: true
+			},
 
-            wattage: {
-                undefined: true
-            },
+			wattage: {
+				undefined: true
+			},
 
-            casting: {
-                undefined: true
-            },  
+			casting: {
+				undefined: true
+			},  
 
-            note: 'Husk '+dotA+' bestille styringssystem som passer anlegget.<br> Sp'+crossO+'r Thermo-Floor om r'+dotA+'d hvis du er usikker p'+dotA+' hva som kan brukes.',
+			note: 'Husk '+dotA+' bestille styringssystem som passer anlegget.<br> Sp'+this.crossO+'r Thermo-Floor om r'+this.dotA+'d hvis du er usikker p'+this.dotA+' hva som kan brukes.',
 
-            desc: 'Utend'+crossO+'rs varmekabelmatte',
+			desc: 'Utend'+crossO+'rs varmekabelmatte',
 
-            products: [
-                {
-                    length: 2,
-                    number: 1001151,
-                    name: 'TFU 230V 300W/1m2 - 300W'
-                }, {
-                    length: 4, 
-                    number: 1001152,
-                    name: 'TFU 230V 300W/2m2 - 600W'
-                }, {
-                    length: 6, 
-                    number: 1001153,
-                    name: 'TFU 230V 300W/3m2 - 900W'
-                }, {
-                    length: 8, 
-                    number: 1001154,
-                    name: 'TFU 230V 300W/4m2 - 1200W'
-                }, {
-                    length: 10, 
-                    number: 1001155,
-                    name: 'TFU 230V 300W/5m2 - 1500W'
-                }, {
-                    length: 12, 
-                    number: 1001156,
-                    name: 'TFU 230V 300W/6m2 - 1800W'
-                }, {
-                    length: 14, 
-                    number: 1001157,
-                    name: 'TFU 230V 300W/7m2 - 2100W'
-                }, {
-                    length: 16, 
-                    number: 1001158,
-                    name: 'TFU 230V 300W/8m2 - 2400W'
-                }, {
-                    length: 20, 
-                    number: 1001160,
-                    name: 'TFU 230V 300W/10m2 - 3000W'
-                }, {
-                    length: 24, 
-                    number: 1001162,
-                    name: 'TFU 230V 300W/12m2 - 3600W'
-                }, {
-                    length: 28, 
-                    number: 1001164,
-                    name: 'TFU 230V 300W/14m2 - 4200W'
-                }
-            ]
-        }, {
-            name: 'SVK/TFU',
-            areas: {
-                outside: true
-            },
+			products: [
+				{
+					length: 2,
+					number: 1001151,
+					name: 'TFU 230V 300W/1m2 - 300W'
+				}, {
+					length: 4, 
+					number: 1001152,
+					name: 'TFU 230V 300W/2m2 - 600W'
+				}, {
+					length: 6, 
+					number: 1001153,
+					name: 'TFU 230V 300W/3m2 - 900W'
+				}, {
+					length: 8, 
+					number: 1001154,
+					name: 'TFU 230V 300W/4m2 - 1200W'
+				}, {
+					length: 10, 
+					number: 1001155,
+					name: 'TFU 230V 300W/5m2 - 1500W'
+				}, {
+					length: 12, 
+					number: 1001156,
+					name: 'TFU 230V 300W/6m2 - 1800W'
+				}, {
+					length: 14, 
+					number: 1001157,
+					name: 'TFU 230V 300W/7m2 - 2100W'
+				}, {
+					length: 16, 
+					number: 1001158,
+					name: 'TFU 230V 300W/8m2 - 2400W'
+				}, {
+					length: 20, 
+					number: 1001160,
+					name: 'TFU 230V 300W/10m2 - 3000W'
+				}, {
+					length: 24, 
+					number: 1001162,
+					name: 'TFU 230V 300W/12m2 - 3600W'
+				}, {
+					length: 28, 
+					number: 1001164,
+					name: 'TFU 230V 300W/14m2 - 4200W'
+				}
+			]
+		}, {
+			name: 'SVK/TFU',
+			areas: {
+				outside: true
+			},
 
-            climates: {
-                undefined: true
-            },
+			climates: {
+				undefined: true
+			},
 
-            decks: {
-                pavblock: true,
-                concrete: true
-            },
+			decks: {
+				pavblock: true,
+				concrete: true
+			},
 
-            wattage: {
-                undefined: true
-            },
+			wattage: {
+				undefined: true
+			},
 
-            casting: {
-                undefined: true
-            },
+			casting: {
+				undefined: true
+			},
 
-            note: 'Husk '+dotA+' bestille styringssystem som passer anlegget.<br> Sp'+crossO+'r Thermo-Floor om r'+dotA+'d hvis du er usikker p'+dotA+' hva som kan brukes.',
+			note: 'Husk '+this.dotA+' bestille styringssystem som passer anlegget.<br> Sp'+this.crossO+'r Thermo-Floor om r'+this.dotA+'d hvis du er usikker p'+this.dotA+' hva som kan brukes.',
 
-            desc: 'Utend'+dotA+'rs varmekabelmatte',
+			desc: 'Utend'+this.dotA+'rs varmekabelmatte',
 
-            products: [
-                {
-                    length: 2,
-                    number: 1001151,
-                    name: 'TFU 230V 300W/1m2 - 300W'
-                }, {
-                    length: 4, 
-                    number: 1001152,
-                    name: 'TFU 230V 300W/2m2 - 600W'
-                }, {
-                    length: 6, 
-                    number: 1001153,
-                    name: 'TFU 230V 300W/3m2 - 900W'
-                }, {
-                    length: 8, 
-                    number: 1001154,
-                    name: 'TFU 230V 300W/4m2 - 1200W'
-                }, {
-                    length: 10, 
-                    number: 1001155,
-                    name: 'TFU 230V 300W/5m2 - 1500W'
-                }, {
-                    length: 12, 
-                    number: 1001156,
-                    name: 'TFU 230V 300W/6m2 - 1800W'
-                }, {
-                    length: 14, 
-                    number: 1001157,
-                    name: 'TFU 230V 300W/7m2 - 2100W'
-                }, {
-                    length: 16, 
-                    number: 1011638,
-                    name: 'TF SVK MATTE 2400W'
-                }, {
-                    length: 20, 
-                    number: 1011640,
-                    name: 'TF SVK MATTE 3000W'
-                }, {
-                    length: 24, 
-                    number: 1011642,
-                    name: 'TF SVK MATTE 3600W'
-                }
-            ]
-        }, {
-            name: 'TF STICKY MAT 60W',
-            areas: {
-                inside: true
-            },
+			products: [
+				{
+					length: 2,
+					number: 1001151,
+					name: 'TFU 230V 300W/1m2 - 300W'
+				}, {
+					length: 4, 
+					number: 1001152,
+					name: 'TFU 230V 300W/2m2 - 600W'
+				}, {
+					length: 6, 
+					number: 1001153,
+					name: 'TFU 230V 300W/3m2 - 900W'
+				}, {
+					length: 8, 
+					number: 1001154,
+					name: 'TFU 230V 300W/4m2 - 1200W'
+				}, {
+					length: 10, 
+					number: 1001155,
+					name: 'TFU 230V 300W/5m2 - 1500W'
+				}, {
+					length: 12, 
+					number: 1001156,
+					name: 'TFU 230V 300W/6m2 - 1800W'
+				}, {
+					length: 14, 
+					number: 1001157,
+					name: 'TFU 230V 300W/7m2 - 2100W'
+				}, {
+					length: 16, 
+					number: 1011638,
+					name: 'TF SVK MATTE 2400W'
+				}, {
+					length: 20, 
+					number: 1011640,
+					name: 'TF SVK MATTE 3000W'
+				}, {
+					length: 24, 
+					number: 1011642,
+					name: 'TF SVK MATTE 3600W'
+				}
+			]
+		}, {
+			name: 'TF STICKY MAT 60W',
+			areas: {
+				inside: true
+			},
 
-            climates: {
-                dry: true,
-                wet: true
-            },
+			climates: {
+				dry: true,
+				wet: true
+			},
 
-            decks: {
-                tile: true,
-                parquet: true,
-                laminat: true,
-                carpet: true,
-                cork: true,
-                scale: true,
-                concrete: true
-            },
+			decks: {
+				tile: true,
+				parquet: true,
+				laminat: true,
+				carpet: true,
+				cork: true,
+				scale: true,
+				concrete: true
+			},
 
-            wattage: {
-                '60': true,
-                undefined: true
-            },
+			wattage: {
+				'60': true,
+				undefined: true
+			},
 
-            casting: {
-                cast: true,
-                undefined: true
-            },
+			casting: {
+				cast: true,
+				undefined: true
+			},
 
-            note: 'Husk '+dotA+' bestille primer, st'+dotA+'lnett og termostat med gulvf'+crossO+'ler.',
+			note: 'Husk '+this.dotA+' bestille primer, st'+this.dotA+'lnett og termostat med gulvf'+this.crossO+'ler.',
 
-            desc: 'TF Sticky selvklebende varmekabelmatte',
+			desc: 'TF Sticky selvklebende varmekabelmatte',
 
-            products: [
-                { 
-                    length: 6,
-                    number: 1011503,
-                    name: 'TF Sticky Mat 60W/3m2 - 180W'
-                }, {
-                    length: 8, 
-                    number: 1011504,
-                    name: 'TF Sticky Mat 60W/4m2 - 240W'
-                }, {
-                    length: 10, 
-                    number: 1011505,
-                    name: 'TF Sticky Mat 60W/5m2 - 300W'
-                }, {
-                    length: 12, 
-                    number: 1011506,
-                    name: 'TF Sticky Mat 60W/6m2 - 360W'
-                }, {
-                    length: 14, 
-                    number: 1011507,
-                    name: 'TF Sticky Mat 60W/7m2 - 420W'
-                }, {
-                    length: 16, 
-                    number: 1011508,
-                    name: 'TF Sticky Mat 60W/8m2 - 480W'
-                }, {
-                    length: 18, 
-                    number: 1011509,
-                    name: 'TF Sticky Mat 60W/9m2 - 540W'
-                }, {
-                    length: 20, 
-                    number: 1011510,
-                    name: 'TF Sticky Mat 60W/10m2 - 600W'
-                }, {
-                    length: 24, 
-                    number: 1011512,
-                    name: 'TF Sticky Mat 60W/12m2 - 720W'
-                }
-            ]
-        }, {
-            name: 'TF STICKY MAT 100W',
-            areas: {
-                inside: true
-            },
+			products: [
+				{ 
+					length: 6,
+					number: 1011503,
+					name: 'TF Sticky Mat 60W/3m2 - 180W'
+				}, {
+					length: 8, 
+					number: 1011504,
+					name: 'TF Sticky Mat 60W/4m2 - 240W'
+				}, {
+					length: 10, 
+					number: 1011505,
+					name: 'TF Sticky Mat 60W/5m2 - 300W'
+				}, {
+					length: 12, 
+					number: 1011506,
+					name: 'TF Sticky Mat 60W/6m2 - 360W'
+				}, {
+					length: 14, 
+					number: 1011507,
+					name: 'TF Sticky Mat 60W/7m2 - 420W'
+				}, {
+					length: 16, 
+					number: 1011508,
+					name: 'TF Sticky Mat 60W/8m2 - 480W'
+				}, {
+					length: 18, 
+					number: 1011509,
+					name: 'TF Sticky Mat 60W/9m2 - 540W'
+				}, {
+					length: 20, 
+					number: 1011510,
+					name: 'TF Sticky Mat 60W/10m2 - 600W'
+				}, {
+					length: 24, 
+					number: 1011512,
+					name: 'TF Sticky Mat 60W/12m2 - 720W'
+				}
+			]
+		}, {
+			name: 'TF STICKY MAT 100W',
+			areas: {
+				inside: true
+			},
 
-            climates: {
-                dry: true,
-                wet: true
-            },
+			climates: {
+				dry: true,
+				wet: true
+			},
 
-            decks: {
-                tile: true,
-                parquet: true,
-                laminat: true,
-                carpet: true,
-                cork: true,
-                scale: true,
-                concrete: true
-            },
+			decks: {
+				tile: true,
+				parquet: true,
+				laminat: true,
+				carpet: true,
+				cork: true,
+				scale: true,
+				concrete: true
+			},
 
-            wattage: {
-                '100': true,
-                undefined: true
-            },
+			wattage: {
+				'100': true,
+				undefined: true
+			},
 
-            casting: {
-                undefined: true
-            },
+			casting: {
+				undefined: true
+			},
 
-            note: 'Husk '+dotA+' bestille primer, st'+dotA+'lnett og termostat med gulvf'+crossO+'ler.',
+			note: 'Husk '+this.dotA+' bestille primer, st'+this.dotA+'lnett og termostat med gulvf'+this.crossO+'ler.',
 
-            desc: 'TF Sticky selvklebende varmekabelmatte',
+			desc: 'TF Sticky selvklebende varmekabelmatte',
 
-            products: [
-                { 
-                    length: 6,
-                    number: 1011513,
-                    name: 'TF Sticky Mat 100W/3m2 - 300W'
-                }, {
-                    length: 8, 
-                    number: 1011514,
-                    name: 'TF Sticky Mat 100W/4m2 - 400W'
-                }, {
-                    length: 10, 
-                    number: 1011515,
-                    name: 'TF Sticky Mat 100W/5m2 - 500W'
-                }, {
-                    length: 12, 
-                    number: 1011516,
-                    name: 'TF Sticky Mat 100W/6m2 - 600W'
-                }, {
-                    length: 14, 
-                    number: 1011517,
-                    name: 'TF Sticky Mat 100W/7m2 - 700W'
-                }, {
-                    length: 16, 
-                    number: 1011518,
-                    name: 'TF Sticky Mat 100W/8m2 - 800W'
-                }, {
-                    length: 18, 
-                    number: 1011519,
-                    name: 'TF Sticky Mat 100W/9m2 - 900W'
-                }, {
-                    length: 20, 
-                    number: 1011520,
-                    name: 'TF Sticky Mat 100W/10m2 - 1000W'
-                }, {
-                    length: 24, 
-                    number: 1011522,
-                    name: 'TF Sticky Mat 100W/12m2 - 1200W'
-                }
-            ]
-        }, {
-            name: 'TF STICKY MAT 130W',
-            areas: {
-                inside: true
-            },
+			products: [
+				{ 
+					length: 6,
+					number: 1011513,
+					name: 'TF Sticky Mat 100W/3m2 - 300W'
+				}, {
+					length: 8, 
+					number: 1011514,
+					name: 'TF Sticky Mat 100W/4m2 - 400W'
+				}, {
+					length: 10, 
+					number: 1011515,
+					name: 'TF Sticky Mat 100W/5m2 - 500W'
+				}, {
+					length: 12, 
+					number: 1011516,
+					name: 'TF Sticky Mat 100W/6m2 - 600W'
+				}, {
+					length: 14, 
+					number: 1011517,
+					name: 'TF Sticky Mat 100W/7m2 - 700W'
+				}, {
+					length: 16, 
+					number: 1011518,
+					name: 'TF Sticky Mat 100W/8m2 - 800W'
+				}, {
+					length: 18, 
+					number: 1011519,
+					name: 'TF Sticky Mat 100W/9m2 - 900W'
+				}, {
+					length: 20, 
+					number: 1011520,
+					name: 'TF Sticky Mat 100W/10m2 - 1000W'
+				}, {
+					length: 24, 
+					number: 1011522,
+					name: 'TF Sticky Mat 100W/12m2 - 1200W'
+				}
+			]
+		}, {
+			name: 'TF STICKY MAT 130W',
+			areas: {
+				inside: true
+			},
 
-            climates: {
-                dry: true,
-                wet: true
-            },
+			climates: {
+				dry: true,
+				wet: true
+			},
 
-            decks: {
-                tile: true,
-                parquet: true,
-                laminat: true,
-                carpet: true,
-                cork: true,
-                scale: true,
-                concrete: true
-            },
+			decks: {
+				tile: true,
+				parquet: true,
+				laminat: true,
+				carpet: true,
+				cork: true,
+				scale: true,
+				concrete: true
+			},
 
-            wattage: {
-                '130': true,
-                undefined: true
-            },
+			wattage: {
+				'130': true,
+				undefined: true
+			},
 
-            casting: {
-                undefined: true
-            },
+			casting: {
+				undefined: true
+			},
 
-            note: 'Husk '+dotA+' bestille primer, st'+dotA+'lnett og termostat med gulvf'+crossO+'ler.',
+			note: 'Husk '+this.dotA+' bestille primer, st'+this.dotA+'lnett og termostat med gulvf'+this.crossO+'ler.',
 
-            desc: 'TF Sticky selvklebende varmekabelmatte',
+			desc: 'TF Sticky selvklebende varmekabelmatte',
 
-            products: [
-                { 
-                    length: 6,
-                    number: 1011523,
-                    name: 'TF Sticky Mat 130W/3m2 - 390W'
-                }, {
-                    length: 8, 
-                    number: 1011524,
-                    name: 'TF Sticky Mat 130W/4m2 - 520W'
-                }, {
-                    length: 10, 
-                    number: 1011525,
-                    name: 'TF Sticky Mat 130W/5m2 - 650W'
-                }, {
-                    length: 12, 
-                    number: 1011526,
-                    name: 'TF Sticky Mat 130W/6m2 - 780W'
-                }, {
-                    length: 14, 
-                    number: 1011527,
-                    name: 'TF Sticky Mat 130W/7m2 - 910W'
-                }, {
-                    length: 16, 
-                    number: 1011528,
-                    name: 'TF Sticky Mat 130W/8m2 - 1040W'
-                }, {
-                    length: 18, 
-                    number: 1011529,
-                    name: 'TF Sticky Mat 130W/9m2 - 1170W'
-                }, {
-                    length: 20, 
-                    number: 1011550,
-                    name: 'TF Sticky Mat 130W/10m2 - 1300W'
-                }, {
-                    length: 24, 
-                    number: 1011552,
-                    name: 'TF Sticky Mat 130W/12m2 - 1560W'
-                }
-            ]
-        }, {
-            name: 'TF STICKY MAT 160W',
-            areas: {
-                inside: true
-            },
+			products: [
+				{ 
+					length: 6,
+					number: 1011523,
+					name: 'TF Sticky Mat 130W/3m2 - 390W'
+				}, {
+					length: 8, 
+					number: 1011524,
+					name: 'TF Sticky Mat 130W/4m2 - 520W'
+				}, {
+					length: 10, 
+					number: 1011525,
+					name: 'TF Sticky Mat 130W/5m2 - 650W'
+				}, {
+					length: 12, 
+					number: 1011526,
+					name: 'TF Sticky Mat 130W/6m2 - 780W'
+				}, {
+					length: 14, 
+					number: 1011527,
+					name: 'TF Sticky Mat 130W/7m2 - 910W'
+				}, {
+					length: 16, 
+					number: 1011528,
+					name: 'TF Sticky Mat 130W/8m2 - 1040W'
+				}, {
+					length: 18, 
+					number: 1011529,
+					name: 'TF Sticky Mat 130W/9m2 - 1170W'
+				}, {
+					length: 20, 
+					number: 1011550,
+					name: 'TF Sticky Mat 130W/10m2 - 1300W'
+				}, {
+					length: 24, 
+					number: 1011552,
+					name: 'TF Sticky Mat 130W/12m2 - 1560W'
+				}
+			]
+		}, {
+			name: 'TF STICKY MAT 160W',
+			areas: {
+				inside: true
+			},
 
-            climates: {
-                dry: true,
-                wet: true
-            },
+			climates: {
+				dry: true,
+				wet: true
+			},
 
-            decks: {
-                tile: true,
-                parquet: true,
-                laminat: true,
-                carpet: true,
-                cork: true,
-                scale: true,
-                concrete: true
-            },
+			decks: {
+				tile: true,
+				parquet: true,
+				laminat: true,
+				carpet: true,
+				cork: true,
+				scale: true,
+				concrete: true
+			},
 
-            wattage: {
-                '160': true,
-                undefined: true
-            },
+			wattage: {
+				'160': true,
+				undefined: true
+			},
 
-            casting: {
-                undefined: true
-            },
+			casting: {
+				undefined: true
+			},
 
-            note: 'Husk '+dotA+' bestille primer, st'+dotA+'lnett og termostat med gulvf'+crossO+'ler.',
+			note: 'Husk '+this.dotA+' bestille primer, st'+this.dotA+'lnett og termostat med gulvf'+this.crossO+'ler.',
 
-            desc: 'TF Sticky selvklebende varmekabelmatte',
+			desc: 'TF Sticky selvklebende varmekabelmatte',
 
-            products: [
-                { 
-                    length: 2,
-                    number: 1011530,
-                    name: 'TF Sticky Mat 160W/1m2 - 160W'
-                }, {
-                    length: 3, 
-                    number: 1011531,
-                    name: 'TF Sticky Mat 160W/1,5m2 - 240W'
-                }, {
-                    length: 4, 
-                    number: 1011532,
-                    name: 'TF Sticky Mat 160W/2m2 - 320W'
-                }, {
-                    length: 5, 
-                    number: 1011533,
-                    name: 'TF Sticky Mat 160W/2,5m2 - 400W'
-                }, {
-                    length: 6, 
-                    number: 1011534,
-                    name: 'TF Sticky Mat 160W/3m2 - 480W'
-                }, {
-                    length: 7, 
-                    number: 1011535,
-                    name: 'TF Sticky Mat 160W/3,5m2 - 560W'
-                }, {
-                    length: 8, 
-                    number: 1011536,
-                    name: 'TF Sticky Mat 160W/4m2 - 640W'
-                }, {
-                    length: 9, 
-                    number: 1011537,
-                    name: 'TF Sticky Mat 160W/4,5m2 - 720W'
-                }, {
-                    length: 10, 
-                    number: 1011538,
-                    name: 'TF Sticky Mat 160W/5m2 - 800W'
-                }, {
-                    length: 12, 
-                    number: 1011540,
-                    name: 'TF Sticky Mat 160W/6m2 - 960W'
-                }, {
-                    length: 14, 
-                    number: 1011542,
-                    name: 'TF Sticky Mat 160W/7m2 - 1120W'
-                }, {
-                    length: 16, 
-                    number: 1011544,
-                    name: 'TF Sticky Mat 160W/8m2 - 1280W'
-                }, {
-                    length: 18, 
-                    number: 1011546,
-                    name: 'TF Sticky Mat 160W/9m2 - 1440W'
-                }
-            ]
-        },
-    ];
+			products: [
+				{ 
+					length: 2,
+					number: 1011530,
+					name: 'TF Sticky Mat 160W/1m2 - 160W'
+				}, {
+					length: 3, 
+					number: 1011531,
+					name: 'TF Sticky Mat 160W/1,5m2 - 240W'
+				}, {
+					length: 4, 
+					number: 1011532,
+					name: 'TF Sticky Mat 160W/2m2 - 320W'
+				}, {
+					length: 5, 
+					number: 1011533,
+					name: 'TF Sticky Mat 160W/2,5m2 - 400W'
+				}, {
+					length: 6, 
+					number: 1011534,
+					name: 'TF Sticky Mat 160W/3m2 - 480W'
+				}, {
+					length: 7, 
+					number: 1011535,
+					name: 'TF Sticky Mat 160W/3,5m2 - 560W'
+				}, {
+					length: 8, 
+					number: 1011536,
+					name: 'TF Sticky Mat 160W/4m2 - 640W'
+				}, {
+					length: 9, 
+					number: 1011537,
+					name: 'TF Sticky Mat 160W/4,5m2 - 720W'
+				}, {
+					length: 10, 
+					number: 1011538,
+					name: 'TF Sticky Mat 160W/5m2 - 800W'
+				}, {
+					length: 12, 
+					number: 1011540,
+					name: 'TF Sticky Mat 160W/6m2 - 960W'
+				}, {
+					length: 14, 
+					number: 1011542,
+					name: 'TF Sticky Mat 160W/7m2 - 1120W'
+				}, {
+					length: 16, 
+					number: 1011544,
+					name: 'TF Sticky Mat 160W/8m2 - 1280W'
+				}, {
+					length: 18, 
+					number: 1011546,
+					name: 'TF Sticky Mat 160W/9m2 - 1440W'
+				}
+			]
+		},
+	];
 
-    var i = mats.length;
-    while (i--) {
-        if (mats[i].areas[area] && mats[i].climates[climate] && mats[i].decks[deck] && mats[i].wattage[watt] && mats[i].casting[cast]) {
+	var i = mats.length;
+	while (i--) {
+		if (mats[i].areas[area] && mats[i].climates[climate] && mats[i].decks[deck] && mats[i].wattage[watt] && mats[i].casting[cast]) {
 
-            this.validMat = mats[i];
-            console.log(mats[i].name);
+			this.validMat = mats[i];
+			console.log(mats[i].name);
 
-        }
-    }
-}
+		}
+	}
+};
 
 /**
  *  Magic math function
  *  sauce: http://stackoverflow.com/questions/13077923/how-can-i-convert-a-string-into-a-math-operator-in-javascript
 **/
 var matIt = {
-    '+': function (x, y) { return x + y },
-    '-': function (x, y) { return x - y }
+	'+': function (x, y) { return x + y },
+	'-': function (x, y) { return x - y }
 };

@@ -131,7 +131,7 @@ Obstacles.prototype.createObstacle = function(num, txt) {
 	obstacle.data('obstacleType', txt);
 
 	// Obstacle text related variables.
-	txtPoint = new Point((x + (w / 2)), (y + (h / 2)));
+	txtPoint = {x: (x + (w / 2)), y: (y + (h / 2))};
 	txtField = paper.text(txtPoint.x, txtPoint.y, txt).attr({
 			opacity: 1,
 			'font-size': 12,
@@ -146,6 +146,10 @@ Obstacles.prototype.createObstacle = function(num, txt) {
 			w = this.attr('width');
 			h = this.attr('height');
 			
+			this.startTime = Date.now();
+
+			this.latency = TFplanner.latency;
+
 			obst.selectObstacle();
 
 			this.attr({fill: '#3366FF'});
@@ -169,29 +173,39 @@ Obstacles.prototype.createObstacle = function(num, txt) {
 				obstx,
 				obsty;
 
+			newx = (Math.round((newx / 10)) * 10);
+			newy = (Math.round((newy / 10)) * 10);
+
+
 			// Updates obstacle list :)
 			if (this.rectID) {
 				ns.options.obstacleList(this.rectID);
 			}
-			
-			newx = (Math.round((newx / 10)) * 10);
-			newy = (Math.round((newy / 10)) * 10);
 
-			this.attr({
-				x: newx,
-				y: newy
-			});
 
-			// Obstacle text related action
-			obstx = (newx + (w / 2));
-			obsty = (newy + (h / 2));
+	        // Updating measurements every 50 ms
+	        var nowTime = Date.now(),
+	            timeDiff = (nowTime - this.startTime);
 
-			txtField.attr({
-				x: obstx,
-				y: obsty
-			});
+	        if (timeDiff > this.latency) {
 
-			obst.nearestWalls(null, this);
+				this.attr({
+					x: newx,
+					y: newy
+				});
+
+				// Obstacle text related action
+				obstx = (newx + (w / 2));
+				obsty = (newy + (h / 2));
+
+				txtField.attr({
+					x: obstx,
+					y: obsty
+				});
+
+	            obst.nearestWalls(null, this);
+	            this.startTime = nowTime;
+	        }
 		},
 
 		up = function() {
@@ -270,7 +284,6 @@ Obstacles.prototype.selectObstacle = function(id) {
 Obstacles.prototype.deleteObstacle = function(id) {
 
 	for (var i = 0, ii = this.obstacleSet.length; i < ii; i++) { 
-
 		// Match on the ID, clean text and obstacle, and return
 		if (i == id) {
 			this.obstacleSet.splice(i, 1).remove();
