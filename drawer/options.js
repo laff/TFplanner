@@ -1082,6 +1082,8 @@ Options.prototype.initDefine = function() {
 			preDefArr[1][i] = $('#wall'+i).val();
 		}
 
+		// remove previous measurements, remove the selectwall and finally create the new room with specifications.
+		TFplanner.measurement.deconstructAid();
 		TFplanner.finishedRoom.selectWall();
 		TFplanner.ourRoom.createRoom(preDefArr);
 	});

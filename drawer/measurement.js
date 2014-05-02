@@ -24,12 +24,24 @@ Measurement.prototype.lengthAid = [];
 **/
 Measurement.prototype.angleAid = [];
 /**
- *  "Deconstructor" for the aids, reseting their length to 0.
+ *  "Deconstructor" for the aids, removing the containing elements of the arrays, and finally pop'ing the arrays.
 **/
 Measurement.prototype.deconstructAid = function () {
 
-    this.lengthAid.length = 0;
-    this.lengthAid.length = 0;
+    var i = this.lengthAid.length;
+    while (i--) {
+        this.lengthAid[i][1].remove();
+        this.lengthAid[i][2].remove();
+        this.lengthAid[i][3].remove();
+        this.lengthAid[i][4].remove();
+        this.lengthAid[i][5].remove();
+
+        this.angleAid[i][1].remove();
+        this.angleAid[i][2].remove();
+
+        this.lengthAid.pop();
+        this.angleAid.pop();
+    }
 };
     
 
