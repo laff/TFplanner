@@ -36,7 +36,7 @@ DrawRoom.prototype.minAngle = 29.95;
 DrawRoom.prototype.maxAngle = 330.05;
 DrawRoom.prototype.minLength = 50;
 DrawRoom.prototype.selfDrawn = true;
-
+DrawRoom.prototype.startTime = Date.now();
 
 /**
  * Function that initiates drawing of a room.
@@ -44,6 +44,7 @@ DrawRoom.prototype.selfDrawn = true;
 DrawRoom.prototype.initRoom = function() {
 
     var room = this,
+        latency = TFplanner.latency,
         point;
 
     // Binds action for mousedown.
@@ -63,18 +64,25 @@ DrawRoom.prototype.initRoom = function() {
     // Binds action for mouseover, specifically for showing temp-stuff.
     $('#canvas_container').mousemove(room, function(e) {
 
-        point = room.crossBrowserXY(e);
+        var nowTime = Date.now(),
+            timeDiff = (nowTime - room.startTime);
 
-        // Return if point is null or the target nodename is "tspan",
-        // for fixing coordinate-bugs.
-        if (point === null || e.target.nodeName == 'tspan') {
-            return;
-        } 
-        // Draws the templine and shows the length of it.
-        if (room.lastPoint !== null && point !== null && room.lastPoint != point) {
-            
-            room.drawTempLine(point);
-            
+        // Only invoke action on mousemove given time limit is met.
+        if (timeDiff > latency) {
+
+            point = room.crossBrowserXY(e);
+
+            // Return if point is null or the target nodename is "tspan",
+            // for fixing coordinate-bugs.
+            if (point === null || e.target.nodeName == 'tspan') {
+                return;
+            } 
+            // Draws the templine and shows the length of it.
+            if (room.lastPoint !== null && point !== null && room.lastPoint != point) {
+                
+                room.drawTempLine(point);
+            }
+            room.startTime = nowTime;
         }
     });
 };
