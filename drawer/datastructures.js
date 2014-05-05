@@ -321,15 +321,10 @@ function Subsquare (x, y, paper, path, squareNo, subNo) {
     this.hasObstacle = false;
     this.hasWall = false;
     this.populated = false;
-    this.hasRect = false;
     this.rect = null;
     this.paper = paper;
     this.x = x;
     this.y = y;
-    this.direction = null;
-    this.arrows = paper.set();
-    this.squareNo = squareNo;
-    this.subNo = subNo;
 
     var subCheck = function(obj) {
 
