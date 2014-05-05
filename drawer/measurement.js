@@ -29,18 +29,20 @@ Measurement.prototype.angleAid = [];
 Measurement.prototype.deconstructAid = function () {
 
     var i = this.lengthAid.length;
+
     while (i--) {
         this.lengthAid[i][1].remove();
         this.lengthAid[i][2].remove();
         this.lengthAid[i][3].remove();
         this.lengthAid[i][4].remove();
         this.lengthAid[i][5].remove();
-
-        this.angleAid[i][1].remove();
-        this.angleAid[i][2].remove();
-
         this.lengthAid.pop();
-        this.angleAid.pop();
+
+        if (this.angleAid.length > 0) {
+            this.angleAid[i][1].remove();
+            this.angleAid[i][2].remove();
+            this.angleAid.pop();
+        }
     }
 };
     
