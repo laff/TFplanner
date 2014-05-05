@@ -374,7 +374,8 @@ Grid.prototype.save = function(callback) {
             theGrid.paper.height = (theGrid.resHeight + 201);
             return theGrid.paper.toSVG();
         },
-        svg = setupPaper(this);
+        svg = setupPaper(this),
+        tableString;
 
     // Store generated svg to footmenu variable.
     footM.svg = svg;
@@ -405,80 +406,17 @@ Grid.prototype.save = function(callback) {
         tmp = chosenMat;
     }
 
-    // Element variables. tableEle will be sent to saveSVG.php.
-    var tableEle = doc.createElement('table'),
-        trEle,
-        thEle,
-        tdEle,
-        tableString;
+    // Setting the initial content of tableString. Table and its headers with a class added to the ANTALL column header and an id to the table tag.
+    tableString = '<table id="matTable"><tr><th>EL-NUMMER</th><th>PRODUKTBESKRIVELSE</th><th>PRODUKT</th><th class="amount">ANTALL</th></tr>';
 
-    // Setting id to table element
-    tableEle.id = 'matTable';
-
-    trEle = doc.createElement('tr');
-
-    // create and add header 'ELNUMMER'  (number)
-    thEle = doc.createElement('th');
-    thEle.innerHTML = 'EL-NUMMER';
-    trEle.appendChild(thEle);
-
-    // create and add header 'PRODUKTEBSKRIVELSE' (desc)
-    thEle = doc.createElement('th');
-    thEle.innerHTML = 'PRODUKTBESKRIVELSE';
-    trEle.appendChild(thEle);
-
-
-    // Create and add header 'PRODUKT' (name)
-    thEle = doc.createElement('th');
-    thEle.innerHTML = 'PRODUKT';
-    trEle.appendChild(thEle);
-
-    // create and add header 'ANTALL' (amount)
-    thEle = doc.createElement('th');
-    thEle.className = 'amount';
-    thEle.innerHTML = 'ANTALL';
-    trEle.appendChild(thEle);
-
-
-    // Add header row to table
-    tableEle.appendChild(trEle);
-
-    // Going through mats array creating rows and columns.
+    // Going through mats array, adding each of the variables to the tableString representing a row.
     for (var i = 0, ii = mats.length; i < ii; i++) {
 
-        // Create row
-        trEle = doc.createElement('tr');
-        
-        // Add column 'ELNUMMER' to row
-        tdEle = doc.createElement('td');
-        tdEle.innerHTML = mats[i][0];
-        trEle.appendChild(tdEle);
-
-        // Add column 'PRODUKTBESKRIVELSE' to row
-        tdEle = doc.createElement('td');
-        tdEle.innerHTML = desc;
-        trEle.appendChild(tdEle);
-
-        // Add column 'PRODUKT' to row
-        tdEle = doc.createElement('td');
-        tdEle.innerHTML = mats[i][1];
-        trEle.appendChild(tdEle);
-
-        // Add column 'ANTALL' to row
-        tdEle = doc.createElement('td');
-        tdEle.className = 'amount';
-        tdEle.innerHTML = mats[i][2];
-        trEle.appendChild(tdEle);
-
-        // Add row to table
-        tableEle.appendChild(trEle);
+        tableString += '<tr><td>'+mats[i][0]+'</td><td>'+desc+'</td><td>'+mats[i][1]+'</td><td class="amount">'+mats[i][2]+'</td></tr>';
     }
 
-    // Converting dom element to string.
-    // This is needed for the post beneath as pure dom elements can not be passed.
-    tmp = doc.createElement('div');
-    tmp.appendChild(tableEle);
-    tableString = tmp.innerHTML;
+    // Adding the endtag of the table.
+    tableString += '</table>';
 
     /**
      * Post svg and table html to php script that creates a page to be exported as pdf.

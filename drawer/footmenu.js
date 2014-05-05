@@ -252,9 +252,10 @@ FootMenu.prototype.clearAll = function() {
     var ns = TFplanner;
 
     // Remove any visuals
-    (ns.resultGrid !== null) ? ns.resultGrid.clear() : null; 
-    (ns.options.roomTitle !== undefined) ? ns.options.roomTitle.remove() : null;
+    ns.resultGrid = (ns.resultGrid !== null) ? ns.resultGrid.clear() : null; 
+    ns.options.roomTitle = (ns.options.roomTitle !== undefined) ? ns.options.roomTitle.remove() : null;
     ns.scrollBox.paper.clear();
+
     ns.ourRoom.clearRoom();
 
     ns.measurement.deconstructAid();
@@ -265,5 +266,6 @@ FootMenu.prototype.clearAll = function() {
     ns.measurement = new Measurement();
     ns.ourRoom = new DrawRoom(20);
     ns.options = new Options();
+    ns.tabs = new Tabs();
     ns.obstacles = new Obstacles();
 };
