@@ -558,7 +558,7 @@ DrawRoom.prototype.crossBrowserXY = function(e) {
 
         // If zoom is activated, we must get the zoomed coordinates, 'zoomed' in our Grid is TRUE if
         // zoom has been used.
-        point = (!theGrid.zoomed) ? getRestriction([x, y]) : getRestriction(theGrid.getZoomedXY(x, y))
+        point = (!theGrid.zoomed) ? getRestriction([x, y]) : getRestriction(theGrid.getZoomedXY(x, y));
 
     // Preventing a bug that makes you draw outside the viewbox.
     if ((point.x < vB[0] || point.y < vB[1]) || (point.x < 0 || point.y < 0)) {
