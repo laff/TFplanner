@@ -163,7 +163,7 @@ FootMenu.prototype.initFooter = function() {
 	help = paper.path('M28.625,26.75h-26.5V8.375h1.124c1.751,0,0.748-3.125,3-3.125c3.215,0,1.912,0,5.126,0c2.251,0,1.251,3.125,3.001,3.125h14.25V26.75z');
 
 	// Positions the icon ~center of the paper + scales it up a bit.
-    load.transform('t'+((width/6)-17)+','+((height/2)-15)+',s1.3');
+    help.transform('t'+((width/6)-17)+','+((height/2)-15)+',s1.3');
     helpTxt = paper.text(width/6-1, height/2+2, 'Hjelp');
 
     // Add items to a set, then add mousehandlers, and set a tooltip.
@@ -200,15 +200,7 @@ FootMenu.prototype.initFooter = function() {
     // Mouseclick-actions must be added separately to each collection since they vary.
     // Actions for the 'Help'-button.
     ld.mouseup( function() {
-    
-        // This button will be reb0rn as a "HELP"-button (?)
-        $.ajax({
-            url: 'export/export.php',
-            success: function() {
-                console.log('file saved to server, now let the user download!');
-            }
-        });
-
+        // In the future, this may be a 'Help'-button 
     });
 
     // Actions for the 'Save'-button.
