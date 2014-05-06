@@ -1,6 +1,6 @@
 /**
  * @class Creating the result display
- * @param pathString - The room presented as ONE path.
+ * @param {String} pathString - The room presented as ONE path.
 **/ 
 function ResultGrid(pathString) {
     this.height = TFplanner.grid.resHeight;
@@ -210,10 +210,10 @@ ResultGrid.prototype.findStart = function() {
 /**
  * Function tries to place mats by deciding mat length, then calling placeSquare.
  * Will try to place longest possible mat first, then in decreasing length.
- * @oaram squareNo - The index of the square where mat is to be placed
- * @param validPeriod - Valid timeperiod to use when placing mat
- * @param arr1 - Array of horizontal strips, might be false.
- * @param arr2 - Array of vertical strips, might be false.
+ * @oaram {int} squareNo - The index of the square where mat is to be placed
+ * @param {int} validPeriod - Valid timeperiod to use when placing mat
+ * @param {int array} arr1 - Array of horizontal strips, might be false.
+ * @param {int array} arr2 - Array of vertical strips, might be false.
  * @return False if mat-placement failed, true if success.
 **/
 ResultGrid.prototype.placeMat = function (squareNo, validPeriod, arr1, arr2) {
@@ -321,12 +321,13 @@ ResultGrid.prototype.pickColor = function() {
 /**
  * Recursivevely places squares until mat is full, then tries to
  * place new mat if area is not full
- * @param squareNo - Index of square to be populated
- * @param subsquareNo - Index of subsquare to be populated, 0-24 if there is one, -1 if not
- * @param mat - The heating mat which is currently being placed
- * @param lastSquareNo - Index of last square to be populated
- * @param lastSubsquareNo - Index of last subsquare to be populated, -1 if last square did not
+ * @param {int} squareNo - Index of square to be populated
+ * @param {int} subsquareNo - Index of subsquare to be populated, 0-24 if there is one, -1 if not
+ * @param {Mat} mat - The heating mat which is currently being placed
+ * @param {int} lastSquareNo - Index of last square to be populated
+ * @param {int} lastSubsquareNo - Index of last subsquare to be populated, -1 if last square did not
  *  use subsquares
+ * @return False if square placement failed, true if success
 **/
 ResultGrid.prototype.placeSquare = function (squareNo, subsquareNo, mat, lastSquareNo, lastSubsquareNo) {
 
@@ -463,11 +464,11 @@ ResultGrid.prototype.placeSquare = function (squareNo, subsquareNo, mat, lastSqu
 /**
  * Function places a strip of 5 adjacent subsquares, intended to extend a series
  * of squares all the way to a wall.
- * @param squareNo - Index of the square to place the strip in
- * @param arr - Array of indexes of the 5 subsquares to be placed
- * @param mat - The heating mat currently being placed
- * @param lastSquareNo - Index of the last square placed
- * @return false if placement failed
+ * @param {int} squareNo - Index of the square to place the strip in
+ * @param {int array} arr - Array of indexes of the 5 subsquares to be placed
+ * @param {Mat} mat - The heating mat currently being placed
+ * @param {int} lastSquareNo - Index of the last square placed
+ * @return false if placement failed, true if success
 **/
 ResultGrid.prototype.placeStrip = function(squareNo, arr, mat, lastSquareNo) {
 
@@ -720,11 +721,12 @@ ResultGrid.prototype.placeStrip = function(squareNo, arr, mat, lastSquareNo) {
  * new subsquare can be reached it will try to call placeSquare for the next square instead.
  * This function has been rendered obsolete by placeStrip(), but is still the fallback procedure
  * for placeSquare().
- * @param squareNo - Index of square containing the subsquare to be populated
- * @param subSquareNo - Index of subsquare to be populated
- * @param mat - The heating mat which is currently placed
- * @param lastSubsquareNo - The last subsquare populated. Will be -1 if this function is called
+ * @param {int} squareNo - Index of square containing the subsquare to be populated
+ * @param {int} subSquareNo - Index of subsquare to be populated
+ * @param {Mat} mat - The heating mat which is currently placed
+ * @param {int} lastSubsquareNo - The last subsquare populated. Will be -1 if this function is called
  *  from a square without subsquares
+ * @return False is subsquare placement failed, true if success
 **/
 ResultGrid.prototype.placeSubsquare = function(squareNo, subsquareNo, mat, lastSubsquareNo) {
 
@@ -1080,10 +1082,10 @@ ResultGrid.prototype.moveWalls = function() {
 /**
  * Function checks whether there is piece of wall which 
  * is adjacent in the given direction.
- * @param squareList - List of square indexes involved [self, up, right, left, down]
- * @param subsquareNo - The subsquare to be evaluated, -1 if 
+ * @param {int array} squareList - List of square indexes involved [self, up, right, left, down]
+ * @param {int} subsquareNo - The subsquare to be evaluated, -1 if 
  *  no subsquare-structure in square
- * @return
+ * @return True if square or subsquare is adjacent to a wall, false if not
 **/
 ResultGrid.prototype.adjacentWall = function (squareList, subsquareNo) {
 
@@ -1269,7 +1271,7 @@ ResultGrid.prototype.addObstacles = function() {
 /**
  * Sets supply point if one has been set by user. The supply point defines
  * a wall, and all starting points must be adjacent to this wall.
- * @return Information about the supplypoint
+ * @return Bounding box of wall containing supply point
 **/
 ResultGrid.prototype.setSupplyPoint = function () {
 
@@ -1319,9 +1321,9 @@ ResultGrid.prototype.setSupplyPoint = function () {
 
 /**
 * Checks that all subsquares in an array are free to populate.
-* @param squareNo - Index of square in which subsquares are found
-* @param arr - Array of subsquare indexes to be checked
-* @return true if subsquare free to populate.
+* @param {int} squareNo - Index of square in which subsquares are found
+* @param {int array} arr - Array of subsquare indexes to be checked
+* @return true if subsquare free to populate, false if not
 **/
 ResultGrid.prototype.arrFree = function(squareNo, arr) {
 
@@ -1340,11 +1342,11 @@ ResultGrid.prototype.arrFree = function(squareNo, arr) {
 * Function handles the transition from one full square to the next square.
 * If the square is empty it populates with a 50cm*50cm segment, if not it 
 * will try to populate with  
-* @param squareNo - The index of the square we're transitioning to
-* @param dir - The direction from which the previous square was entered
-* @param direction - The direction from which this square is being entered
-* @param lastSquareNo - The index of the previous square
-* @param mat - The heating mat currently being placed
+* @param {int} squareNo - The index of the square we're transitioning to
+* @param {String} direction - The direction from which this square is being entered
+* @param {int} lastSquareNo - The index of the previous square
+* @param {Mat} mat - The heating mat currently being placed
+* @return True if stepping to next square succeeded, false if not
 **/
 ResultGrid.prototype.proceed = function(squareNo, direction, lastSquareNo, mat) {
     
@@ -1442,9 +1444,9 @@ ResultGrid.prototype.proceed = function(squareNo, direction, lastSquareNo, mat) 
 * Function sets color for each subsquare in a strip and 
 * marks the centre point in the middle subsquare as a point for 
 * the red line
-* @param squareNo - Index of square the strip is in
-* @parawm arr - Array containing indexes of the 5 subsquares
-* @param mat - The heating mat currently in use
+* @param {int} squareNo - Index of square the strip is in
+* @param {int array} arr - Array containing indexes of the 5 subsquares
+* @param {Mat} mat - The heating mat currently in use
 */
 ResultGrid.prototype.colorArr = function(squareNo, arr, mat) {
 
