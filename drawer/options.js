@@ -850,7 +850,7 @@ Options.prototype.actionListeners = function() {
 			roundY = (Math.round((($('#posy').val())/ 10)) * 10) + 100,
 			roundW = (Math.round((($('#width').val())/ 10)) * 10),
 			roundH = (Math.round((($('#height').val())/ 10)) * 10),
-			supply = $('#supplyend').val(); //document.getElementById('supplyend');
+			supply = $('#supplyend').val();
 
 		// stores the users choice on the matter of ending the mats at the supplywall or not.
 		if (supply) {
