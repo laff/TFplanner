@@ -184,16 +184,18 @@ ResultGrid.prototype.findStart = function() {
                 // Checks for each subsquare if it has adjacent wall and recursive mat
                 // placement
                 for (var j = 0; j < 25; ++j) {
+                    var sub = square.subsquares[j];
 
-                    if (this.adjacentWall(squareList, j)) {
+                    if (!sub.populated && !sub.hasWall && !sub.hasObstacle 
+                        && this.adjacentWall(squareList, j)) {
                         var hor = Math.floor(j/5),
                             vert = j%5,
                             arr1 = strips[hor],
-                            arr2 = strips[vert+5];
-                        arr1 = this.arrFree(index, arr1) ? arr1 : false;
-                        arr2 = this.arrFree(index, arr2) ? arr2 : false;
+                            arr2 = strips[vert+5], 
+                            arr3 = this.arrFree(index, arr1) ? arr1 : false,
+                            arr4 = this.arrFree(index, arr2) ? arr2 : false;
 
-                        if (this.placeMat(index, 1000, arr1, arr2)) {
+                        if (this.placeMat(index, 1000, arr3, arr4)) {
                             return true;
                         }
                     }          
@@ -1134,7 +1136,7 @@ ResultGrid.prototype.adjacentWall = function (squareList, subsquareNo) {
     }
     //Else executes if subsquare structure already exists,
     // i.e. if the square contains obstacles or walls
-    else {
+    else {     
         arr = square.subsquares;
         upSquare = this.squares[squareList[1]];
         rightSquare = this.squares[squareList[2]];

@@ -206,13 +206,12 @@ Grid.prototype.pan = function(keyCode) {
 
 /**
  * OBS: Is it correct that this should be call 24/7 when hovering the paper? 
- * @param x - 
- * @param y -
+ * @param x - X-coordinate of the mousepointer.
+ * @param y - Y-coordinate of the mousepointer.
  * @param not - (CHANGE PARA-name?)
- * @return
+ * @return - Returns the coordinates updated with zoom-ratio.
 **/
 Grid.prototype.getZoomedXY = function(x, y, not) {
-
         // Starting height and width
     var sH = this.paper._viewBox[2],
         sW = this.paper._viewBox[3],
