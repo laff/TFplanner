@@ -14,6 +14,7 @@ function FinishedRoom() {
     this.crossO = String.fromCharCode(248);
 }
 
+
 /**
  * Function that calls the 'add-handlers'-functionality, and shows the correct tab when
  * a room is drawn. (Obstacles-tab when the room is 'selfDrawn', Define-tab when a pre-made 

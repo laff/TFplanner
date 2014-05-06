@@ -1335,6 +1335,7 @@ Options.prototype.initDraw = function() {
 		}).mouseup(function () {
 
 			if (val != null) {
+				TFplanner.measurement.deconstructAid();
 				theRoom.createRoom(TFplanner.options.preDefRoom(val));
 			} else {
 				if (TFplanner.finishedRoom == null) {
