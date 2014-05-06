@@ -177,6 +177,8 @@ Grid.prototype.pan = function(keyCode) {
 
     var ticks = 50,
         vB = this.paper._viewBox;
+    // Indicates that zoom or pan has been activated
+    TFplanner.grid.zoomed = true;
 
     switch (keyCode) {
         // Left
@@ -205,13 +207,15 @@ Grid.prototype.pan = function(keyCode) {
 
 
 /**
- * OBS: Is it correct that this should be call 24/7 when hovering the paper? 
+ * Function to find the updated coordinates, 
+ * if zoom or pan has been activated
  * @param x - X-coordinate of the mousepointer.
  * @param y - Y-coordinate of the mousepointer.
- * @param not - (CHANGE PARA-name?)
+ * @param obst - True if called from obstacles.
  * @return - Returns the coordinates updated with zoom-ratio.
 **/
-Grid.prototype.getZoomedXY = function(x, y, not) {
+Grid.prototype.getZoomedXY = function(x, y, obst) {
+
         // Starting height and width
     var sH = this.paper._viewBox[2],
         sW = this.paper._viewBox[3],
@@ -231,7 +235,7 @@ Grid.prototype.getZoomedXY = function(x, y, not) {
         y *= ratio;
     }
 
-    if (!not) {
+    if (!obst) {
 
         x += vX;
         y += vY;
@@ -244,9 +248,8 @@ Grid.prototype.getZoomedXY = function(x, y, not) {
  * Function used to move the room to coordinates (99,99). 
  * This happends when the 'obstacles'-tab is clicked.
  * The paths of each wall is updated, also a string is created, 
- * so that the room can be redrawn later as
- * ONE path.
- * @return - Returns the path of our room as ONE string.
+ * so that the room can be redrawn later as ONE path.
+ * @return - Returns the path of our room as one string.
 **/
 Grid.prototype.moveRoom = function() {
 
@@ -342,7 +345,7 @@ Grid.prototype.moveRoom = function() {
     return pathString;
 };
 
-/** TODO: Check the i, ii stuff, when saving as pdf. (Set to 0, because they was undefined unless)
+/**
  * Function to save our svg-drawing as a .png file.
  * Using libraries published at 'https://code.google.com/p/canvg/' under MIT-license.
  * @param callback - 

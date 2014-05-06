@@ -167,27 +167,27 @@ Obstacles.prototype.createObstacle = function(num, txt) {
 
 		move = function(dx, dy) {
 
-			var xy = ns.grid.getZoomedXY(dx, dy, true),
+			var xy = (!ns.grid.zoomed) ? [dx, dy] : ns.grid.getZoomedXY(dx, dy, true),
 				newx = this.ox + xy[0],
 				newy = this.oy + xy[1],
 				obstx,
-				obsty;
+				obsty,
+				nowTime,
+				timeDiff;
 
 			newx = (Math.round((newx / 10)) * 10);
 			newy = (Math.round((newy / 10)) * 10);
-
 
 			// Updates obstacle list :)
 			if (this.rectID) {
 				ns.options.obstacleList(this.rectID);
 			}
 
+			// Updating measurements every 50 ms
+			nowTime = Date.now();
+			timeDiff = (nowTime - this.startTime);
 
-	        // Updating measurements every 50 ms
-	        var nowTime = Date.now(),
-	            timeDiff = (nowTime - this.startTime);
-
-	        if (timeDiff > this.latency) {
+			if (timeDiff > this.latency) {
 
 				this.attr({
 					x: newx,
@@ -203,9 +203,9 @@ Obstacles.prototype.createObstacle = function(num, txt) {
 					y: obsty
 				});
 
-	            obst.nearestWalls(null, this);
-	            this.startTime = nowTime;
-	        }
+				obst.nearestWalls(null, this);
+				this.startTime = nowTime;
+			}
 		},
 
 		up = function() {

@@ -156,7 +156,7 @@ FinishedRoom.prototype.clickableWall = function(prev, current, next) {
 
         if (timeDiff > this.latency) {
 
-            xy = theGrid.getZoomedXY(dx, dy);
+            xy = (!theGrid.zoomed) ? [dx, dy] : theGrid.getZoomedXY(dx, dy);
             // Setting diffx or diffy to 0 based on the horizontal bool or if lastdx/y is null.
             diffx = (this.lastdx != null) ? (this.horizontally) ? (this.lastdx - xy[0]) : 0 : 0;
             diffy = (this.lastdy != null) ? (!this.horizontally) ? (this.lastdy - xy[1]) : 0 : 0;
@@ -192,7 +192,6 @@ FinishedRoom.prototype.clickableWall = function(prev, current, next) {
     up = function() {
         // Clear variables and delete the handler on mouseup.
         measures.refreshMeasurements();
-
 
         this.lastdx = this.lastdy = 0;
         this.remove();
@@ -460,18 +459,22 @@ FinishedRoom.prototype.drag = function(indexArr, match) {
 
         // Updating measurements every 50 ms
         var nowTime = Date.now(),
-            timeDiff = (nowTime - this.startTime);
+            timeDiff = (nowTime - this.startTime),
+            xy,
+            diffx,
+            diffy,
+            X, Y;
 
         if (timeDiff > this.latency) {
+            // No need to call for zoom-values, if zoom is not done.
+            xy = (!theGrid.zoomed) ? [dx, dy] : theGrid.getZoomedXY(dx, dy);
+            // Calculating the difference from last mouse position.
+            diffx = (this.lastx !== undefined) ? (this.lastx - xy[0]) : 0;
+            diffy = (this.lasty !== undefined) ? (this.lasty - xy[1]) : 0;
 
-            var xy = theGrid.getZoomedXY(dx, dy), 
-                // Calculating the difference from last mouse position.
-                diffx = (this.lastx !== undefined) ? (this.lastx - xy[0]) : 0,
-                diffy = (this.lasty !== undefined) ? (this.lasty - xy[1]) : 0,
-
-                // Calculating the new handle coordinates.
-                X = this.attr('cx') - diffx,
-                Y = this.attr('cy') - diffy;
+            // Calculating the new handle coordinates.
+            X = this.attr('cx') - diffx;
+            Y = this.attr('cy') - diffy;
 
             // Storing the last mouse position.
             this.lastx = xy[0];
@@ -504,7 +507,6 @@ FinishedRoom.prototype.drag = function(indexArr, match) {
             measures.refreshMeasurements();
             this.startTime = nowTime;
         }
-
     },
 
     // Do some cleaning and nullifying on mouseUp.
