@@ -1,5 +1,5 @@
-
 /**
+ * @class
  * Holds handlers and functionality needed for a finished room
 **/
 function FinishedRoom() {
@@ -37,7 +37,7 @@ FinishedRoom.prototype.addWalls = function() {
 /**
  * Called when we have targeted a wall. Used to find the 'neighbour-walls' 
  * of our target, so they follow the dragged wall.
- * @param wMatch - The targeted wall
+ * @param {String} wMatch - The targeted wall
 **/
 FinishedRoom.prototype.clickableWalls = function(wMatch) {
 
@@ -63,7 +63,7 @@ FinishedRoom.prototype.clickableWalls = function(wMatch) {
 /**
  * Function that selects the wall by changing its appearance.
  * If no parameter is sent, deselect all.
- * @param index - Index of the targeted wall
+ * @param {int} index - Index of the targeted wall
 **/
 FinishedRoom.prototype.selectWall = function(index) {
 
@@ -85,9 +85,9 @@ FinishedRoom.prototype.selectWall = function(index) {
 /**
  * Function that adds drag and drop functionality to the targeted
  * wall and its two neighbour-walls.
- * @param prev - The wall "before" the targeted in the array.
- * @param current - The targeted wall.
- * @param next - The "next" wall of the targeted.
+ * @param {path} prev - The wall "before" the targeted in the array.
+ * @param {path} current - The targeted wall.
+ * @param {path} next - The "next" wall of the targeted.
 **/
 FinishedRoom.prototype.clickableWall = function(prev, current, next) {
 
@@ -205,10 +205,11 @@ FinishedRoom.prototype.clickableWall = function(prev, current, next) {
 
 
 /**
- * Functionality for adding mouse-handlers to all the walls. Called when the 'finishRoom'-variable is set.
- *
+ * Functionality for adding mouse-handlers to all the walls. 
+ * Called when the 'finishRoom'-variable is set.
 **/
 FinishedRoom.prototype.setHandlers = function() {
+
     var room = this,
         theRoom = TFplanner.ourRoom,
         dotA = this.dotA;
@@ -370,7 +371,7 @@ FinishedRoom.prototype.clickableCorners = function() {
 /**
  * Functionality that finds which walls that should be
  * moved when a corner is mouseovered.
- * @param point - The corner where the mouse was clicked
+ * @param {Point} point - The corner where the mouse was clicked
 **/
 FinishedRoom.prototype.dragCorner = function(point) {
 
@@ -412,9 +413,9 @@ FinishedRoom.prototype.dragCorner = function(point) {
  * If the path1Order is 0, this means that the startpoint of the wall is about
  * to be changed. If it is 1, the endpoint of the wall will be changed.
  * The same applies to path2Order.
- * @param match - The coordinate of the mouseposition, used when
+ * @param {Point} match - The coordinate of the mouseposition, used when
  * visualizing the circle.
- * @param indexArr - Index of which walls that should have their
+ * @param {int} indexArr - Index of which walls that should have their
  * path updated.
 **/
 FinishedRoom.prototype.drag = function(indexArr, match) {
@@ -539,3 +540,5 @@ FinishedRoom.prototype.nullify = function() {
         this.pathHandle = null;
     }
 };
+
+

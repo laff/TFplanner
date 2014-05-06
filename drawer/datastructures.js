@@ -5,7 +5,7 @@
 */
 
 /**
- * Constructor for the floor heating mats.
+ * @class Creates the floor heating mats.
  * @param matLength - The length of the mat
  * @param timeoutLength - The time limit for this mat to be
  * placed. If limit is exceeded, next length will be tried
@@ -135,7 +135,7 @@ HeatingMat.prototype.draw = function(paper) {
 };
 
 /**
- * Constructor for a 0.5m X 0.5m square
+ * @class Constructor for a 0.5m X 0.5m square
  * @param x - X coordinate of upper left corner
  * @param y - Y coordinate of upper left corner
  * @param path - The path string of the room
@@ -310,7 +310,7 @@ Square.prototype.addWall = function(arr) {
 };
 
 /**
- * Constructor for 10 cm X 10 cm subsquare
+ * @class Constructor for 10 cm X 10 cm subsquare
  * @param x - X coordinate for upper left corner
  * @param y - Y coordinate for upper left corner
  * @param paper - Canvas for our drawing

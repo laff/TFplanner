@@ -1,45 +1,10 @@
-// Global variables.
-/*
-
-var grid,
-    measurement,
-    ourRoom,
-    options,
-    obstacles,
-    finishedRoom = null,
-    scrollBox,
-    footmenu,
-    tabs,
-    resultGrid = null,
-    mattur;
-    */
-
+/**
+ * @global
+ * Namespace with the global TFplanner
+**/
 var TFplanner =  TFplanner || {};
 
 $(document).ready(function() {  
-
-/*
-    //Creates the grid on our page!
-    grid = new Grid();
-
-    //Initializes navigation_container
-    scrollBox = new ScrollBox();
-
-    // Starts the room creation process!
-    measurement = new Measurement();
-    ourRoom = new DrawRoom(20);
-
-    tabs = new Tabs();
-    footmenu = new FootMenu();
-    options = new Options();
-
-    obstacles = new Obstacles();
-    
-    // initiates the options_container
-    //options.initDraw();
-
-*/
-
 
     (function () {
 

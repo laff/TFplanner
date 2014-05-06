@@ -1,5 +1,5 @@
 /**
- * Create the tabs that is displayed on the lefthand-side
+ * @class Creates the tabs that is displayed on the lefthand-side
  * of the webpage. 
 **/
 function Tabs () {

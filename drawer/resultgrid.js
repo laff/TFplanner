@@ -1,5 +1,5 @@
 /**
- * Constructor for the result display
+ * @class Creating the result display
  * @param pathString - The room presented as ONE path.
 **/ 
 function ResultGrid(pathString) {

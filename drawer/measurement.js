@@ -1,5 +1,5 @@
 /**
- * Displaying different measurements for the room
+ * @class Displaying different measurements for the room
  * Angles, wall-lengths etc.
 **/
 

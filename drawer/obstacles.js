@@ -1,6 +1,5 @@
 /**
- * Constructor for the obstacles class.
- * Used when the user choose to add obstacles in the room.
+ * @class Used when the user choose to add obstacles in the room.
 **/
 function Obstacles() {
 

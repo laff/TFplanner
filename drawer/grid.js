@@ -1,5 +1,5 @@
 /**
- * Class that creates our grid, and adds some of the basic-functionality to it (zoom etc.)
+ * @class Creates our grid, and adds some of the basic-functionality to it (zoom etc.)
 **/
 function Grid() {
     this.paper = Raphael(document.getElementById('canvas_container'));

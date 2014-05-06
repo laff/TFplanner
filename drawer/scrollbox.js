@@ -1,5 +1,5 @@
 /**
- * Constructor for the ScrollBox, holds the container for it,
+ * @class Holds the container for the scrollbox,
  * and some variables for easy access to styling of the buttons.
 **/
 function ScrollBox() {

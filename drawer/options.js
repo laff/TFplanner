@@ -1,5 +1,5 @@
 /**
- * Constructor for content of the tabs on the 
+ * @class Setting up content for the tabs on the 
  * lefthand-side of the page.
 **/
 function Options() {
