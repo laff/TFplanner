@@ -36,37 +36,6 @@ Options.prototype.availableArea = null;
 // String storing area and utilized percentage of area
 Options.prototype.utilizeString = null;
 
-
-/**
- * Function that calculates the percentage of which the 
- * mats utilize the available area. Adds the values 'availableArea'
- * and 'areaUtilPercentage' as a string to the projectname.
-**/
-Options.prototype.areaUtilization = function() {
-	// Decides wether to remove decimals or not.
-	var availArea = ((this.availableArea % 1) !== 0) ? this.availableArea.toFixed(2) : this.availableArea,
-		chosenMats = TFplanner.resultGrid.chosenMats,
-		matInfo = this.validMat.products,
-		squareMetres = 0,
-		areaUtilPercentage = null;
-
-	// Goes through mats used and the product info for matching values.
-	// Adds the meters of the chosen mats.
-	for (var j = 0, jj = chosenMats.length; j < jj; j++) {
-		
-		for (var i = 0, ii = matInfo.length; i < ii; i++) {
-
-			if (chosenMats[j] == matInfo[i].number) {
-				squareMetres += (matInfo[i].length / 2);
-			}
-		}
-	}
-	
-	areaUtilPercentage = ((100 / availArea) * squareMetres).toFixed(1);
-	this.utilizeString = availArea+'m2 ('+areaUtilPercentage+'% utnyttelse)';
-	this.setTitle();
-};
-
 /**
  * Function that control what options to show based on selected tab.
  * @param tab - What tab to show/select
@@ -539,12 +508,41 @@ Options.prototype.updateProgress = function(remove, success) {
 	var theRoom = TFplanner.ourRoom,
 		measures = TFplanner.measurement,
 		grid = TFplanner.grid,
-		doc = document;
+		doc = document,
+
+		/**
+		 * Function that calculates the percentage of which the 
+		 * mats utilize the available area. Adds the values 'availableArea'
+		 * and 'areaUtilPercentage' as a string to the projectname.
+		**/
+		areaUtilization = function(obj) {
+			// Decides wether to remove decimals or not.
+			var availArea = ((obj.availableArea % 1) !== 0) ? obj.availableArea.toFixed(2) : obj.availableArea,
+				chosenMats = TFplanner.resultGrid.chosenMats,
+				matInfo = obj.validMat.products,
+				squareMetres = 0,
+				areaUtilPercentage = null;
+
+			// Goes through mats used and the product info for matching values.
+			// Adds the meters of the chosen mats.
+			for (var j = 0, jj = chosenMats.length; j < jj; j++) {
+				for (var i = 0, ii = matInfo.length; i < ii; i++) {
+
+					if (chosenMats[j] == matInfo[i].number) {
+						squareMetres += (matInfo[i].length / 2);
+					}
+				}
+			}
+			
+			areaUtilPercentage = ((100 / availArea) * squareMetres).toFixed(1);
+			obj.utilizeString = availArea+'m2 ('+areaUtilPercentage+'% utnyttelse)';
+			obj.setTitle();
+		};
 
 	// Removing the progress visual
 	if (remove) {
 		if (success) {
-			this.areaUtilization();
+			areaUtilization(this);
 		}
 		doc.getElementById('progress').remove();
 		doc.getElementById('infoprogress').remove();
@@ -930,8 +928,25 @@ Options.prototype.setTitle = function() {
 		rectLen = null,
 		rectH = 30,
 		textX = (drawWidth / 2),
-		textY = 25;
+		textY = 25,
 
+		/**
+		 * This function shows title and its rectangle in the right order.
+		 * @param obj - The options-object, sent as 'this'.
+		**/
+		setupTitle = function(obj) {
+
+			// If titlerect and titletext exist (should be always).
+			if (obj.titleRect != null && obj.titleText != null) {
+				obj.titleRect.toFront();
+				obj.titleText.toFront();
+
+				// Incase areatext also exists
+				if (obj.areaText != null) {
+					obj.areaText.toFront();
+				}
+			}
+		};
 
 	this.projectName = (titleEle != null) ? titleEle.value : this.projectName;
 
@@ -967,25 +982,7 @@ Options.prototype.setTitle = function() {
 		fill: 'white'
 	});
 
-	this.setupTitle();
-};
-
-/**
- * This function shows title and its rectangle in the right order.
- * It is called within options.setTitle and grid.setupPaper
-**/
-Options.prototype.setupTitle = function() {
-
-	// If titlerect and titletext exist (should be always).
-	if (this.titleRect != null && this.titleText != null) {
-		this.titleRect.toFront();
-		this.titleText.toFront();
-
-		// Incase areatext also exists
-		if (this.areaText != null) {
-			this.areaText.toFront();
-		}
-	}
+	setupTitle(this);
 };
 
 /** 

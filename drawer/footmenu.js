@@ -21,8 +21,8 @@ FootMenu.prototype.initFooter = function() {
         ld = paper.set(),
         sv = paper.set(),
         clr = paper.set(),
-        load,
-        loadTxt,
+        help,
+        helpTxt,
         save,
         saveTxt,
         clear,
@@ -160,14 +160,14 @@ FootMenu.prototype.initFooter = function() {
     paper.canvas.style.backgroundColor = '#A59C94';
 
 	// Draws one of the predefined Raphael-icons. (folder), then transforms it to fit in the 'loadButton'-rectangle.
-	load = paper.path('M28.625,26.75h-26.5V8.375h1.124c1.751,0,0.748-3.125,3-3.125c3.215,0,1.912,0,5.126,0c2.251,0,1.251,3.125,3.001,3.125h14.25V26.75z');
+	help = paper.path('M28.625,26.75h-26.5V8.375h1.124c1.751,0,0.748-3.125,3-3.125c3.215,0,1.912,0,5.126,0c2.251,0,1.251,3.125,3.001,3.125h14.25V26.75z');
 
 	// Positions the icon ~center of the paper + scales it up a bit.
     load.transform('t'+((width/6)-17)+','+((height/2)-15)+',s1.3');
-    loadTxt = paper.text(width/6-1, height/2+2, 'Hjelp');
+    helpTxt = paper.text(width/6-1, height/2+2, 'Hjelp');
 
     // Add items to a set, then add mousehandlers, and set a tooltip.
-    setHandlers(ld.push(load, loadTxt));
+    setHandlers(ld.push(help, helpTxt));
     ld.attr({
         title: 'Last inn fra fil'
     });
@@ -240,10 +240,6 @@ FootMenu.prototype.initFooter = function() {
 **/
 FootMenu.prototype.clearAll = function() {
 
-/* INFO: I think this is a "safe" way to do this, first clear the resultGrid (in reality this is
- * the same grid as 'grid')
- * Then create our initial grid before we initalize the drawing.
- */
  /*
  *  TODO! Put all of this inside a contructor for our script?
  *
@@ -252,12 +248,10 @@ FootMenu.prototype.clearAll = function() {
     var ns = TFplanner;
 
     // Remove any visuals
-    ns.resultGrid = (ns.resultGrid !== null) ? ns.resultGrid.clear() : null; 
-    ns.options.roomTitle = (ns.options.roomTitle !== undefined) ? ns.options.roomTitle.remove() : null;
+    ns.resultGrid = (ns.resultGrid != null) ? ns.resultGrid.clear() : null; 
+    ns.options.roomTitle = (ns.options.roomTitle != null) ? ns.options.roomTitle.remove() : null;
     ns.scrollBox.paper.clear();
-
     ns.ourRoom.clearRoom();
-
     ns.measurement.deconstructAid();
 
     // Create new objects
