@@ -1,8 +1,6 @@
-// TODO: Parameter not used
 /**
  * Constructor for content of the tabs on the 
  * lefthand-side of the page.
- * @param tab
 **/
 function Options() {
 	this.optPaper;
@@ -40,12 +38,13 @@ Options.prototype.utilizeString = null;
 
 
 /**
- *  Function that calculates the percentage of which the mats utilize the available area.
- *  Adds the values 'availableArea' and 'areaUtilPercentage' as a string to the projectname.
+ * Function that calculates the percentage of which the 
+ * mats utilize the available area. Adds the values 'availableArea'
+ * and 'areaUtilPercentage' as a string to the projectname.
 **/
 Options.prototype.areaUtilization = function() {
 	// Decides wether to remove decimals or not.
-	var availArea = ((this.availableArea % 1) != 0) ? this.availableArea.toFixed(2) : this.availableArea,
+	var availArea = ((this.availableArea % 1) !== 0) ? this.availableArea.toFixed(2) : this.availableArea,
 		chosenMats = TFplanner.resultGrid.chosenMats,
 		matInfo = this.validMat.products,
 		squareMetres = 0,
@@ -114,7 +113,9 @@ Options.prototype.showOptions = function(tab) {
 };
 
 /**
- *  Set up the specifications-tab.
+ * Initialize the specifications-tab, creating
+ * elements using JavaScript, add them to the 
+ * DOM using jQuery.
 **/
 Options.prototype.initSpecs = function() {
 
@@ -142,7 +143,8 @@ Options.prototype.initSpecs = function() {
 
 
 	if (TFplanner.ourRoom.finished === true) {
-		// Variables used for setting up elements.
+		// Variables used for setting up elements, created
+		// by using pure JavaScript
 		header = doc.createElement('h3');
 		inOutDiv = doc.createElement('div');
 		inOut = doc.createElement('select');
@@ -165,18 +167,12 @@ Options.prototype.initSpecs = function() {
 
 		inOut.add(option1, null);
 		inOut.add(option2, null);
-
-		//inOutDiv.appendChild(span);
-		//inOutDiv.appendChild(inOut);
+		// Add the elements to the DOM, using jQuery
 		$(inOutDiv).append(span, inOut, '<br');
-		//form.appendChild(inOutDiv);
 		$(form).append(inOutDiv);
-		
 		$(this.container).append(header, form);
 
 		// Default selected is 'none', so a value MUST be chosen by the user.  
-
-		//doc.getElementById('inOutType').selectedIndex = -1;
 		$('#inOutType').val(-1);
 
 	} else {
@@ -456,10 +452,10 @@ Options.prototype.casting = function(form) {
 	$(form).append(castDiv);
 	$(this.container).append(form);
 	// Set as blanc on initialization, to force the user to select an !default item.
-	$(cast).val(-1);
+	$('#cast').val(-1);
 
 	// When the user have selected an item in this list, the 'generate'-button is created.
-	$(cast).change( function () {
+	$('#cast').change( function () {
 
 		$('#inputDiv').remove();
 		$('#lengthDiv').remove();
@@ -496,12 +492,9 @@ Options.prototype.generateButton = function(form) {
 			information.id = 'progressinformation';
 
 			information.textContent = 'Kalkulerer areal';
-
-			//infoDiv.appendChild(information);
 			
 			$(infoDiv).append(information);
 			$('#container').append(grayDiv, infoDiv);
-			//$('#container').append(infoDiv);
 
 			setTimeout(function() {
 				callback();
@@ -514,26 +507,20 @@ Options.prototype.generateButton = function(form) {
 	input.title = 'Klikk for '+this.dotA+' generere leggeanvisning';
 	input.value = 'Generer leggeanvisning';
 
-	//inputDiv.appendChild(input);
 	$(inputDiv).append(input, '<br><br><br>');
-
-	//form.appendChild(inputDiv);
 	$(form).append(inputDiv);
 	$(this.container).append(form);
 
-	$('#genButton').click( function () {
-		
+	$('#genButton').click(function() {
 		// If we have a finished room, we can call the algorithm and generate a drawing!
 		if (theRoom.finished === true) {
 
-			createProgresswindow(
-				function() {
-					// Moving room incase user did not visit "obstacles", also saves the new path.
-					path = theGrid.moveRoom();
-
-					// Sending
-					ns.resultGrid = new ResultGrid(path);
-				});
+			createProgresswindow(function() {
+				// Moving room incase user did not visit "obstacles", also saves the new path
+				// and send it as parameter to resultGrid.
+				path = theGrid.moveRoom();
+				ns.resultGrid = new ResultGrid(path);
+			});
 		}
 	});
 
@@ -543,8 +530,9 @@ Options.prototype.generateButton = function(form) {
 };
 
 /**
- *  Function that either removes progress or updates it.
- *
+ * Function that either removes progress or updates it.
+ * @param remove - Wether to remove the progress-visual or not.
+ * @param success - Wether area has successfully been calculated.
 **/
 Options.prototype.updateProgress = function(remove, success) {
 
@@ -553,7 +541,7 @@ Options.prototype.updateProgress = function(remove, success) {
 		grid = TFplanner.grid,
 		doc = document;
 
-	// removing the progress visual
+	// Removing the progress visual
 	if (remove) {
 		if (success) {
 			this.areaUtilization();
@@ -568,8 +556,10 @@ Options.prototype.updateProgress = function(remove, success) {
 	} else {
 		doc.getElementById('infoprogress').textContent = 'Kalkulerer leggeanvisning';
 
-		// give the javascript breathingroom for gui updates
-		setTimeout(function() { TFplanner.resultGrid.calculateGuide(); }, 1);
+		// Give the JavaScript breathingroom for gui updates
+		setTimeout(function() { 
+			TFplanner.resultGrid.calculateGuide(); 
+		}, 1);
 	}
 };
 
@@ -620,7 +610,7 @@ Options.prototype.preferredMats = function(form) {
 
 	// This click-action add the chosen mat-length to array, so that
 	// the algorithm will use this mat first.
-	$('#addLength').click( function () {
+	$('#addLength').click(function() {
 
 		opts.prefMat.push(opts.validMat.products[$('#lengths').val()]);
 		text = opts.prefMat[opts.prefMat.length-1].name;
@@ -630,17 +620,18 @@ Options.prototype.preferredMats = function(form) {
 
 
 /**
- * Set up 'Obstacles'-tab. This includes possibility to define Projectname and adding obstacles.
+ * Set up 'Obstacles'-tab. This includes possibility 
+ * to define Projectname and adding obstacles.
 **/
 Options.prototype.initObstacles = function() {
 
 	var obst = TFplanner.obstacles,
 		html = '';
 
-	// clear current html
+	// Clear current html
 	$(this.container).html(html);
 
-	// adding class css.
+	// Adding class css.
 	$(this.container).addClass('obstacleTab');
 	$(this.container).removeClass('specTab');
 
@@ -687,28 +678,28 @@ Options.prototype.initObstacles = function() {
 
 	this.obstacleList();
 
-	// set title position
+	// Set title position
 	this.setTitle();
 };
 
 /**
- *  Function that either refreshes or creates a list of obstacles.
- *  Gets the html set in initObstacles (passed through function).
+ * Function that either refreshes or creates a list of obstacles.
+ * Gets the html set in initObstacles (passed through function).
+ * @param obstacle - ID of an obstacle.
 **/
 Options.prototype.obstacleList = function(obstacle) {
 
 	var ns = TFplanner,
 		obstacleArr = ns.obstacles.obstacleSet,
-		obstacleLength = obstacleArr.length,
 		change = 'Endre',
 		save = 'Lagre',
 		del = 'Slett',
 		html = this.obstHtml;
 
-	for (var i = 0; i < obstacleLength; i++) {
+	for (var i = 0, ii = obstacleArr.length; i < ii; i++) {
 
 		// Displaying "hindring" as name of the obstacle if no name is set (only in the html)
-		if (obstacleArr[i].data('obstacleType') != "") {
+		if (obstacleArr[i].data('obstacleType') !== "") {
 
 			html += "<div class=obst><div class=obsttxt>"+obstacleArr[i].data('obstacleType')+": </div><input id="+i+" class='change' type='button' value="+change+">"+ 
 			"<input class='delete' type='button' value="+del+"></div>";
@@ -758,7 +749,7 @@ Options.prototype.obstacleList = function(obstacle) {
 	$(this.container).html(html);
 
 	// Sets the focus on the 'project-name'-field the first time 'obstacles'-tab is selected
-	if (TFplanner.ourRoom.finished === true && this.titleText == null) {
+	if (ns.ourRoom.finished === true && this.titleText == null) {
 		this.setTitle();
 		var input = document.getElementById('titleText');
 			input.focus();
@@ -769,8 +760,8 @@ Options.prototype.obstacleList = function(obstacle) {
 };
 
 /**
- *  Function that initiates action listeners!
- *
+ * Function that initiates action listeners for the
+ * obstacle-tab
 **/
 Options.prototype.actionListeners = function() {
 
@@ -800,8 +791,6 @@ Options.prototype.actionListeners = function() {
 
 			// Adding the elements to its parentnode
 			$(parentDiv).append(textDiv, input);
-			//parentDiv.appendChild(textDiv);
-			//parentDiv.appendChild(input);
 
 			// Using Jquery to add the parentDiv after the dropdown list
 			$(this.parentNode.firstChild).after(parentDiv);
@@ -814,8 +803,8 @@ Options.prototype.actionListeners = function() {
 				if (e.which == 13) {
 					e.preventDefault();
 
-					var value = $('#obstacleType').val(), //doc.getElementById('obstacleType').value,
-						text = $('#customObstTxt').val(); //doc.getElementById('customObstTxt').value;
+					var value = $('#obstacleType').val(),
+						text = $('#customObstTxt').val();
 
 					// Create the obstacle, and update the tab.
 					obst.createObstacle(value, text);
@@ -827,7 +816,6 @@ Options.prototype.actionListeners = function() {
 		// obstacle without pushing 'add' between. This will delete the <div> if it exists.
 		} else if ($('#inputfieldSelf').val() != null) {
 			$('#inputfieldSelf').remove();
-			//doc.getElementById('inputfieldSelf').remove();
 		}
 	});
 
@@ -857,7 +845,6 @@ Options.prototype.actionListeners = function() {
 		opts.obstacleList();
 	});
 
-
 	// Add click action for the "changeObst-button".
 	$('#changeObst').click(function() {
 		// Rounding the values to nearest 10.
@@ -872,7 +859,6 @@ Options.prototype.actionListeners = function() {
 			obst.supplyEnd = !supply.checked;
 		}
 		
-
 		$('#posx').val((roundX - 100));
 		$('#posy').val((roundY - 100));
 
@@ -895,6 +881,15 @@ Options.prototype.actionListeners = function() {
 		var inputEle = this.parentNode.firstChild.nextSibling.nextSibling,
 			inputVal = parseInt(inputEle.value),
 			intention = this.value,
+
+			/**
+			 *  Magic math function
+			 *  sauce: http://stackoverflow.com/questions/13077923/how-can-i-convert-a-string-into-a-math-operator-in-javascript
+			**/
+			matIt = {
+				'+': function (x, y) { return x + y; },
+				'-': function (x, y) { return x - y; }
+			},
 			changed = matIt[intention](inputVal, 10);
 			changed = (changed < 0) ? 0 : changed;
 
@@ -917,11 +912,6 @@ Options.prototype.actionListeners = function() {
 			opts.setTitle();
 		}
 	});
-/*
-	$('#supplySubmit').click(function () {
-		obstacles.createObstacle("5", "Startpunkt");
-	});
-*/
 };
 
 /**
@@ -932,8 +922,6 @@ Options.prototype.setTitle = function() {
 
 	// Get the text from the html-element, and update it.
 	var titleEle = document.getElementById('titleText'),
-		title = (titleEle != null) ? titleEle.value : this.projectName,
-		utilizeString = this.utilizeString,
 		grid = TFplanner.grid,
 		drawWidth = (grid.resWidth + 201),
 		rectX = null,
@@ -945,15 +933,14 @@ Options.prototype.setTitle = function() {
 		textY = 25;
 
 
-	this.projectName = title;
+	this.projectName = (titleEle != null) ? titleEle.value : this.projectName;
 
 	// Clear the title-element if it already exist.
 	this.titleText != null ? this.titleText.remove() : null;
 	this.areaText != null ?  this.titleText.remove() : null;
 	this.titleRect != null ? this.titleRect.remove() : null;           
 
-
-	this.titleText = grid.paper.text(textX, textY, title).attr({
+	this.titleText = grid.paper.text(textX, textY, this.projectName).attr({
 		'font-size': 20,
 		'font-family': 'verdana',
 		'font-style': 'oblique'
@@ -961,8 +948,8 @@ Options.prototype.setTitle = function() {
 
 	areaY = ((this.titleText.getBBox().height / 2) + 10 + textY);
 
-	if (utilizeString != null) {
-		this.areaText = grid.paper.text(textX, areaY, utilizeString).attr({
+	if (this.utilizeString != null) {
+		this.areaText = grid.paper.text(textX, areaY, this.utilizeString).attr({
 			'font-size': 14,
 			'font-family': 'verdana',
 			'font-style': 'oblique'
@@ -977,24 +964,24 @@ Options.prototype.setTitle = function() {
 
 	this.titleRect = grid.paper.rect(rectX, rectY, rectLen, rectH, 5, 5).attr({
 		opacity: 1,
-		fill: "white"
+		fill: 'white'
 	});
 
 	this.setupTitle();
 };
 
 /**
- *  This function shows title and its rectangle in the right order.
- *  It is called within options.setTitle and grid.setupPaper
+ * This function shows title and its rectangle in the right order.
+ * It is called within options.setTitle and grid.setupPaper
 **/
 Options.prototype.setupTitle = function() {
 
-	// if titlerect and titletext exist (should be always).
+	// If titlerect and titletext exist (should be always).
 	if (this.titleRect != null && this.titleText != null) {
 		this.titleRect.toFront();
 		this.titleText.toFront();
 
-		// incase areatext also exists
+		// Incase areatext also exists
 		if (this.areaText != null) {
 			this.areaText.toFront();
 		}
@@ -1002,14 +989,15 @@ Options.prototype.setupTitle = function() {
 };
 
 /** 
- *  Function that creates a form that lets the user adjust lengths of his predifined room.
- *
+ * Function that creates a form that lets the user 
+ * adjust lengths of his predifined room.
 **/
 Options.prototype.initDefine = function() {
 	
 	var preDefArr = this.preDefArr,
 		defSubmit = 'defSubmit',
 		wallsLength = (preDefArr != null) ? (preDefArr[1].length - 1) : null,
+		finished = TFplanner.finishedRoom,
 		// Starting with a clean slate @ the html variable.
 		html = "";
 
@@ -1030,7 +1018,6 @@ Options.prototype.initDefine = function() {
 			
 			html += "<span>Vegg "+(i+1)+": <input type='number' class='inputt' id=wall"+i+" value="+preDefArr[1][i];
 			html += "></span><br>";
-
 		}
 
 		// Add last wall disabled input
@@ -1047,7 +1034,6 @@ Options.prototype.initDefine = function() {
 	// Add html to container.
 	$(this.container).html(html);
 
-
 	// Add click action for the "submit button".
 	$('#'+defSubmit).click(function() {
 
@@ -1055,10 +1041,10 @@ Options.prototype.initDefine = function() {
 		for (var i = 0; i < wallsLength; i++) {
 			preDefArr[1][i] = $('#wall'+i).val();
 		}
-
-		// remove previous measurements, remove the selectwall and finally create the new room with specifications.
+		// Remove previous measurements, remove the selectwall 
+		// and finally create the new room with specifications.
 		TFplanner.measurement.deconstructAid();
-		TFplanner.finishedRoom.selectWall();
+		finished.selectWall();
 		TFplanner.ourRoom.createRoom(preDefArr);
 	});
 
@@ -1076,7 +1062,7 @@ Options.prototype.initDefine = function() {
 		id = id.slice(-1);
 
 		// If the last wall-index is targeted we unselect.
-		id != wallsLength ? TFplanner.finishedRoom.selectWall(id) : TFplanner.finishedRoom.selectWall(null);
+		id != wallsLength ? finished.selectWall(id) : finished.selectWall(null);
 	});
 
 	
@@ -1087,14 +1073,14 @@ Options.prototype.initDefine = function() {
 		if (e.keyCode == 9) { 
 
 			var child = $(this).children(),
-			id = (child[0] != null) ? child[0].id : child.context.id;
+				id = (child[0] != null) ? child[0].id : child.context.id;
 
 			// Get wall ID, and add increment with 1, since we tabbed from the previous wall.
 			id = id.slice(-1);
 			id++;
 
 			// If the last wall-index is targeted when tab is pressed, we unselect.
-			id != wallsLength ? TFplanner.finishedRoom.selectWall(id) : TFplanner.finishedRoom.selectWall(null);
+			id != wallsLength ? finished.selectWall(id) : finished.selectWall(null);
 		} 
 	});
 };
@@ -1121,12 +1107,14 @@ Options.prototype.initDraw = function() {
 		tRot180Coll = paper.set(),
 		tRot270Coll = paper.set(),
 		uColl = paper.set(),
-		rectAttr = {                // Attributes for the "background-square" of buttons.
+		// Attributes for the "background-square" of buttons.
+		rectAttr = {                
 			fill: this.defColor, 
 			stroke: this.defColor, 
 			'stroke-width': 1, 
 		},
-		imgAttr = {                 // Attributes for the "image" on each button.
+		// Attributes for the "image" on each button.
+		imgAttr = {                 
 			fill: this.imgColor,
 			stroke: 'black',
 			'stroke-width': 1,
@@ -1335,7 +1323,7 @@ Options.prototype.initDraw = function() {
 		}).mouseup(function () {
 
 			if (val != null) {
-				theRoom.createRoom(TFplanner.options.preDefRoom(val));
+				theRoom.createRoom(opts.preDefRoom(val));
 			} else {
 				if (TFplanner.finishedRoom == null) {
 					theRoom.initRoom();
@@ -1407,8 +1395,6 @@ Options.prototype.tfProducts = function() {
 		deck = $('#deckType').val(),
 		watt = $('#wattage').val(),
 		cast = $('#casting').val(),
-		crossO = this.crossO,
-		dotA = this.dotA,
 
 		mats = [
 		{
@@ -1512,9 +1498,9 @@ Options.prototype.tfProducts = function() {
 				undefined: true
 			},  
 
-			note: 'Husk '+dotA+' bestille styringssystem som passer anlegget.<br> Sp'+this.crossO+'r Thermo-Floor om r'+this.dotA+'d hvis du er usikker p'+this.dotA+' hva som kan brukes.',
+			note: 'Husk '+this.dotA+' bestille styringssystem som passer anlegget.<br> Sp'+this.crossO+'r Thermo-Floor om r'+this.dotA+'d hvis du er usikker p'+this.dotA+' hva som kan brukes.',
 
-			desc: 'Utend'+crossO+'rs varmekabelmatte',
+			desc: 'Utend'+this.crossO+'rs varmekabelmatte',
 
 			products: [
 				{
@@ -1950,17 +1936,6 @@ Options.prototype.tfProducts = function() {
 		if (mats[i].areas[area] && mats[i].climates[climate] && mats[i].decks[deck] && mats[i].wattage[watt] && mats[i].casting[cast]) {
 
 			this.validMat = mats[i];
-			console.log(mats[i].name);
-
 		}
 	}
-};
-
-/**
- *  Magic math function
- *  sauce: http://stackoverflow.com/questions/13077923/how-can-i-convert-a-string-into-a-math-operator-in-javascript
-**/
-var matIt = {
-	'+': function (x, y) { return x + y },
-	'-': function (x, y) { return x - y }
 };

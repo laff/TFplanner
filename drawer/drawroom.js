@@ -369,7 +369,6 @@ DrawRoom.prototype.drawTempLine = function(point) {
                 },
                 textPoint = middle(tmpWall),
                 len = (tmpWall.getTotalLength() / 100);
-
                 len = len.toFixed(2);
 
             // Draws a rectangle, where the length can be displayed.

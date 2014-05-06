@@ -149,14 +149,17 @@ FinishedRoom.prototype.clickableWall = function(prev, current, next) {
     move = function(dx, dy) {
 
         var nowTime = Date.now(),
-            timeDiff = (nowTime - this.startTime);
+            timeDiff = (nowTime - this.startTime),
+            xy,
+            diffx,
+            diffy;
 
         if (timeDiff > this.latency) {
 
-            var xy = theGrid.getZoomedXY(dx, dy),
-                // Setting diffx or diffy to 0 based on the horizontal bool or if lastdx/y is null.
-                diffx = (this.lastdx != null) ? (this.horizontally) ? (this.lastdx - xy[0]) : 0 : 0,
-                diffy = (this.lastdy != null) ? (!this.horizontally) ? (this.lastdy - xy[1]) : 0 : 0;
+            xy = theGrid.getZoomedXY(dx, dy);
+            // Setting diffx or diffy to 0 based on the horizontal bool or if lastdx/y is null.
+            diffx = (this.lastdx != null) ? (this.horizontally) ? (this.lastdx - xy[0]) : 0 : 0;
+            diffy = (this.lastdy != null) ? (!this.horizontally) ? (this.lastdy - xy[1]) : 0 : 0;
 
             this.lastdx = xy[0];
             this.lastdy = xy[1];
@@ -184,7 +187,6 @@ FinishedRoom.prototype.clickableWall = function(prev, current, next) {
             measures.refreshMeasurements();
             this.startTime = nowTime;
         }
-        
     },
 
     up = function() {
