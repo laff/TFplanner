@@ -483,9 +483,15 @@ DrawRoom.prototype.drawTempLine = function(point) {
     }
 
     // Show the angle of the temporary wall (angle to previous drawn wall).
-    if (this.walls.length >= 1 && this.tmpWall.getTotalLength() > (this.radius * 2)) {
+    // Check if there are walls in the first place, then check if the wall is longer than this.radius*2.
+    var tmpWallLen = this.tmpWall.getTotalLength(),
+        rad = (this.radius * 2);
+
+    if (this.walls.length >= 1 && (tmpWallLen > rad)) {
         // Store temporary angle in measurements
         tmpAngle = measures.angleMeasurement(null, this.tmpWall);
+
+        // Store tmpBool as false (meaning it is valid).
         tmpBool = false;
 
         // Check if angle is smaller than 30 and larger than 330 degrees, and if the wall is < 50cm.
@@ -497,13 +503,18 @@ DrawRoom.prototype.drawTempLine = function(point) {
             tmpBool = true;
         }
 
-        // Update variable that indicates if a wall is crossed/angle is to small.
-        this.invalid = (crossed) ? crossed : tmpBool;
-
     } else if (measures.tmpAngle != null) {
         measures.tmpAngle[1].remove();
         measures.tmpAngle[2].remove();
         measures.tmpAngle = null;
+    } 
+
+    // Final check if tmpWall is too short
+    if (tmpWallLen <= rad) {
+        this.invalid = true;
+    } else {
+        // Update variable that indicates if a wall is crossed/angle is to small.
+        this.invalid = (crossed) ? crossed : tmpBool;
     }
 
     tmpLength(this.tmpWall);

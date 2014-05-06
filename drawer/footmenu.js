@@ -243,7 +243,12 @@ FootMenu.prototype.clearAll = function() {
     ns.resultGrid = (ns.resultGrid != null) ? ns.resultGrid.clear() : null; 
     ns.options.roomTitle = (ns.options.roomTitle != null) ? ns.options.roomTitle.remove() : null;
     ns.scrollBox.paper.clear();
+
+    // remove any objects that may harm the construction of a new room within:
+    // Drawroom
     ns.ourRoom.clearRoom();
+    // Measurement
+
     ns.measurement.deconstructAid();
 
     // Create new objects
@@ -251,7 +256,9 @@ FootMenu.prototype.clearAll = function() {
     ns.scrollBox = new ScrollBox();
     ns.measurement = new Measurement();
     ns.ourRoom = new DrawRoom(20);
-    ns.options = new Options();
     ns.tabs = new Tabs();
+    ns.options = new Options();
+    ns.finishedRoom = null;
     ns.obstacles = new Obstacles();
+
 };
