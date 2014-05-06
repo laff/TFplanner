@@ -509,7 +509,7 @@ ResultGrid.prototype.placeStrip = function(squareNo, arr, mat, lastSquareNo) {
         for (var i = 0; i < 25; ++i) {
             x = square.xpos + (i%5)*10;
             y = square.ypos + Math.floor(i/5)*10;
-            s = new Subsquare(x, y, this.paper, null, squareNo, i);
+            s = new Subsquare(x, y, this.paper);
 
             s.insideRoom = true;
             this.squares[squareNo].subsquares.push(s);
@@ -762,7 +762,7 @@ ResultGrid.prototype.placeSubsquare = function(squareNo, subsquareNo, mat, lastS
         for (var i = 0; i < 25; ++i) {
             x = square.xpos + (i % 5)*10;
             y = square.ypos + Math.floor(i / 5)*10;
-            s = new Subsquare(x, y, this.paper, null, squareNo, i);
+            s = new Subsquare(x, y, this.paper);
 
             s.insideRoom = true;
             this.squares[squareNo].subsquares.push(s);
@@ -1232,7 +1232,7 @@ ResultGrid.prototype.addObstacles = function() {
                     for (var n = 0; n < 25; ++n) {
                         xtemp = square.xpos + (n % 5)*10;
                         ytemp = square.ypos + Math.floor(n / 5)*10;
-                        s = new Subsquare(xtemp, ytemp, this.paper, null, currentSquare, n);
+                        s = new Subsquare(xtemp, ytemp, this.paper, null);
 
                         s.insideRoom = true;
                         this.squares[currentSquare].subsquares.push(s);

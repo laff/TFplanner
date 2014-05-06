@@ -2,8 +2,6 @@
  * Class that creates our grid, and adds some of the basic-functionality to it (zoom etc.)
 **/
 function Grid() {
-    this.size = 5;
-    this.cutPix = 0.5;
     this.paper = Raphael(document.getElementById('canvas_container'));
     this.boxSet = this.paper.set();
     this.gridSet = this.paper.set();
@@ -13,9 +11,15 @@ function Grid() {
     this.viewBoxWidth = this.paper.width;
     this.viewBoxHeight = this.paper.height;
     this.resWidth = (this.viewBoxWidth / 2);
-    this.resHeight = null;
-    this.zoomed = false;
 }
+
+// Used in creation of the grid, to limit the size of it.
+Grid.prototype.size = 5;
+// Draw lines between two pixels, for better looks.
+Grid.prototype.cutPix = 0.5;
+Grid.prototype.resHeight = null;
+// Indicates if zooming og paning is used
+Grid.prototype.zoomed = false;
 
 /**
  * Function that draw vertical and horizontal lines on the screen, and set the viewbox.
@@ -353,7 +357,6 @@ Grid.prototype.moveRoom = function() {
 Grid.prototype.save = function(callback) {
 
     var ns = TFplanner,
-        doc = document,
         chosenMats = ns.resultGrid.chosenMats,
         footM = ns.footmenu,
         matTypes = ns.options.validMat.products,

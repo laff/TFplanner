@@ -5,16 +5,17 @@
 function Obstacles() {
 
 	this.paper = TFplanner.grid.paper;
-	this.xPos = 0;
-	this.yPos = 0;
 	this.obstacleSet = this.paper.set();
 	this.txtSet = this.paper.set();
 	this.lineSet = this.paper.set();
-	this.supplyPoint = null;
-	// True means that the mat needs to both start and end at the supplypoint/wall.
-	// false means that it will start at the supplypoint/wall but not end there.
-	this.supplyEnd = true;
 }
+
+Obstacles.prototype.xPos = 0;
+Obstacles.prototype.yPos = 0;
+Obstacles.prototype.supplyPoint = null;
+// True means that the mat needs to both start and end at the supplypoint/wall.
+// false means that it will start at the supplypoint/wall but not end there.
+Obstacles.prototype.supplyEnd = true;
 
 /**
  * Function that draws obstacles on the grid paper, 

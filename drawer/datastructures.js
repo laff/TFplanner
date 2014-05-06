@@ -191,7 +191,7 @@ function Square (x, y, path, paper, nr) {
             for (var i = 0; i < ydim; i += ysubdim) {
                 for (var j = 0; j < xdim; j += xsubdim) {
 
-                    subsquare = new Subsquare((x + j), (y + i), paper, path, this.nr, length);
+                    subsquare = new Subsquare((x + j), (y + i), paper, path);
                     obj.subsquares[length++] = subsquare;
 
                     if (subsquare.insideRoom) {
@@ -297,7 +297,7 @@ Square.prototype.addWall = function(arr) {
 	if (!(this.hasWall || this.hasObstacles)) {
 		for (var i = 0; i < ydim; i += subdim) {
             for (var j = 0; j < xdim; j += subdim) {
-                this.subsquares[length++] = new Subsquare(this.xpos + j, this.ypos + i, this.paper, null, this.nr);
+                this.subsquares[length++] = new Subsquare(this.xpos + j, this.ypos + i, this.paper);
             }
         }
 	}	
@@ -313,9 +313,9 @@ Square.prototype.addWall = function(arr) {
  * Constructor for 10 cm X 10 cm subsquare
  * @param x - X coordinate for upper left corner
  * @param y - Y coordinate for upper left corner
- * @param paper - Canvas for 
+ * @param paper - Canvas for our drawing
 **/
-function Subsquare (x, y, paper, path, squareNo, subNo) {
+function Subsquare (x, y, paper, path) {
 
     this.insideRoom = false;
     this.hasObstacle = false;

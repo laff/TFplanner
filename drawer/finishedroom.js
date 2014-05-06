@@ -3,17 +3,18 @@
  * Holds handlers and functionality needed for a finished room
 **/
 function FinishedRoom() {
-    this.radius = 20;
     this.walls;
-    this.handle = null;
-    this.pathHandle = null;
-    this.howerWall = null;
-    this.selectedWall = null;
     this.undoSet = TFplanner.grid.paper.set();
-    this.dotA = String.fromCharCode(229);
-    this.crossO = String.fromCharCode(248);
 }
 
+FinishedRoom.prototype.radius = 20;
+FinishedRoom.prototype.handle = null;
+FinishedRoom.prototype.pathHandle = null;
+FinishedRoom.prototype.hoverWall = null;
+FinishedRoom.prototype.selectedWall = null;
+// Shortcut for Norwegian characters
+FinishedRoom.prototype.dotA = String.fromCharCode(229);
+FinishedRoom.prototype.crossO = String.fromCharCode(248);
 
 /**
  * Function that calls the 'add-handlers'-functionality, and shows the correct tab when
