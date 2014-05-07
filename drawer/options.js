@@ -23,7 +23,7 @@ Options.prototype.titleText = null;
 Options.prototype.areaText = null;
 Options.prototype.titleRect = null;
 Options.prototype.projectName ='Prosjektnavn/tittel';
-Options.prototype.container = null;
+Options.prototype.container = '#content_container';
 Options.prototype.obstHtml = null;
 Options.prototype.crossO = String.fromCharCode(248);
 Options.prototype.dotA = String.fromCharCode(229);
@@ -42,10 +42,6 @@ Options.prototype.utilizeString = null;
 **/
 Options.prototype.showOptions = function(tab) {
 
-	if (this.container == null) {
-		this.container = '#'+TFplanner.contentContainer;
-	}
-
 	var finRoom = TFplanner.finishedRoom;
 
 	this.optionTab = tab;
@@ -58,7 +54,7 @@ Options.prototype.showOptions = function(tab) {
 	$(this.container).empty();
 
 	this.optPaper = (this.optPaper != null) ? this.optPaper.remove() : null;
-	this.optPaper = Raphael(document.getElementById(TFplanner.contentContainer));
+	this.optPaper = Raphael(document.getElementById('content_container'));
 
 	// Decide which tab to display
 	switch (tab) {

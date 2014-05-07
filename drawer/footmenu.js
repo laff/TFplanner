@@ -2,7 +2,7 @@
  * @class Holds the buttons/icons at the 'footer' of our GUI.
 **/
 function FootMenu() {
-	this.footPaper = Raphael(document.getElementById(TFplanner.footContainer));
+	this.footPaper = Raphael(document.getElementById('footmenu'));
 	this.initFooter();
 }
 // The variable where the svg generated for saving is stored.
@@ -108,7 +108,7 @@ FootMenu.prototype.initFooter = function() {
                 type = '.png';
                 removePopup();
 
-                var pngElement =  document.getElementById(TFplanner.pngContainer);
+                var pngElement =  document.getElementById('myCanvas');
 
                 //Use canvg-package to draw on a 'not-shown' canvas-element.
                 canvg(pngElement, svg);

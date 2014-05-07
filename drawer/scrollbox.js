@@ -3,7 +3,7 @@
  * and some variables for easy access to styling of the buttons.
 **/
 function ScrollBox() {
-	this.paper = Raphael(document.getElementById(TFplanner.navContainer));
+	this.paper = Raphael(document.getElementById('navigation_container'));
 
 	this.stroke = {
 		'stroke': '#A59C94', 
