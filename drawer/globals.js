@@ -1,11 +1,18 @@
+/**
+ * @global
+ * Namespace with the global TFplanner
+**/
 var TFplanner =  TFplanner || {};
 
 $(document).ready(function() {  
 
-
     (function () {
         TFplanner.canvasContainer = 'canvas_container';
         TFplanner.menuContainer = 'menu';
+        TFplanner.contentContainer = 'content_container';
+        TFplanner.footContainer = 'footmenu';
+        TFplanner.navContainer = 'navigation_container';
+        TFplanner.pngContainer = 'myCanvas';
         TFplanner.grid = new Grid();
         TFplanner.scrollBox = new ScrollBox();
         TFplanner.measurement = new Measurement();

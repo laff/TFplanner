@@ -4,22 +4,7 @@
 **/
 function DrawRoom(radius) {
     this.radius = radius;
- //   this.lastPoint = null;
     this.walls = TFplanner.grid.paper.set();
- /*   this.tmpWall = null;
-    this.tmpLen = null;
-    this.tmpRect = null;
-    this.tmpCircle = null;
-    this.proximity = false;
-    this.invalid = false;
-    this.finished = false;
-    this.xAligned = false;
-    this.yAligned = false;
-    this.minAngle = 29.95;
-    this.maxAngle = 330.05; 
-    this.minLength = 50;
-    this.selfDrawn = true;
-*/
 }
 
 DrawRoom.prototype.lastPoint = null;

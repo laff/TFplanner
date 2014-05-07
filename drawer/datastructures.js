@@ -5,9 +5,9 @@
 */
 
 /**
- * Constructor for the floor heating mats.
- * @param matLength - The length of the mat
- * @param timeoutLength - The time limit for this mat to be
+ * @class Creates the floor heating mats.
+ * @param {int} matLength - The length of the mat
+ * @param {int} timeoutLength - The time limit for this mat to be
  * placed. If limit is exceeded, next length will be tried
  * instead.
 **/
@@ -53,7 +53,7 @@ HeatingMat.prototype.removeSubsquare = function() {
 /**
 * Function draws the visualization line, as well as start and end
 * points, onto the paper.
-* @param paper - The paper the line is drawn onto
+* @param {Paper} paper - The paper the line is drawn onto
 */
 HeatingMat.prototype.draw = function(paper) {
 
@@ -135,12 +135,12 @@ HeatingMat.prototype.draw = function(paper) {
 };
 
 /**
- * Constructor for a 0.5m X 0.5m square
- * @param x - X coordinate of upper left corner
- * @param y - Y coordinate of upper left corner
- * @param path - The path string of the room
- * @param paper - The canvas of the grid
- * @param nr - The squares number
+ * @class Constructor for a 0.5m X 0.5m square
+ * @param {int} x - X coordinate of upper left corner
+ * @param {int} y - Y coordinate of upper left corner
+ * @param {String} path - The path string of the room
+ * @param {Paper} paper - The canvas of the grid
+ * @param {int} nr - The square number
 **/
 function Square (x, y, path, paper, nr) {
     this.xpos = x;
@@ -191,7 +191,7 @@ function Square (x, y, path, paper, nr) {
             for (var i = 0; i < ydim; i += ysubdim) {
                 for (var j = 0; j < xdim; j += xsubdim) {
 
-                    subsquare = new Subsquare((x + j), (y + i), paper, path, this.nr, length);
+                    subsquare = new Subsquare((x + j), (y + i), paper, path);
                     obj.subsquares[length++] = subsquare;
 
                     if (subsquare.insideRoom) {
@@ -214,7 +214,7 @@ function Square (x, y, path, paper, nr) {
 * Function adds the mat color to the square, then creates and stores
 * the coordinates of the centre of the square. THis is later
 * used for drawing connecting red line through the mat.
-* @param mat - The mat currently in use
+* @param {Mat} mat - The mat currently in use
 */
 Square.prototype.setPath = function(mat) {
 
@@ -227,7 +227,7 @@ Square.prototype.setPath = function(mat) {
  * Returns true if all the subsquares along a square edge contains a wall.
  * If this function returns true we can "shift" the wall to the next square (if unoccupied),
  * this allows us to maximize number of "wall-less" squares.
- * @param arr - Array of subsquares to be checked (one square edge) 
+ * @param {int array} arr - Array of subsquares to be checked (one square edge) 
 **/
 Square.prototype.movableWall = function(arr) {
 
@@ -241,7 +241,7 @@ Square.prototype.movableWall = function(arr) {
 
 /**
  * Removes wall elements along a square edge
- * @param arr - Array containing subsquares to be removed (one square edge)
+ * @param {int array} arr - Array containing subsquares to be removed (one square edge)
 **/
 Square.prototype.removeWall = function(arr) {
 
@@ -297,7 +297,7 @@ Square.prototype.addWall = function(arr) {
 	if (!(this.hasWall || this.hasObstacles)) {
 		for (var i = 0; i < ydim; i += subdim) {
             for (var j = 0; j < xdim; j += subdim) {
-                this.subsquares[length++] = new Subsquare(this.xpos + j, this.ypos + i, this.paper, null, this.nr);
+                this.subsquares[length++] = new Subsquare(this.xpos + j, this.ypos + i, this.paper);
             }
         }
 	}	
@@ -310,12 +310,13 @@ Square.prototype.addWall = function(arr) {
 };
 
 /**
- * Constructor for 10 cm X 10 cm subsquare
- * @param x - X coordinate for upper left corner
- * @param y - Y coordinate for upper left corner
- * @param paper - Canvas for 
+ * @class Constructor for 10 cm X 10 cm subsquare
+ * @param {int} x - X coordinate for upper left corner
+ * @param {int} y - Y coordinate for upper left corner
+ * @param {Paper} paper - Canvas for our drawing
+ * @param {String} path - The room boundary expressed as a string
 **/
-function Subsquare (x, y, paper, path, squareNo, subNo) {
+function Subsquare (x, y, paper, path) {
 
     this.insideRoom = false;
     this.hasObstacle = false;
@@ -359,7 +360,7 @@ function Subsquare (x, y, paper, path, squareNo, subNo) {
 /**
 * Function sets color of the subsquare to the color
 * of the mat.
-* @param mat - The heating mat in use
+* @param {Mat} mat - The heating mat in use
 */
 Subsquare.prototype.setColor = function(mat) {
 
@@ -371,7 +372,7 @@ Subsquare.prototype.setColor = function(mat) {
 
 /**
 * Function stored the coordinates of the centre of the subsquare
-* @param mat - The heating mat in use
+* @param {Mat} mat - The heating mat in use
 */
 Subsquare.prototype.setPath = function(mat) {
 

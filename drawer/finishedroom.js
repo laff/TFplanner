@@ -1,19 +1,20 @@
-
 /**
+ * @class
  * Holds handlers and functionality needed for a finished room
 **/
 function FinishedRoom() {
-    this.radius = 20;
     this.walls;
-    this.handle = null;
-    this.pathHandle = null;
-    this.howerWall = null;
-    this.selectedWall = null;
     this.undoSet = TFplanner.grid.paper.set();
-    this.dotA = String.fromCharCode(229);
-    this.crossO = String.fromCharCode(248);
 }
 
+FinishedRoom.prototype.radius = 20;
+FinishedRoom.prototype.handle = null;
+FinishedRoom.prototype.pathHandle = null;
+FinishedRoom.prototype.hoverWall = null;
+FinishedRoom.prototype.selectedWall = null;
+// Shortcut for Norwegian characters
+FinishedRoom.prototype.dotA = String.fromCharCode(229);
+FinishedRoom.prototype.crossO = String.fromCharCode(248);
 
 /**
  * Function that calls the 'add-handlers'-functionality, and shows the correct tab when
@@ -36,7 +37,7 @@ FinishedRoom.prototype.addWalls = function() {
 /**
  * Called when we have targeted a wall. Used to find the 'neighbour-walls' 
  * of our target, so they follow the dragged wall.
- * @param wMatch - The targeted wall
+ * @param {String} wMatch - The targeted wall
 **/
 FinishedRoom.prototype.clickableWalls = function(wMatch) {
 
@@ -62,7 +63,7 @@ FinishedRoom.prototype.clickableWalls = function(wMatch) {
 /**
  * Function that selects the wall by changing its appearance.
  * If no parameter is sent, deselect all.
- * @param index - Index of the targeted wall
+ * @param {int} index - Index of the targeted wall
 **/
 FinishedRoom.prototype.selectWall = function(index) {
 
@@ -84,9 +85,9 @@ FinishedRoom.prototype.selectWall = function(index) {
 /**
  * Function that adds drag and drop functionality to the targeted
  * wall and its two neighbour-walls.
- * @param prev - The wall "before" the targeted in the array.
- * @param current - The targeted wall.
- * @param next - The "next" wall of the targeted.
+ * @param {path} prev - The wall "before" the targeted in the array.
+ * @param {path} current - The targeted wall.
+ * @param {path} next - The "next" wall of the targeted.
 **/
 FinishedRoom.prototype.clickableWall = function(prev, current, next) {
 
@@ -157,7 +158,7 @@ FinishedRoom.prototype.clickableWall = function(prev, current, next) {
 
         if (timeDiff > this.latency) {
 
-            xy = theGrid.getZoomedXY(dx, dy);
+            xy = (!theGrid.zoomed) ? [dx, dy] : theGrid.getZoomedXY(dx, dy);
             // Setting diffx or diffy to 0 based on the horizontal bool or if lastdx/y is null.
             diffx = (this.lastdx != null) ? (this.horizontally) ? (this.lastdx - xy[0]) : 0 : 0;
             diffy = (this.lastdy != null) ? (!this.horizontally) ? (this.lastdy - xy[1]) : 0 : 0;
@@ -194,7 +195,6 @@ FinishedRoom.prototype.clickableWall = function(prev, current, next) {
         // Clear variables and delete the handler on mouseup.
         measures.refreshMeasurements();
 
-
         this.lastdx = this.lastdy = 0;
         this.remove();
         room.nullify(); 
@@ -205,10 +205,11 @@ FinishedRoom.prototype.clickableWall = function(prev, current, next) {
 
 
 /**
- * Functionality for adding mouse-handlers to all the walls. Called when the 'finishRoom'-variable is set.
- *
+ * Functionality for adding mouse-handlers to all the walls. 
+ * Called when the 'finishRoom'-variable is set.
 **/
 FinishedRoom.prototype.setHandlers = function() {
+
     var room = this,
         theRoom = TFplanner.ourRoom,
         dotA = this.dotA;
@@ -370,7 +371,7 @@ FinishedRoom.prototype.clickableCorners = function() {
 /**
  * Functionality that finds which walls that should be
  * moved when a corner is mouseovered.
- * @param point - The corner where the mouse was clicked
+ * @param {Point} point - The corner where the mouse was clicked
 **/
 FinishedRoom.prototype.dragCorner = function(point) {
 
@@ -412,9 +413,9 @@ FinishedRoom.prototype.dragCorner = function(point) {
  * If the path1Order is 0, this means that the startpoint of the wall is about
  * to be changed. If it is 1, the endpoint of the wall will be changed.
  * The same applies to path2Order.
- * @param match - The coordinate of the mouseposition, used when
+ * @param {Point} match - The coordinate of the mouseposition, used when
  * visualizing the circle.
- * @param indexArr - Index of which walls that should have their
+ * @param {int} indexArr - Index of which walls that should have their
  * path updated.
 **/
 FinishedRoom.prototype.drag = function(indexArr, match) {
@@ -461,18 +462,22 @@ FinishedRoom.prototype.drag = function(indexArr, match) {
 
         // Updating measurements every 50 ms
         var nowTime = Date.now(),
-            timeDiff = (nowTime - this.startTime);
+            timeDiff = (nowTime - this.startTime),
+            xy,
+            diffx,
+            diffy,
+            X, Y;
 
         if (timeDiff > this.latency) {
+            // No need to call for zoom-values, if zoom is not done.
+            xy = (!theGrid.zoomed) ? [dx, dy] : theGrid.getZoomedXY(dx, dy);
+            // Calculating the difference from last mouse position.
+            diffx = (this.lastx !== undefined) ? (this.lastx - xy[0]) : 0;
+            diffy = (this.lasty !== undefined) ? (this.lasty - xy[1]) : 0;
 
-            var xy = theGrid.getZoomedXY(dx, dy), 
-                // Calculating the difference from last mouse position.
-                diffx = (this.lastx !== undefined) ? (this.lastx - xy[0]) : 0,
-                diffy = (this.lasty !== undefined) ? (this.lasty - xy[1]) : 0,
-
-                // Calculating the new handle coordinates.
-                X = this.attr('cx') - diffx,
-                Y = this.attr('cy') - diffy;
+            // Calculating the new handle coordinates.
+            X = this.attr('cx') - diffx;
+            Y = this.attr('cy') - diffy;
 
             // Storing the last mouse position.
             this.lastx = xy[0];
@@ -505,7 +510,6 @@ FinishedRoom.prototype.drag = function(indexArr, match) {
             measures.refreshMeasurements();
             this.startTime = nowTime;
         }
-
     },
 
     // Do some cleaning and nullifying on mouseUp.
@@ -536,3 +540,5 @@ FinishedRoom.prototype.nullify = function() {
         this.pathHandle = null;
     }
 };
+
+

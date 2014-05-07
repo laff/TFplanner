@@ -1,5 +1,5 @@
 /**
- * Constructor for content of the tabs on the 
+ * @class Setting up content for the tabs on the 
  * lefthand-side of the page.
 **/
 function Options() {
@@ -23,7 +23,7 @@ Options.prototype.titleText = null;
 Options.prototype.areaText = null;
 Options.prototype.titleRect = null;
 Options.prototype.projectName ='Prosjektnavn/tittel';
-Options.prototype.container = '#content_container';
+Options.prototype.container = null;
 Options.prototype.obstHtml = null;
 Options.prototype.crossO = String.fromCharCode(248);
 Options.prototype.dotA = String.fromCharCode(229);
@@ -42,6 +42,10 @@ Options.prototype.utilizeString = null;
 **/
 Options.prototype.showOptions = function(tab) {
 
+	if (this.container == null) {
+		this.container = '#'+TFplanner.contentContainer;
+	}
+
 	var finRoom = TFplanner.finishedRoom;
 
 	this.optionTab = tab;
@@ -54,7 +58,7 @@ Options.prototype.showOptions = function(tab) {
 	$(this.container).empty();
 
 	this.optPaper = (this.optPaper != null) ? this.optPaper.remove() : null;
-	this.optPaper = Raphael(document.getElementById('content_container'));
+	this.optPaper = Raphael(document.getElementById(TFplanner.contentContainer));
 
 	// Decide which tab to display
 	switch (tab) {
@@ -850,7 +854,7 @@ Options.prototype.actionListeners = function() {
 			roundY = (Math.round((($('#posy').val())/ 10)) * 10) + 100,
 			roundW = (Math.round((($('#width').val())/ 10)) * 10),
 			roundH = (Math.round((($('#height').val())/ 10)) * 10),
-			supply = $('#supplyend').val(); //document.getElementById('supplyend');
+			supply = $('#supplyend').val();
 
 		// stores the users choice on the matter of ending the mats at the supplywall or not.
 		if (supply) {

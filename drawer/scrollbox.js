@@ -1,9 +1,9 @@
 /**
- * Constructor for the ScrollBox, holds the container for it,
+ * @class Holds the container for the scrollbox,
  * and some variables for easy access to styling of the buttons.
 **/
 function ScrollBox() {
-	this.paper = Raphael(document.getElementById('navigation_container'));
+	this.paper = Raphael(document.getElementById(TFplanner.navContainer));
 
 	this.stroke = {
 		'stroke': '#A59C94', 

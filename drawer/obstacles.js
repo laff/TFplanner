@@ -1,20 +1,20 @@
 /**
- * Constructor for the obstacles class.
- * Used when the user choose to add obstacles in the room.
+ * @class Used when the user choose to add obstacles in the room.
 **/
 function Obstacles() {
 
 	this.paper = TFplanner.grid.paper;
-	this.xPos = 0;
-	this.yPos = 0;
 	this.obstacleSet = this.paper.set();
 	this.txtSet = this.paper.set();
 	this.lineSet = this.paper.set();
-	this.supplyPoint = null;
-	// True means that the mat needs to both start and end at the supplypoint/wall.
-	// false means that it will start at the supplypoint/wall but not end there.
-	this.supplyEnd = true;
 }
+
+Obstacles.prototype.xPos = 0;
+Obstacles.prototype.yPos = 0;
+Obstacles.prototype.supplyPoint = null;
+// True means that the mat needs to both start and end at the supplypoint/wall.
+// false means that it will start at the supplypoint/wall but not end there.
+Obstacles.prototype.supplyEnd = true;
 
 /**
  * Function that draws obstacles on the grid paper, 
@@ -167,27 +167,27 @@ Obstacles.prototype.createObstacle = function(num, txt) {
 
 		move = function(dx, dy) {
 
-			var xy = ns.grid.getZoomedXY(dx, dy, true),
+			var xy = (!ns.grid.zoomed) ? [dx, dy] : ns.grid.getZoomedXY(dx, dy, true),
 				newx = this.ox + xy[0],
 				newy = this.oy + xy[1],
 				obstx,
-				obsty;
+				obsty,
+				nowTime,
+				timeDiff;
 
 			newx = (Math.round((newx / 10)) * 10);
 			newy = (Math.round((newy / 10)) * 10);
-
 
 			// Updates obstacle list :)
 			if (this.rectID) {
 				ns.options.obstacleList(this.rectID);
 			}
 
+			// Updating measurements every 50 ms
+			nowTime = Date.now();
+			timeDiff = (nowTime - this.startTime);
 
-	        // Updating measurements every 50 ms
-	        var nowTime = Date.now(),
-	            timeDiff = (nowTime - this.startTime);
-
-	        if (timeDiff > this.latency) {
+			if (timeDiff > this.latency) {
 
 				this.attr({
 					x: newx,
@@ -203,9 +203,9 @@ Obstacles.prototype.createObstacle = function(num, txt) {
 					y: obsty
 				});
 
-	            obst.nearestWalls(null, this);
-	            this.startTime = nowTime;
-	        }
+				obst.nearestWalls(null, this);
+				this.startTime = nowTime;
+			}
 		},
 
 		up = function() {
@@ -335,8 +335,9 @@ Obstacles.prototype.nearestWalls = function(id, obst) {
 						}),
 						length = (TFplanner.ourRoom.vectorLength(P1[0], P1[1], P2[0], P2[1]) / 100).toFixed(2);
 
-					// Do not show the length-stuff unless it is >= 10cm.
-					if (length > 0.1) {
+
+					// Do not show the length-stuff unless it is >= 20cm.
+					if (length >= 0.20) {
 						textPoint = line.getPointAtLength((length / 2));
 						textRect = that.paper.rect(textPoint.x-25, textPoint.y-10, 50, 20, 5, 5).attr({
 							opacity: 1,

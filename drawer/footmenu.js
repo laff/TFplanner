@@ -1,8 +1,8 @@
 /**
- * Holds the buttons/icons at the 'footer' of our GUI.
+ * @class Holds the buttons/icons at the 'footer' of our GUI.
 **/
 function FootMenu() {
-	this.footPaper = Raphael(document.getElementById('footmenu'));
+	this.footPaper = Raphael(document.getElementById(TFplanner.footContainer));
 	this.initFooter();
 }
 // The variable where the svg generated for saving is stored.
@@ -108,13 +108,15 @@ FootMenu.prototype.initFooter = function() {
                 type = '.png';
                 removePopup();
 
+                var pngElement =  document.getElementById(TFplanner.pngContainer);
+
                 //Use canvg-package to draw on a 'not-shown' canvas-element.
-                canvg(document.getElementById('myCanvas'), svg);
+                canvg(pngElement, svg);
 
                 // Used so we are sure that the canvas is fully loaded before .png is generated.
                 setTimeout(function() {
                     // Fetch the dataURL from the 'myCanvas', then force a download of the picture, with a defined filename.
-                    var dataURL = document.getElementById('myCanvas').toDataURL('image/png');
+                    var dataURL = pngElement.toDataURL('image/png');
 
                     download(dataURL);
 
