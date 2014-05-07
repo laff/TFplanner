@@ -3,7 +3,7 @@
  * of the webpage. 
 **/
 function Tabs () {
-	this.tabPaper = Raphael(TFplanner.menuContainer);
+	this.tabPaper = Raphael(document.getElementById('menu'));
 	this.room = this.tabPaper.set();
 	this.obst = this.tabPaper.set();
 	this.spec = this.tabPaper.set();
