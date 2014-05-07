@@ -335,14 +335,8 @@ Obstacles.prototype.nearestWalls = function(id, obst) {
 						}),
 						length = (TFplanner.ourRoom.vectorLength(P1[0], P1[1], P2[0], P2[1]) / 100);
 
-<<<<<<< HEAD
-
 					// Do not show the length-stuff unless it is >= 20cm.
 					if (length >= 0.20) {
-=======
-					// Do not show the length-stuff unless it is >= 10cm.
-					if (length > 0) {
->>>>>>> parent of a9aec1b... creating semi-API
 						textPoint = line.getPointAtLength((length / 2));
 						textRect = that.paper.rect(textPoint.x-25, textPoint.y-10, 50, 20, 5, 5).attr({
 							opacity: 1,
