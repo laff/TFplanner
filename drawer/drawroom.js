@@ -45,10 +45,11 @@ DrawRoom.prototype.initRoom = function() {
 
     var room = this,
         latency = TFplanner.latency,
-        point;
+        point,
+        containerID = '#'+TFplanner.canvasContainer;
 
     // Binds action for mousedown.
-    $('#canvas_container').click(room, function(e) {
+    $(containerID).click(room, function(e) {
 
         point = room.crossBrowserXY(e);
 
@@ -62,7 +63,7 @@ DrawRoom.prototype.initRoom = function() {
     });
 
     // Binds action for mouseover, specifically for showing temp-stuff.
-    $('#canvas_container').mousemove(room, function(e) {
+    $(containerID).mousemove(room, function(e) {
 
         var nowTime = Date.now(),
             timeDiff = (nowTime - room.startTime);
@@ -188,6 +189,7 @@ DrawRoom.prototype.isProximity = function(point1, point2) {
 DrawRoom.prototype.drawWall = function(point1, point2) {
 
     var ns = TFplanner,
+        containerID = '#'+TFplanner.canvasContainer,
 
         /**
          * Function that unbinds mouseactions related to drawing of a room,
@@ -195,8 +197,8 @@ DrawRoom.prototype.drawWall = function(point1, point2) {
         **/
         finishRoom = function() {
 
-            $('#canvas_container').unbind('click');
-            $('#canvas_container').unbind('mousemove');
+            $(containerID).unbind('click');
+            $(containerID).unbind('mousemove');
 
             if (ns.finishedRoom === null) {
                 ns.finishedRoom = new FinishedRoom();
