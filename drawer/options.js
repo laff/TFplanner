@@ -667,7 +667,7 @@ Options.prototype.initObstacles = function() {
 		html += "<option value=8> Egendefinert </option></select>";
 
 		// input button
-		html += '<input id="defSubmit" type="button" value="Legg til">';
+		html += '<input id="defSubmit" type="button" value="legg til">';
 
 		// Form end
 		html += '</form>';
