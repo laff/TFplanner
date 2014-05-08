@@ -2,7 +2,7 @@
  * @class Creates the tabs that is displayed on the lefthand-side
  * of the webpage. 
 **/
-function Tabs () {
+function Tabs() {
 	this.tabPaper = Raphael(document.getElementById('menu'));
 	this.room = this.tabPaper.set();
 	this.obst = this.tabPaper.set();
@@ -83,7 +83,7 @@ Tabs.prototype.initTabs = function() {
 
 /**
  * Functionality that does visual changes on tab select.
- * @param index - Index of the tab to set in 'focus'
+ * @param {int} index - Index of the tab to set in 'focus'
 **/
 Tabs.prototype.select = function(index) {
 
