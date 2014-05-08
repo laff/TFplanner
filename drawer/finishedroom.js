@@ -1,6 +1,5 @@
 /**
- * @class
- * Holds handlers and functionality needed for a finished room
+ * @class Holds handlers and functionality needed for a finished room
 **/
 function FinishedRoom() {
     this.walls;
@@ -37,7 +36,7 @@ FinishedRoom.prototype.addWalls = function() {
 /**
  * Called when we have targeted a wall. Used to find the 'neighbour-walls' 
  * of our target, so they follow the dragged wall.
- * @param {String} wMatch - The targeted wall
+ * @param {path} wMatch - The targeted wall
 **/
 FinishedRoom.prototype.clickableWalls = function(wMatch) {
 

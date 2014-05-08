@@ -1,5 +1,5 @@
 /**
- * @class Holds the buttons/icons at the 'footer' of our GUI.
+ * @class Holds the buttons/icons at the 'footer' of the GUI.
 **/
 function FootMenu() {
 	this.footPaper = Raphael(document.getElementById('footmenu'));
