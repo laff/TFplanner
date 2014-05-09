@@ -6,10 +6,12 @@
 
 	function export($drawId) {
 
+		// this file directory
+		$dir = getcwd();
 		// location of exe
 		$application = 'wkhtmltopdf\bin\wkhtmltopdf.exe';
 		// html file / input
-		$htmlInput = 'http://drawers/drawer/export/entry_'.$drawId.'.html';
+		$htmlInput = $dir.'\entry_'.$drawId.'.html';
 		// output name / file
 		$pdfOutput = 'export_'.$drawId.'.pdf';
 
