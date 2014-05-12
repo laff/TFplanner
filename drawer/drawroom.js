@@ -1,6 +1,6 @@
 /**
- * Class that holds the functionality to draw a room from scratch
- * @param radius - Decides the radius of the wall-end forcefield
+ * @class Holds the functionality to draw a room from scratch
+ * @param {int] radius - Decides the radius of the wall-end forcefield
 **/
 function DrawRoom(radius) {
     this.radius = radius;
@@ -74,7 +74,7 @@ DrawRoom.prototype.initRoom = function() {
 
 /**
  * Function that goes through our wall array and finds two points that are the same.
- * @param point - A mousecoordinate that will be checked against our walls.
+ * @param {Point} point - A mousecoordinate that will be checked against our walls.
  * @return A point where two walls connect, null if no match.
 **/
 DrawRoom.prototype.findCorner = function(point) {
@@ -101,7 +101,7 @@ DrawRoom.prototype.findCorner = function(point) {
 /**
  * Function handling the logic for autocompleting a room, and calls the drawing of a
  * wall in any cases, even if no autocompletion should be done.
- * @param point - The point/coordinate the mouse was clicked, and the end of the wall
+ * @param {Point} point - The point/coordinate the mouse was clicked, and the end of the wall
  * should be drawn to.
 **/
 DrawRoom.prototype.wallEnd = function(point) {
@@ -141,8 +141,8 @@ DrawRoom.prototype.wallEnd = function(point) {
 
 /** 
  * Function that checks if the ending point is in the vincinity of the initial point of the room.
- * @param point1 - Position of the mouse.
- * @param point2 - Coordinates of the wall-start/wall-end
+ * @param {Point} point1 - Position of the mouse.
+ * @param {Point} point2 - Coordinates of the wall-start/wall-end
  * @return 'True' if the point is near the initial point, else 'False'.
 **/
 DrawRoom.prototype.isProximity = function(point1, point2) {
@@ -167,8 +167,8 @@ DrawRoom.prototype.isProximity = function(point1, point2) {
 /**
  * Function that draws a wall based on the coordinates of
  * two clicked mousepoints.
- * @param point1 - Startpoint of the wall to be drawn.
- * @param point2 - Endpoint of the same wall.
+ * @param {Point} point1 - Startpoint of the wall to be drawn.
+ * @param {Point} point2 - Endpoint of the same wall.
 **/
 DrawRoom.prototype.drawWall = function(point1, point2) {
 
@@ -216,7 +216,7 @@ DrawRoom.prototype.drawWall = function(point1, point2) {
 /**
  * Visualization of the line that the user is about to draw, and the length of the line.
  * This line will not be saved in our array.
- * @param point - Coordinate of the mouseposition at this moment.
+ * @param {Point} point - Coordinate of the mouseposition at this moment.
  * @return the tmpWall that is drawn.
 **/
 DrawRoom.prototype.drawTempLine = function(point) {
@@ -503,7 +503,7 @@ DrawRoom.prototype.drawTempLine = function(point) {
 /**
  * When the user draws a wall that the 'isProximity' is going to auto-complete, we
  * will visualize that the wall is in the range for this to happen by drawing a circle.
- * @param p - the point that the tmpCircle is based on.
+ * @param {Point} p - the point that the tmpCircle is based on.
 **/
 DrawRoom.prototype.visualizeRoomEnd = function(p) {
    
@@ -527,7 +527,7 @@ DrawRoom.prototype.visualizeRoomEnd = function(p) {
 /**
  * Some browser does not set the offsetX and offsetY variables on mouseclicks,
  * so a workaround is needed.
- * @param e - The MouseEvent that occured in the browser
+ * @param {Event} e - The MouseEvent that occured in the browser
  * @return - Coordinate in the grid, null if pointer is outside the viewbox.
 **/
 DrawRoom.prototype.crossBrowserXY = function(e) {
@@ -568,10 +568,10 @@ DrawRoom.prototype.crossBrowserXY = function(e) {
 
 /**
  * Function that calculates the vector length between two points.
- * @param x1 - X-coordinate of point 1
- * @param y1 - Y-coordinate of point 1
- * @param x2 - X-coordinate of point 2
- * @param y2 - Y-coordinate of point 2
+ * @param {int} x1 - X-coordinate of point 1
+ * @param {int} y1 - Y-coordinate of point 1
+ * @param {int} x2 - X-coordinate of point 2
+ * @param {int} y2 - Y-coordinate of point 2
  * @return The calculated length between the points
 **/
 DrawRoom.prototype.vectorLength = function(x1, y1, x2, y2) {
@@ -585,7 +585,7 @@ DrawRoom.prototype.vectorLength = function(x1, y1, x2, y2) {
 /**
  * Function to be used for 'pre-defined' rooms. All drawing will be done 'clockwise', and
  * will follow the angle-axis predefined. (180 is straight to the right, 270 is downwards etc.)
- * @param ang - Array with predefined angles and wall-lengths for the chosen room-shape.
+ * @param {array} ang - Array with predefined angles and wall-lengths for the chosen room-shape.
 **/
 DrawRoom.prototype.createRoom = function(ang) {
 

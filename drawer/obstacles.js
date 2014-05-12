@@ -19,8 +19,8 @@ Obstacles.prototype.supplyEnd = true;
 /**
  * Function that draws obstacles on the grid paper, 
  * based on the size defined here.
- * @param num - The internal value of the added obstacle
- * @param txt - The text to be set on the obstacle
+ * @param {int} num - The internal value of the added obstacle
+ * @param {String} txt - The text to be set on the obstacle
 **/
 Obstacles.prototype.createObstacle = function(num, txt) {
 
@@ -224,11 +224,11 @@ Obstacles.prototype.createObstacle = function(num, txt) {
 
 /**
  * Action related to the placement of obstacle-text.
- * @param i - Index of the targeted obstacle
- * @param w - The width of the obstacle
- * @param h - The height of the obstacle
- * @param x - X-coordinate of the obstacle
- * @param y - Y-coordinate of the obstacle
+ * @param {int} i - Index of the targeted obstacle
+ * @param {int} w - The width of the obstacle
+ * @param {int} h - The height of the obstacle
+ * @param {int} x - X-coordinate of the obstacle
+ * @param {int} y - Y-coordinate of the obstacle
 **/
 Obstacles.prototype.adjustSize = function(i, w, h, x, y) {
 
@@ -254,7 +254,7 @@ Obstacles.prototype.adjustSize = function(i, w, h, x, y) {
 
 /**
  * Function that visually selects an obstacle by changing its fill color.
- * @param id - Id of the targeted obstacle
+ * @param {int} id - Id of the targeted obstacle
 **/
 Obstacles.prototype.selectObstacle = function(id) {
 
@@ -279,7 +279,7 @@ Obstacles.prototype.selectObstacle = function(id) {
 
 /**
  * Remove the obstacle, based on which remove-button that was pushed.
- * @param id(string) - Id of targeted obstacle for deletion
+ * @param {int} id - Id of targeted obstacle for deletion
 **/
 Obstacles.prototype.deleteObstacle = function(id) {
 
@@ -298,8 +298,8 @@ Obstacles.prototype.deleteObstacle = function(id) {
 /**
  * Function that visualizes the the nearest horizontal
  * and vertical wall of the targeted obstacle.
- * @param id - Id of the obstacle
- * @param obst - Current targeted obstacle
+ * @param {int} id - Id of the obstacle
+ * @param {rect} obst - Current targeted obstacle
 **/
 Obstacles.prototype.nearestWalls = function(id, obst) {
 
@@ -333,7 +333,7 @@ Obstacles.prototype.nearestWalls = function(id, obst) {
 						line = that.paper.path('M'+P1[0]+','+P1[1]+' L'+P2[0]+','+P2[1]).attr( {
 							stroke: '#3366FF'
 						}),
-						length = (TFplanner.ourRoom.vectorLength(P1[0], P1[1], P2[0], P2[1]) / 100).toFixed(2);
+						length = (TFplanner.ourRoom.vectorLength(P1[0], P1[1], P2[0], P2[1]) / 100);
 
 					// Do not show the length-stuff unless it is >= 20cm.
 					if (length >= 0.20) {

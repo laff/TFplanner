@@ -1,8 +1,7 @@
 /**
- * @class Displaying different measurements for the room
- * Angles, wall-lengths etc.
+ * @class Displaying different measurements for the room.
+ * This include angles, wall-lengths etc.
 **/
-
 function Measurement () {
     this.paper = TFplanner.grid.paper;
     this.measurements = this.paper.set();
@@ -140,8 +139,8 @@ Measurement.prototype.refreshMeasurements = function() {
 
 /**
  * Measure the angles between the different walls
- * @param index - Index of a wall, needed to find its neighbours 
- * @param overload - 
+ * @param {int} index - Index of a wall, needed to find its neighbours 
+ * @param {Path} overload - 
  * @return angle - Angle for our measurementValues array.
 **/
 Measurement.prototype.angleMeasurement = function(index, overload) {
@@ -426,9 +425,8 @@ Measurement.prototype.angleMeasurement = function(index, overload) {
 
 /**
  * Function that creates a graphical representation of the walls length
- * @param wall -     
+ * @param {Path} wall -     
  * @return Wall-length for our measurementValues array.
-};
 **/
 Measurement.prototype.lengthMeasurement = function (wall) {
 
@@ -473,7 +471,7 @@ Measurement.prototype.lengthMeasurement = function (wall) {
          *  Step one is creating or moving the supporting lines m1 and m2.
          *  @param: move boolean that tells to move or create.
         **/
-        measuresStep1 = function (move) {
+        measuresStep1 = function(move) {
 
             var pathArray1,
                 pathArray2;
@@ -524,7 +522,7 @@ Measurement.prototype.lengthMeasurement = function (wall) {
          *  Step 2 is creating the third supporting line and adding a text and rect.
          *  If this line, rect and text already exists - only move it.
         **/
-        measuresStep2 = function (move) {
+        measuresStep2 = function(move) {
 
                 // Creating the length text by converting the wall length to metres and adding a postfix "m".
             var len = (wall.getTotalLength() / 100).toFixed(2)+' m',
@@ -663,7 +661,7 @@ Measurement.prototype.lengthMeasurement = function (wall) {
 
 /**
  * Function that finds the connecting walls.
- * @param index - Index of the actual wall.
+ * @param {int} index - Index of the actual wall.
 **/
 Measurement.prototype.returnConnectingPaths = function(index) {
 

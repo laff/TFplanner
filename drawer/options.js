@@ -38,7 +38,7 @@ Options.prototype.utilizeString = null;
 
 /**
  * Function that control what options to show based on selected tab.
- * @param tab - What tab to show/select
+ * @param {int} tab - What tab to show/select
 **/
 Options.prototype.showOptions = function(tab) {
 
@@ -168,7 +168,7 @@ Options.prototype.initSpecs = function() {
 /**
  * Functionality for showing dropdown-menu for chosing 'dry- or wet-area'.
  * Will only show this option if 'inside' is chosen on the first dropdown.
- * @param form - Form of the page, passed to all follwing functions.
+ * @param {Form} form - Form of the page, passed to all follwing functions.
 **/
 Options.prototype.inOrOut = function(form) {
 
@@ -230,7 +230,7 @@ Options.prototype.inOrOut = function(form) {
 
 /**
  * The third dropdown-menu, where the user must choose type of deck for the area.
- * @param form - Form of the page, passed to all follwing functions.
+ * @param {Form} form - Form of the page, passed to all follwing functions.
 **/
 Options.prototype.chooseDeck = function(form) {
 
@@ -328,7 +328,7 @@ Options.prototype.chooseDeck = function(form) {
 
 /**
  * Function that adds a wattage dropdown select list button chooser.
- * @param form - Form of the page, passed to all follwing functions.
+ * @param {Form} form - Form of the page, passed to all follwing functions.
 **/
 Options.prototype.wattage = function(form) {
 
@@ -391,7 +391,7 @@ Options.prototype.wattage = function(form) {
 
 /**
  * Functionality that asks the user if casting is to be done for the floor
- * @param form - form of the tab, passed through all the connected functions, 
+ * @param {Form} form - form of the tab, passed through all the connected functions, 
  * holds the html-structure.
 **/
 Options.prototype.casting = function(form) {
@@ -421,10 +421,10 @@ Options.prototype.casting = function(form) {
 	$(form).append(castDiv);
 	$(this.container).append(form);
 	// Set as blanc on initialization, to force the user to select an !default item.
-	$('#cast').val(-1);
+	$('#casting').val(-1);
 
 	// When the user have selected an item in this list, the 'generate'-button is created.
-	$('#cast').change( function () {
+	$('#casting').change( function () {
 
 		$('#inputDiv').remove();
 		$('#lengthDiv').remove();
@@ -437,7 +437,7 @@ Options.prototype.casting = function(form) {
 /**
  * Creation of a button to generate our solution for putting out a heatingmat.
  * Will be created when an item is chosen in all the dropdowns.
- * @param form - The form is passed "all the way" through the 'specs'-functionality and
+ * @param {Form} form - The form is passed "all the way" through the 'specs'-functionality and
  * stuff is appended to it.
 **/
 Options.prototype.generateButton = function(form) {
@@ -500,8 +500,8 @@ Options.prototype.generateButton = function(form) {
 
 /**
  * Function that either removes progress or updates it.
- * @param remove - Wether to remove the progress-visual or not.
- * @param success - Wether area has successfully been calculated.
+ * @param {boolean} remove - Wether to remove the progress-visual or not.
+ * @param {boolean} success - Wether area has successfully been calculated.
 **/
 Options.prototype.updateProgress = function(remove, success) {
 
@@ -564,7 +564,7 @@ Options.prototype.updateProgress = function(remove, success) {
 /**
  * This function makes it possible for the user to specify mat-length(s) to start with
  * in the room.
- * @param form - The form is passed "all the way" through the 'specs'-functionality and
+ * @param {Form} form - The form is passed "all the way" through the 'specs'-functionality and
  * stuff is appended to it.
 **/
 Options.prototype.preferredMats = function(form) {
@@ -683,7 +683,7 @@ Options.prototype.initObstacles = function() {
 /**
  * Function that either refreshes or creates a list of obstacles.
  * Gets the html set in initObstacles (passed through function).
- * @param obstacle - ID of an obstacle.
+ * @param {int} obstacle - ID of an obstacle.
 **/
 Options.prototype.obstacleList = function(obstacle) {
 
@@ -1353,7 +1353,7 @@ Options.prototype.initDraw = function() {
  * All drawing will be done clockwise and will follow the angle-axis predefined. 
  * (180 is straight to the right, 270 is downwards etc.).
  * The first array contain the angles, and the second array contain the length of the wall.
- * @param value - A number from the function that calls this one, defines what room is to be returned.
+ * @param {int} value - A number from the function that calls this one, defines what room is to be returned.
 **/
 Options.prototype.preDefRoom = function(value) {
 

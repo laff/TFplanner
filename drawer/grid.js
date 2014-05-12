@@ -1,5 +1,6 @@
 /**
- * @class Creates our grid, and adds some of the basic-functionality to it (zoom etc.)
+ * @class Creates the grid, and adds some of 
+ * the basic-functionality to it (zoom etc.)
 **/
 function Grid() {
     this.paper = Raphael(document.getElementById('canvas_container'));
@@ -22,7 +23,7 @@ Grid.prototype.resHeight = null;
 Grid.prototype.zoomed = false;
 
 /**
- * Function that draw vertical and horizontal lines on the screen, and set the viewbox.
+ * Draws vertical and horizontal lines on the screen, and set the viewbox.
  * This is the "base" of our webpage, where all drawing and stuff will happen.
 **/
 Grid.prototype.draw = function() {
@@ -150,7 +151,7 @@ Grid.prototype.zoom = function() {
 /** 
  * This is the function that actually handles the zooming
  * It must react to delta being more/less than zero.
- * @param delta - 
+ * @param {int} delta - Wether zoomed in or out
 **/
 Grid.prototype.handle = function(delta) {
         
@@ -175,7 +176,7 @@ Grid.prototype.handle = function(delta) {
 /** 
  * Function that pans grid (left, right, up, down) on the screen, when 
  * arrow-keys are pressed.
- * @param keycode - Which arrowkey that was pressed.
+ * @param {int} keycode - Which arrowkey that was pressed.
 **/
 Grid.prototype.pan = function(keyCode) {
 
@@ -213,9 +214,9 @@ Grid.prototype.pan = function(keyCode) {
 /**
  * Function to find the updated coordinates, 
  * if zoom or pan has been activated
- * @param x - X-coordinate of the mousepointer.
- * @param y - Y-coordinate of the mousepointer.
- * @param obst - True if called from obstacles.
+ * @param {int} x - X-coordinate of the mousepointer.
+ * @param {int} y - Y-coordinate of the mousepointer.
+ * @param {boolean} obst - True if called from obstacles.
  * @return - Returns the coordinates updated with zoom-ratio.
 **/
 Grid.prototype.getZoomedXY = function(x, y, obst) {
@@ -352,7 +353,7 @@ Grid.prototype.moveRoom = function() {
 /**
  * Function to save our svg-drawing as a .png file.
  * Using libraries published at 'https://code.google.com/p/canvg/' under MIT-license.
- * @param callback - 
+ * @param {function} callback - 
 **/
 Grid.prototype.save = function(callback) {
 
