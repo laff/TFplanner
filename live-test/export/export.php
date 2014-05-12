@@ -14,7 +14,7 @@
 		// output name / file
 		$pdfOutput = 'export_'.$drawId.'.pdf';
 
-		$command = './wkhtmltox/bin/wkhtmltopdf test.html test.pdf 2>&1';
+		$command = './wkhtmltox/bin/wkhtmltopdf '.$htmlInput.' '.$pdfOutput.' 2>&1';
 
 		$cmd = $application.' '.$htmlInput.' '.$pdfOutput;
 

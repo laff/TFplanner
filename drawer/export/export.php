@@ -15,7 +15,14 @@
 		// output name / file
 		$pdfOutput = 'export_'.$drawId.'.pdf';
 
-		exec($application.' -l '.$htmlInput.' '.$pdfOutput);
+		// Windows
+		$command = ($application.' -l '.$htmlInput.' '.$pdfOutput);
+		
+		// Linux
+		//$command = './wkhtmltox/bin/wkhtmltopdf '.$htmlInput.' '.$pdfOutput;
+
+		// Execute command.
+		shell_exec($command);
 
 		echo $pdfOutput;
 
