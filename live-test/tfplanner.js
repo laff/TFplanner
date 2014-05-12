@@ -459,7 +459,7 @@ Grid.prototype.save = function(callback) {
             'note': note
         }, 
         function (data) {
-            footM.drawId = data;
+            footM.drawId = data.split('/')[0];
             callback();
         }
     );
@@ -5995,6 +5995,9 @@ FootMenu.prototype.initFooter = function() {
                  * @param : callback. The callback used is download, see below.
                 **/
                 postExport = function(callback) {
+
+                    console.log(drawId);
+
                     $.post(
                         'export/export.php', 
                         {'data': drawId}, 
@@ -6008,12 +6011,13 @@ FootMenu.prototype.initFooter = function() {
                  * @param: exporting. boolean that on true adds a prefix to the url for PDF download.
                 **/
                 download = function(url, exporting) {
-                    console.log(url);
                     var a = document.createElement('a'),
                     // if exporting use export prefix
                     location = (exporting) ? 'export/'+url : url;
+
+                    console.log(location);
                     
-                    window.open(location, '_blank');
+                    //window.open(location, '_blank');
 
                 };
 
