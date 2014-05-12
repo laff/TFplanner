@@ -152,13 +152,9 @@ function Square (x, y, path, paper, nr) {
     this.subsquares = [];
     this.area = 0;
     this.paper = paper;
-    this.arrows = paper.set();
     this.reallyInside = true;
     this.nr = nr;
-    this.direction = null;
-    // Square is texted
-    this.texted = false;
-    
+
     var squareCheck = function(obj) {
 
         var xdim = 50, 
