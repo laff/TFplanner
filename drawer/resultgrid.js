@@ -405,7 +405,6 @@ ResultGrid.prototype.placeSquare = function (squareNo, subsquareNo, mat, lastSqu
             } else {
                 //Revert and recurse
                 this.unusedArea += area;
-                square.arrows.remove();
                 this.squares[squareNo].populated = false;
                 mat.removeSquare();
                 return false;
