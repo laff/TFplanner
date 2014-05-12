@@ -1,9 +1,21 @@
+
 /**
- * @class Namespace with the global TFplanner
+ * @namespace TFplanner
+ * Namespace for keeping variable-names hidden for other scripts
+ * @property {Grid} - Grid of the software
+ * @property {ScrollBox} - Zoom- and panfunctionality
+ * @property {Measurement} - Measures wall-lengths and angles
+ * @property {DrawRoom} - Setting up drawing of a room
+ * @property {Tabs} - Tab-functionality
+ * @property {FootMenu} - FootMenu of the GUI, hold buttons
+ * @property {Options} - Shows static pages for the user
+ * @property {Obstacles} - Used when adding obstacles
+ * @property {FinishedRoom} - A room finished by the user, initially 'null'
+ * @property {latency} - Latency used for move-actions
 **/
 var TFplanner =  TFplanner || {};
 
-$(document).ready(function() {  
+$(document).ready(function() {
 
     (function () {
 
@@ -23,7 +35,8 @@ $(document).ready(function() {
 });
 
 /**
- * @class Creates our grid, and adds some of the basic-functionality to it (zoom etc.)
+ * @class Creates the grid, and adds some of 
+ * the basic-functionality to it (zoom etc.)
 **/
 function Grid() {
     this.paper = Raphael(document.getElementById('canvas_container'));
@@ -46,7 +59,7 @@ Grid.prototype.resHeight = null;
 Grid.prototype.zoomed = false;
 
 /**
- * Function that draw vertical and horizontal lines on the screen, and set the viewbox.
+ * Draws vertical and horizontal lines on the screen, and set the viewbox.
  * This is the "base" of our webpage, where all drawing and stuff will happen.
 **/
 Grid.prototype.draw = function() {
@@ -174,7 +187,7 @@ Grid.prototype.zoom = function() {
 /** 
  * This is the function that actually handles the zooming
  * It must react to delta being more/less than zero.
- * @param delta - 
+ * @param {int} delta - Wether zoomed in or out
 **/
 Grid.prototype.handle = function(delta) {
         
@@ -199,7 +212,7 @@ Grid.prototype.handle = function(delta) {
 /** 
  * Function that pans grid (left, right, up, down) on the screen, when 
  * arrow-keys are pressed.
- * @param keycode - Which arrowkey that was pressed.
+ * @param {int} keycode - Which arrowkey that was pressed.
 **/
 Grid.prototype.pan = function(keyCode) {
 
@@ -237,9 +250,9 @@ Grid.prototype.pan = function(keyCode) {
 /**
  * Function to find the updated coordinates, 
  * if zoom or pan has been activated
- * @param x - X-coordinate of the mousepointer.
- * @param y - Y-coordinate of the mousepointer.
- * @param obst - True if called from obstacles.
+ * @param {int} x - X-coordinate of the mousepointer.
+ * @param {int} y - Y-coordinate of the mousepointer.
+ * @param {boolean} obst - True if called from obstacles.
  * @return - Returns the coordinates updated with zoom-ratio.
 **/
 Grid.prototype.getZoomedXY = function(x, y, obst) {
@@ -376,7 +389,7 @@ Grid.prototype.moveRoom = function() {
 /**
  * Function to save our svg-drawing as a .png file.
  * Using libraries published at 'https://code.google.com/p/canvg/' under MIT-license.
- * @param callback - 
+ * @param {function} callback - 
 **/
 Grid.prototype.save = function(callback) {
 
@@ -465,8 +478,7 @@ Grid.prototype.save = function(callback) {
 };
 
 /**
- * @class
- * Holds handlers and functionality needed for a finished room
+ * @class Holds handlers and functionality needed for a finished room
 **/
 function FinishedRoom() {
     this.walls;
@@ -503,7 +515,7 @@ FinishedRoom.prototype.addWalls = function() {
 /**
  * Called when we have targeted a wall. Used to find the 'neighbour-walls' 
  * of our target, so they follow the dragged wall.
- * @param {String} wMatch - The targeted wall
+ * @param {path} wMatch - The targeted wall
 **/
 FinishedRoom.prototype.clickableWalls = function(wMatch) {
 
@@ -1007,6 +1019,7 @@ FinishedRoom.prototype.nullify = function() {
     }
 };
 
+
 /**
  * @class Holds the functionality to draw a room from scratch
  * @param {int} radius - Decides the radius of the wall-end forcefield
@@ -1083,7 +1096,7 @@ DrawRoom.prototype.initRoom = function() {
 
 /**
  * Function that goes through our wall array and finds two points that are the same.
- * @param point - A mousecoordinate that will be checked against our walls.
+ * @param {Point} point - A mousecoordinate that will be checked against our walls.
  * @return A point where two walls connect, null if no match.
 **/
 DrawRoom.prototype.findCorner = function(point) {
@@ -1110,7 +1123,7 @@ DrawRoom.prototype.findCorner = function(point) {
 /**
  * Function handling the logic for autocompleting a room, and calls the drawing of a
  * wall in any cases, even if no autocompletion should be done.
- * @param point - The point/coordinate the mouse was clicked, and the end of the wall
+ * @param {Point} point - The point/coordinate the mouse was clicked, and the end of the wall
  * should be drawn to.
 **/
 DrawRoom.prototype.wallEnd = function(point) {
@@ -1150,8 +1163,8 @@ DrawRoom.prototype.wallEnd = function(point) {
 
 /** 
  * Function that checks if the ending point is in the vincinity of the initial point of the room.
- * @param point1 - Position of the mouse.
- * @param point2 - Coordinates of the wall-start/wall-end
+ * @param {Point} point1 - Position of the mouse.
+ * @param {Point} point2 - Coordinates of the wall-start/wall-end
  * @return 'True' if the point is near the initial point, else 'False'.
 **/
 DrawRoom.prototype.isProximity = function(point1, point2) {
@@ -1176,8 +1189,8 @@ DrawRoom.prototype.isProximity = function(point1, point2) {
 /**
  * Function that draws a wall based on the coordinates of
  * two clicked mousepoints.
- * @param point1 - Startpoint of the wall to be drawn.
- * @param point2 - Endpoint of the same wall.
+ * @param {Point} point1 - Startpoint of the wall to be drawn.
+ * @param {Point} point2 - Endpoint of the same wall.
 **/
 DrawRoom.prototype.drawWall = function(point1, point2) {
 
@@ -1225,7 +1238,7 @@ DrawRoom.prototype.drawWall = function(point1, point2) {
 /**
  * Visualization of the line that the user is about to draw, and the length of the line.
  * This line will not be saved in our array.
- * @param point - Coordinate of the mouseposition at this moment.
+ * @param {Point} point - Coordinate of the mouseposition at this moment.
  * @return the tmpWall that is drawn.
 **/
 DrawRoom.prototype.drawTempLine = function(point) {
@@ -1512,7 +1525,7 @@ DrawRoom.prototype.drawTempLine = function(point) {
 /**
  * When the user draws a wall that the 'isProximity' is going to auto-complete, we
  * will visualize that the wall is in the range for this to happen by drawing a circle.
- * @param p - the point that the tmpCircle is based on.
+ * @param {Point} p - the point that the tmpCircle is based on.
 **/
 DrawRoom.prototype.visualizeRoomEnd = function(p) {
    
@@ -1536,7 +1549,7 @@ DrawRoom.prototype.visualizeRoomEnd = function(p) {
 /**
  * Some browser does not set the offsetX and offsetY variables on mouseclicks,
  * so a workaround is needed.
- * @param e - The MouseEvent that occured in the browser
+ * @param {Event} e - The MouseEvent that occured in the browser
  * @return - Coordinate in the grid, null if pointer is outside the viewbox.
 **/
 DrawRoom.prototype.crossBrowserXY = function(e) {
@@ -1577,10 +1590,10 @@ DrawRoom.prototype.crossBrowserXY = function(e) {
 
 /**
  * Function that calculates the vector length between two points.
- * @param x1 - X-coordinate of point 1
- * @param y1 - Y-coordinate of point 1
- * @param x2 - X-coordinate of point 2
- * @param y2 - Y-coordinate of point 2
+ * @param {int} x1 - X-coordinate of point 1
+ * @param {int} y1 - Y-coordinate of point 1
+ * @param {int} x2 - X-coordinate of point 2
+ * @param {int} y2 - Y-coordinate of point 2
  * @return The calculated length between the points
 **/
 DrawRoom.prototype.vectorLength = function(x1, y1, x2, y2) {
@@ -1594,7 +1607,7 @@ DrawRoom.prototype.vectorLength = function(x1, y1, x2, y2) {
 /**
  * Function to be used for 'pre-defined' rooms. All drawing will be done 'clockwise', and
  * will follow the angle-axis predefined. (180 is straight to the right, 270 is downwards etc.)
- * @param ang - Array with predefined angles and wall-lengths for the chosen room-shape.
+ * @param {array} ang - Array with predefined angles and wall-lengths for the chosen room-shape.
 **/
 DrawRoom.prototype.createRoom = function(ang) {
 
@@ -1714,7 +1727,7 @@ DrawRoom.prototype.clearTmp = function() {
  * @class Creates the tabs that is displayed on the lefthand-side
  * of the webpage. 
 **/
-function Tabs () {
+function Tabs() {
     this.tabPaper = Raphael(document.getElementById('menu'));
     this.room = this.tabPaper.set();
     this.obst = this.tabPaper.set();
@@ -1795,7 +1808,7 @@ Tabs.prototype.initTabs = function() {
 
 /**
  * Functionality that does visual changes on tab select.
- * @param index - Index of the tab to set in 'focus'
+ * @param {int} index - Index of the tab to set in 'focus'
 **/
 Tabs.prototype.select = function(index) {
 
@@ -1830,7 +1843,7 @@ Tabs.prototype.select = function(index) {
 };
 
 /**
- * @class Holds the buttons/icons at the 'footer' of our GUI.
+ * @class Holds the buttons/icons at the 'footer' of the GUI.
 **/
 function FootMenu() {
     this.footPaper = Raphael(document.getElementById('footmenu'));
@@ -1939,13 +1952,15 @@ FootMenu.prototype.initFooter = function() {
                 type = '.png';
                 removePopup();
 
+                var pngElement =  document.getElementById('myCanvas');
+
                 //Use canvg-package to draw on a 'not-shown' canvas-element.
-                canvg(document.getElementById('myCanvas'), svg);
+                canvg(pngElement, svg);
 
                 // Used so we are sure that the canvas is fully loaded before .png is generated.
                 setTimeout(function() {
                     // Fetch the dataURL from the 'myCanvas', then force a download of the picture, with a defined filename.
-                    var dataURL = document.getElementById('myCanvas').toDataURL('image/png');
+                    var dataURL = pngElement.toDataURL('image/png');
 
                     download(dataURL);
 
@@ -2115,8 +2130,8 @@ Obstacles.prototype.supplyEnd = true;
 /**
  * Function that draws obstacles on the grid paper, 
  * based on the size defined here.
- * @param num - The internal value of the added obstacle
- * @param txt - The text to be set on the obstacle
+ * @param {int} num - The internal value of the added obstacle
+ * @param {String} txt - The text to be set on the obstacle
 **/
 Obstacles.prototype.createObstacle = function(num, txt) {
 
@@ -2320,11 +2335,11 @@ Obstacles.prototype.createObstacle = function(num, txt) {
 
 /**
  * Action related to the placement of obstacle-text.
- * @param i - Index of the targeted obstacle
- * @param w - The width of the obstacle
- * @param h - The height of the obstacle
- * @param x - X-coordinate of the obstacle
- * @param y - Y-coordinate of the obstacle
+ * @param {int} i - Index of the targeted obstacle
+ * @param {int} w - The width of the obstacle
+ * @param {int} h - The height of the obstacle
+ * @param {int} x - X-coordinate of the obstacle
+ * @param {int} y - Y-coordinate of the obstacle
 **/
 Obstacles.prototype.adjustSize = function(i, w, h, x, y) {
 
@@ -2350,7 +2365,7 @@ Obstacles.prototype.adjustSize = function(i, w, h, x, y) {
 
 /**
  * Function that visually selects an obstacle by changing its fill color.
- * @param id - Id of the targeted obstacle
+ * @param {int} id - Id of the targeted obstacle
 **/
 Obstacles.prototype.selectObstacle = function(id) {
 
@@ -2375,7 +2390,7 @@ Obstacles.prototype.selectObstacle = function(id) {
 
 /**
  * Remove the obstacle, based on which remove-button that was pushed.
- * @param id(string) - Id of targeted obstacle for deletion
+ * @param {int} id - Id of targeted obstacle for deletion
 **/
 Obstacles.prototype.deleteObstacle = function(id) {
 
@@ -2394,8 +2409,8 @@ Obstacles.prototype.deleteObstacle = function(id) {
 /**
  * Function that visualizes the the nearest horizontal
  * and vertical wall of the targeted obstacle.
- * @param id - Id of the obstacle
- * @param obst - Current targeted obstacle
+ * @param {int} id - Id of the obstacle
+ * @param {rect} obst - Current targeted obstacle
 **/
 Obstacles.prototype.nearestWalls = function(id, obst) {
 
@@ -2429,7 +2444,7 @@ Obstacles.prototype.nearestWalls = function(id, obst) {
                         line = that.paper.path('M'+P1[0]+','+P1[1]+' L'+P2[0]+','+P2[1]).attr( {
                             stroke: '#3366FF'
                         }),
-                        length = (TFplanner.ourRoom.vectorLength(P1[0], P1[1], P2[0], P2[1]) / 100).toFixed(2);
+                        length = (TFplanner.ourRoom.vectorLength(P1[0], P1[1], P2[0], P2[1]) / 100);
 
                     // Do not show the length-stuff unless it is >= 20cm.
                     if (length >= 0.20) {
@@ -2515,7 +2530,6 @@ Obstacles.prototype.clearSets = function() {
     this.lineSet.clear();
 };
 
-
 /**
  * @class Setting up content for the tabs on the 
  * lefthand-side of the page.
@@ -2541,7 +2555,7 @@ Options.prototype.titleText = null;
 Options.prototype.areaText = null;
 Options.prototype.titleRect = null;
 Options.prototype.projectName ='Prosjektnavn/tittel';
-Options.prototype.container = '#'+TFplanner.contentContainer;
+Options.prototype.container = '#content_container';
 Options.prototype.obstHtml = null;
 Options.prototype.crossO = String.fromCharCode(248);
 Options.prototype.dotA = String.fromCharCode(229);
@@ -2556,7 +2570,7 @@ Options.prototype.utilizeString = null;
 
 /**
  * Function that control what options to show based on selected tab.
- * @param tab - What tab to show/select
+ * @param {int} tab - What tab to show/select
 **/
 Options.prototype.showOptions = function(tab) {
 
@@ -2572,7 +2586,7 @@ Options.prototype.showOptions = function(tab) {
     $(this.container).empty();
 
     this.optPaper = (this.optPaper != null) ? this.optPaper.remove() : null;
-    this.optPaper = Raphael($(this.container));
+    this.optPaper = Raphael(document.getElementById('content_container'));
 
     // Decide which tab to display
     switch (tab) {
@@ -2686,7 +2700,7 @@ Options.prototype.initSpecs = function() {
 /**
  * Functionality for showing dropdown-menu for chosing 'dry- or wet-area'.
  * Will only show this option if 'inside' is chosen on the first dropdown.
- * @param form - Form of the page, passed to all follwing functions.
+ * @param {Form} form - Form of the page, passed to all follwing functions.
 **/
 Options.prototype.inOrOut = function(form) {
 
@@ -2748,7 +2762,7 @@ Options.prototype.inOrOut = function(form) {
 
 /**
  * The third dropdown-menu, where the user must choose type of deck for the area.
- * @param form - Form of the page, passed to all follwing functions.
+ * @param {Form} form - Form of the page, passed to all follwing functions.
 **/
 Options.prototype.chooseDeck = function(form) {
 
@@ -2846,7 +2860,7 @@ Options.prototype.chooseDeck = function(form) {
 
 /**
  * Function that adds a wattage dropdown select list button chooser.
- * @param form - Form of the page, passed to all follwing functions.
+ * @param {Form} form - Form of the page, passed to all follwing functions.
 **/
 Options.prototype.wattage = function(form) {
 
@@ -2909,7 +2923,7 @@ Options.prototype.wattage = function(form) {
 
 /**
  * Functionality that asks the user if casting is to be done for the floor
- * @param form - form of the tab, passed through all the connected functions, 
+ * @param {Form} form - form of the tab, passed through all the connected functions, 
  * holds the html-structure.
 **/
 Options.prototype.casting = function(form) {
@@ -2939,10 +2953,10 @@ Options.prototype.casting = function(form) {
     $(form).append(castDiv);
     $(this.container).append(form);
     // Set as blanc on initialization, to force the user to select an !default item.
-    $('#cast').val(-1);
+    $('#casting').val(-1);
 
     // When the user have selected an item in this list, the 'generate'-button is created.
-    $('#cast').change( function () {
+    $('#casting').change( function () {
 
         $('#inputDiv').remove();
         $('#lengthDiv').remove();
@@ -2955,7 +2969,7 @@ Options.prototype.casting = function(form) {
 /**
  * Creation of a button to generate our solution for putting out a heatingmat.
  * Will be created when an item is chosen in all the dropdowns.
- * @param form - The form is passed "all the way" through the 'specs'-functionality and
+ * @param {Form} form - The form is passed "all the way" through the 'specs'-functionality and
  * stuff is appended to it.
 **/
 Options.prototype.generateButton = function(form) {
@@ -3018,8 +3032,8 @@ Options.prototype.generateButton = function(form) {
 
 /**
  * Function that either removes progress or updates it.
- * @param remove - Wether to remove the progress-visual or not.
- * @param success - Wether area has successfully been calculated.
+ * @param {boolean} remove - Wether to remove the progress-visual or not.
+ * @param {boolean} success - Wether area has successfully been calculated.
 **/
 Options.prototype.updateProgress = function(remove, success) {
 
@@ -3082,7 +3096,7 @@ Options.prototype.updateProgress = function(remove, success) {
 /**
  * This function makes it possible for the user to specify mat-length(s) to start with
  * in the room.
- * @param form - The form is passed "all the way" through the 'specs'-functionality and
+ * @param {Form} form - The form is passed "all the way" through the 'specs'-functionality and
  * stuff is appended to it.
 **/
 Options.prototype.preferredMats = function(form) {
@@ -3201,7 +3215,7 @@ Options.prototype.initObstacles = function() {
 /**
  * Function that either refreshes or creates a list of obstacles.
  * Gets the html set in initObstacles (passed through function).
- * @param obstacle - ID of an obstacle.
+ * @param {int} obstacle - ID of an obstacle.
 **/
 Options.prototype.obstacleList = function(obstacle) {
 
@@ -3871,7 +3885,7 @@ Options.prototype.initDraw = function() {
  * All drawing will be done clockwise and will follow the angle-axis predefined. 
  * (180 is straight to the right, 270 is downwards etc.).
  * The first array contain the angles, and the second array contain the length of the wall.
- * @param value - A number from the function that calls this one, defines what room is to be returned.
+ * @param {int} value - A number from the function that calls this one, defines what room is to be returned.
 **/
 Options.prototype.preDefRoom = function(value) {
 
@@ -4457,10 +4471,9 @@ Options.prototype.tfProducts = function() {
 };
 
 /**
- * @class Displaying different measurements for the room
- * Angles, wall-lengths etc.
+ * @class Displaying different measurements for the room.
+ * This include angles, wall-lengths etc.
 **/
-
 function Measurement () {
     this.paper = TFplanner.grid.paper;
     this.measurements = this.paper.set();
@@ -4598,8 +4611,8 @@ Measurement.prototype.refreshMeasurements = function() {
 
 /**
  * Measure the angles between the different walls
- * @param index - Index of a wall, needed to find its neighbours 
- * @param overload - 
+ * @param {int} index - Index of a wall, needed to find its neighbours 
+ * @param {Path} overload - 
  * @return angle - Angle for our measurementValues array.
 **/
 Measurement.prototype.angleMeasurement = function(index, overload) {
@@ -4884,9 +4897,8 @@ Measurement.prototype.angleMeasurement = function(index, overload) {
 
 /**
  * Function that creates a graphical representation of the walls length
- * @param wall -     
+ * @param {Path} wall -     
  * @return Wall-length for our measurementValues array.
-};
 **/
 Measurement.prototype.lengthMeasurement = function (wall) {
 
@@ -4931,7 +4943,7 @@ Measurement.prototype.lengthMeasurement = function (wall) {
          *  Step one is creating or moving the supporting lines m1 and m2.
          *  @param: move boolean that tells to move or create.
         **/
-        measuresStep1 = function (move) {
+        measuresStep1 = function(move) {
 
             var pathArray1,
                 pathArray2;
@@ -4982,7 +4994,7 @@ Measurement.prototype.lengthMeasurement = function (wall) {
          *  Step 2 is creating the third supporting line and adding a text and rect.
          *  If this line, rect and text already exists - only move it.
         **/
-        measuresStep2 = function (move) {
+        measuresStep2 = function(move) {
 
                 // Creating the length text by converting the wall length to metres and adding a postfix "m".
             var len = (wall.getTotalLength() / 100).toFixed(2)+' m',
@@ -5121,7 +5133,7 @@ Measurement.prototype.lengthMeasurement = function (wall) {
 
 /**
  * Function that finds the connecting walls.
- * @param index - Index of the actual wall.
+ * @param {int} index - Index of the actual wall.
 **/
 Measurement.prototype.returnConnectingPaths = function(index) {
 
@@ -5260,9 +5272,10 @@ ScrollBox.prototype.init = function() {
 
 /**
  * @class Constructor for 10 cm X 10 cm subsquare
- * @param x - X coordinate for upper left corner
- * @param y - Y coordinate for upper left corner
- * @param paper - Canvas for our drawing
+ * @param {int} x - X coordinate for upper left corner
+ * @param {int} y - Y coordinate for upper left corner
+ * @param {Paper} paper - Canvas for our drawing
+ * @param {String} path - The room boundary expressed as a string
 **/
 function Subsquare (x, y, paper, path) {
 
@@ -5308,7 +5321,7 @@ function Subsquare (x, y, paper, path) {
 /**
 * Function sets color of the subsquare to the color
 * of the mat.
-* @param mat - The heating mat in use
+* @param {Mat} mat - The heating mat in use
 */
 Subsquare.prototype.setColor = function(mat) {
 
@@ -5320,20 +5333,21 @@ Subsquare.prototype.setColor = function(mat) {
 
 /**
 * Function stored the coordinates of the centre of the subsquare
-* @param mat - The heating mat in use
+* @param {Mat} mat - The heating mat in use
 */
 Subsquare.prototype.setPath = function(mat) {
 
     mat.path.push([this.x+5, this.y+5]); 
 };
 
+
 /**
  * @class Constructor for a 0.5m X 0.5m square
- * @param x - X coordinate of upper left corner
- * @param y - Y coordinate of upper left corner
- * @param path - The path string of the room
- * @param paper - The canvas of the grid
- * @param nr - The squares number
+ * @param {int} x - X coordinate of upper left corner
+ * @param {int} y - Y coordinate of upper left corner
+ * @param {String} path - The path string of the room
+ * @param {Paper} paper - The canvas of the grid
+ * @param {int} nr - The square number
 **/
 function Square (x, y, path, paper, nr) {
     this.xpos = x;
@@ -5407,7 +5421,7 @@ function Square (x, y, path, paper, nr) {
 * Function adds the mat color to the square, then creates and stores
 * the coordinates of the centre of the square. THis is later
 * used for drawing connecting red line through the mat.
-* @param mat - The mat currently in use
+* @param {Mat} mat - The mat currently in use
 */
 Square.prototype.setPath = function(mat) {
 
@@ -5420,7 +5434,7 @@ Square.prototype.setPath = function(mat) {
  * Returns true if all the subsquares along a square edge contains a wall.
  * If this function returns true we can "shift" the wall to the next square (if unoccupied),
  * this allows us to maximize number of "wall-less" squares.
- * @param arr - Array of subsquares to be checked (one square edge) 
+ * @param {int | array} arr - Array of subsquares to be checked (one square edge) 
 **/
 Square.prototype.movableWall = function(arr) {
 
@@ -5434,7 +5448,7 @@ Square.prototype.movableWall = function(arr) {
 
 /**
  * Removes wall elements along a square edge
- * @param arr - Array containing subsquares to be removed (one square edge)
+ * @param {int | array} arr - Array containing subsquares to be removed (one square edge)
 **/
 Square.prototype.removeWall = function(arr) {
 
@@ -5477,7 +5491,7 @@ Square.prototype.clearSubsquares = function() {
 /**
  * Adds wall elements along a square edge
  * Function does not add usable area to the room, that is done by the removeWall-function
- * @param arr - Array of wall elements to be added (one square edge)
+ * @param {path | array} arr - Array of wall elements to be added (one square edge)
 **/
 Square.prototype.addWall = function(arr) {
 
@@ -5505,8 +5519,8 @@ Square.prototype.addWall = function(arr) {
 
 /**
  * @class Creates the floor heating mats.
- * @param matLength - The length of the mat
- * @param timeoutLength - The time limit for this mat to be
+ * @param {int} matLength - The length of the mat
+ * @param {int} timeoutLength - The time limit for this mat to be
  * placed. If limit is exceeded, next length will be tried
  * instead.
 **/
@@ -5552,7 +5566,7 @@ HeatingMat.prototype.removeSubsquare = function() {
 /**
 * Function draws the visualization line, as well as start and end
 * points, onto the paper.
-* @param paper - The paper the line is drawn onto
+* @param {Paper} paper - The paper the line is drawn onto
 */
 HeatingMat.prototype.draw = function(paper) {
 
@@ -5633,10 +5647,9 @@ HeatingMat.prototype.draw = function(paper) {
     text.toFront();
 };
 
-
 /**
  * @class Creating the result display
- * @param pathString - The room presented as ONE path.
+ * @param {String} pathString - The room presented as ONE path.
 **/ 
 function ResultGrid(pathString) {
     this.height = TFplanner.grid.resHeight;
@@ -5716,7 +5729,6 @@ ResultGrid.prototype.calculateGuide = function () {
         opts.updateProgress(true, false);
     }
 };
-
 
 /**
  * Function creates a square/data structure
@@ -5847,10 +5859,10 @@ ResultGrid.prototype.findStart = function() {
 /**
  * Function tries to place mats by deciding mat length, then calling placeSquare.
  * Will try to place longest possible mat first, then in decreasing length.
- * @oaram squareNo - The index of the square where mat is to be placed
- * @param validPeriod - Valid timeperiod to use when placing mat
- * @param arr1 - Array of horizontal strips, might be false.
- * @param arr2 - Array of vertical strips, might be false.
+ * @oaram {int} squareNo - The index of the square where mat is to be placed
+ * @param {int} validPeriod - Valid timeperiod to use when placing mat
+ * @param {int | array} arr1 - Array of horizontal strips, might be false.
+ * @param {int | array} arr2 - Array of vertical strips, might be false.
  * @return False if mat-placement failed, true if success.
 **/
 ResultGrid.prototype.placeMat = function (squareNo, validPeriod, arr1, arr2) {
@@ -5958,12 +5970,13 @@ ResultGrid.prototype.pickColor = function() {
 /**
  * Recursivevely places squares until mat is full, then tries to
  * place new mat if area is not full
- * @param squareNo - Index of square to be populated
- * @param subsquareNo - Index of subsquare to be populated, 0-24 if there is one, -1 if not
- * @param mat - The heating mat which is currently being placed
- * @param lastSquareNo - Index of last square to be populated
- * @param lastSubsquareNo - Index of last subsquare to be populated, -1 if last square did not
+ * @param {int} squareNo - Index of square to be populated
+ * @param {int} subsquareNo - Index of subsquare to be populated, 0-24 if there is one, -1 if not
+ * @param {Mat} mat - The heating mat which is currently being placed
+ * @param {int} lastSquareNo - Index of last square to be populated
+ * @param {int} lastSubsquareNo - Index of last subsquare to be populated, -1 if last square did not
  *  use subsquares
+ * @return False if square placement failed, true if success
 **/
 ResultGrid.prototype.placeSquare = function (squareNo, subsquareNo, mat, lastSquareNo, lastSubsquareNo) {
 
@@ -6100,11 +6113,11 @@ ResultGrid.prototype.placeSquare = function (squareNo, subsquareNo, mat, lastSqu
 /**
  * Function places a strip of 5 adjacent subsquares, intended to extend a series
  * of squares all the way to a wall.
- * @param squareNo - Index of the square to place the strip in
- * @param arr - Array of indexes of the 5 subsquares to be placed
- * @param mat - The heating mat currently being placed
- * @param lastSquareNo - Index of the last square placed
- * @return false if placement failed
+ * @param {int} squareNo - Index of the square to place the strip in
+ * @param {int | array} arr - Array of indexes of the 5 subsquares to be placed
+ * @param {Mat} mat - The heating mat currently being placed
+ * @param {int} lastSquareNo - Index of the last square placed
+ * @return false if placement failed, true if success
 **/
 ResultGrid.prototype.placeStrip = function(squareNo, arr, mat, lastSquareNo) {
 
@@ -6357,11 +6370,12 @@ ResultGrid.prototype.placeStrip = function(squareNo, arr, mat, lastSquareNo) {
  * new subsquare can be reached it will try to call placeSquare for the next square instead.
  * This function has been rendered obsolete by placeStrip(), but is still the fallback procedure
  * for placeSquare().
- * @param squareNo - Index of square containing the subsquare to be populated
- * @param subSquareNo - Index of subsquare to be populated
- * @param mat - The heating mat which is currently placed
- * @param lastSubsquareNo - The last subsquare populated. Will be -1 if this function is called
+ * @param {int} squareNo - Index of square containing the subsquare to be populated
+ * @param {int} subSquareNo - Index of subsquare to be populated
+ * @param {Mat} mat - The heating mat which is currently placed
+ * @param {int} lastSubsquareNo - The last subsquare populated. Will be -1 if this function is called
  *  from a square without subsquares
+ * @return False is subsquare placement failed, true if success
 **/
 ResultGrid.prototype.placeSubsquare = function(squareNo, subsquareNo, mat, lastSubsquareNo) {
 
@@ -6555,7 +6569,6 @@ ResultGrid.prototype.placeSubsquare = function(squareNo, subsquareNo, mat, lastS
     //End of placeSubsquare
 };
 
-
 /**
  * Function moves all walls that are erroneously marked as being inside a square
  * to the adjacent square instead
@@ -6718,9 +6731,10 @@ ResultGrid.prototype.moveWalls = function() {
 /**
  * Function checks whether there is piece of wall which 
  * is adjacent in the given direction.
- * @param squareList - List of square indexes involved [self, up, right, left, down]
- * @param subsquareNo - The subsquare to be evaluated, -1 if 
+ * @param {int | array} squareList - List of square indexes involved [self, up, right, left, down]
+ * @param {int} subsquareNo - The subsquare to be evaluated, -1 if 
  *  no subsquare-structure in square
+ * @return True if square or subsquare is adjacent to a wall, false if not
 **/
 ResultGrid.prototype.adjacentWall = function (squareList, subsquareNo) {
 
@@ -6821,7 +6835,6 @@ ResultGrid.prototype.adjacentWall = function (squareList, subsquareNo) {
     return false;
 };
 
-
 /**
  * Function adds obstacles to the datastructure. 
  * DOES NOT check whether obstacles are inside room, this responsibility
@@ -6904,11 +6917,10 @@ ResultGrid.prototype.addObstacles = function() {
     }
 };
 
-
 /**
  * Sets supply point if one has been set by user. The supply point defines
  * a wall, and all starting points must be adjacent to this wall.
- * @return Information about the supplypoint
+ * @return Bounding box of wall containing supply point
 **/
 ResultGrid.prototype.setSupplyPoint = function () {
 
@@ -6958,9 +6970,9 @@ ResultGrid.prototype.setSupplyPoint = function () {
 
 /**
 * Checks that all subsquares in an array are free to populate.
-* @param squareNo - Index of square in which subsquares are found
-* @param arr - Array of subsquare indexes to be checked
-* @return true if subsquare free to populate.
+* @param {int} squareNo - Index of square in which subsquares are found
+* @param {int | array} arr - Array of subsquare indexes to be checked
+* @return true if subsquare free to populate, false if not
 **/
 ResultGrid.prototype.arrFree = function(squareNo, arr) {
 
@@ -6979,11 +6991,11 @@ ResultGrid.prototype.arrFree = function(squareNo, arr) {
 * Function handles the transition from one full square to the next square.
 * If the square is empty it populates with a 50cm*50cm segment, if not it 
 * will try to populate with  
-* @param squareNo - The index of the square we're transitioning to
-* @param dir - The direction from which the previous square was entered
-* @param direction - The direction from which this square is being entered
-* @param lastSquareNo - The index of the previous square
-* @param mat - The heating mat currently being placed
+* @param {int} squareNo - The index of the square we're transitioning to
+* @param {String} direction - The direction from which this square is being entered
+* @param {int} lastSquareNo - The index of the previous square
+* @param {Mat} mat - The heating mat currently being placed
+* @return True if stepping to next square succeeded, false if not
 **/
 ResultGrid.prototype.proceed = function(squareNo, direction, lastSquareNo, mat) {
     
@@ -7081,9 +7093,9 @@ ResultGrid.prototype.proceed = function(squareNo, direction, lastSquareNo, mat) 
 * Function sets color for each subsquare in a strip and 
 * marks the centre point in the middle subsquare as a point for 
 * the red line
-* @param squareNo - Index of square the strip is in
-* @parawm arr - Array containing indexes of the 5 subsquares
-* @param mat - The heating mat currently in use
+* @param {int} squareNo - Index of square the strip is in
+* @param {int | array} arr - Array containing indexes of the 5 subsquares
+* @param {Mat} mat - The heating mat currently in use
 */
 ResultGrid.prototype.colorArr = function(squareNo, arr, mat) {
 
