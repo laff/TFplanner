@@ -70,7 +70,7 @@ function saveSVG($svg, $matTable, $note) {
 					top: 10%;
 					position: fixed;
 					z-index: -2; 
-					background-image: url("vannmerke.png");
+					background-image: url("watermark.png");
 					background-repeat: repeat-y;
 					background-size: 100%;
 					-khtml-opacity:.50; 

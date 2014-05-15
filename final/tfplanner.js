@@ -3934,6 +3934,21 @@ Options.prototype.preDefRoom = function(value) {
 /**
  * Function that get the value from all dropdowns in the Specifications-tab
  * and find the corresponding product that fit the chosen values.
+ *
+ * The choices made in "specifications" depends on the describing values
+ * "areas", "climates", "decks", "wattage" and "casting" for choosing valid mat.
+ * 
+ * Examples:
+ *
+ * Mat that is only valid outside:
+ * "climates: {
+ *      outside: true
+ *  }"
+ *
+ * Mat that is valid outside and inside:
+ * "climates: {
+ *      undefined: true
+ *  }"
 **/
 Options.prototype.tfProducts = function() {
 
