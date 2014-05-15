@@ -183,7 +183,6 @@ Grid.prototype.zoom = function() {
     };
 };
 
-
 /** 
  * This is the function that actually handles the zooming
  * It must react to delta being more/less than zero.
@@ -207,7 +206,6 @@ Grid.prototype.handle = function(delta) {
 
     this.paper.setViewBox(orgX, orgY, viewBoxWidth, viewBoxHeight);
 };
-
 
 /** 
  * Function that pans grid (left, right, up, down) on the screen, when 
@@ -245,7 +243,6 @@ Grid.prototype.pan = function(keyCode) {
             break;
     }
 };
-
 
 /**
  * Function to find the updated coordinates, 
@@ -1537,7 +1534,6 @@ DrawRoom.prototype.drawTempLine = function(point) {
     tmpLength(this.tmpWall);
 };
 
-
 /**
  * When the user draws a wall that the 'isProximity' is going to auto-complete, we
  * will visualize that the wall is in the range for this to happen by drawing a circle.
@@ -2379,7 +2375,6 @@ Obstacles.prototype.adjustSize = function(i, w, h, x, y) {
     this.nearestWalls(null, this.obstacleSet[i]);
 };
 
-
 /**
  * Function that visually selects an obstacle by changing its fill color.
  * @param {int} id - Id of the targeted obstacle
@@ -3165,7 +3160,6 @@ Options.prototype.preferredMats = function(form) {
     });
 };
 
-
 /**
  * Set up 'Obstacles'-tab. This includes possibility 
  * to define Projectname and adding obstacles.
@@ -3930,7 +3924,6 @@ Options.prototype.preDefRoom = function(value) {
     }
 };
 
-
 /**
  * Function that get the value from all dropdowns in the Specifications-tab
  * and find the corresponding product that fit the chosen values.
@@ -4552,8 +4545,7 @@ Measurement.prototype.deconstructAid = function() {
         this.angleAid[j][2].remove();
         this.angleAid.pop();
     }
-};
-    
+}; 
 
 /**
  *  Function that removes angles and its text visually and inside the array
@@ -4926,7 +4918,6 @@ Measurement.prototype.angleMeasurement = function(index, overload) {
     return angle;
 };
 
-
 /**
  * Function that creates a graphical representation of the walls length
  * @param {Path} wall -     
@@ -5162,7 +5153,6 @@ Measurement.prototype.lengthMeasurement = function (wall) {
     return wall.getTotalLength();
 };
 
-
 /**
  * Function that finds the connecting walls.
  * @param {int} index - Index of the actual wall.
@@ -5372,7 +5362,6 @@ Subsquare.prototype.setPath = function(mat) {
     mat.path.push([this.x+5, this.y+5]); 
 };
 
-
 /**
  * @class Constructor for a 0.5m X 0.5m square
  * @param {int} x - X coordinate of upper left corner
@@ -5448,7 +5437,6 @@ function Square (x, y, path, paper, nr) {
     squareCheck(this);
 }
 
-
 /*
 * Function adds the mat color to the square, then creates and stores
 * the coordinates of the centre of the square. THis is later
@@ -5460,7 +5448,6 @@ Square.prototype.setPath = function(mat) {
     mat.path.push([this.xpos+25, this.ypos+25]);
     this.rect.attr({'fill': mat.matColor});
 };
-
 
 /**
  * Returns true if all the subsquares along a square edge contains a wall.
@@ -5547,7 +5534,6 @@ Square.prototype.addWall = function(arr) {
     }
     this.hasWall = true;
 };
-
 
 /**
  * @class Creates the floor heating mats.
@@ -6141,7 +6127,6 @@ ResultGrid.prototype.placeSquare = function (squareNo, subsquareNo, mat, lastSqu
     return false;
 };
 
-
 /**
  * Function places a strip of 5 adjacent subsquares, intended to extend a series
  * of squares all the way to a wall.
@@ -6395,7 +6380,6 @@ ResultGrid.prototype.placeStrip = function(squareNo, arr, mat, lastSquareNo) {
     this.squares[squareNo].populated = false;
     return false;  
 };
-
 
 /**
  * Function populated a subsquare, if possible, then recursively calls itself. When no
@@ -7136,4 +7120,3 @@ ResultGrid.prototype.colorArr = function(squareNo, arr, mat) {
     }
     this.squares[squareNo].subsquares[arr[2]].setPath(mat);
 };
-
