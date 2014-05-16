@@ -22,7 +22,6 @@
 		//$application = './wkhtmltox/bin/wkhtmltopdf';
 
 		// Html file / input
-		// This 
 		$htmlInput = $dir.'\entry_'.$drawId.'.html';
 		// output name / file
 		$pdfOutput = 'export_'.$drawId.'.pdf';
