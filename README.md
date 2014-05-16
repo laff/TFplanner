@@ -1,33 +1,33 @@
-Drawers
+TFplanner
 =======
-This is a private folder where developing and testing will occurate.
+Thermo-Floor Heating Mat Planner aka. TFplanner.
 
+TFplanner is a web application developed for Thermo-Floor. 
+Its goal is to act as a tool for planning the placement of heating mats in rooms of different shapes.
 
-### Startup!
-* Install sublime.
-* Install wamp.
-* Enable apache rewrite module.
-* uncomment `Include conf/extra/httpd-vhosts.conf` inside `C:\wamp\bin\apache\apache2.2.22\conf\httpd.conf`.
-* Edit `C:\wamp\bin\apache\apache2.2.22\conf\extra\httpd-vhosts.conf`, adding a new virtual host.
-`<VirtualHost *:80>
-	ServerAdmin webmaster@drawers
-	DocumentRoot "C:\Users\John\Documents\GitHub\drawers"
-	ServerName drawers
-	ServerAlias drawers
-	<Directory "C:\Users\John\Documents\GitHub\drawers">
-		Options Indexes FollowSymLinks MultiViews
-		AllowOverride All
-		Order allow,deny
-		allow from all       
-	</Directory>
-	ErrorLog "drawers.log"
-	CustomLog "drawers" common
-</VirtualHost>`
-* Edit `C:\Windows\System32\drivers\etc\hosts.file`, adding a new hostname.
-* Restart wamp.
+* Thermo-Floor website: http://www.thermo-floor.no/
 
+It is developed by three computer engineer students at HIG:
+* Olaf Aa. Berge
+* Anders Bodung
+* Christian Simensen
 
-### Folder structure!
-* `Experiments`: Experiments we encounter / use / try.
-* `drawer`: This is the folder containing our working copy of the program.
-* `drawer/export`: Contains the files necessary for exporting as PDF.
+### Dependencies
+* Jquery - http://code.jquery.com/jquery-1.11.0.min.js
+* Raphael - https://raw.githubusercontent.com/DmitryBaranovskiy/raphael/master/raphael-min.js
+* rgbcolor.js - http://www.phpied.com/files/rgbcolor/rgbcolor.js
+* stackblur.js - https://raw.githubusercontent.com/Quasimondo/QuasimondoJS/master/blur/StackBlur.js
+* canvg.js - http://canvg.googlecode.com/svn/trunk/canvg.js
+* raphael.export.js - https://raw.githubusercontent.com/ElbertF/Raphael.Export/master/raphael.export.js
+
+### Installation
+Apart from the dependencies, the application will need a stylesheet and index file equivelent to the ones supplied in this repository.
+
+### Licensing
+* License: http://www.binpress.com/license/view/l/db14e37d072c98891b740c4ace1073d3
+*
+*
+
+### Maintenance
+This application is a product of the final paper/project of a bachelors degree.
+Therefore the developers are not planning any further development or maintenance.
