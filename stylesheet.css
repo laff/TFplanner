@@ -225,8 +225,6 @@
 	background: white;
 }
 
-/* Overriding default p css due to the god damn spacing 
-fucking up everything. GO TO HELL CSS! GO TO HELL! */
 p {
 	margin: 0;
 	padding: 0;
