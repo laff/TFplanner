@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<html> 
+	<head>
+		<title> TFplanner | Thermo-floor, den behagelige varmen</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+		<meta name="author" content="Olaf Aa. Berge, Anders Bodung and Christian Simensen" />
+		<meta name="description" content="Romplanlegger for legging av varmekabler. Beregner og tilbyr leggeanvisninger i PDF og PNG format." />
+		<link rel="stylesheet" type="text/css" href="stylesheet.css">
+
+		<!-- Libraries developed by external parties. Licenses within files. -->
+		<script src="jquery-latest.min.js"></script>
+		<script src="raphael-min.js"></script>
+		<script src="raphael.export-min.js"></script>  
+		<script src="rgbcolor.js"></script> 
+		<script src="stackblur.js"></script>
+		<script src="canvg.js"></script>
+		
+		<!-- Script developed on behalf of ThermoFloor.
+		OBS! Change from 'tfplanner.js' to 'tfplanner-min.js' after deploying & testing -->
+		<script src="tfplanner.js"></script>
+	</head>
+
+	<body>
+		<!-- Static containers -->
+		<div id="container">
+			<div id="options_container">
+
+				<div id="menu"></div>
+				<div id="content_container"></div>
+				<div id="footmenu"></div>
+
+			</div>
+			<div id="canvas_container"></div>
+			<div id="navigation_container"></div>
+			
+			<canvas id="myCanvas" style="display:none;"></canvas>
+		</div>
+	</body>
+</html>

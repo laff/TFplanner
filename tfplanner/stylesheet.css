@@ -1,0 +1,256 @@
+#container {
+	width: 100%;
+	min-width: 1000px;
+	margin: 0 0 0 0;
+	cursor: default;
+}
+
+#options_container {
+	float: left;
+	box-sizing:border-box;
+	-moz-box-sizing:border-box;
+	-webkit-box-sizing:border-box;
+	width: 20%;
+	min-width: 200px;
+	height: 100%;
+}
+
+#footmenu {	
+	float: left;
+	box-sizing:border-box;
+	-moz-box-sizing:border-box;
+	-webkit-box-sizing:border-box;
+	width: 80%;
+	height: 5%;
+}
+
+#menu {
+	float: right;
+	width: 20%;
+	height: 100%;
+}
+
+#content_container {
+	float: left;
+	width: 80%;
+	height: 95%;
+	background: #FCFBE3;
+	margin: 0 0 0 0;
+	padding: 0 0 0 0;
+}
+
+.roomTab {
+	background: #CBC4BC!important;
+}
+
+.obstacleTab {
+	background: #B6ADA5!important;
+}
+
+.specTab {
+	background: #A59C94!important;
+}
+
+.obst {
+	width: 80%;
+	margin-left: 10%;
+}
+
+.obsttxt {
+	float: left;
+	width: 40%;
+}
+
+#change {
+	width: 80%;
+	margin-left: 10%;
+	height: 23%;
+}
+
+#change input {
+	width: 30%;
+	float: left;
+
+}
+
+.inputfield {
+	width: 100%;
+}
+
+.inputtext {
+	width: 50%;
+	float: left;
+}
+
+#supplyend {
+	float: none!important;
+}
+
+#canvas_container {  
+	float: right;
+
+	width: 80%;
+	min-width: 800px;
+	height: 100%;
+}
+
+#navigation_container {
+	
+	width: 100px;
+	height: 100px;
+	z-index: 1;
+	position: fixed;
+
+	margin-left: 90%;
+	margin-top: 1%;
+}
+
+.error {
+	text-align: center;
+	margin-top: 50%;
+}
+
+.forms {
+	width: 100%;
+	margin-top: 20%;
+	margin-left: 10%;
+}
+
+.forms input {
+	width: 40%;
+}
+
+.forms select {
+	width: 80%;
+	cursor: pointer;
+}
+
+.forms [type=button] {
+	cursor: pointer;
+	width: 80%!important;
+}
+
+#roomTitle {
+	cursor: text;
+	width: 80%!important;
+}
+
+.inputWidth {
+	float: left!important;
+	width: 30%!important;
+}
+
+#defSubmit {
+	width: 80%!important;
+}
+
+#titleText {
+	width: 80%!important;
+}
+.delete {
+	width: 30%!important;
+}
+
+.change {
+	width: 30%!important;
+}
+
+
+.plusminus {
+	width: 10%!important;
+}
+
+/*
+	CSS for the popup asking if you want to save as png or pdf.
+*/
+#saveaspopup {
+	background: white;
+	position: fixed;
+	z-index: 2;
+	top: 50%;
+	left: 50%;
+	margin:-100px 0 0 -100px;  
+	width:200px;  
+	height:200px;
+	border-color: #D6D6D6;
+	border-style: solid;
+	border-width: 2px;
+}
+
+#saveaspopup p {
+	margin-top: 10%;
+	text-align: center;
+}
+
+#pngchosen {
+	width: 25%;
+	margin-top: 30%;
+	margin-left: 25%;
+	float: left;
+}
+
+#pdfchosen {
+	width: 25%;
+	margin-top: 30%;
+	float: left;
+}
+
+#cancelExport {
+	width: 40%;
+	clear: both;
+	display: block;
+	margin-left: 30%;
+	border-spacing: 5%;
+	text-align: center;
+}
+
+#progress {
+
+	z-index: 2;
+	width: 100%;
+	height: 100%;
+	position: fixed;
+
+	background: gray;
+	opacity: 0.5;
+}
+
+#infoprogress {
+	top: 50%;
+	left: 50%;
+	z-index: 3;
+	position: absolute;
+	width: 10%;
+	text-align: center;
+	background: white;
+}
+
+/* Overriding default p css due to the god damn spacing 
+fucking up everything. GO TO HELL CSS! GO TO HELL! */
+p {
+	margin: 0;
+	padding: 0;
+}
+
+h3 {
+	text-align: center;
+}
+
+span {
+	width: 100%;
+
+}
+
+body {
+	box-sizing:border-box;
+	-moz-box-sizing:border-box;
+	-webkit-box-sizing:border-box;
+	margin: 0 0 0 0;
+}
+
+/* Removes spin-buttons on the inputfields */
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
