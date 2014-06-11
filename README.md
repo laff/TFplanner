@@ -6,7 +6,7 @@ TFplanner is a web application developed for Thermo-Floor.
 Its goal is to act as a tool for planning the placement of heating mats in rooms of different shapes.
 
 * Thermo-Floor website: http://www.thermo-floor.no/
-* Project demo: http://hovedprosjekter.hig.no/v2014/imt/in/tfplanner/tfplanner-live/
+* Live: http://www.thermo-floor.no/planer/
 * Project site: http://hovedprosjekter.hig.no/v2014/imt/in/tfplanner/
 
 It is developed by three computer engineer students at HIG:
